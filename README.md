@@ -7,7 +7,7 @@ TMDojo is a data visualization tool for Trackmania 2020
 
   
 
-The goal is to be able to browse & visualize racing data
+The goal is to be able to browse & visualize racing data, and maybe some machine learning
 
   
 
@@ -18,10 +18,10 @@ The project has three parts:
    data sent by the user's plugin, communicate with the front
   
 
-The racing data gathered by the openplanet plugin is a list of 84 bytes blocks, at every frame-ingame, a new block is added to the list (1XX FPS == 8.4 kb/s of data)
+The racing data gathered by the openplanet plugin is a list of 76 bytes blocks, at every frame-ingame, a new block is added to the list (144 FPS == 9 kb/s of data)
 
 
-Each block stores 21 values:
+Each block stores 20 values:
  - CurrentRaceTime (int)
  - Position (Vec3)
  - AimYaw (float)
@@ -30,10 +30,8 @@ Each block stores 21 values:
  - Velocity (Vec3)
  - Speed (float)
  - InputSteer (float)
- - InputGasPedal (int)
- - InputIsBraking (int)
+ - InputGasPedal & InputIsBraking (int)
  - EngineRpm (float)
  - EngineCurGear (int)
  - WheelsContactCount (int)
  - WheelsSkiddingCount (int)
- - UISequence (int)
