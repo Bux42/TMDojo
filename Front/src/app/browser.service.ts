@@ -17,6 +17,7 @@ export class BrowserService {
         .set('raceFinished', filters.raceFinished)
         .set('dateMin', filters.dateMin)
         .set('maxResults', filters.maxResults)
+        .set('orderBy', filters.orderBy)
     return (this.http.get<any>('http://localhost:3000/get-files', { params, withCredentials: true }));
 }
   timeDifference(current: any, previous: any) {

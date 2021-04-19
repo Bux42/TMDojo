@@ -121,9 +121,24 @@ app.get("/get-files", (req, res, next) => {
     if (req.query.raceFinished != -1) {
         query["raceFinished"] = parseInt(req.query.raceFinished);
     }
-    raceData.find(query).toArray(function (err, docs) {
+    var order = {};
+    if (req.query.orderBy.length > 0) {
+        if (req.query.orderBy == "Time Desc") {
+            order["endRaceTime"] = -1;
+        }
+        if (req.query.orderBy == "Time Asc") {
+            order["endRaceTime"] = 1;
+        }
+        if (req.query.orderBy == "Date Desc") {
+            order["date"] = -1;
+        }
+        if (req.query.orderBy == "Date Asc") {
+            order["date"] = 1;
+        }
+    }
+    raceData.find(query).sort(order).toArray(function (err, docs) {
         var files = [];
-        console.log(docs);
+        console.log(docs.length);
         for (var i = 0; i < req.query.maxResults && i < docs.length; i++) {
             files.push(docs[i]);
         }
@@ -133,6 +148,6 @@ app.get("/get-files", (req, res, next) => {
 });
 
 app.get('/get-race-data', (req, res, nexct) => {
-    console.log(req.query);
+    console.log(req.query); 
     res.sendFile(__dirname + "\\" + req.query.filePath);
 });

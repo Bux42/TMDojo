@@ -21,7 +21,10 @@ export class FileBrowserComponent implements AfterViewInit {
     mapNameInput: any = "";
     searchFilter: SearchFilters = SEARCH_FILTERS;
     displayedColumns: string[] = ['position', 'name', 'weight', 'symbol', 'loaded'];
+    mapOrders: any = ["None", "Time Desc", "Time Asc", "Date Desc", "Date Asc"];
+    mapOrderSelected: any= "None";
     data: RaceData[] = [];
+    totalResults: any = 0;
     dataSource2 = new MatTableDataSource<RaceData>();
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     constructor(private browserService: BrowserService) {
@@ -30,12 +33,18 @@ export class FileBrowserComponent implements AfterViewInit {
     ngAfterViewInit() {
         this.filterChanged(0);
     }
+    mapOrderChanged(e: any) {
+        console.log(e);
+        this.searchFilter.orderBy = e;
+        this.filterChanged(0);
+    }
     filterChanged(timeout: number) {
         clearInterval(this.searchTimeout);
         var that = this;
         this.searchTimeout = setTimeout(function () {
             that.loading = true;
             that.browserService.getFiles(that.searchFilter).subscribe(list => {
+                that.totalResults = list.TotalResults;
                 that.loading = false;
                 that.data = [];
                 list.Files.forEach((file: any) => {
@@ -83,7 +92,8 @@ export interface SearchFilters {
     endRaceTimeMax: number,
     raceFinished: number,
     dateMin: Date,
-    maxResults: number
+    maxResults: number,
+    orderBy: string
 }
 
 const SEARCH_FILTERS: SearchFilters = {
@@ -93,7 +103,8 @@ const SEARCH_FILTERS: SearchFilters = {
     endRaceTimeMax: -1,
     raceFinished: -1,
     dateMin: new Date(),
-    maxResults: 100
+    maxResults: 100,
+    orderBy: "None"
 }
 
 export interface RaceData {
