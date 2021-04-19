@@ -184,6 +184,7 @@ void FillBuffer()
 void ContextChecker()
 {
     while (true) {
+        print("" + (dojo.app == null));
         if (dojo.app.CurrentPlayground == null) {
             @dojo.playgroundScript = null;
             @dojo.sm_script = null;
@@ -235,7 +236,7 @@ void ContextChecker()
                     dojo.prevRaceTime = dojo.sm_script.CurrentRaceTime;
                 }
             }
-            sleep(250);
         }
+        sleep(250);
     }
 }
