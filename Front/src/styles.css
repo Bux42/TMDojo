@@ -1,1 +1,32 @@
 /* You can add global styles to this file, and also import other style files */
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  background-color: #333333;
+}
+
+.example-container {
+  height: 100%;
+  background-color: #333333;
+}
+
+
+.mat-header-cell {
+  border-right-color: rgba(0, 0, 0, .12);
+  border-right-width: 1px;
+  border-right-style: solid;
+}
+
+
+.mat-cell {
+    border-right-color: rgba(0, 0, 0, .12);
+    border-right-width: 1px;
+    border-right-style: solid;
+  }
+  

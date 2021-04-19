@@ -1,0 +1,22 @@
+.mat-form-field+.mat-form-field {
+    margin-left: 8px;
+  }
+  
+  table {
+    width: 100%;
+  }
+  
+  .mat-cell {
+    padding: 10px 10px 10px 0;
+    text-align: center;
+  }
+  
+  .mat-header-cell {
+    padding: 10px 10px 10px 0;
+    text-align: center;
+  }
+  
+  .loading {
+    opacity: 0.5;
+  }
+  
