@@ -50,6 +50,7 @@ export class FileBrowserComponent implements AfterViewInit {
                 list.Files.forEach((file: any) => {
                     file.dateStr = that.browserService.timeDifference(Date.now(), file.date);
                     file.endRaceTimeStr = "";
+                    
                     var endTimeStr = file.endRaceTime.toString();
                     var i2 = 0;
                     for (var i = endTimeStr.length - 1; i > -1; i--, i2++) {
@@ -59,6 +60,9 @@ export class FileBrowserComponent implements AfterViewInit {
                         }
                     }
                     file.endRaceTimeStr = file.endRaceTimeStr.split("").reverse().join("")
+                    file.fileName = file.mapName + "_" + file.playerName + "_" + file.date + "_(" + file.endRaceTimeStr + ").tdj";
+                    file.downloadUrl = "http://localhost:3000/download-race-data?filePath=" + file.file_path + "&fileName=" + file.fileName;
+                    console.log(file);
                     that.data.push(file);
                 });
                 that.dataSource2 = new MatTableDataSource<RaceData>(that.data);

@@ -84,7 +84,6 @@ export class FileManager {
         this.cubematerial = new THREE.MeshBasicMaterial({ color: this.RandomColor });
         this.cube = new THREE.Mesh(this.cubegeometry, this.cubematerial);
         this.Material = new THREE.LineBasicMaterial({
-            color: this.RandomColor,
             vertexColors: true,
             linewidth: 100,
         });

@@ -31,6 +31,7 @@ app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`)
 });
 
+
 app.get("/auth", (req, res, next) => {
     console.log("/auth", req.query);
     const users = db.collection('users');
@@ -151,3 +152,9 @@ app.get('/get-race-data', (req, res, nexct) => {
     console.log(req.query); 
     res.sendFile(__dirname + "\\" + req.query.filePath);
 });
+
+
+app.get("/download-race-data", (req, res, next) => {
+    console.log(req.query);
+    res.download(__dirname + "\\" + req.query.filePath, req.query.fileName);
+})
