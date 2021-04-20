@@ -113,11 +113,12 @@ app.get("/get-files", (req, res, next) => {
     console.log(req.query);
     const raceData = db.collection('race_data');
     var query = {};
+    // case-insensitive filter for map and player name
     if (req.query.mapName.length > 0) {
-        query["mapName"] = {$regex : ".*" + req.query.mapName + ".*"};
+        query["mapName"] = {$regex : ".*" + req.query.mapName + ".*", $options : 'i'};
     }
     if (req.query.playerName.length > 0) {
-        query["playerName"] = {$regex : ".*" + req.query.playerName + ".*"};
+        query["playerName"] = {$regex : ".*" + req.query.playerName + ".*", $options : "i"};
     }
     if (req.query.raceFinished != -1) {
         query["raceFinished"] = parseInt(req.query.raceFinished);
