@@ -5,7 +5,7 @@
 
 TMDojo is a data visualization tool for Trackmania 2020
 
-![alt text](https://i.imgur.com/tkg2sIu.png)
+![alt text](https://cdn.discordapp.com/attachments/424967293538402334/834084842084892772/unknown.png)
 
 The goal is to be able to browse & visualize racing data, and maybe some machine learning
 
