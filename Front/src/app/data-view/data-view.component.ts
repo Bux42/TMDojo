@@ -4,13 +4,33 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { GeometryUtils } from 'three/examples/jsm/utils/GeometryUtils.js';
 import { BrowserService } from '../browser.service';
 
-var colorMap = [
+type ColorMap = {value: number, color: {r: number, g: number, b: number}}[]
+
+const COLOR_MAP_ACCELERATION: ColorMap = [
     { value: -0.2, color: { r: 0xff, g: 0x00, b: 0 } },
     { value: 0.0, color: { r: 0xff, g: 0xff, b: 0 } },
     { value: 0.2, color: { r: 0x00, g: 0xff, b: 0 } },
-  ];
+];
 
-var getColorForPercentage = function (inputValue: number) {
+const COLOR_MAP_GEARS: ColorMap = [
+    { value: 1.0, color: { r: 0xaa, g: 0x22, b: 0x66 } },
+    { value: 2.0, color: { r: 0xee, g: 0x66, b: 0x77 } },
+    { value: 3.0, color: { r: 0xcc, g: 0xbb, b: 0x44 } },
+    { value: 4.0, color: { r: 0x66, g: 0xcc, b: 0xee } },
+    { value: 5.0, color: { r: 0x22, g: 0x88, b: 0x33 } },
+    { value: 6.0, color: { r: 0x66, g: 0x66, b: 0xff } },
+    { value: 7.0, color: { r: 0xff, g: 0xff, b: 0xff } },
+];
+
+const getGearColor = (value: number) => {    
+    return getColorFromMap(value, COLOR_MAP_GEARS);
+}
+
+const getAccelerationColor = (value: number) => {
+    return getColorFromMap(value, COLOR_MAP_ACCELERATION);
+}
+
+const getColorFromMap = function (inputValue: number, colorMap: ColorMap) {
     for (var i = 1; i < colorMap.length - 1; i++) {
         if (inputValue < colorMap[i].value) {
             break;
@@ -106,9 +126,9 @@ export class FileManager {
                 if (prevS != undefined) {
                     const vDiff = s.Velocity.length() - prevS.Velocity.length();
 
-                    var diffColor = getColorForPercentage(vDiff);
+                    var diffColor = getAccelerationColor(vDiff);
                     if (vDiff == 0.0) {
-                        diffColor = getColorForPercentage(prevDiff);
+                        diffColor = getAccelerationColor(prevDiff);
                     }
                     this.Colors.push(diffColor.r, diffColor.g, diffColor.b);
 
@@ -118,7 +138,9 @@ export class FileManager {
                 } else {
                     this.Colors.push(0, 0, 0);
                 }
-
+            } else if (lineMode == "Gear") {
+                var gearColor = getGearColor(s.EngineCurGear);                
+                this.Colors.push(gearColor.r, gearColor.g, gearColor.b);
             }
             this.Samples.push(s);
             this.Points.push(s.Position);
@@ -235,7 +257,7 @@ export class DataViewComponent implements OnInit {
     CurrentRaceTimeIncrement: any = 15;
 
     lineModeSelected: any = "Classic";
-    lineModes: any[] = ["Classic", "Velocity"];
+    lineModes: any[] = ["Classic", "Velocity", "Gear"];
     constructor(private elementRef: ElementRef, private browserService: BrowserService) { }
 
     ngOnInit(): void {
