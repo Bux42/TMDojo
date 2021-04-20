@@ -37,10 +37,14 @@ Each block stores 20 values:
  - WheelsSkiddingCount (int)
 
 How to use locally:
- - Install MongoDB and create a database named "Dojo" (make sure MongoClient url in app.js is the same as yours)
+ - Install MongoDB and create a database named "dojo" (make sure MongoClient url in app.js is the same as yours)
  - Run "npm install" in both /Server and /Front to auto install dependancies
  - Make sure the node server /Server/app.js is running
  - Run "ng serve" in /Front folder and browse http://localhost:4200/ for the web interface
  - Reload plugin in trackmania
 
 If everything is working, the plugin will send racing data (upon respawn & race finish) to the node server, and you should be able to browse the data on the website
+
+Special thanks to the openplanet discord community, and tooInfinite for the feedbacks, ideas etc
+
+Thanks to TheMrMiku for velocity feature!

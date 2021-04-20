@@ -8,3 +8,11 @@
     
     background-color: #333333;
 }
+
+.right-menu {
+    position: fixed;
+    right: 0;
+    top: 0;
+    background-color: #555555;
+    margin-left: 400px;
+}

@@ -4,6 +4,34 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { GeometryUtils } from 'three/examples/jsm/utils/GeometryUtils.js';
 import { BrowserService } from '../browser.service';
 
+var colorMap = [
+    { value: -0.2, color: { r: 0xff, g: 0x00, b: 0 } },
+    { value: 0.0, color: { r: 0xff, g: 0xff, b: 0 } },
+    { value: 0.2, color: { r: 0x00, g: 0xff, b: 0 } },
+  ];
+
+var getColorForPercentage = function (inputValue: number) {
+    for (var i = 1; i < colorMap.length - 1; i++) {
+        if (inputValue < colorMap[i].value) {
+            break;
+        }
+    }
+    var lower = colorMap[i - 1];
+    var upper = colorMap[i];
+
+    var range = upper.value - lower.value;
+    var rangePct = (inputValue - lower.value) / range;
+    var pctLower = 1 - rangePct;
+    var pctUpper = rangePct;
+
+    var color = {
+        r: Math.floor(lower.color.r * pctLower + upper.color.r * pctUpper) / 255,
+        g: Math.floor(lower.color.g * pctLower + upper.color.g * pctUpper) / 255,
+        b: Math.floor(lower.color.b * pctLower + upper.color.b * pctUpper) / 255,
+    };
+    return color;
+};
+
 const renderer = new THREE.WebGLRenderer();
 renderer.setPixelRatio(window.devicePixelRatio);
 var camera: THREE.PerspectiveCamera;
@@ -14,8 +42,8 @@ const scene = new THREE.Scene();
 const size = 20000;
 const divisions = size / 100;
 
-const gridHelper = new THREE.GridHelper( size, divisions, new THREE.Color(0.2,0.2,0.2), new THREE.Color(0.2,0.2,0.2) );
-scene.add( gridHelper );
+const gridHelper = new THREE.GridHelper(size, divisions, new THREE.Color(0.2, 0.2, 0.2), new THREE.Color(0.2, 0.2, 0.2));
+scene.add(gridHelper);
 
 let scores: Record<number, number> = {};
 
@@ -34,50 +62,79 @@ export class FileManager {
     Line: any;
     Points: any;
     Samples: any;
+    RandomColor: any;
+    RandomColorR: any;
+    RandomColorG: any;
+    RandomColorB: any;
     LastSample: any;
+
+    Colors: any[] = [];
 
     cubegeometry = new THREE.BoxGeometry();
     cubematerial: any;
     cube: any;
 
-    constructor(filePath: any, dataView: DataView) {
+    constructor(filePath: any, dataView: DataView, lineMode: any) {
         this.FilePath = filePath;
         this.FileDataView = dataView;
-        var randomColor = 0x1000000 + Math.random() * 0xffffff
-        this.cubematerial = new THREE.MeshBasicMaterial({ color: randomColor });
+        this.RandomColor = 0x1000000 + Math.random() * 0xffffff;
+        this.RandomColorR = (Math.random() * (1 - 0.5) + 0.5).toFixed(4);
+        this.RandomColorG = (Math.random() * (1 - 0.5) + 0.5).toFixed(4);
+        this.RandomColorB = (Math.random() * (1 - 0.5) + 0.5).toFixed(4);
+        this.cubematerial = new THREE.MeshBasicMaterial({ color: this.RandomColor });
         this.cube = new THREE.Mesh(this.cubegeometry, this.cubematerial);
         this.Material = new THREE.LineBasicMaterial({
-            color: randomColor,
-            linewidth: 100
+            color: this.RandomColor,
+            vertexColors: true,
+            linewidth: 100,
         });
         controls.object.position.set(camera.position.x, camera.position.y, camera.position.z);
         scene.add(this.cube);
-        this.create();
+        this.create(lineMode);
     }
-    create() {
+    create(lineMode: any) {
         this.Samples = [];
         this.Points = [];
+
+        var prevS = undefined;
+        var prevDiff = 0;
+
         for (var i = 0; i < this.FileDataView.byteLength; i += 76) {
             var s = new Sample(this.FileDataView, i);
-            if (i + 84 >= this.FileDataView.byteLength) {
-                if (scores[s.CurrentRaceTime]) {
-                    scores[s.CurrentRaceTime]++;
+            if (lineMode == "Classic") {
+                this.Colors.push(this.RandomColorR, this.RandomColorG, this.RandomColorB);
+            } else if (lineMode == "Velocity") {
+                if (prevS != undefined) {
+                    const vDiff = s.Velocity.length() - prevS.Velocity.length();
+
+                    var diffColor = getColorForPercentage(vDiff);
+                    if (vDiff == 0.0) {
+                        diffColor = getColorForPercentage(prevDiff);
+                    }
+                    this.Colors.push(diffColor.r, diffColor.g, diffColor.b);
+
+                    if (vDiff != 0.0) {
+                        prevDiff = vDiff;
+                    }
                 } else {
-                    scores[s.CurrentRaceTime] = 0;
+                    this.Colors.push(0, 0, 0);
                 }
-                break;
+
             }
             this.Samples.push(s);
             this.Points.push(s.Position);
+            prevS = s;
         }
-        console.log(scores);
-        this.Geometry = new THREE.BufferGeometry().setFromPoints(this.Points);
+        this.Geometry = new THREE.BufferGeometry().setFromPoints(this.Points).setAttribute(
+            'color',
+            new THREE.Float32BufferAttribute(this.Colors, 3)
+        );;
         this.Line = new THREE.Line(this.Geometry, this.Material);
         scene.add(this.Line);
         if (camera.position.x == 0 &&
             camera.position.y == 0 &&
             camera.position.z == 0) {
-            
+
             controls.target = new THREE.Vector3(this.Samples[0].Position.x, this.Samples[0].Position.y, this.Samples[0].Position.z);
             //camera.position.set(this.Samples[0].Position.x, this.Samples[0].Position.y, this.Samples[0].Position.z);
             //camera.lookAt(this.Samples[0].Position.x, this.Samples[0].Position.y, this.Samples[0].Position.z);
@@ -86,6 +143,8 @@ export class FileManager {
     }
     destroy() {
         scene.remove(this.Line);
+        this.Points = [];
+        this.Colors = [];
     }
     loadUntil(racetime: any) {
 
@@ -175,6 +234,9 @@ export class DataViewComponent implements OnInit {
     camera: any;
     CurrentRaceTime: any = 0;
     CurrentRaceTimeIncrement: any = 15;
+
+    lineModeSelected: any = "Classic";
+    lineModes: any[] = ["Classic", "Velocity"];
     constructor(private elementRef: ElementRef, private browserService: BrowserService) { }
 
     ngOnInit(): void {
@@ -199,46 +261,8 @@ export class DataViewComponent implements OnInit {
         renderer.setSize(window.innerWidth - 1, window.innerHeight - 1);
         d1.appendChild(renderer.domElement);
         animate();
-        window.addEventListener('resize', this.onWindowResize, false );
-        d1.addEventListener('resize', this.onWindowResize2, false );
-        /*
-        const hilbertPoints = GeometryUtils.hilbert3D( new THREE.Vector3( 0, 0, 0 ), 200.0, 1, 0, 1, 2, 3, 4, 5, 6, 7 );
-        const geometry1 = new THREE.BufferGeometry();
-        const subdivisions = 6;
-
-        let vertices = [];
-        let colors1 = [];
-        const point = new THREE.Vector3();
-        const color = new THREE.Color();
-        const spline = new THREE.CatmullRomCurve3( hilbertPoints );
-        for ( let i = 0; i < hilbertPoints.length * subdivisions; i ++ ) {
-
-            const t = i / ( hilbertPoints.length * subdivisions );
-            spline.getPoint( t, point );
-
-            vertices.push( point.x, point.y, point.z );
-
-            color.setHSL( 0.6, 1.0, Math.max( 0, - point.x / 200 ) + 0.5 );
-            colors1.push( color.r, color.g, color.b );
-
-
-        }
-        var	material = new THREE.LineBasicMaterial( { color: 0xffffff, vertexColors: true } );
-        geometry1.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
-        geometry1.setAttribute( 'color', new THREE.Float32BufferAttribute( colors1, 3 ) );
-        
-        const scale = 0.3, d = 225;
-
-        var line = new THREE.Line( geometry1, material );
-        line.scale.x = line.scale.y = line.scale.z = scale * 1.5;
-        scene.add( line );
-        
-        controls.object.position.set(camera.position.x, camera.position.y, camera.position.z);
-            controls.target = new THREE.Vector3(line.position.x, line.position.y, line.position.z);
-            //camera.position.set(this.Samples[0].Position.x, this.Samples[0].Position.y, this.Samples[0].Position.z);
-            //camera.lookAt(this.Samples[0].Position.x, this.Samples[0].Position.y, this.Samples[0].Position.z);
-            controls.update();
-            */
+        window.addEventListener('resize', this.onWindowResize, false);
+        d1.addEventListener('resize', this.onWindowResize2, false);
     }
 
     resumeReplay() {
@@ -247,7 +271,6 @@ export class DataViewComponent implements OnInit {
         var that = this;
         that.loadedFiles.forEach(file => {
             file.destroy();
-            file.Points = [];
         });
         setInterval(function () {
             that.CurrentRaceTime += that.CurrentRaceTimeIncrement;
@@ -275,8 +298,7 @@ export class DataViewComponent implements OnInit {
                 if (rawFile.readyState === 4) {
                     if (rawFile.status === 200 || rawFile.status == 0) {
                         var dataView = new DataView(rawFile.response);
-                        var xd = new FileManager(raceData.file_path, dataView);
-                        console.log(xd);
+                        var xd = new FileManager(raceData.file_path, dataView, that.lineModeSelected);
                         that.loadedFiles.push(xd);
                     }
                 }
@@ -293,34 +315,12 @@ export class DataViewComponent implements OnInit {
             }
         }
     }
-    toggleData(checked: any, filePath: any) {
-        if (checked) {
-            var that = this;
-            var rawFile = new XMLHttpRequest();
-
-            rawFile.open("GET", "http://localhost:3000/get-race-data?filePath=" + filePath, true);
-            rawFile.responseType = "arraybuffer";
-            rawFile.onreadystatechange = function () {
-                if (rawFile.readyState === 4) {
-                    if (rawFile.status === 200 || rawFile.status == 0) {
-                        var dataView = new DataView(rawFile.response);
-                        var xd = new FileManager(filePath, dataView);
-                        console.log(xd);
-                        that.loadedFiles.push(xd);
-                    }
-                }
-            }
-            rawFile.send(null);
-        } else {
-            console.log("remove ", filePath);
-            var file = this.loadedFiles.find((x: any) => x.FilePath == filePath);
-            if (file) {
-                file.destroy();
-                var index = this.loadedFiles.indexOf(file);
-                if (index > -1) {
-                    this.loadedFiles.splice(index, 1);
-                }
-            }
-        }
+    lineModeChanged(lineMode: any) {
+        console.log(lineMode);
+        console.log(this.loadedFiles);
+        this.loadedFiles.forEach(file => {
+            file.destroy();
+            file.create(lineMode);
+        });
     }
 }

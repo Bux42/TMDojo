@@ -79,6 +79,36 @@ export class FileBrowserComponent implements AfterViewInit {
     mapCheckboxChanged(checked: any, raceData: any) {
         this.dataView?.toggleData2(checked, raceData);
     }
+    loadAll() {
+        var fileCheckboxes = document.getElementsByClassName("file-checkbox");
+        for (var i = 0; i < fileCheckboxes.length; i++) {
+            var checkbox = fileCheckboxes[i].querySelector('.mat-checkbox-input');
+            
+            if (checkbox) {
+                var checked = checkbox.getAttribute("aria-checked");
+                if (checked == "false") {
+                    var evObj = document.createEvent('Events');
+                    evObj.initEvent("click", true, false);
+                    checkbox.dispatchEvent(evObj);
+                }
+            }
+        }
+    }
+    unLoadAll() {
+        var fileCheckboxes = document.getElementsByClassName("file-checkbox");
+        for (var i = 0; i < fileCheckboxes.length; i++) {
+            var checkbox = fileCheckboxes[i].querySelector('.mat-checkbox-input');
+            
+            if (checkbox) {
+                var checked = checkbox.getAttribute("aria-checked");
+                if (checked == "true") {
+                    var evObj = document.createEvent('Events');
+                    evObj.initEvent("click", true, false);
+                    checkbox.dispatchEvent(evObj);
+                }
+            }
+        }
+    }
     mapNameInputChanged() {
         this.searchFilter.mapName = this.mapNameInput;
         this.filterChanged(300);

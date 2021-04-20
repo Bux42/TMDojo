@@ -8,3 +8,13 @@
 
   {{CurrentRaceTime}}
 </div>
+<div class="right-menu">
+  <mat-form-field appearance="fill" class="custom-mat-form-field">
+    <mat-label>Line mode</mat-label>
+    <mat-select (selectionChange)="lineModeChanged($event.value)" [(value)]="lineModeSelected">
+      <mat-option *ngFor="let lineMode of lineModes" [value]="lineMode">
+        {{lineMode}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
