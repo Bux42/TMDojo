@@ -81,7 +81,7 @@ export class FileManager {
     VelocityGeometry: any;
     Line: any;
     Points: any;
-    Samples: any;
+    Samples: Sample[] = [];
     RandomColor: any;
     RandomColorR: any;
     RandomColorG: any;
@@ -97,6 +97,7 @@ export class FileManager {
     constructor(filePath: any, dataView: DataView, lineMode: any) {
         this.FilePath = filePath;
         this.FileDataView = dataView;
+        this.Samples = this.readDataView(dataView);
         this.RandomColor = 0x1000000 + Math.random() * 0xffffff;
         this.RandomColorR = (Math.random() * (1 - 0.5) + 0.5).toFixed(4);
         this.RandomColorG = (Math.random() * (1 - 0.5) + 0.5).toFixed(4);
@@ -111,15 +112,23 @@ export class FileManager {
         scene.add(this.cube);
         this.create(lineMode);
     }
+
+    readDataView = (dataView: DataView) => {
+        const samples = [];
+        for (var i = 0; i < dataView.byteLength; i += 76) {
+            const s = new Sample(dataView, i);
+            samples.push(s);
+        }
+        return samples;
+    }
+    
     create(lineMode: any) {
-        this.Samples = [];
         this.Points = [];
 
-        var prevS = undefined;
+        var prevS: Sample | undefined = undefined;
         var prevDiff = 0;
 
-        for (var i = 0; i < this.FileDataView.byteLength; i += 76) {
-            var s = new Sample(this.FileDataView, i);
+        this.Samples.forEach((s) => {
             if (lineMode == "Classic") {
                 this.Colors.push(this.RandomColorR, this.RandomColorG, this.RandomColorB);
             } else if (lineMode == "Velocity") {
@@ -142,10 +151,9 @@ export class FileManager {
                 var gearColor = getGearColor(s.EngineCurGear);                
                 this.Colors.push(gearColor.r, gearColor.g, gearColor.b);
             }
-            this.Samples.push(s);
             this.Points.push(s.Position);
             prevS = s;
-        }
+        })
         this.Geometry = new THREE.BufferGeometry().setFromPoints(this.Points).setAttribute(
             'color',
             new THREE.Float32BufferAttribute(this.Colors, 3)
