@@ -7,7 +7,7 @@ TMDojo is a data visualization tool for Trackmania 2020
 
 ![alt text](https://cdn.discordapp.com/attachments/424967293538402334/834084842084892772/unknown.png)
 
-The goal is to be able to browse & visualize racing data, and maybe some machine learning
+The goal is to be able to browse & analyse racing data, and maybe some machine learning
 
   
 
@@ -42,6 +42,16 @@ How to use locally:
  - Make sure the node server /Server/app.js is running
  - Run "ng serve" in /Front folder and browse http://localhost:4200/ for the web interface
  - Reload plugin in trackmania
+
+You can create a symbolic link for automatic synchronisation of the plugin with the command "mklink"
+To do so, open a cmd as admin, go to the script folder and run the following command:
+
+`mklink Plugin_TMDojo.as [plugin repository path]`
+
+If done correctly, you should have a message like the one below
+
+![alt text](https://media.discordapp.net/attachments/833663831929520149/834025347212771378/unknown.png)
+
 
 If everything is working, the plugin will send racing data (upon respawn & race finish) to the node server, and you should be able to browse the data on the website
 
