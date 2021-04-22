@@ -191,24 +191,23 @@ export class FileManager {
         this.ColorsTmp = [];
     }
     loadUntil(racetime: any) {
-
+        var colors = [];
+        var finished = false;
         for (var i = 0; i < this.Samples.length; i++) {
-            if (this.Samples[i].CurrentRaceTime <= racetime && !this.Samples[i].Loaded) {
-                this.Points.push(this.Samples[i].Position);
-                this.Samples[i].Loaded = true;
-                this.LastSample = this.Samples[i];
+            if (this.Samples[i].CurrentRaceTime > racetime) {
+                colors.push(this.ColorsTmp[i * 3], this.ColorsTmp[(i * 3) + 1], this.ColorsTmp[(i * 3) + 2]);
+            } else {
+                colors.push(this.Colors[i * 3], this.Colors[(i * 3) + 1], this.Colors[(i * 3) + 2]);
+            }
+            if (i + 1 == this.Samples.length) {
+                finished = true;
             }
         }
-        var xd = new THREE.Vector3().copy(this.LastSample.Position);
-        var newPos = xd.add(this.LastSample.Velocity);
-        if (newPos) {
-            this.cube.position.x = newPos.x;
-            this.cube.position.y = newPos.y;
-            this.cube.position.z = newPos.z;
-        }
-        this.Geometry = new THREE.BufferGeometry().setFromPoints(this.Points);
-        this.Line = new THREE.Line(this.Geometry, this.Material);
-        scene.add(this.Line);
+        this.Geometry.setAttribute(
+            'color',
+            new THREE.Float32BufferAttribute(colors, 3)
+        );
+        return (finished);
     }
 }
 
@@ -272,11 +271,14 @@ export class Sample {
 export class DataViewComponent implements OnInit {
     @ViewChild('canvasContainer') el: any | undefined;
     loadedFiles: FileManager[] = [];
+    maxRaceTime: any = 0;
     controls: any;
     renderer: any;
     scene: any;
     camera: any;
     CurrentRaceTime: any = 0;
+    playing: any = false;
+    playInterval: any;
     CurrentRaceTimeIncrement: any = 15;
 
     lineModeSelected: any = "Classic";
@@ -332,6 +334,7 @@ export class DataViewComponent implements OnInit {
     }
     toggleData2(checked: any, raceData: any) {
         console.log(checked, raceData);
+        this.maxRaceTime = 0;
         if (checked) {
             var that = this;
             var rawFile = new XMLHttpRequest();
@@ -344,20 +347,87 @@ export class DataViewComponent implements OnInit {
                         var dataView = new DataView(rawFile.response);
                         var xd = new FileManager(raceData, raceData.file_path, dataView, that.lineModeSelected);
                         that.loadedFiles.push(xd);
+                        that.loadedFiles.forEach((file: any) => {
+                            if (file.Samples[file.Samples.length - 1].CurrentRaceTime > that.maxRaceTime) {
+                                that.maxRaceTime = file.Samples[file.Samples.length - 1].CurrentRaceTime
+                            }
+                        });
                     }
                 }
             }
             rawFile.send(null);
         } else {
-            var file = this.loadedFiles.find((x: any) => x.FilePath == raceData.file_path);
-            if (file) {
-                file.destroy();
-                var index = this.loadedFiles.indexOf(file);
+            var fileUnload = this.loadedFiles.find((x: any) => x.FilePath == raceData.file_path);
+            if (fileUnload) {
+                fileUnload.destroy();
+                var index = this.loadedFiles.indexOf(fileUnload);
                 if (index > -1) {
                     this.loadedFiles.splice(index, 1);
                 }
+                this.loadedFiles.forEach((file: any) => {
+                    if (file.Samples[file.Samples.length - 1].CurrentRaceTime > this.maxRaceTime) {
+                        this.maxRaceTime = file.Samples[file.Samples.length - 1].CurrentRaceTime;
+                    }
+                });
             }
         }
+    }
+    resumeReplay2() {
+        console.log(this.loadedFiles);
+        this.CurrentRaceTime = -10;
+        var that = this;
+        that.loadedFiles.forEach(file => {
+            file.destroy();
+        });
+        setInterval(function () {
+            that.CurrentRaceTime += that.CurrentRaceTimeIncrement;
+            that.loadedFiles.forEach(file => {
+                file.loadUntil(that.CurrentRaceTime);
+                //controls.object.position.set(camera.position.x, camera.position.y, camera.position.z);
+                controls.target = new THREE.Vector3(file.LastSample.Position.x, file.LastSample.Position.y, file.LastSample.Position.z);
+            });
+        }, 1);
+    }
+    play() {
+        var that = this;
+        if (this.playing) {
+            clearInterval(this.playInterval);
+        } else {
+            this.playInterval = setInterval(function () {
+                var ghostFinish = 0;
+                that.loadedFiles.forEach(file => {
+                    if (!file.loadUntil(that.CurrentRaceTime)) {
+                        ghostFinish++;
+                    }
+                });
+                if (ghostFinish < that.loadedFiles.length) {
+                    that.CurrentRaceTime += that.CurrentRaceTimeIncrement;
+                } else {
+                    clearInterval(that.playInterval);
+                    that.playing = false;
+                }
+            }, 1);
+        }
+        this.playing = !this.playing;
+    }
+    timelineChange(e: any) {
+        console.log(e);
+        console.log(this.CurrentRaceTime);
+        this.loadedFiles.forEach((file: any) => {
+            file.loadUntil(this.CurrentRaceTime);
+        });
+    }
+    getRaceTimeStr() {
+        var ret = "";
+        var i2 = 0;
+        var endRaceTime = this.CurrentRaceTime.toString();
+        for (var i = endRaceTime.length - 1; i > -1; i--, i2++) {
+            ret += endRaceTime[i];
+            if (i2 == 2) {
+                ret += ".";
+            }
+        }
+        return (ret.split("").reverse().join(""));
     }
     lineModeChanged(lineMode: any) {
         console.log(lineMode);

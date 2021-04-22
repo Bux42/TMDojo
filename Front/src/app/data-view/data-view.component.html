@@ -1,12 +1,25 @@
 <div class="canvasContainer">
 
 </div>
+<!-- 
 <div class="player">
   <button mat-button (click)="resumeReplay()">Play</button>
   <mat-slider (input)="speedSliderChange($event)" min="1" max="50" step="1" [value]="CurrentRaceTimeIncrement">
   </mat-slider>
 
   {{CurrentRaceTime}}
+</div>
+-->
+
+<div class="timeline">
+    <div class="current-time">
+        <button (click)="play()" mat-raised-button>{{playing ? "Pause" : "Play"}}</button>
+    </div>
+    
+    <div class="current-time">
+        {{getRaceTimeStr()}}
+    </div>
+  <mat-slider (change)="timelineChange(CurrentRaceTime)" [(ngModel)]="CurrentRaceTime" tickInterval="1" step="1" min="0" [max]="maxRaceTime" ></mat-slider>
 </div>
 <div class="right-menu">
   <mat-form-field appearance="fill" class="custom-mat-form-field">
@@ -18,14 +31,16 @@
     </mat-select>
   </mat-form-field>
   <div class="ghost-list">
-      <h4 style="color: aliceblue;">Replay list</h4>
-    <mat-card class="ghost" *ngFor="let file of loadedFiles" (mouseenter)="fileMouseOver(file)" (mouseleave)="fileMouseLeave(file)">
-        <div class="ghost-name" [style.color]="'rgb(' + file.RandomColorR * 255 + ',' + file.RandomColorG * 255 + ',' + file.RandomColorB * 255 + ')'">
-            {{file.RaceData.playerName}}
-        </div>
-        <div class="ghost-time">
-            {{file.RaceData.endRaceTimeStr}}
-        </div>
+    <h4 style="color: aliceblue;">Replay list</h4>
+    <mat-card class="ghost" *ngFor="let file of loadedFiles" (mouseenter)="fileMouseOver(file)"
+      (mouseleave)="fileMouseLeave(file)">
+      <div class="ghost-name"
+        [style.color]="'rgb(' + file.RandomColorR * 255 + ',' + file.RandomColorG * 255 + ',' + file.RandomColorB * 255 + ')'">
+        {{file.RaceData.playerName}}
+      </div>
+      <div class="ghost-time">
+        {{file.RaceData.endRaceTimeStr}}
+      </div>
     </mat-card>
   </div>
 </div>

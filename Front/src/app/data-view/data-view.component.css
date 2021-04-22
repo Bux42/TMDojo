@@ -5,8 +5,23 @@
 
 .player {
     position: fixed;
-    
+    margin-bottom: 200px;
     background-color: #333333;
+}
+
+.timeline {
+    position: fixed;
+    background-color: #333333;
+    width: 100%;
+}
+
+.current-time {
+    text-align: center;
+    color: #ff4081;
+}
+
+mat-slider {
+    width: 100%;
 }
 
 .right-menu {
