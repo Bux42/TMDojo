@@ -22,7 +22,9 @@ export class FileBrowserComponent implements AfterViewInit {
     searchFilter: SearchFilters = SEARCH_FILTERS;
     displayedColumns: string[] = ['position', 'name', 'weight', 'symbol', 'loaded'];
     mapOrders: any = ["None", "Time Desc", "Time Asc", "Date Desc", "Date Asc"];
-    mapOrderSelected: any= "None";
+    mapOrderSelected: any = "None";
+    limitSelected: any = "100";
+    limits: any = ["100", "200", "300", "400"];
     data: RaceData[] = [];
     totalResults: any = 0;
     dataSource2 = new MatTableDataSource<RaceData>();
@@ -31,6 +33,10 @@ export class FileBrowserComponent implements AfterViewInit {
 
     }
     ngAfterViewInit() {
+        this.filterChanged(0);
+    }
+    limitChanged(e: any) {
+        this.searchFilter.maxResults = e;
         this.filterChanged(0);
     }
     mapOrderChanged(e: any) {

@@ -17,4 +17,15 @@
       </mat-option>
     </mat-select>
   </mat-form-field>
+  <div class="ghost-list">
+      <h4 style="color: aliceblue;">Replay list</h4>
+    <mat-card class="ghost" *ngFor="let file of loadedFiles" (mouseenter)="fileMouseOver(file)" (mouseleave)="fileMouseLeave(file)">
+        <div class="ghost-name" [style.color]="'rgb(' + file.RandomColorR * 255 + ',' + file.RandomColorG * 255 + ',' + file.RandomColorB * 255 + ')'">
+            {{file.RaceData.playerName}}
+        </div>
+        <div class="ghost-time">
+            {{file.RaceData.endRaceTimeStr}}
+        </div>
+    </mat-card>
+  </div>
 </div>

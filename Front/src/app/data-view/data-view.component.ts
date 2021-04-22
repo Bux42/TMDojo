@@ -4,7 +4,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { GeometryUtils } from 'three/examples/jsm/utils/GeometryUtils.js';
 import { BrowserService } from '../browser.service';
 
-type ColorMap = {value: number, color: {r: number, g: number, b: number}}[]
+type ColorMap = { value: number, color: { r: number, g: number, b: number } }[]
 
 const COLOR_MAP_ACCELERATION: ColorMap = [
     { value: -0.2, color: { r: 0xff, g: 0x00, b: 0 } },
@@ -22,7 +22,13 @@ const COLOR_MAP_GEARS: ColorMap = [
     { value: 7.0, color: { r: 0xff, g: 0xff, b: 0xff } },
 ];
 
-const getGearColor = (value: number) => {    
+
+function componentToHex(c: number) {
+    var hex = c.toString(16);
+    return hex.length == 1 ? "0" + hex : hex;
+}
+
+const getGearColor = (value: number) => {
     return getColorFromMap(value, COLOR_MAP_GEARS);
 }
 
@@ -76,6 +82,7 @@ function animate() {
 export class FileManager {
     FilePath: any;
     FileDataView: any;
+    RaceData: any;
     Material: any;
     Geometry: any;
     VelocityGeometry: any;
@@ -86,22 +93,26 @@ export class FileManager {
     RandomColorR: any;
     RandomColorG: any;
     RandomColorB: any;
+    RandomColorHex: any;
     LastSample: any;
 
     Colors: any[] = [];
+    ColorsTmp: any[] = [];
 
     cubegeometry = new THREE.BoxGeometry();
     cubematerial: any;
     cube: any;
 
-    constructor(filePath: any, dataView: DataView, lineMode: any) {
+    constructor(raceData: any, filePath: any, dataView: DataView, lineMode: any) {
         this.FilePath = filePath;
         this.FileDataView = dataView;
+        this.RaceData = raceData;
         this.Samples = this.readDataView(dataView);
         this.RandomColor = 0x1000000 + Math.random() * 0xffffff;
         this.RandomColorR = (Math.random() * (1 - 0.5) + 0.5).toFixed(4);
         this.RandomColorG = (Math.random() * (1 - 0.5) + 0.5).toFixed(4);
         this.RandomColorB = (Math.random() * (1 - 0.5) + 0.5).toFixed(4);
+        this.RandomColorHex = "#" + componentToHex(this.RandomColorR) + componentToHex(this.RandomColorG) + componentToHex(this.RandomColorB);
         this.cubematerial = new THREE.MeshBasicMaterial({ color: this.RandomColor });
         this.cube = new THREE.Mesh(this.cubegeometry, this.cubematerial);
         this.Material = new THREE.LineBasicMaterial({
@@ -121,10 +132,10 @@ export class FileManager {
         }
         return samples;
     }
-    
+
     create(lineMode: any) {
         this.Points = [];
-
+        this.ColorsTmp = [];
         var prevS: Sample | undefined = undefined;
         var prevDiff = 0;
 
@@ -147,11 +158,15 @@ export class FileManager {
                     this.Colors.push(0, 0, 0);
                 }
             } else if (lineMode == "Gear") {
-                var gearColor = getGearColor(s.EngineCurGear);                
+                var gearColor = getGearColor(s.EngineCurGear);
                 this.Colors.push(gearColor.r, gearColor.g, gearColor.b);
             }
+            
             this.Points.push(s.Position);
             prevS = s;
+        });
+        this.Colors.forEach(color => {
+            this.ColorsTmp.push(color - 0.5);
         })
         this.Geometry = new THREE.BufferGeometry().setFromPoints(this.Points).setAttribute(
             'color',
@@ -173,6 +188,7 @@ export class FileManager {
         scene.remove(this.Line);
         this.Points = [];
         this.Colors = [];
+        this.ColorsTmp = [];
     }
     loadUntil(racetime: any) {
 
@@ -326,7 +342,7 @@ export class DataViewComponent implements OnInit {
                 if (rawFile.readyState === 4) {
                     if (rawFile.status === 200 || rawFile.status == 0) {
                         var dataView = new DataView(rawFile.response);
-                        var xd = new FileManager(raceData.file_path, dataView, that.lineModeSelected);
+                        var xd = new FileManager(raceData, raceData.file_path, dataView, that.lineModeSelected);
                         that.loadedFiles.push(xd);
                     }
                 }
@@ -349,6 +365,25 @@ export class DataViewComponent implements OnInit {
         this.loadedFiles.forEach(file => {
             file.destroy();
             file.create(lineMode);
+        });
+    }
+    fileMouseOver(file: any) {
+        this.loadedFiles.forEach((file2: any) => {
+            if (file2.FilePath != file.FilePath) {
+                file2.Geometry.setAttribute(
+                    'color',
+                    new THREE.Float32BufferAttribute(file2.ColorsTmp, 3)
+                );;
+            }
+        });
+    }
+    fileMouseLeave(file: any) {
+        console.log("fileMouseLeave");
+        this.loadedFiles.forEach((file2: any) => {
+            file2.Geometry.setAttribute(
+                'color',
+                new THREE.Float32BufferAttribute(file2.Colors, 3)
+            );;
         });
     }
 }

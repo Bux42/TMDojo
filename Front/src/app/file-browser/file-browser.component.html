@@ -12,6 +12,14 @@
               </mat-option>
             </mat-select>
           </mat-form-field>
+          <mat-form-field appearance="fill" class="custom-mat-form-field">
+            <mat-label>Limit</mat-label>
+            <mat-select (selectionChange)="limitChanged($event.value)" [(value)]="limitSelected">
+              <mat-option *ngFor="let limit of limits" [value]="limit">
+                {{limit}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
           <mat-checkbox (change)="finishedCheckboxChanged($event.checked)" class="example-margin">Finished</mat-checkbox>
     </mat-card>
 </div>
