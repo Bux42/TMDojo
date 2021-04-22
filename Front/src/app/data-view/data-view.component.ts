@@ -133,8 +133,7 @@ export class FileManager {
                 this.Colors.push(this.RandomColorR, this.RandomColorG, this.RandomColorB);
             } else if (lineMode == "Velocity") {
                 if (prevS != undefined) {
-                    const vDiff = s.Velocity.length() - prevS.Velocity.length();
-
+                    const vDiff = s.Speed - prevS.Speed;
                     var diffColor = getAccelerationColor(vDiff);
                     if (vDiff == 0.0) {
                         diffColor = getAccelerationColor(prevDiff);
