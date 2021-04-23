@@ -20,7 +20,7 @@
     color: #ff4081;
 }
 
-mat-slider {
+.timeline-slider {
     width: 100%;
 }
 
@@ -37,6 +37,10 @@ mat-slider {
     background-color: #4a4a4a;
 }
 
+.ghost-list {
+    height: 80vh;
+    overflow: auto;
+}
 .ghost-time {
     color: #dddddd;
 }

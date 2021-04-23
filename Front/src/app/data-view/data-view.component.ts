@@ -1,4 +1,5 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
+import { race } from 'rxjs';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { GeometryUtils } from 'three/examples/jsm/utils/GeometryUtils.js';
@@ -109,9 +110,9 @@ export class FileManager {
         this.RaceData = raceData;
         this.Samples = this.readDataView(dataView);
         this.RandomColor = 0x1000000 + Math.random() * 0xffffff;
-        this.RandomColorR = (Math.random() * (1 - 0.5) + 0.5).toFixed(4);
-        this.RandomColorG = (Math.random() * (1 - 0.5) + 0.5).toFixed(4);
-        this.RandomColorB = (Math.random() * (1 - 0.5) + 0.5).toFixed(4);
+        this.RandomColorR = (Math.random() * (1 - 0.5) + 0.2).toFixed(4);
+        this.RandomColorG = (Math.random() * (1 - 0.5) + 0.2).toFixed(4);
+        this.RandomColorB = (Math.random() * (1 - 0.5) + 0.2).toFixed(4);
         this.RandomColorHex = "#" + componentToHex(this.RandomColorR) + componentToHex(this.RandomColorG) + componentToHex(this.RandomColorB);
         this.cubematerial = new THREE.MeshBasicMaterial({ color: this.RandomColor });
         this.cube = new THREE.Mesh(this.cubegeometry, this.cubematerial);
@@ -198,9 +199,9 @@ export class FileManager {
                 colors.push(this.ColorsTmp[i * 3], this.ColorsTmp[(i * 3) + 1], this.ColorsTmp[(i * 3) + 2]);
             } else {
                 colors.push(this.Colors[i * 3], this.Colors[(i * 3) + 1], this.Colors[(i * 3) + 2]);
-            }
-            if (i + 1 == this.Samples.length) {
-                finished = true;
+                if (i + 1 >= this.Samples.length) {
+                    finished = true;
+                }
             }
         }
         this.Geometry.setAttribute(
@@ -208,6 +209,21 @@ export class FileManager {
             new THREE.Float32BufferAttribute(colors, 3)
         );
         return (finished);
+    }
+    debugAtTime(racetime: any) {
+        var index = -1;
+        for (var i = 0; i < this.Samples.length; i++) {
+            if (this.Samples[i].CurrentRaceTime > racetime) {
+                console.log("Sample at racetime", racetime, this.Samples[i]);
+                index = i;
+                break;
+            }
+        }
+        if (this.Samples[index].WheelsSkiddingCount == 4) {
+            var radian = this.Samples[index].AimDirection.angleTo(this.Samples[index].Velocity);
+            var deg = radian * (180/Math.PI);
+            console.log("drift angle:", deg, radian);
+        }
     }
 }
 
@@ -279,6 +295,8 @@ export class DataViewComponent implements OnInit {
     CurrentRaceTime: any = 0;
     playing: any = false;
     playInterval: any;
+    interval: any = 1;
+    racetimeIncrement: any = 10;
     CurrentRaceTimeIncrement: any = 15;
 
     lineModeSelected: any = "Classic";
@@ -396,17 +414,17 @@ export class DataViewComponent implements OnInit {
             this.playInterval = setInterval(function () {
                 var ghostFinish = 0;
                 that.loadedFiles.forEach(file => {
-                    if (!file.loadUntil(that.CurrentRaceTime)) {
+                    if (file.loadUntil(that.CurrentRaceTime)) {
                         ghostFinish++;
                     }
                 });
                 if (ghostFinish < that.loadedFiles.length) {
-                    that.CurrentRaceTime += that.CurrentRaceTimeIncrement;
+                    that.CurrentRaceTime += that.racetimeIncrement;
                 } else {
                     clearInterval(that.playInterval);
                     that.playing = false;
                 }
-            }, 1);
+            }, that.interval);
         }
         this.playing = !this.playing;
     }
@@ -416,6 +434,9 @@ export class DataViewComponent implements OnInit {
         this.loadedFiles.forEach((file: any) => {
             file.loadUntil(this.CurrentRaceTime);
         });
+        if (this.loadedFiles.length == 1) {
+            this.loadedFiles[0].debugAtTime(this.CurrentRaceTime);
+        }
     }
     getRaceTimeStr() {
         var ret = "";

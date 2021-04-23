@@ -93,6 +93,13 @@ class TMDojo
 TMDojo@ dojo;
 auto membuff = MemoryBuffer(0);
 
+vec3 getRealCoords(nat3 coords) 
+{
+    CGameCtnEditorFree@ editor = cast<CGameCtnEditorFree>(dojo.app.Editor);
+    CGameEditorPluginMapMapType@ mapType = editor.PluginMapType;
+    return (mapType.GetVec3FromCoord(coords));
+}
+
 void Main()
 {
     @dojo = TMDojo();
@@ -198,6 +205,7 @@ void ContextChecker()
                     dojo.app.CurrentPlayground.GameTerminals[0] != null &&
                     dojo.app.CurrentPlayground.GameTerminals[0].GUIPlayer != null) {
                     @dojo.sm_script = cast<CSmPlayer>(dojo.app.CurrentPlayground.GameTerminals[0].GUIPlayer).ScriptAPI;
+                    
                 }
             }
             if (dojo.playgroundScript == null) {

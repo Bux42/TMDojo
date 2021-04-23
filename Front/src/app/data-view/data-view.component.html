@@ -12,14 +12,20 @@
 -->
 
 <div class="timeline">
+
     <div class="current-time">
         <button (click)="play()" mat-raised-button>{{playing ? "Pause" : "Play"}}</button>
+        Interval
+        <mat-slider thumbLabel [(ngModel)]="interval" tickInterval="1" step="1" min="1" max="300"></mat-slider>
+        Time Increment
+        <mat-slider thumbLabel [(ngModel)]="racetimeIncrement" tickInterval="1" step="1" min="1" max="300"></mat-slider>
+
     </div>
     
     <div class="current-time">
         {{getRaceTimeStr()}}
     </div>
-  <mat-slider (change)="timelineChange(CurrentRaceTime)" [(ngModel)]="CurrentRaceTime" tickInterval="1" step="1" min="0" [max]="maxRaceTime" ></mat-slider>
+  <mat-slider class="timeline-slider" (change)="timelineChange(CurrentRaceTime)" [(ngModel)]="CurrentRaceTime" tickInterval="1" step="1" min="0" [max]="maxRaceTime" ></mat-slider>
 </div>
 <div class="right-menu">
   <mat-form-field appearance="fill" class="custom-mat-form-field">
