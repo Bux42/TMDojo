@@ -1,10 +1,15 @@
 import React from "react";
+import { SidebarReplays } from "../components/home/SidebarReplays";
+import { SidebarSettings } from "../components/home/SidebarSettings";
+import { Viewer3D } from "../components/home/Viewer3D";
 
-const Home = () => {
+const Home = (): JSX.Element => {
     return (
-        <div className="flex justify-center items-center w-screen min-h-screen bg-gray-100">
-            <div className="text-5xl font-semibold text-gray-800 mb-4">Welcome!</div>
-        </div>
+        <>
+            <SidebarReplays />
+            <SidebarSettings />
+            <Viewer3D />
+        </>
     );
 };
 
