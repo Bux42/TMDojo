@@ -109,6 +109,21 @@ app.post("/save-game-data", function (req, res) {
 
 // FRONT
 
+app.get("/get-maps", (_, res) => {
+    const raceData = db.collection('race_data');
+    // group docs by mapName and count each occurrence
+    raceData.aggregate([
+        { $group: {_id: "$mapName", count: {$sum: 1}} },
+        { $project: {_id: 0, name: "$_id", count: "$count"} }
+    ], async (err, cursor) => {
+        if (err) {
+            return res.status(500).send(err);
+        }
+        const data = await cursor.toArray(); 
+        return res.send(data);
+    });
+})
+
 app.get("/get-files", (req, res, next) => {
     console.log(req.query);
     const raceData = db.collection('race_data');
