@@ -16,7 +16,7 @@ interface ExtendedFileResponse extends FileResponse {
 }
 
 export const SidebarReplays = ({ replays, onLoadReplay }: Props): JSX.Element => {
-    const [visible, setVisible] = useState(true);
+    const [visible, setVisible] = useState(false);
 
     const onClose = () => {
         setVisible(false);
@@ -28,7 +28,7 @@ export const SidebarReplays = ({ replays, onLoadReplay }: Props): JSX.Element =>
 
     const getUniqueFilters = (replayFieldCallback: (replay: FileResponse) => string) => {
         const uniques = Array.from(new Set(replays.map(replayFieldCallback)));
-        return uniques.map((val) => {
+        return uniques.sort().map((val) => {
             return { text: val, value: val };
         });
     };
@@ -109,7 +109,7 @@ export const SidebarReplays = ({ replays, onLoadReplay }: Props): JSX.Element =>
     };
 
     return (
-        <div className="absolute m-8">
+        <div className="absolute m-8 z-10">
             <Button onClick={toggleSidebar} shape="round" size="large">
                 Replay List
             </Button>

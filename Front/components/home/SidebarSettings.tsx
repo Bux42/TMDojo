@@ -13,7 +13,7 @@ export const SidebarSettings = (): JSX.Element => {
     };
 
     return (
-        <div className="absolute right-0 m-8">
+        <div className="absolute right-0 m-8 z-10">
             <Button onClick={toggleSidebar} shape="round" size="large">
                 Settings
             </Button>

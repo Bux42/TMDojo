@@ -11,11 +11,15 @@
     },
     "dependencies": {
         "@babel/core": "^7.13.10",
+        "@react-three/fiber": "^6.0.16",
+        "@three-ts/orbit-controls": "^1.4.7",
+        "@types/three": "^0.127.1",
         "antd": "^4.15.2",
         "axios": "^0.21.1",
         "next": "10.0.9",
         "react": "17.0.1",
-        "react-dom": "17.0.1"
+        "react-dom": "17.0.1",
+        "three": "^0.128.0"
     },
     "devDependencies": {
         "@babel/plugin-proposal-decorators": "^7.13.5",
