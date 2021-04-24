@@ -7,6 +7,8 @@ import { getEndRaceTimeStr, timeDifference } from "../../lib/utils/time";
 interface Props {
     replays: FileResponse[];
     onLoadReplay: (replay: FileResponse) => void;
+    onRemoveReplay: (replay: FileResponse) => void;
+    selectedReplayDataIds: string[];
 }
 
 interface ExtendedFileResponse extends FileResponse {
@@ -15,7 +17,12 @@ interface ExtendedFileResponse extends FileResponse {
     finished: boolean;
 }
 
-export const SidebarReplays = ({ replays, onLoadReplay }: Props): JSX.Element => {
+export const SidebarReplays = ({
+    replays,
+    onLoadReplay,
+    onRemoveReplay,
+    selectedReplayDataIds,
+}: Props): JSX.Element => {
     const [visible, setVisible] = useState(false);
 
     const onClose = () => {
@@ -86,12 +93,30 @@ export const SidebarReplays = ({ replays, onLoadReplay }: Props): JSX.Element =>
             title: "",
             key: "load",
             align: "center",
-            width: 50,
-            render: (_, replay) => (
-                <Button size="middle" type="primary" onClick={() => onLoadReplay(replay)}>
-                    Load
-                </Button>
-            ),
+            width: 80,
+            render: (_, replay) => {
+                const selected = selectedReplayDataIds.indexOf(replay._id) != -1;
+                return !selected ? (
+                    <Button
+                        size="middle"
+                        type="primary"
+                        onClick={() => onLoadReplay(replay)}
+                        className={"w-full"}
+                    >
+                        Load
+                    </Button>
+                ) : (
+                    <Button
+                        size="middle"
+                        type="primary"
+                        danger
+                        className={"w-full"}
+                        onClick={() => onRemoveReplay(replay)}
+                    >
+                        Remove
+                    </Button>
+                );
+            },
         },
     ];
 

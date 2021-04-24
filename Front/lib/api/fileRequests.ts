@@ -1,4 +1,5 @@
 import axios from "axios";
+import { readDataView, ReplayDataPoint } from "../replays/replayData";
 
 interface FilterParams {
     mapName: any;
@@ -11,7 +12,7 @@ interface FilterParams {
     orderBy: any;
 }
 
-export type FileResponse = {
+export interface FileResponse {
     authorName: string;
     challengeId: string;
     date: number;
@@ -23,7 +24,7 @@ export type FileResponse = {
     raceFinished: number;
     webId: string;
     _id: string;
-};
+}
 
 type FilesResult = {
     Files: FileResponse[];
@@ -41,6 +42,10 @@ const DEFAULT_FILTERS = {
     orderBy: "None",
 };
 
+export interface ReplayData extends FileResponse {
+    samples: ReplayDataPoint[];
+}
+
 export const getFiles = async (filters: FilterParams = DEFAULT_FILTERS): Promise<FilesResult> => {
     // TODO: Add correct URL for prod (use a .env file)
     const res = await axios.get("http://localhost:3000/get-files", {
@@ -49,4 +54,16 @@ export const getFiles = async (filters: FilterParams = DEFAULT_FILTERS): Promise
     });
 
     return res.data;
+};
+
+export const fetchReplayData = async (file: FileResponse): Promise<ReplayData> => {
+    const res = await axios.get("http://localhost:3000/get-race-data", {
+        params: { filePath: file.file_path },
+        responseType: "arraybuffer",
+    });
+
+    const dataView = new DataView(res.data);
+    const samples = readDataView(dataView);
+
+    return { ...file, samples };
 };
