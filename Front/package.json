@@ -1,0 +1,34 @@
+{
+    "name": "tmdojo",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "dev": "next dev",
+        "build": "next build",
+        "start": "next start",
+        "format": "prettier --write .",
+        "lint": "eslint . --ext ts --ext tsx --ext js"
+    },
+    "dependencies": {
+        "@babel/core": "^7.13.10",
+        "next": "10.0.9",
+        "react": "17.0.1",
+        "react-dom": "17.0.1"
+    },
+    "devDependencies": {
+        "@babel/plugin-proposal-decorators": "^7.13.5",
+        "@types/node": "^14.14.35",
+        "@types/react": "^17.0.3",
+        "@typescript-eslint/eslint-plugin": "^4.14.2",
+        "@typescript-eslint/parser": "^4.14.2",
+        "autoprefixer": "^10.2.5",
+        "babel-plugin-parameter-decorator": "^1.0.16",
+        "eslint": "^7.19.0",
+        "eslint-config-prettier": "^7.2.0",
+        "eslint-plugin-react": "^7.19.0",
+        "postcss": "^8.2.8",
+        "prettier": "^2.0.2",
+        "tailwindcss": "^2.0.3",
+        "typescript": "^4.2.3"
+    }
+}
