@@ -12,7 +12,10 @@
 -->
 
 <div class="timeline">
-
+    <div class="current-time">
+        <input matInput  type="text" [(ngModel)]="mapIdInput">
+        <button (click)="loadMapBlocks(mapIdInput)" mat-raised-button>Load map</button>
+    </div>
     <div class="current-time">
         <button (click)="play()" mat-raised-button>{{playing ? "Pause" : "Play"}}</button>
         Interval
