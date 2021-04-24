@@ -1,13 +1,14 @@
-export const getEndRaceTimeStr = (endRaceTime: string): string => {
-    let ret = "";
-    let i2 = 0;
-    for (let i = endRaceTime.length - 1; i > -1; i--, i2++) {
-        ret += endRaceTime[i];
-        if (i2 == 2) {
-            ret += ".";
-        }
-    }
-    return ret.split("").reverse().join("");
+export const getEndRaceTimeStr = (endRaceTime: number): string => {
+    const milliseconds = endRaceTime % 1000;
+    const seconds = Math.floor((endRaceTime / 1000) % 60);
+    const minutes = Math.floor((endRaceTime / (60 * 1000)) % 60);
+
+    return (
+        `${minutes > 0 ? minutes + ":" : ""}` +
+        `${minutes > 0 ? (seconds < 10 ? "0" + seconds : seconds) : seconds}` +
+        "." +
+        milliseconds.toString().padEnd(3, "0")
+    );
 };
 
 export const timeDifference = (current: number, previous: number): string => {

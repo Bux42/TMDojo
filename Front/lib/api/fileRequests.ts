@@ -1,25 +1,50 @@
 import axios from "axios";
 
 interface FilterParams {
-    mapName: string;
+    mapName: any;
     playerName: string;
     endRaceTimeMin: number;
     endRaceTimeMax: number;
-    raceFinished: boolean;
+    raceFinished: number;
     dateMin: any;
     maxResults: number;
     orderBy: any;
 }
 
-// TODO: add actual type for files
-type FilesResult = any[];
+export type FileResponse = {
+    authorName: string;
+    challengeId: string;
+    date: number;
+    endRaceTime: number;
+    file_path: string;
+    mapName: string;
+    playerLogin: string;
+    playerName: string;
+    raceFinished: number;
+    webId: string;
+    _id: string;
+};
 
-export const getFiles = async (filters: FilterParams): Promise<FilesResult> => {
-    console.log(filters);
+type FilesResult = {
+    Files: FileResponse[];
+    TotalResults: number;
+};
 
+const DEFAULT_FILTERS = {
+    mapName: "",
+    playerName: "",
+    endRaceTimeMin: -1,
+    endRaceTimeMax: -1,
+    raceFinished: -1,
+    dateMin: new Date(),
+    maxResults: 1000,
+    orderBy: "None",
+};
+
+export const getFiles = async (filters: FilterParams = DEFAULT_FILTERS): Promise<FilesResult> => {
     // TODO: Add correct URL for prod (use a .env file)
     const res = await axios.get("http://localhost:3000/get-files", {
-        ...filters,
+        params: filters,
         withCredentials: true,
     });
 
