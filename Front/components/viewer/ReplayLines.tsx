@@ -11,7 +11,7 @@ import {
 
 export interface LineType {
     name: string;
-    colorsCallback: (replay: ReplayData) => THREE.Color[];
+    colorsCallback: (replay: ReplayData) => THREE.Float32BufferAttribute;
 }
 export const LineTypes: { [name: string]: LineType } = {
     default: { name: "Default", colorsCallback: defaultReplayColors },
@@ -26,11 +26,7 @@ interface ReplayLineProps {
 }
 const ReplayLine = ({ replay, lineType }: ReplayLineProps) => {
     const points = useMemo(() => replay.samples.map((sample) => sample.position), []);
-
-    const colorBuffer = useMemo(() => {
-        const colors = lineType.colorsCallback(replay);
-        return colorsToBuffer(colors);
-    }, [replay, lineType]);
+    const colorBuffer = useMemo(() => lineType.colorsCallback(replay), [replay, lineType]);
 
     const onUpdate = useCallback(
         (self) => {

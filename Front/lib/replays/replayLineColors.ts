@@ -25,21 +25,35 @@ const COLOR_MAP_GEARS: ColorMap = [
 ];
 
 export const colorsToBuffer = (colors: THREE.Color[]): THREE.Float32BufferAttribute => {
-    const colorBuffer = colors.map((color) => [color.r, color.g, color.b]).flat();
+    const colorBuffer = [];
+    for (let i = 0; i < colors.length; i++) {
+        const color = colors[i];
+        colorBuffer.push(color.r, color.g, color.b);
+    }
     return new THREE.Float32BufferAttribute(colorBuffer, 3);
 };
 
-export const defaultReplayColors = (replay: ReplayData): THREE.Color[] => {
+export const defaultReplayColors = (replay: ReplayData): THREE.Float32BufferAttribute => {
+    const colorBuffer = [];
     const color = new THREE.Color(Math.random(), Math.random(), Math.random());
-    return replay.samples.map((_) => color);
+    for (let i = 0; i < replay.samples.length; i++) {
+        colorBuffer.push(color.r, color.g, color.b);
+    }
+    return new THREE.Float32BufferAttribute(colorBuffer, 3);
 };
 
-export const speedReplayColors = (replay: ReplayData): THREE.Color[] => {
-    return replay.samples.map((sample) => getColorFromMap(sample.speed, COLOR_MAP_SPEED));
+export const speedReplayColors = (replay: ReplayData): THREE.Float32BufferAttribute => {
+    const colorBuffer = [];
+    for (let i = 0; i < replay.samples.length; i++) {
+        const sample = replay.samples[i];
+        const color = getColorFromMap(sample.speed, COLOR_MAP_SPEED);
+        colorBuffer.push(color.r, color.g, color.b);
+    }
+    return new THREE.Float32BufferAttribute(colorBuffer, 3);
 };
 
-export const accelerationReplayColors = (replay: ReplayData): THREE.Color[] => {
-    const colors = [];
+export const accelerationReplayColors = (replay: ReplayData): THREE.Float32BufferAttribute => {
+    const colorBuffer = [];
     let latestValidSample: ReplayDataPoint | undefined = undefined;
     let latestColor = new THREE.Color(0, 0, 0);
 
@@ -48,12 +62,12 @@ export const accelerationReplayColors = (replay: ReplayData): THREE.Color[] => {
 
         // Skip sample if the velocity is all 0
         if (sample.velocity.x == 0 && sample.velocity.y == 0 && sample.velocity.z == 0) {
-            colors.push(latestColor);
+            colorBuffer.push(latestColor.r, latestColor.g, latestColor.b);
         } else {
             // If there is not last valid sample point, set to current sample
             if (latestValidSample == undefined) {
                 latestValidSample = sample;
-                colors.push(latestColor);
+                colorBuffer.push(latestColor.r, latestColor.g, latestColor.b);
                 continue;
             }
 
@@ -61,16 +75,22 @@ export const accelerationReplayColors = (replay: ReplayData): THREE.Color[] => {
             const timeDiff = sample.currentRaceTime - latestValidSample.currentRaceTime;
             const acc = (speedDiff / timeDiff) * 1000;
             const color = getColorFromMap(acc, COLOR_MAP_ACCELERATION);
-            colors.push(color);
+            colorBuffer.push(color.r, color.g, color.b);
 
             latestColor = color;
             latestValidSample = sample;
         }
     }
 
-    return colors;
+    return new THREE.Float32BufferAttribute(colorBuffer, 3);
 };
 
-export const gearReplayColors = (replay: ReplayData): THREE.Color[] => {
-    return replay.samples.map((sample) => getColorFromMap(sample.engineCurGear, COLOR_MAP_GEARS));
+export const gearReplayColors = (replay: ReplayData): THREE.Float32BufferAttribute => {
+    const colorBuffer = [];
+    for (let i = 0; i < replay.samples.length; i++) {
+        const sample = replay.samples[i];
+        const color = getColorFromMap(sample.engineCurGear, COLOR_MAP_GEARS);
+        colorBuffer.push(color.r, color.g, color.b);
+    }
+    return new THREE.Float32BufferAttribute(colorBuffer, 3);
 };
