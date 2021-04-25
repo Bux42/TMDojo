@@ -1,8 +1,13 @@
-import { Button, Drawer } from "antd";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
+import Title from "antd/lib/typography/Title";
+import { Button, Drawer, Select } from "antd";
+import { Option } from "antd/lib/mentions";
+import { SettingsContext } from "../../lib/contexts/SettingsContext";
+import { LineTypes } from "../viewer/ReplayLines";
 
 export const SidebarSettings = (): JSX.Element => {
     const [visible, setVisible] = useState(false);
+    const { lineType, changeLineType } = useContext(SettingsContext);
 
     const onClose = () => {
         setVisible(false);
@@ -10,6 +15,13 @@ export const SidebarSettings = (): JSX.Element => {
 
     const toggleSidebar = () => {
         setVisible(!visible);
+    };
+
+    const onChangeLineType = (newLineTypeKey: string) => {
+        const newLineType = LineTypes[newLineTypeKey];
+        if (newLineType != undefined) {
+            changeLineType(newLineType);
+        }
     };
 
     return (
@@ -24,7 +36,22 @@ export const SidebarSettings = (): JSX.Element => {
                 onClose={onClose}
                 visible={visible}
             >
-                {"< Settings here >"}
+                <Title level={5}>Line Type</Title>
+                <Select
+                    className={"w-full"}
+                    size="large"
+                    value={lineType.name}
+                    onChange={onChangeLineType}
+                >
+                    {Object.keys(LineTypes).map((lineTypeKey) => {
+                        const { name } = LineTypes[lineTypeKey];
+                        return (
+                            <Option key={name} value={lineTypeKey}>
+                                {name}
+                            </Option>
+                        );
+                    })}
+                </Select>
             </Drawer>
         </div>
     );

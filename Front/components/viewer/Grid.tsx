@@ -1,7 +1,7 @@
 import React from "react";
 import * as THREE from "three";
 
-const GRID_COLOR = new THREE.Color(0.7, 0.7, 0.7);
+const GRID_COLOR = new THREE.Color(0.01, 0.01, 0.01);
 const GRID_SIZE = 48 * 32;
 const GRID_DIVISIONS = 32;
 export const GRID_POS = new THREE.Vector3(GRID_SIZE / 2, 0, GRID_SIZE / 2);

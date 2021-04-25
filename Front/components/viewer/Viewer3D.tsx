@@ -1,15 +1,21 @@
-import React from "react";
+import React, { useContext } from "react";
+import * as THREE from "three";
 import { Canvas } from "@react-three/fiber";
 import { ReplayData } from "../../lib/api/fileRequests";
 import { ReplayLines } from "./ReplayLines";
 import { Grid } from "./Grid";
 import { CameraController } from "./CameraController";
+import { SettingsContext } from "../../lib/contexts/SettingsContext";
+
+const BACKGROUND_COLOR = new THREE.Color(0.05, 0.05, 0.05);
 
 interface Props {
     replaysData: ReplayData[];
 }
 
 export const Viewer3D = ({ replaysData }: Props): JSX.Element => {
+    const { lineType } = useContext(SettingsContext);
+
     return (
         <div style={{ zIndex: -10 }} className="w-screen h-screen">
             <Canvas
@@ -20,9 +26,10 @@ export const Viewer3D = ({ replaysData }: Props): JSX.Element => {
                     far: 50000,
                 }}
             >
+                <color attach="background" args={[BACKGROUND_COLOR]} />
                 <CameraController />
                 <Grid />
-                <ReplayLines replaysData={replaysData} />
+                <ReplayLines replaysData={replaysData} lineType={lineType} />
             </Canvas>
         </div>
     );

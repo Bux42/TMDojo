@@ -1,4 +1,5 @@
 import React from "react";
+import { SettingsProvider } from "../lib/contexts/SettingsContext";
 import "../styles/globals.css";
 
 interface Props {
@@ -7,7 +8,11 @@ interface Props {
 }
 
 const MyApp = ({ Component, pageProps }: Props): React.ReactElement => {
-    return <Component {...pageProps} />;
+    return (
+        <SettingsProvider>
+            <Component {...pageProps} />
+        </SettingsProvider>
+    );
 };
 
 export default MyApp;
