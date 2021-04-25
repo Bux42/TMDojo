@@ -12,9 +12,9 @@ The goal is to be able to browse & analyse racing data, and maybe some machine l
   
 
 The project has three parts:
- - Front: (web ui with 3D view using THREE.js)
- - Plugin: (openplanet plugin that records racing data) 
- - Server: Recieves & stores racing
+ - app: (web ui with 3D view using THREE.js)
+ - plugins: (openplanet plugin that records racing data) 
+ - server: Recieves & stores racing
    data sent by the user's plugin, communicate with the front
   
 
@@ -22,25 +22,25 @@ The racing data gathered by the openplanet plugin is a list of 76 bytes blocks, 
 
 
 Each block stores 20 values:
- - CurrentRaceTime (int)
- - Position (Vec3)
- - AimYaw (float)
- - AimPitch (float)
- - AimDirection (Vec3)
- - Velocity (Vec3)
- - Speed (float)
- - InputSteer (float)
- - InputGasPedal & InputIsBraking (int)
- - EngineRpm (float)
- - EngineCurGear (int)
- - WheelsContactCount (int)
- - WheelsSkiddingCount (int)
+ - currentRaceTime (int)
+ - position (Vec3)
+ - aimYaw (float)
+ - aimPitch (float)
+ - aimDirection (Vec3)
+ - velocity (Vec3)
+ - speed (float)
+ - inputSteer (float)
+ - inputGasPedal & inputIsBraking (int)
+ - engineRpm (float)
+ - engineCurGear (int)
+ - wheelsContactCount (int)
+ - wheelsSkiddingCount (int)
 
 How to use locally:
  - Install MongoDB and create a database named "dojo" (make sure MongoClient url in app.js is the same as yours)
- - Run "npm install" in both /Server and /Front to auto install dependancies
- - Make sure the node server /Server/app.js is running
- - Run "ng serve" in /Front folder and browse http://localhost:4200/ for the web interface
+ - Run "npm install" in both /server and /app to auto install dependancies
+ - Make sure the node server /server/app.js is running
+ - Run "npm run dev" in /app folder and browse http://localhost:4200/ for the web interface
  - Reload plugin in trackmania
 
 You can create a symbolic link for automatic synchronisation of the plugin with the command "mklink"
