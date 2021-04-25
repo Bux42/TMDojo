@@ -80,6 +80,45 @@ function animate() {
     renderer.render(scene, camera);
 }
 
+export class Block {
+    constructor(dataView: DataView, offset: number) {
+
+    }
+}
+
+export class MapBlocksManager {
+    OffSet: any = 0;
+    constructor(dataView: DataView) {
+        this.readDataView(dataView);
+    }
+    readDataView = (dataView: DataView) => {
+        var headerLen = this.readUint16(dataView);
+
+        let headerBlocks: { [id: number]: string } = {};
+        console.log(headerLen);
+        while (headerLen > 0) {
+            var blockId = this.readUint8(dataView);
+            var blockNameLen = this.readUint8(dataView);
+            var blockName = "";
+            for (var i = 0; i < blockNameLen; i++) {
+                var letter = this.readUint8(dataView);
+                blockName += String.fromCharCode(letter);
+            }
+            headerBlocks[blockId] = blockName;
+            headerLen--;
+        }
+        console.log(headerBlocks);
+    }
+    readUint16(dataView: DataView) {
+        this.OffSet += 4;
+        return (dataView.getUint16(this.OffSet - 4, true));
+    }
+    readUint8(dataView: DataView) {
+        this.OffSet += 1;
+        return (dataView.getUint8(this.OffSet - 1));
+    }
+}
+
 export class FileManager {
     FilePath: any;
     FileDataView: any;
@@ -298,6 +337,7 @@ export class DataViewComponent implements OnInit {
     interval: any = 1;
     racetimeIncrement: any = 10;
     CurrentRaceTimeIncrement: any = 15;
+    mapIdInput: any = "h_1dfEJJ8m7eY0jB6Ka7XWof6w";
 
     lineModeSelected: any = "Classic";
     lineModes: any[] = ["Classic", "Velocity", "Gear"];
@@ -405,6 +445,24 @@ export class DataViewComponent implements OnInit {
                 controls.target = new THREE.Vector3(file.LastSample.Position.x, file.LastSample.Position.y, file.LastSample.Position.z);
             });
         }, 1);
+    }
+    loadMapBlocks(mapId: any) {
+        
+        var that = this;
+            var rawFile = new XMLHttpRequest();
+
+            rawFile.open("GET", "http://localhost:3000/get-map-blocks?filePath=" + mapId, true);
+            rawFile.responseType = "arraybuffer";
+            rawFile.onreadystatechange = function () {
+                if (rawFile.readyState === 4) {
+                    if (rawFile.status === 200 || rawFile.status == 0) {
+                        console.log(mapId);
+                        var dataView = new DataView(rawFile.response);
+                        var xd = new MapBlocksManager(dataView);
+                    }
+                }
+            }
+            rawFile.send(null);
     }
     play() {
         var that = this;

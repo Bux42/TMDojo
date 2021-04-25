@@ -25,6 +25,10 @@ if (!fs.existsSync("maps")) {
     fs.mkdirSync("maps");
 }
 
+if (!fs.existsSync("mapBlocks")) {
+    fs.mkdirSync("mapBlocks");
+}
+
 const port = 3000;
 
 app.listen(port, () => {
@@ -72,6 +76,32 @@ app.get("/set-current-map", (req, res, next) => {
     res.send("1");
 });
 
+app.post("/save-map-blocks", function (req, res) {
+    console.log(req.query);
+    var size = 0;
+    var data2 = "";
+    req.on('data', function (data) {
+        size += data.length;
+        data2 += data;
+    });
+
+    req.on('end', function () {
+        let buff = new Buffer(data2, 'base64');
+        var filePath = "mapBlocks/" + req.query.challengeId;
+        fs.writeFile(filePath, buff, function (err) {
+            if (err) {
+                return console.log(err);
+            }
+            console.log("The file was saved at", filePath);
+            data2 = "";
+        });
+        res.end("Thanks");
+    });
+
+    req.on('error', function (e) {
+        console.log("ERROR ERROR: " + e.message);
+    });
+});
 
 app.post("/save-game-data", function (req, res) {
     console.log(req.query);
@@ -108,6 +138,21 @@ app.post("/save-game-data", function (req, res) {
 });
 
 // FRONT
+
+app.get("/get-maps", (_, res) => {
+    const raceData = db.collection('race_data');
+    // group docs by mapName and count each occurrence
+    raceData.aggregate([
+        { $group: {_id: "$mapName", count: {$sum: 1}} },
+        { $project: {_id: 0, name: "$_id", count: "$count"} }
+    ], async (err, cursor) => {
+        if (err) {
+            return res.status(500).send(err);
+        }
+        const data = await cursor.toArray(); 
+        return res.send(data);
+    });
+})
 
 app.get("/get-files", (req, res, next) => {
     console.log(req.query);
@@ -152,6 +197,11 @@ app.get("/get-files", (req, res, next) => {
 app.get('/get-race-data', (req, res, nexct) => {
     console.log(req.query); 
     res.sendFile(__dirname + "\\" + req.query.filePath);
+});
+
+app.get('/get-map-blocks', (req, res) => {
+    console.log(req.query); 
+    res.sendFile(__dirname + "\\mapBlocks\\" + req.query.filePath);
 });
 
 
