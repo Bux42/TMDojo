@@ -24,6 +24,11 @@ const COLOR_MAP_GEARS: ColorMap = [
     { value: 7.0, color: { r: 0xff, g: 0xff, b: 0xff } },
 ];
 
+const COLOR_MAP_RPMS: ColorMap = [
+    { value: 10000.0, color: { r: 0xff, g: 0x00, b: 0 } },
+    { value: 0.0, color: { r: 0x00, g: 0xff, b: 0 } },
+]
+
 export const colorsToBuffer = (colors: THREE.Color[]): THREE.Float32BufferAttribute => {
     const colorBuffer = [];
     for (let i = 0; i < colors.length; i++) {
@@ -47,6 +52,16 @@ export const speedReplayColors = (replay: ReplayData): THREE.Float32BufferAttrib
     for (let i = 0; i < replay.samples.length; i++) {
         const sample = replay.samples[i];
         const color = getColorFromMap(sample.speed, COLOR_MAP_SPEED);
+        colorBuffer.push(color.r, color.g, color.b);
+    }
+    return new THREE.Float32BufferAttribute(colorBuffer, 3);
+};
+
+export const rpmReplayColors = (replay: ReplayData): THREE.Float32BufferAttribute => {
+    const colorBuffer = [];
+    for (let i = 0; i < replay.samples.length; i++) {
+        const sample = replay.samples[i];
+        const color = getColorFromMap(sample.engineRpm, COLOR_MAP_RPMS);
         colorBuffer.push(color.r, color.g, color.b);
     }
     return new THREE.Float32BufferAttribute(colorBuffer, 3);
