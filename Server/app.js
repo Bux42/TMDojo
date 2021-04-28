@@ -1,4 +1,7 @@
+require("dotenv").config();
+
 const express = require('express');
+const https = require('https');
 const fs = require('fs');
 const cors = require('cors');
 const MongoClient = require('mongodb').MongoClient;
@@ -11,8 +14,15 @@ app.use(cors({
     credentials: true
 }));
 
+if (process.env.USE_CERTIFICATES == "true") {
+	https.createServer({
+	    key: fs.readFileSync('./key.pem'),
+	    cert: fs.readFileSync('./cert.pem')
+	}, app).listen(443);
+}
+
 var db = null;
-const mongoClient = new MongoClient("mongodb://localhost:27017", {
+const mongoClient = new MongoClient(process.env.MONGO_URL, {
     useUnifiedTopology: true
 });
 
@@ -33,7 +43,7 @@ if (!fs.existsSync("exports")) {
     fs.mkdirSync("exports");
 }
 
-const port = 3000;
+const port = 80;
 
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`)
