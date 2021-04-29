@@ -8,8 +8,7 @@ interface Props {
 }
 
 const MyApp = ({ Component, pageProps }: Props): React.ReactElement => {
-	console.log("env:", process.env);
-	console.log("nodeApi:", process.env.NODE_API_VERCEL);
+	console.log(process.env.NEXT_PUBLIC_NODE_API_URL);
     return (
         <SettingsProvider>
             <Component {...pageProps} />
