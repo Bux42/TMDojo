@@ -232,17 +232,17 @@ app.get("/get-files", (req, res, next) => {
 
 app.get('/get-race-data', (req, res, nexct) => {
     console.log(req.query);
-    res.sendFile(__dirname + "\\" + req.query.filePath);
+    res.sendFile(__dirname + "/" + req.query.filePath);
 });
 
 app.get('/get-map-blocks', (req, res) => {
     console.log(req.query);
-    res.sendFile(__dirname + "\\mapBlocks\\" + req.query.filePath);
+    res.sendFile(__dirname + "/mapBlocks/" + req.query.filePath);
 });
 
 app.get("/download-race-data", (req, res, next) => {
     console.log(req.query);
-    res.download(__dirname + "\\" + req.query.filePath, req.query.fileName);
+    res.download(__dirname + "/" + req.query.filePath, req.query.fileName);
 })
 
 app.get('/export-race-data', (req, res) => {
@@ -255,14 +255,14 @@ app.get('/export-race-data', (req, res) => {
         } else {
             var fileName = docs[0]._id;
             delete docs[0]._id;
-            var filePath = __dirname + "\\" + docs[0].file_path;
+            var filePath = __dirname + "/" + docs[0].file_path;
             const contents = fs.readFileSync(filePath, {
                 encoding: 'base64'
             });
             docs[0].base64 = contents;
-            fs.writeFileSync(__dirname + "\\" + "exports/" + fileName, JSON.stringify(docs[0]));
-            res.download(__dirname + "\\" + "exports/" + fileName, function (err) {
-                fs.unlink(__dirname + "\\" + "exports/" + fileName, (err) => {
+            fs.writeFileSync(__dirname + "/" + "exports/" + fileName, JSON.stringify(docs[0]));
+            res.download(__dirname + "/" + "exports/" + fileName, function (err) {
+                fs.unlink(__dirname + "/" + "exports/" + fileName, (err) => {
                     if (err) throw err;
                 });
             });

@@ -3,6 +3,12 @@
 #category "Utilities"
 #perms "full"
 
+[Setting name="TMDojoEnabled" description="Enable / Disable plugin"]
+bool Enabled = false;
+
+[Setting name="TMDojoApiUrl" description="TMDojo Api Url"]
+string ApiUrl = "http://localhost";
+
 class TMDojo
 {
     CGameCtnApp@ app;
@@ -19,6 +25,9 @@ class TMDojo
     string playerLogin;
     string webId;
 
+    string localApi = "http://localhost";
+    string remoteApi = "https://api.tmdojo.com";
+
     int prevRaceTime = -6666;
 
     bool showMenu = true;
@@ -31,14 +40,16 @@ class TMDojo
         @this.app = GetApp();
         @this.network = cast<CTrackManiaNetwork>(app.Network);
         this.challengeId = "";
-        this.serverAvailable = this.checkServer();
+        if (Enabled) {
+            this.serverAvailable = this.checkServer();
+        }
     }
+    
     bool checkServer() {
         this.playerName = network.PlayerInfo.Name;
         this.playerLogin = network.PlayerInfo.Login;
         this.webId = network.PlayerInfo.WebServicesUserId;
-
-        Net::HttpRequest@ auth = Net::HttpGet("http://localhost:3000/auth?name=" + network.PlayerInfo.Name + "&login=" + network.PlayerInfo.Login + "&webid=" + network.PlayerInfo.WebServicesUserId);
+        Net::HttpRequest@ auth = Net::HttpGet(ApiUrl + "/auth?name=" + network.PlayerInfo.Name + "&login=" + network.PlayerInfo.Login + "&webid=" + network.PlayerInfo.WebServicesUserId);
         if (auth.String().get_Length() > 0) {
             return (true);
         }
@@ -62,6 +73,9 @@ class TMDojo
         int panelLeftCp = panelLeft + 8;
         int panelTopCp = panelTop + 8;
         
+        Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, "API: " + ApiUrl);
+        panelTopCp += topIncr;
+
         Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, this.serverAvailable ? "Node server: ON" : "Node server: OFF");
         panelTopCp += topIncr;
 
@@ -106,9 +120,33 @@ void Main()
     startnew(ContextChecker);
 }
 
+void RenderMenu()
+{
+	auto app = cast<CGameManiaPlanet>(GetApp());
+	auto menus = cast<CTrackManiaMenus>(app.MenuManager);
+
+	if (UI::BeginMenu("TMDojo")) {
+		if (UI::MenuItem(Enabled ? "Turn OFF" : "Turn ON", "", false, true)) {
+            Enabled = !Enabled;
+            if (Enabled) {
+                dojo.checkServer();
+            }
+		}
+        if (UI::MenuItem("Switch to " + dojo.localApi, "", false, true)) {
+            ApiUrl = dojo.localApi;
+            dojo.checkServer();
+		}
+        if (UI::MenuItem("Switch to " + dojo.remoteApi, "", false, true)) {
+            ApiUrl = dojo.remoteApi;
+            dojo.checkServer();
+		}
+		UI::EndMenu();
+	}
+}
+
 void Render()
 {
-    if (dojo != null) {
+    if (dojo != null && Enabled) {
         if (dojo.showMenu) {
             dojo.drawMenu();
         }
@@ -118,7 +156,7 @@ void Render()
                 dojo.recording = false;
                 print("Save game data size: " + membuff.GetSize());
                 membuff.Seek(0);
-                Net::HttpPost("http://localhost:3000/save-game-data?mapName=" + dojo.mapName +
+                Net::HttpPost(ApiUrl + "/save-game-data?mapName=" + dojo.mapName +
                                                                     "&challengeId=" + dojo.challengeId +
                                                                     "&authorName=" + dojo.authorName +
                                                                     "&playerName=" + dojo.playerName +
@@ -132,7 +170,7 @@ void Render()
                 dojo.recording = false;
                 print("Save game data size: " + membuff.GetSize());
                 membuff.Seek(0);
-                Net::HttpPost("http://localhost:3000/save-game-data?mapName=" + dojo.mapName +
+                Net::HttpPost(ApiUrl + "/save-game-data?mapName=" + dojo.mapName +
                                                                     "&challengeId=" + dojo.challengeId +
                                                                     "&authorName=" + dojo.authorName +
                                                                     "&playerName=" + dojo.playerName +
@@ -190,7 +228,7 @@ void FillBuffer()
 
 void ContextChecker()
 {
-    while (true) {
+    while (true && Enabled) {
         if (dojo.app.CurrentPlayground == null) {
             @dojo.playgroundScript = null;
             @dojo.sm_script = null;
@@ -225,7 +263,7 @@ void ContextChecker()
                     dojo.challengeId = edChallengeId;
                     dojo.authorName = authorName;
                     dojo.mapName = mapName;
-                    string url = "http://localhost:3000/set-current-map?id=" + edChallengeId + "&author=" + authorName + "&name=" + mapName;
+                    string url = ApiUrl + "/set-current-map?id=" + edChallengeId + "&author=" + authorName + "&name=" + mapName;
                     Net::HttpRequest@ mapReq = Net::HttpGet(url);
                 }
             }
