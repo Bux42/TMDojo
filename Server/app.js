@@ -9,7 +9,8 @@ const MongoClient = require('mongodb').MongoClient;
 const app = express();
 app.use(cors({
     origin: [
-        "http://localhost:4200"
+        "http://localhost:4200",
+        "https://tmdojo.com"
     ],
     credentials: true
 }));
