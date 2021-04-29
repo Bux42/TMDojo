@@ -18,6 +18,8 @@ export const SidebarSettings = (): JSX.Element => {
     };
 
     const onChangeLineType = (newLineTypeKey: string) => {
+	console.log(process.env.NODE_API_VERCEL, "<= NODE API VERCEL");
+	console.log(process.env);
         const newLineType = LineTypes[newLineTypeKey];
         if (newLineType != undefined) {
             changeLineType(newLineType);
