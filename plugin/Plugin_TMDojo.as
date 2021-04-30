@@ -7,7 +7,7 @@
 bool Enabled = false;
 
 [Setting name="TMDojoApiUrl" description="TMDojo Api Url"]
-string ApiUrl = "http://localhost";
+string ApiUrl = "http://localhost:3000";
 
 class TMDojo
 {
@@ -25,7 +25,7 @@ class TMDojo
     string playerLogin;
     string webId;
 
-    string localApi = "http://localhost";
+    string localApi = "http://localhost:3000";
     string remoteApi = "https://api.tmdojo.com";
 
     int prevRaceTime = -6666;
