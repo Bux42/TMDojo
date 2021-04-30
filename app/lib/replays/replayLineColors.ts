@@ -71,6 +71,11 @@ export const accelerationReplayColors = (replay: ReplayData): THREE.Float32Buffe
                 continue;
             }
 
+            if (latestValidSample.speed == sample.speed) {
+                colorBuffer.push(latestColor.r, latestColor.g, latestColor.b);
+                continue;
+            }
+
             const speedDiff = sample.speed - latestValidSample.speed;
             const timeDiff = sample.currentRaceTime - latestValidSample.currentRaceTime;
             const acc = (speedDiff / timeDiff) * 1000;

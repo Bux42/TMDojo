@@ -14,8 +14,8 @@ export const getColorFromMap = (inputValue: number, colorMap: ColorMap): THREE.C
 
     const range = upper.value - lower.value;
     const rangePct = (inputValue - lower.value) / range;
-    const pctLower = 1 - rangePct;
-    const pctUpper = rangePct;
+    const pctLower = Math.min(1 - rangePct, 1);
+    const pctUpper = Math.max(0, rangePct);
 
     const color = new THREE.Color(
         Math.floor(lower.color.r * pctLower + upper.color.r * pctUpper) / 255,
