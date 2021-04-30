@@ -48,7 +48,7 @@ export interface ReplayData extends FileResponse {
 
 export const getFiles = async (filters: FilterParams = DEFAULT_FILTERS): Promise<FilesResult> => {
     // TODO: Add correct URL for prod (use a .env file)
-    const res = await axios.get("http://localhost:3000/get-files", {
+    const res = await axios.get(process.env.NEXT_PUBLIC_API_URL + "/get-files", {
         params: filters,
         withCredentials: true,
     });
@@ -57,7 +57,7 @@ export const getFiles = async (filters: FilterParams = DEFAULT_FILTERS): Promise
 };
 
 export const fetchReplayData = async (file: FileResponse): Promise<ReplayData> => {
-    const res = await axios.get("http://localhost:3000/get-race-data", {
+    const res = await axios.get(process.env.NEXT_PUBLIC_API_URL + "/get-race-data", {
         params: { filePath: file.file_path },
         responseType: "arraybuffer",
     });

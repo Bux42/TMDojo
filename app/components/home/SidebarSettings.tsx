@@ -18,7 +18,7 @@ export const SidebarSettings = (): JSX.Element => {
     };
 
     const onChangeLineType = (newLineTypeKey: string) => {
-        const newLineType = LineTypes[newLineTypeKey];
+	const newLineType = LineTypes[newLineTypeKey];
         if (newLineType != undefined) {
             changeLineType(newLineType);
         }
