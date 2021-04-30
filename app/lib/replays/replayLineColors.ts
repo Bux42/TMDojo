@@ -114,3 +114,29 @@ export const gearReplayColors = (replay: ReplayData): THREE.Float32BufferAttribu
     }
     return new THREE.Float32BufferAttribute(colorBuffer, 3);
 };
+
+export const inputReplayColors = (replay: ReplayData): THREE.Float32BufferAttribute => {
+    const colorBuffer = [];
+    for (let i = 0; i < replay.samples.length; i++) {
+        const sample = replay.samples[i];
+        var input = 0;
+        var color = new THREE.Color(1,1,1);
+        if (sample.inputGasPedal) {
+            color.r = 0;
+            color.g = 1;
+            color.b = 0;
+        }
+        if (sample.inputIsBraking) {
+            color.r = 1;
+            color.g = 0;
+            color.b = 0;
+        }
+        if (sample.inputIsBraking && sample.inputGasPedal) {
+            color.r = 1;
+            color.g = 1;
+            color.b = 0;
+        }
+        colorBuffer.push(color.r, color.g, color.b);
+    }
+    return new THREE.Float32BufferAttribute(colorBuffer, 3);
+};

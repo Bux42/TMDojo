@@ -8,6 +8,7 @@ import {
     gearReplayColors,
     rpmReplayColors,
     speedReplayColors,
+    inputReplayColors
 } from "../../lib/replays/replayLineColors";
 
 export interface LineType {
@@ -19,7 +20,8 @@ export const LineTypes: { [name: string]: LineType } = {
     speed: { name: "Speed", colorsCallback: speedReplayColors },
     acceleration: { name: "Acceleration", colorsCallback: accelerationReplayColors },
     gear: { name: "Gear", colorsCallback: gearReplayColors },
-    rpm: { name: "RPMs", colorsCallback: rpmReplayColors}
+    rpm: { name: "RPMs", colorsCallback: rpmReplayColors},
+    inputs: { name: "Inputs", colorsCallback: inputReplayColors}
 };
 
 interface ReplayLineProps {
