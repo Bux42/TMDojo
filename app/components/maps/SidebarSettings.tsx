@@ -16,6 +16,7 @@ const SidebarSettings = (): JSX.Element => {
         showInputOverlay, setShowInputOverlay,
         replayLineOpacity, setReplayLineOpacity,
         replayCarOpacity, setReplayCarOpacity,
+        showBlocks, setShowBlocks,
     } = useContext(
         SettingsContext,
     );
@@ -33,6 +34,10 @@ const SidebarSettings = (): JSX.Element => {
         if (newLineType !== undefined) {
             changeLineType(newLineType);
         }
+    };
+
+    const onChangeSetBlocks = (event: CheckboxChangeEvent) => {
+        setShowBlocks(event.target.checked);
     };
 
     return (
@@ -106,6 +111,14 @@ const SidebarSettings = (): JSX.Element => {
                     value={typeof replayCarOpacity === 'number' ? replayCarOpacity : 0}
                     step={0.1}
                 />
+
+                <Checkbox
+                    className="w-full py-6 select-none"
+                    onChange={onChangeSetBlocks}
+                    checked={showBlocks}
+                >
+                    Show Blocks
+                </Checkbox>
             </Drawer>
         </div>
     );

@@ -25,9 +25,11 @@ export interface SettingsContextProps {
     setCameraMode: (setCameraMode: CameraMode) => void;
     numColorChange: number;
     setNumColorChange: (numColorChange: number) => void;
+    showBlocks: boolean;
+    setShowBlocks: (showBlocks: boolean) => void;
 }
 
-export const SettingsContext = createContext<SettingsContextProps>({
+const defaultProps: SettingsContextProps = {
     lineType: LineTypes.default,
     changeLineType: () => {},
     showGearChanges: false,
@@ -44,7 +46,11 @@ export const SettingsContext = createContext<SettingsContextProps>({
     setCameraMode: () => {},
     numColorChange: 0,
     setNumColorChange: () => {},
-});
+    showBlocks: true,
+    setShowBlocks: () => {},
+};
+
+export const SettingsContext = createContext<SettingsContextProps>(defaultProps);
 
 export const SettingsProvider = ({ children }: any): JSX.Element => {
     const [lineType, setLineType] = useState<LineType>(LineTypes.default);
@@ -55,6 +61,7 @@ export const SettingsProvider = ({ children }: any): JSX.Element => {
     const [replayCarOpacity, setReplayCarOpacity] = useState(0.5);
     const [cameraMode, setCameraMode] = useState(CameraMode.Follow);
     const [numColorChange, setNumColorChange] = useState(0);
+    const [showBlocks, setShowBlocks] = useState(defaultProps.showBlocks);
 
     const changeLineType = (type: LineType) => {
         setLineType(type);
@@ -79,6 +86,8 @@ export const SettingsProvider = ({ children }: any): JSX.Element => {
                 setCameraMode,
                 numColorChange,
                 setNumColorChange,
+                showBlocks,
+                setShowBlocks,
             }}
         >
             {children}

@@ -1,4 +1,6 @@
-import React, { Suspense, useContext, useRef } from 'react';
+import React, {
+    Suspense, useContext, useEffect, useRef, useState,
+} from 'react';
 import * as THREE from 'three';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Sky } from '@react-three/drei';
@@ -10,6 +12,9 @@ import FrameRate from './FrameRate';
 import ReplayCars from './ReplayCars';
 import GlobalTimeLineInfos from '../../lib/singletons/timeLineInfos';
 import TimeLine from './TimeLine';
+import { fetchMapBlocks } from '../../lib/api/mapRequests';
+import { MapBlockData } from '../../lib/blocks/blockData';
+import { MapBlocks } from './MapBlocks';
 
 const BACKGROUND_COLOR = new THREE.Color(0.05, 0.05, 0.05);
 
@@ -26,7 +31,10 @@ const Viewer3D = ({ replaysData }: Props): JSX.Element => {
         replayCarOpacity,
         cameraMode,
         numColorChange,
+        showBlocks,
     } = useContext(SettingsContext);
+
+    const [mapBlockData, setMapBlockData] = useState<MapBlockData | undefined>();
 
     const orbitControlsRef = useRef<any>();
     const timeLineGlobal = GlobalTimeLineInfos.getInstance();
@@ -37,6 +45,22 @@ const Viewer3D = ({ replaysData }: Props): JSX.Element => {
             orbitDefaultTarget = replaysData[0].samples[0].position;
         }
     }
+
+    useEffect(() => {
+        const f = async () => {
+            if (replaysData.length > 0) {
+                try {
+                    const blocks = await fetchMapBlocks(replaysData[0]);
+                    setMapBlockData(blocks);
+                } catch (e) {
+                    // TODO: Either store that this map is unavailable, or just do nothing, like now
+                }
+            } else {
+                setMapBlockData(undefined);
+            }
+        };
+        f();
+    }, [replaysData]);
 
     return (
         <div style={{ zIndex: -10 }} className="w-full h-full">
@@ -75,6 +99,7 @@ const Viewer3D = ({ replaysData }: Props): JSX.Element => {
                     />
                 </Suspense>
                 {showFPS && <FrameRate />}
+                {showBlocks && mapBlockData && <MapBlocks mapBlockData={mapBlockData} />}
             </Canvas>
             <TimeLine
                 replaysData={replaysData}

@@ -52,8 +52,8 @@ if (process.env.USE_CERTIFICATES === 'true') {
 const defaultPort = Number(process.env.HTTP_PORT) || 80;
 
 // body-parser middleware
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ limit: '5mb', extended: false }));
+app.use(bodyParser.json({ limit: '5mb' }));
 
 // Cookie Parser middleware
 app.use(cookieParser());

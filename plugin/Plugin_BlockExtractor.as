@@ -4,6 +4,7 @@
 #perms "full"
 
 bool g_inCustomMenu = false;
+MemoryBuffer membuff = MemoryBuffer(0);
 
 class Block {
     string blockName;
@@ -11,12 +12,21 @@ class Block {
     int count;
 }
 
-vec3 getRealCoords(nat3 coords) 
+class UploadHandle
 {
-    auto app = GetApp();
-    CGameCtnEditorFree@ editor = cast<CGameCtnEditorFree>(app.Editor);
-    CGameEditorPluginMapMapType@ mapType = editor.PluginMapType;
-    return (mapType.GetVec3FromCoord(coords));
+    string challengeId;
+}
+
+vec3 getRealCoords(nat3 coords)
+{
+
+    int realX = 32 * coords.x + 16;
+    int realY = 8 * coords.y - 60;
+    int realZ = 32 * coords.z + 16;
+
+    vec3 coord(realX, realY, realZ);
+
+    return coord;
 }
 
 void ExtractBlocks()
@@ -27,56 +37,61 @@ void ExtractBlocks()
     
     uint8 blockIndex = 0;
     auto app = GetApp();
-    if (app.PlaygroundScript != null) {
-        if (app.PlaygroundScript.Map != null) {
-            for (int i = 0; i < app.PlaygroundScript.Map.Blocks.Length; i++) {
-                if (!blocksDict.Exists(app.PlaygroundScript.Map.Blocks[i].BlockModel.Name)) {
-                    blockNames.InsertLast(app.PlaygroundScript.Map.Blocks[i].BlockModel.Name);
-                    blocksDict.Set(app.PlaygroundScript.Map.Blocks[i].BlockModel.Name, blockIndex);
-                    blockIndex++;
-                } 
-                if (app.PlaygroundScript.Map.Blocks[i].BlockModel.Name.Contains("OpenTechRoadCheckpoint")) {
-                    vec3 coord = getRealCoords(app.PlaygroundScript.Map.Blocks[i].Coord);
-                }
-            }
-            auto membuff = MemoryBuffer(0);
-            membuff.Write(blockNames.get_Length());
-            print(app.PlaygroundScript.Map.Blocks.Length + " Blocks analysed");
-            for (int i = 0; i < blockNames.get_Length(); i++) {
-                uint8 id;
-                blocksDict.Get(blockNames[i], id);
 
-                uint8 blockNameLen = blockNames[i].get_Length();
+    for (int i = 0; i < app.RootMap.Blocks.Length; i++) {
+        auto block = app.RootMap.Blocks[i];
 
-                print("Id: " + id + "\t" + blockNames[i]);
-                membuff.Write(id);
-                membuff.Write(blockNameLen);
-                membuff.Write(blockNames[i]);
-            }
-            for (int i = 0; i < app.PlaygroundScript.Map.Blocks.Length; i++) {
-                uint8 id;
-                uint8 dir = app.PlaygroundScript.Map.Blocks[i].BlockModel.Dir;
-                vec3 coord = getRealCoords(app.PlaygroundScript.Map.Blocks[i].Coord);
-                blocksDict.Get(app.PlaygroundScript.Map.Blocks[i].BlockModel.Name, id);
+        string name = block.BlockModel.Name;
+        uint8 blockNameLen = name.get_Length();
+        uint8 dir = block.Direction;
+        vec3 coord = getRealCoords(block.Coord);
 
-                membuff.Write(id);
-                membuff.Write(dir);
+        membuff.Write(blockNameLen);
+        membuff.Write(name);
+        membuff.Write(dir);
 
-                membuff.Write(coord.x);
-                membuff.Write(coord.y);
-                membuff.Write(coord.z);
-            }
-            print("Membuff: " + membuff.GetSize());
-            membuff.Seek(0);
-            Net::HttpPost("http://localhost/maps/" + app.PlaygroundScript.Map.EdChallengeId, membuff.ReadToBase64(membuff.GetSize()), "application/octet-stream");
-            membuff.Resize(0);
+        membuff.Write(coord.x);
+        membuff.Write(coord.y);
+        membuff.Write(coord.z);
 
-        } else {
-            print("app.PlaygroundScript.Map == null");
+        auto blockUnits = block.BlockUnits;
+        uint8 blockUnitsLen = blockUnits.get_Length();
+
+        membuff.Write(blockUnitsLen);
+        for (int i = 0; i < blockUnits.get_Length(); i++) {
+            auto unit = blockUnits[i];
+            membuff.Write(unit.Offset.x);
+            membuff.Write(unit.Offset.y);
+            membuff.Write(unit.Offset.z);
         }
-    } else {
-        print("app.PlaygroundScript == null");
     }
+
+    print("Starting Upload");
+    ref @uploadHandle = UploadHandle();
+
+    cast<UploadHandle>(uploadHandle).challengeId = app.PlaygroundScript.Map.EdChallengeId;
+
+    startnew(UploadMapData, uploadHandle);
+}
+
+void UploadMapData(ref @uploadHandle)
+{
+    UploadHandle @uh = cast<UploadHandle>(uploadHandle);
+    print("Membuff: " + membuff.GetSize());
+    membuff.Seek(0);
+    Net::HttpRequest req;
+    req.Method = Net::HttpMethod::Post;
+    req.Url = "http://localhost/save-map-blocks?challengeId=" + uh.challengeId;
+    req.Body = membuff.ReadToBase64(membuff.GetSize());
+    dictionary@ Headers = dictionary();
+    Headers["Content-Type"] = "application/octet-stream";
+    
+    req.Start();
+    while (!req.Finished()) {
+        yield();
+    }
+
+    membuff.Resize(0);
 }
 
 void RenderMenu()
