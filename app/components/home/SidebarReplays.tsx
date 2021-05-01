@@ -139,15 +139,11 @@ export const SidebarReplays = ({
     };
 
     const onReplayTableChange = (pagination: any, currentPageData: any) => {
-        var visibleR = [];
-        for (var i = (pagination.current - 1) * pagination.pageSize; i < ((pagination.current - 1) * pagination.pageSize) + pagination.pageSize; i++) {
+        let visibleR = [];
+        for (let i = (pagination.current - 1) * pagination.pageSize; i < ((pagination.current - 1) * pagination.pageSize) + pagination.pageSize; i++) {
             visibleR.push(currentPageData.currentDataSource[i]);
         }
         setVisibleReplays(visibleR);
-    }
-
-    const toggleLoadAllVisibleReplays = () => {
-        onLoadAllVisibleReplays(visibleReplays, selectedReplayDataIds);
     }
 
     const toggleUnloadAll = () => {
@@ -170,7 +166,7 @@ export const SidebarReplays = ({
                 <div>
                     <Button
                         type="primary"
-                        onClick={toggleLoadAllVisibleReplays}>
+                        onClick={() => onLoadAllVisibleReplays(visibleReplays, selectedReplayDataIds)}>
                         Load all visible
                     </Button>
                     <Button

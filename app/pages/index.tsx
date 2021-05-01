@@ -30,7 +30,7 @@ const Home = (): JSX.Element => {
 
     const onLoadAllVisibleReplays = async (replays: FileResponse[], selectedReplayDataIds: string[]) => {
         let fetchedReplays = [];
-        for (var i = 0; i < replays.length; i++) {
+        for (let i = 0; i < replays.length; i++) {
             if (selectedReplayDataIds.indexOf(replays[i]._id) == -1) {
                 const replayData = await fetchReplayData(replays[i]);
                 fetchedReplays.push(replayData);
