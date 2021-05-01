@@ -146,10 +146,6 @@ export const SidebarReplays = ({
         setVisibleReplays(visibleR);
     }
 
-    const toggleUnloadAll = () => {
-        onRemoveAllReplays(visibleReplays);
-    }
-
     return (
         <div className="absolute m-8 z-10">
             <Button onClick={toggleSidebar} shape="round" size="large">
@@ -172,7 +168,7 @@ export const SidebarReplays = ({
                     <Button
                         type="primary"
                         danger
-                        onClick={toggleUnloadAll}>
+                        onClick={() => onRemoveAllReplays(visibleReplays)}>
                         Unload all
                         </Button>
                 </div>
