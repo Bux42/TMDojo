@@ -7,7 +7,7 @@ export const fetchMapBlocks = async (file: FileResponse): Promise<MapBlockData> 
         filePath: file.challengeId,
     };
 
-    const res = await axios.get("http://localhost:3000/get-map-blocks", {
+    const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/get-map-blocks`, {
         params,
         responseType: "arraybuffer",
     });

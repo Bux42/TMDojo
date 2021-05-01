@@ -1,44 +1,72 @@
 import React from "react";
 import * as THREE from "three";
-import { MapBlockData } from "../../lib/blocks/blockData";
-import { BasicBlock, BASE_BLOCK_COLOR, BASE_BLOCK_OPACITY } from "./blocks/basicBlock";
-import { CpBlock, FinishBlock, StartBlock } from "./blocks/landmarkBlocks";
+import { Block, MapBlockData } from "../../lib/blocks/blockData";
+import { BasicBlock, BasicBlockWithOffsets } from "./blocks/BasicBlocks";
+import { CpBlock } from "./blocks/CpBlocks";
 
-interface Props {
-    mapBlockData: MapBlockData;
-}
+// Block colors
+const BASE_COLOR = new THREE.Color(0.1, 0.1, 0.1);
+const START_COLOR = new THREE.Color(0.2, 0.6, 0.2);
+const FINISH_COLOR = new THREE.Color(0.6, 0.2, 0.2);
+const CP_COLOR = new THREE.Color(0.1, 0.3, 0.8);
+
+// Block opacities
+const BASE_OPACITY = 0.2;
+const START_OPACITY = 0.8;
+const FINISH_OPACITY = 0.8;
+const CP_OPACITY = 0.8;
 
 interface MapBlockProps {
-    meshCoord: THREE.Vector3;
-    blockName: string;
-    dir: number;
-    colorOverride?: THREE.Color;
+    block: Block;
 }
+const MapBlock = ({ block }: MapBlockProps) => {
+    const { blockName, baseCoord } = block;
 
-const MapBlock = ({ meshCoord, blockName, colorOverride, dir }: MapBlockProps) => {
+    // Offset coord by -8 in the Y-direction so all blocks are below the race line
+    const meshCoord = new THREE.Vector3(baseCoord.x, baseCoord.y - 8, baseCoord.z);
+
+    // Start block
     if (blockName.includes("TechStart")) {
-        return <StartBlock meshCoord={meshCoord} />;
+        return (
+            <BasicBlock
+                meshCoord={meshCoord}
+                materialProps={{ color: START_COLOR, opacity: START_OPACITY }}
+            />
+        );
     }
 
+    // Finish blocks
     if (blockName.includes("TechFinish")) {
-        return <FinishBlock meshCoord={meshCoord} />;
+        return (
+            <BasicBlock
+                meshCoord={meshCoord}
+                materialProps={{ color: FINISH_COLOR, opacity: FINISH_OPACITY }}
+            />
+        );
     }
 
+    // Checkpoint blocks
     if (blockName.includes("Checkpoint")) {
-        return <CpBlock meshCoord={meshCoord} blockName={blockName} dir={dir} />;
+        return (
+            <CpBlock
+                block={block}
+                meshCoord={meshCoord}
+                materialProps={{ color: CP_COLOR, opacity: CP_OPACITY }}
+            />
+        );
     }
 
     return (
-        <BasicBlock
+        <BasicBlockWithOffsets
             meshCoord={meshCoord}
-            color={colorOverride || BASE_BLOCK_COLOR}
-            opacity={BASE_BLOCK_OPACITY}
+            block={block}
+            materialProps={{ color: BASE_COLOR, opacity: BASE_OPACITY }}
         />
     );
 };
 
-export const MapBlocks = ({ mapBlockData }: Props): JSX.Element => {
-    const filteredBlocks = mapBlockData.blocks.filter((block) => {
+const filterBlocks = (blocks: Block[]): Block[] => {
+    return blocks.filter((block) => {
         const { blockName, baseCoord } = block;
 
         if (baseCoord.y == 12 && blockName.includes("Grass")) {
@@ -62,41 +90,18 @@ export const MapBlocks = ({ mapBlockData }: Props): JSX.Element => {
 
         return !isBlacklisted;
     });
+};
+
+interface Props {
+    mapBlockData: MapBlockData;
+}
+export const MapBlocks = ({ mapBlockData }: Props): JSX.Element => {
+    const filteredBlocks = filterBlocks(mapBlockData.blocks);
 
     return (
         <>
-            {filteredBlocks.map((block) => {
-                // Render all offset blocks from the filtered blocks
-                return (
-                    <>
-                        {block.blockOffsets.map((offset, i) => {
-                            // Skip additional offset blocks for start, finish, and checkpoints
-                            if (i > 0) {
-                                if (
-                                    block.blockName.includes("Start") ||
-                                    block.blockName.includes("Finish") ||
-                                    block.blockName.includes("Checkpoint")
-                                ) {
-                                    return;
-                                }
-                            }
-
-                            const offsetCoord = new THREE.Vector3().addVectors(
-                                block.baseCoord,
-                                new THREE.Vector3(offset.x * 32, offset.y * 8 - 8, offset.z * 32)
-                            );
-
-                            return (
-                                <MapBlock
-                                    key={i}
-                                    meshCoord={offsetCoord}
-                                    blockName={block.blockName}
-                                    dir={block.dir}
-                                />
-                            );
-                        })}
-                    </>
-                );
+            {filteredBlocks.map((block, i) => {
+                return <MapBlock key={i} block={block} />;
             })}
         </>
     );
