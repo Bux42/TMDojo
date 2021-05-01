@@ -8,6 +8,8 @@ interface Props {
     replays: FileResponse[];
     onLoadReplay: (replay: FileResponse) => void;
     onRemoveReplay: (replay: FileResponse) => void;
+    onLoadAllVisibleReplays: (replays: FileResponse[], selectedReplayDataIds: string[]) => void;
+    onRemoveAllReplays: (replays: FileResponse[]) => void;
     selectedReplayDataIds: string[];
 }
 
@@ -21,9 +23,12 @@ export const SidebarReplays = ({
     replays,
     onLoadReplay,
     onRemoveReplay,
+    onLoadAllVisibleReplays,
+    onRemoveAllReplays,
     selectedReplayDataIds,
 }: Props): JSX.Element => {
     const [visible, setVisible] = useState(false);
+    const [visibleReplays, setVisibleReplays] = useState<FileResponse[]>([]);
 
     const onClose = () => {
         setVisible(false);
@@ -133,6 +138,22 @@ export const SidebarReplays = ({
         });
     };
 
+    const onReplayTableChange = (pagination: any, currentPageData: any) => {
+        var visibleR = [];
+        for (var i = (pagination.current - 1) * pagination.pageSize; i < ((pagination.current - 1) * pagination.pageSize) + pagination.pageSize; i++) {
+            visibleR.push(currentPageData.currentDataSource[i]);
+        }
+        setVisibleReplays(visibleR);
+    }
+
+    const toggleLoadAllVisibleReplays = () => {
+        onLoadAllVisibleReplays(visibleReplays, selectedReplayDataIds);
+    }
+
+    const toggleUnloadAll = () => {
+        onRemoveAllReplays(visibleReplays);
+    }
+
     return (
         <div className="absolute m-8 z-10">
             <Button onClick={toggleSidebar} shape="round" size="large">
@@ -147,7 +168,23 @@ export const SidebarReplays = ({
                 className={"h-screen"}
             >
                 <div>
+                    <Button
+                        type="primary"
+                        onClick={toggleLoadAllVisibleReplays}>
+                        Load all visible
+                    </Button>
+                    <Button
+                        type="primary"
+                        danger
+                        onClick={toggleUnloadAll}>
+                        Unload all
+                        </Button>
+                </div>
+                <div>
                     <Table
+                        onChange={(pagination, filters, sorter, currentPageData) => {
+                            onReplayTableChange(pagination, currentPageData);
+                        }}
                         dataSource={addReplayInfo(replays)}
                         columns={columns}
                         size="small"
