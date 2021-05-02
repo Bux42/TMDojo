@@ -17,7 +17,7 @@ export const Viewer3D = ({ replaysData }: Props): JSX.Element => {
     const { lineType } = useContext(SettingsContext);
 
     return (
-        <div style={{ zIndex: -10 }} className="w-screen h-screen">
+        <div style={{ zIndex: -10 }} className="w-full h-full">
             <Canvas
                 camera={{
                     fov: 45,

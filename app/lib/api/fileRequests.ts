@@ -47,7 +47,6 @@ export interface ReplayData extends FileResponse {
 }
 
 export const getFiles = async (filters: FilterParams = DEFAULT_FILTERS): Promise<FilesResult> => {
-    // TODO: Add correct URL for prod (use a .env file)
     const res = await axios.get(process.env.NEXT_PUBLIC_API_URL + "/get-files", {
         params: filters,
         withCredentials: true,
