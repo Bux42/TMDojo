@@ -28,7 +28,7 @@ export const Viewer3D = ({ replaysData }: Props): JSX.Element => {
             >
                 <color attach="background" args={[BACKGROUND_COLOR]} />
                 <CameraController />
-                <Grid />
+                <Grid replaysData={replaysData} blockPadding={2} />
                 <ReplayLines replaysData={replaysData} lineType={lineType} />
             </Canvas>
         </div>
