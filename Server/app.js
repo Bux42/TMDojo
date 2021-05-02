@@ -10,7 +10,8 @@ const app = express();
 app.use(cors({
     origin: [
         "http://localhost:4200",
-        "https://tmdojo.com"
+        "https://tmdojo.com",
+        /https:\/\/tm-dojo-.*\.vercel\.app/
     ],
     credentials: true
 }));
