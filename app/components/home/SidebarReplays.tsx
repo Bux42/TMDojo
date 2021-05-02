@@ -131,6 +131,7 @@ export const SidebarReplays = ({
         return replayList.map((replay) => {
             return {
                 ...replay,
+                key: replay._id,
                 readableTime: getEndRaceTimeStr(replay.endRaceTime),
                 relativeDate: timeDifference(now, replay.date),
                 finished: replay.raceFinished == 1,
