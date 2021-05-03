@@ -14,7 +14,7 @@ int RECORDING_FPS = 60;
 class TMDojo
 {
     CGameCtnApp@ app;
-    CGamePlaygroundScript@ playgroundScript;
+    CGameCtnChallenge@ rootMap;
     CSmScriptPlayer@ sm_script;
     CGamePlaygroundUIConfig@ uiConfig;
     CTrackManiaNetwork@ network;
@@ -80,7 +80,7 @@ class TMDojo
         Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, this.serverAvailable ? "Node server: ON" : "Node server: OFF");
         panelTopCp += topIncr;
 
-        Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, (@this.playgroundScript == null ? "PlayGroundScript: null" : "PlayGroundScript: OK"));
+        Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, (@this.rootMap == null ? "RootMap: null" : "RootMap: OK"));
         panelTopCp += topIncr;
 
         Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, (@this.sm_script == null ? "SM_SCRIPT: null" : "SM_SCRIPT: OK"));
@@ -105,7 +105,7 @@ class TMDojo
     }
 
     bool canRecord() {
-        return @dojo.sm_script != null && @dojo.playgroundScript != null && @dojo.uiConfig != null;
+        return @dojo.sm_script != null && @dojo.rootMap != null && @dojo.uiConfig != null;
     }
 
     bool shouldStartRecording() {
@@ -114,6 +114,12 @@ class TMDojo
             return curRaceTime > -300 && curRaceTime < 0;
         }
         return false;
+    }
+
+    void resetRecording() {
+        this.recording = false;
+        this.latestRecordedTime = -6666;
+        membuff.Resize(0);
     }
 }
 
@@ -186,9 +192,6 @@ void Render()
 
 void PostRecordedData(bool finished) 
 {
-    dojo.recording = false;
-    dojo.latestRecordedTime = -6666;
-
     if (membuff.GetSize() < 100) {
         print("Not saving file, too little data");
         return;
@@ -207,6 +210,8 @@ void PostRecordedData(bool finished)
                         "&raceFinished=" + (finished ? "1" : "0");
     Net::HttpPost(reqUrl, membuff.ReadToBase64(membuff.GetSize()), "application/octet-stream");
     membuff.Resize(0);
+
+    dojo.resetRecording();
 }
 
 void FillBuffer()
@@ -250,19 +255,20 @@ void FillBuffer()
 
 void ContextChecker()
 {
-    while (true && Enabled) {
-        if (!dojo.serverAvailable) {
-            dojo.serverAvailable = dojo.checkServer();
-        }
+    while (true) {
+        if (Enabled) {
+            if (!dojo.serverAvailable) {
+                dojo.serverAvailable = dojo.checkServer();
+            }
 
-        if (@dojo.app.CurrentPlayground == null) {
-            @dojo.playgroundScript = null;
-            @dojo.sm_script = null;
-            @dojo.uiConfig = null;
-            dojo.challengeId = "";
-            dojo.recording = false;
-        } else {
-            
+            if (@dojo.app.CurrentPlayground == null) {
+                @dojo.rootMap = null;
+                @dojo.sm_script = null;
+                @dojo.uiConfig = null;
+                dojo.challengeId = "";
+                dojo.resetRecording();
+            } 
+
             // SM_SCRIPT (used to get player inputs)
             if (@dojo.sm_script == null) {
                 print("sm_script == null");
@@ -273,22 +279,21 @@ void ContextChecker()
                 }
             }
 
-            // PlaygroundScript (used to get the current map)
-            if (@dojo.playgroundScript == null) {
-                print("playgroundScript == null");
-                if (@dojo.app.PlaygroundScript != null) {
-                    @dojo.playgroundScript = dojo.app.PlaygroundScript;
+            // RootMap
+            if (@dojo.rootMap == null) {
+                print("rootMap == null");
+                if (@dojo.app.RootMap != null) {
+                    @dojo.rootMap = dojo.app.RootMap;
                 }
             }
 
             // Challenge ID (used to set current map)
             if (dojo.challengeId.get_Length() == 0) {
                 print("dojo.challengeId.length == 0");
-                if (@dojo.app.PlaygroundScript != null &&
-                    @dojo.app.PlaygroundScript.Map != null) {
-                    string edChallengeId = dojo.app.PlaygroundScript.Map.EdChallengeId;
-                    string authorName = dojo.app.PlaygroundScript.Map.AuthorNickName;
-                    string mapName = Regex::Replace(dojo.app.PlaygroundScript.Map.MapInfo.NameForUi, "\\$([0-9a-fA-F]{1,3}|[iIoOnNmMwWsSzZtTgG<>]|[lLhHpP](\\[[^\\]]+\\])?)", "").Replace(" ", "%20");
+                if (@dojo.rootMap != null) {
+                    string edChallengeId = dojo.rootMap.EdChallengeId;
+                    string authorName = dojo.rootMap.AuthorNickName;
+                    string mapName = Regex::Replace(dojo.rootMap.MapInfo.NameForUi, "\\$([0-9a-fA-F]{1,3}|[iIoOnNmMwWsSzZtTgG<>]|[lLhHpP](\\[[^\\]]+\\])?)", "").Replace(" ", "%20");
                     
                     dojo.challengeId = edChallengeId;
                     dojo.authorName = authorName;
