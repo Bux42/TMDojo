@@ -9,6 +9,8 @@ bool Enabled = false;
 [Setting name="TMDojoApiUrl" description="TMDojo Api Url"]
 string ApiUrl = "http://localhost";
 
+int RECORDING_FPS = 60;
+
 class TMDojo
 {
     CGameCtnApp@ app;
@@ -32,29 +34,28 @@ class TMDojo
 
     bool showMenu = true;
     bool serverAvailable = false;
-    bool canRecord = false;
+
     bool recording = false;
+    int latestRecordedTime = -6666;
 
     TMDojo() {
         print("TMDojo: Init");
         @this.app = GetApp();
         @this.network = cast<CTrackManiaNetwork>(app.Network);
         this.challengeId = "";
-        if (Enabled) {
-            this.serverAvailable = this.checkServer();
-        }
     }
     
     bool checkServer() {
         this.playerName = network.PlayerInfo.Name;
         this.playerLogin = network.PlayerInfo.Login;
         this.webId = network.PlayerInfo.WebServicesUserId;
-        Net::HttpRequest@ auth = Net::HttpGet(ApiUrl + "/auth?name=" + network.PlayerInfo.Name + "&login=" + network.PlayerInfo.Login + "&webid=" + network.PlayerInfo.WebServicesUserId);
+        Net::HttpRequest@ auth = Net::HttpGet(ApiUrl + "/auth?name=" + this.playerName + "&login=" + this.playerLogin + "&webid=" + this.webId);
         if (auth.String().get_Length() > 0) {
-            return (true);
+            return true;
         }
-        return (false);
+        return false;
     }
+
     void drawMenu() {
         int panelLeft = 10;
         int panelTop = 120;
@@ -88,7 +89,7 @@ class TMDojo
         Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, (this.uiConfig == null ? "UIConfig: null" : "UIConfig: OK"));
         panelTopCp += topIncr;
 
-        Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, (this.canRecord  ? "CanRecord: true" : "CanRecord: false"));
+        Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, (this.canRecord()  ? "CanRecord: true" : "CanRecord: false"));
         panelTopCp += topIncr;
 
         Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, (this.recording  ? "Recording: true" : "Recording: false"));
@@ -102,17 +103,22 @@ class TMDojo
             panelTopCp += topIncr;
         }
     }
+
+    bool canRecord() {
+        return dojo.sm_script != null && dojo.playgroundScript != null && dojo.uiConfig != null;
+    }
+
+    bool shouldStartRecording() {
+        if (canRecord()) {     
+            int curRaceTime = dojo.sm_script.CurrentRaceTime;
+            return curRaceTime > -300 && curRaceTime < 0;
+        }
+        return false;
+    }
 }
 
 TMDojo@ dojo;
 auto membuff = MemoryBuffer(0);
-
-vec3 getRealCoords(nat3 coords) 
-{
-    CGameCtnEditorFree@ editor = cast<CGameCtnEditorFree>(dojo.app.Editor);
-    CGameEditorPluginMapMapType@ mapType = editor.PluginMapType;
-    return (mapType.GetVec3FromCoord(coords));
-}
 
 void Main()
 {
@@ -150,41 +156,57 @@ void Render()
         if (dojo.showMenu) {
             dojo.drawMenu();
         }
+
+        if (!dojo.recording && dojo.shouldStartRecording()) {
+            dojo.recording = true;
+            dojo.prevRaceTime = dojo.sm_script.CurrentRaceTime;
+        }
+
         if (dojo.recording) {
             if (dojo.uiConfig.UISequence == 11) {
+                // Finished track
                 print("Finish " + dojo.sm_script.CurrentRaceTime + ", " + dojo.prevRaceTime);
-                dojo.recording = false;
-                print("Save game data size: " + membuff.GetSize());
-                membuff.Seek(0);
-                Net::HttpPost(ApiUrl + "/save-game-data?mapName=" + dojo.mapName +
-                                                                    "&challengeId=" + dojo.challengeId +
-                                                                    "&authorName=" + dojo.authorName +
-                                                                    "&playerName=" + dojo.playerName +
-                                                                    "&playerLogin=" + dojo.playerLogin +
-                                                                    "&webId=" + dojo.webId +
-                                                                    "&endRaceTime=" + dojo.prevRaceTime +
-                                                                    "&raceFinished=1", membuff.ReadToBase64(membuff.GetSize()), "application/octet-stream");
-                membuff.Resize(0);
-            } else if (dojo.prevRaceTime > dojo.sm_script.CurrentRaceTime) {
-                print("Respawn " + dojo.sm_script.CurrentRaceTime + ", " + dojo.prevRaceTime);
-                dojo.recording = false;
-                print("Save game data size: " + membuff.GetSize());
-                membuff.Seek(0);
-                Net::HttpPost(ApiUrl + "/save-game-data?mapName=" + dojo.mapName +
-                                                                    "&challengeId=" + dojo.challengeId +
-                                                                    "&authorName=" + dojo.authorName +
-                                                                    "&playerName=" + dojo.playerName +
-                                                                    "&playerLogin=" + dojo.playerLogin +
-                                                                    "&webId=" + dojo.webId +
-                                                                    "&endRaceTime=" + dojo.prevRaceTime +
-                                                                    "&raceFinished=0", membuff.ReadToBase64(membuff.GetSize()), "application/octet-stream");
-                membuff.Resize(0);
+                PostRecordedData(true);
+            } else if (dojo.latestRecordedTime > dojo.sm_script.CurrentRaceTime) {
+                // Give up
+                print("Give up " + dojo.sm_script.CurrentRaceTime + ", " + dojo.prevRaceTime);
+                PostRecordedData(false);
             } else {
-                FillBuffer();
+                // Record current data
+                int timeSinceLastRecord = dojo.sm_script.CurrentRaceTime - dojo.latestRecordedTime;
+                if (timeSinceLastRecord > (1.0 / RECORDING_FPS) * 1000) {
+                    FillBuffer();
+                    dojo.latestRecordedTime = dojo.sm_script.CurrentRaceTime;
+                }
             }
             dojo.prevRaceTime = dojo.sm_script.CurrentRaceTime;
         }
     }
+}
+
+void PostRecordedData(bool finished) 
+{
+    dojo.recording = false;
+    dojo.latestRecordedTime = -6666;
+
+    if (membuff.GetSize() < 100) {
+        print("Not saving file, too little data");
+        return;
+    }
+
+    print("Save game data size: " + membuff.GetSize());
+    membuff.Seek(0);
+    string reqUrl = ApiUrl + "/save-game-data" +    
+                        "?mapName=" + dojo.mapName +
+                        "&challengeId=" + dojo.challengeId +
+                        "&authorName=" + dojo.authorName +
+                        "&playerName=" + dojo.playerName +
+                        "&playerLogin=" + dojo.playerLogin +
+                        "&webId=" + dojo.webId +
+                        "&endRaceTime=" + dojo.prevRaceTime +
+                        "&raceFinished=" + (finished ? "1" : "0");
+    Net::HttpPost(reqUrl, membuff.ReadToBase64(membuff.GetSize()), "application/octet-stream");
+    membuff.Resize(0);
 }
 
 void FillBuffer()
@@ -229,29 +251,36 @@ void FillBuffer()
 void ContextChecker()
 {
     while (true && Enabled) {
+        if (!dojo.serverAvailable) {
+            dojo.serverAvailable = dojo.checkServer();
+        }
+
         if (dojo.app.CurrentPlayground == null) {
             @dojo.playgroundScript = null;
             @dojo.sm_script = null;
             @dojo.uiConfig = null;
             dojo.challengeId = "";
-            dojo.canRecord = false;
-            dojo.recording = false; 
+            dojo.recording = false;
         } else {
+            // SM_SCRIPT (used to get player inputs)
             if (dojo.sm_script == null) {
                 print("sm_script == null");
                 if (dojo.app.CurrentPlayground != null &&
                     dojo.app.CurrentPlayground.GameTerminals[0] != null &&
                     dojo.app.CurrentPlayground.GameTerminals[0].GUIPlayer != null) {
-                    @dojo.sm_script = cast<CSmPlayer>(dojo.app.CurrentPlayground.GameTerminals[0].GUIPlayer).ScriptAPI;
-                    
+                    @dojo.sm_script = cast<CSmPlayer>(dojo.app.CurrentPlayground.GameTerminals[0].GUIPlayer).ScriptAPI;                    
                 }
             }
+
+            // PlaygroundScript (used to get the current map)
             if (dojo.playgroundScript == null) {
                 print("playgroundScript == null");
                 if (dojo.app.PlaygroundScript != null) {
                     @dojo.playgroundScript = dojo.app.PlaygroundScript;
                 }
             }
+
+            // Challenge ID (used to set current map)
             if (dojo.challengeId.get_Length() == 0) {
                 print("dojo.challengeId.length == 0");
                 if (dojo.app.PlaygroundScript != null &&
@@ -267,21 +296,15 @@ void ContextChecker()
                     Net::HttpRequest@ mapReq = Net::HttpGet(url);
                 }
             }
+
+            // UI Config (used for finish screen)
             if (dojo.uiConfig == null) {
                 if (dojo.app.CurrentPlayground != null) {
                     @dojo.uiConfig = dojo.app.CurrentPlayground.UIConfigs[0];
                 }
             }
-            if (dojo.sm_script != null &&
-                dojo.playgroundScript != null &&
-                dojo.uiConfig != null) {
-                dojo.canRecord = true;
-                if (dojo.sm_script.CurrentRaceTime > -300 && dojo.sm_script.CurrentRaceTime < 0) {
-                    dojo.recording = true;
-                    dojo.prevRaceTime = dojo.sm_script.CurrentRaceTime;
-                }
-            }
         }
+
         sleep(250);
     }
 }
