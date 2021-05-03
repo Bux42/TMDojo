@@ -80,13 +80,13 @@ class TMDojo
         Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, this.serverAvailable ? "Node server: ON" : "Node server: OFF");
         panelTopCp += topIncr;
 
-        Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, (this.playgroundScript == null ? "PlayGroundScript: null" : "PlayGroundScript: OK"));
+        Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, (@this.playgroundScript == null ? "PlayGroundScript: null" : "PlayGroundScript: OK"));
         panelTopCp += topIncr;
 
-        Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, (this.sm_script == null ? "SM_SCRIPT: null" : "SM_SCRIPT: OK"));
+        Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, (@this.sm_script == null ? "SM_SCRIPT: null" : "SM_SCRIPT: OK"));
         panelTopCp += topIncr;
 
-        Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, (this.uiConfig == null ? "UIConfig: null" : "UIConfig: OK"));
+        Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, (@this.uiConfig == null ? "UIConfig: null" : "UIConfig: OK"));
         panelTopCp += topIncr;
 
         Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, (this.canRecord()  ? "CanRecord: true" : "CanRecord: false"));
@@ -98,14 +98,14 @@ class TMDojo
         Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, "Buffer Size: " + membuff.GetSize());
         panelTopCp += topIncr;
 
-        if (this.sm_script != null) {
+        if (@this.sm_script != null) {
             Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, "CurrentRaceTime: " + sm_script.CurrentRaceTime);
             panelTopCp += topIncr;
         }
     }
 
     bool canRecord() {
-        return dojo.sm_script != null && dojo.playgroundScript != null && dojo.uiConfig != null;
+        return @dojo.sm_script != null && @dojo.playgroundScript != null && @dojo.uiConfig != null;
     }
 
     bool shouldStartRecording() {
@@ -152,7 +152,7 @@ void RenderMenu()
 
 void Render()
 {
-    if (dojo != null && Enabled) {
+    if (@dojo != null && Enabled) {
         if (dojo.showMenu) {
             dojo.drawMenu();
         }
@@ -255,27 +255,28 @@ void ContextChecker()
             dojo.serverAvailable = dojo.checkServer();
         }
 
-        if (dojo.app.CurrentPlayground == null) {
+        if (@dojo.app.CurrentPlayground == null) {
             @dojo.playgroundScript = null;
             @dojo.sm_script = null;
             @dojo.uiConfig = null;
             dojo.challengeId = "";
             dojo.recording = false;
         } else {
+            
             // SM_SCRIPT (used to get player inputs)
-            if (dojo.sm_script == null) {
+            if (@dojo.sm_script == null) {
                 print("sm_script == null");
-                if (dojo.app.CurrentPlayground != null &&
-                    dojo.app.CurrentPlayground.GameTerminals[0] != null &&
-                    dojo.app.CurrentPlayground.GameTerminals[0].GUIPlayer != null) {
+                if (@dojo.app.CurrentPlayground !is null &&
+                    dojo.app.CurrentPlayground.GameTerminals[0] !is null &&
+                    dojo.app.CurrentPlayground.GameTerminals[0].GUIPlayer !is null) {
                     @dojo.sm_script = cast<CSmPlayer>(dojo.app.CurrentPlayground.GameTerminals[0].GUIPlayer).ScriptAPI;                    
                 }
             }
 
             // PlaygroundScript (used to get the current map)
-            if (dojo.playgroundScript == null) {
+            if (@dojo.playgroundScript == null) {
                 print("playgroundScript == null");
-                if (dojo.app.PlaygroundScript != null) {
+                if (@dojo.app.PlaygroundScript != null) {
                     @dojo.playgroundScript = dojo.app.PlaygroundScript;
                 }
             }
@@ -283,8 +284,8 @@ void ContextChecker()
             // Challenge ID (used to set current map)
             if (dojo.challengeId.get_Length() == 0) {
                 print("dojo.challengeId.length == 0");
-                if (dojo.app.PlaygroundScript != null &&
-                    dojo.app.PlaygroundScript.Map != null) {
+                if (@dojo.app.PlaygroundScript != null &&
+                    @dojo.app.PlaygroundScript.Map != null) {
                     string edChallengeId = dojo.app.PlaygroundScript.Map.EdChallengeId;
                     string authorName = dojo.app.PlaygroundScript.Map.AuthorNickName;
                     string mapName = Regex::Replace(dojo.app.PlaygroundScript.Map.MapInfo.NameForUi, "\\$([0-9a-fA-F]{1,3}|[iIoOnNmMwWsSzZtTgG<>]|[lLhHpP](\\[[^\\]]+\\])?)", "").Replace(" ", "%20");
@@ -298,9 +299,9 @@ void ContextChecker()
             }
 
             // UI Config (used for finish screen)
-            if (dojo.uiConfig == null) {
-                if (dojo.app.CurrentPlayground != null) {
-                    @dojo.uiConfig = dojo.app.CurrentPlayground.UIConfigs[0];
+            if (@dojo.uiConfig == null) {
+                if (@dojo.app.CurrentPlayground != null) {
+                    @dojo.uiConfig = @dojo.app.CurrentPlayground.UIConfigs[0];
                 }
             }
         }
