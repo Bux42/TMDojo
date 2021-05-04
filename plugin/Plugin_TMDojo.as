@@ -231,6 +231,7 @@ void FillBuffer()
 
     membuff.Write(dojo.sm_script.AimYaw);
     membuff.Write(dojo.sm_script.AimPitch);
+    membuff.Write(dojo.sm_script.Upwardness);
 
     membuff.Write(dojo.sm_script.AimDirection.x);
     membuff.Write(dojo.sm_script.AimDirection.y);
