@@ -13,8 +13,8 @@ const Home = (): JSX.Element => {
 
     useEffect(() => {
         const fetchAndSetReplays = async () => {
-            const { Files } = await getFiles();
-            setReplays(Files);
+            const { files } = await getFiles();
+            setReplays(files);
         };
         fetchAndSetReplays();
     }, []);

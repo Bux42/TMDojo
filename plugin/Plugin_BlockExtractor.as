@@ -68,7 +68,7 @@ void ExtractBlocks()
             }
             print("Membuff: " + membuff.GetSize());
             membuff.Seek(0);
-            Net::HttpPost("http://localhost:3000/save-map-blocks?challengeId=" + app.PlaygroundScript.Map.EdChallengeId, membuff.ReadToBase64(membuff.GetSize()), "application/octet-stream");
+            Net::HttpPost("http://localhost/maps/" + app.PlaygroundScript.Map.EdChallengeId, membuff.ReadToBase64(membuff.GetSize()), "application/octet-stream");
             membuff.Resize(0);
 
         } else {
