@@ -17,7 +17,7 @@ class TMDojo
     CGamePlaygroundUIConfig@ uiConfig;
     CTrackManiaNetwork@ network;
 
-    string challengeId;
+    string mapUId;
     string mapName;
     string authorName;
 
@@ -39,7 +39,7 @@ class TMDojo
         print("TMDojo: Init");
         @this.app = GetApp();
         @this.network = cast<CTrackManiaNetwork>(app.Network);
-        this.challengeId = "";
+        this.mapUId = "";
         if (Enabled) {
             this.serverAvailable = this.checkServer();
         }
@@ -156,8 +156,8 @@ void Render()
                 dojo.recording = false;
                 print("Save game data size: " + membuff.GetSize());
                 membuff.Seek(0);
-                Net::HttpPost(ApiUrl + "/save-game-data?mapName=" + dojo.mapName +
-                                                                    "&challengeId=" + dojo.challengeId +
+                Net::HttpPost(ApiUrl + "/replays?mapName=" + dojo.mapName +
+                                                                    "&mapUId=" + dojo.mapUId +
                                                                     "&authorName=" + dojo.authorName +
                                                                     "&playerName=" + dojo.playerName +
                                                                     "&playerLogin=" + dojo.playerLogin +
@@ -170,8 +170,8 @@ void Render()
                 dojo.recording = false;
                 print("Save game data size: " + membuff.GetSize());
                 membuff.Seek(0);
-                Net::HttpPost(ApiUrl + "/save-game-data?mapName=" + dojo.mapName +
-                                                                    "&challengeId=" + dojo.challengeId +
+                Net::HttpPost(ApiUrl + "/replays?mapName=" + dojo.mapName +
+                                                                    "&mapUId=" + dojo.mapUId +
                                                                     "&authorName=" + dojo.authorName +
                                                                     "&playerName=" + dojo.playerName +
                                                                     "&playerLogin=" + dojo.playerLogin +
@@ -233,7 +233,7 @@ void ContextChecker()
             @dojo.playgroundScript = null;
             @dojo.sm_script = null;
             @dojo.uiConfig = null;
-            dojo.challengeId = "";
+            dojo.mapUId = "";
             dojo.canRecord = false;
             dojo.recording = false; 
         } else {
@@ -252,19 +252,17 @@ void ContextChecker()
                     @dojo.playgroundScript = dojo.app.PlaygroundScript;
                 }
             }
-            if (dojo.challengeId.get_Length() == 0) {
-                print("dojo.challengeId.length == 0");
+            if (dojo.mapUId.get_Length() == 0) {
+                print("dojo.mapUId.length == 0");
                 if (dojo.app.PlaygroundScript != null &&
                     dojo.app.PlaygroundScript.Map != null) {
                     string edChallengeId = dojo.app.PlaygroundScript.Map.EdChallengeId;
                     string authorName = dojo.app.PlaygroundScript.Map.AuthorNickName;
                     string mapName = Regex::Replace(dojo.app.PlaygroundScript.Map.MapInfo.NameForUi, "\\$([0-9a-fA-F]{1,3}|[iIoOnNmMwWsSzZtTgG<>]|[lLhHpP](\\[[^\\]]+\\])?)", "").Replace(" ", "%20");
                     
-                    dojo.challengeId = edChallengeId;
+                    dojo.mapUId = edChallengeId;
                     dojo.authorName = authorName;
                     dojo.mapName = mapName;
-                    string url = ApiUrl + "/set-current-map?id=" + edChallengeId + "&author=" + authorName + "&name=" + mapName;
-                    Net::HttpRequest@ mapReq = Net::HttpGet(url);
                 }
             }
             if (dojo.uiConfig == null) {

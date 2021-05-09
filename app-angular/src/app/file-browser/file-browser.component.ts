@@ -138,7 +138,7 @@ const SEARCH_FILTERS: SearchFilters = {
 
 export interface RaceData {
     mapName: string,
-    challengeId: string,
+    mapUId: string,
     authorName: string,
     playerName: string,
     playerLogin: string,
