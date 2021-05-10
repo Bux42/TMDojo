@@ -103,7 +103,7 @@ const getUniqueMapNames = () => {
   });
 };
 
-const getReplays = (mapName = '', playerName = '', raceFinished = -1, orderBy = 'None', maxResults = 1000) => {
+const getReplays = (mapName = '', playerName = '', mapUId = '', raceFinished = -1, orderBy = 'None', maxResults = 1000) => {
   return new Promise((resolve, reject) => {
     const raceData = db.collection('race_data');
     const query = {};
@@ -118,6 +118,11 @@ const getReplays = (mapName = '', playerName = '', raceFinished = -1, orderBy = 
       query['playerName'] = {
         $regex: `.*${playerName}.*`,
         $options: 'i'
+      };
+    }
+    if (mapUId.length > 0) {
+      query['mapUId'] = {
+        $regex: `.*${mapUId}.*`
       };
     }
     if (raceFinished != -1) {

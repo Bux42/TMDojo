@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { Button, Drawer, Table } from "antd";
 import { ColumnsType } from "antd/lib/table";
-import { FileResponse } from "../../lib/api/fileRequests";
+import { FileResponse } from "../../lib/api/apiRequests";
 import { getEndRaceTimeStr, timeDifference } from "../../lib/utils/time";
 
 interface Props {
+    mapUId: string;
     replays: FileResponse[];
     onLoadReplay: (replay: FileResponse) => void;
     onRemoveReplay: (replay: FileResponse) => void;
@@ -20,6 +21,7 @@ interface ExtendedFileResponse extends FileResponse {
 }
 
 export const SidebarReplays = ({
+    mapUId,
     replays,
     onLoadReplay,
     onRemoveReplay,
@@ -140,12 +142,16 @@ export const SidebarReplays = ({
     };
 
     const onReplayTableChange = (pagination: any, currentPageData: any) => {
-        let visibleR = [];
-        for (let i = (pagination.current - 1) * pagination.pageSize; i < ((pagination.current - 1) * pagination.pageSize) + pagination.pageSize; i++) {
+        const visibleR = [];
+        for (
+            let i = (pagination.current - 1) * pagination.pageSize;
+            i < (pagination.current - 1) * pagination.pageSize + pagination.pageSize;
+            i++
+        ) {
             visibleR.push(currentPageData.currentDataSource[i]);
         }
         setVisibleReplays(visibleR);
-    }
+    };
 
     return (
         <div className="absolute m-8 z-10">
@@ -163,15 +169,19 @@ export const SidebarReplays = ({
                 <div>
                     <Button
                         type="primary"
-                        onClick={() => onLoadAllVisibleReplays(visibleReplays, selectedReplayDataIds)}>
+                        onClick={() =>
+                            onLoadAllVisibleReplays(visibleReplays, selectedReplayDataIds)
+                        }
+                    >
                         Load all visible
                     </Button>
                     <Button
                         type="primary"
                         danger
-                        onClick={() => onRemoveAllReplays(visibleReplays)}>
+                        onClick={() => onRemoveAllReplays(visibleReplays)}
+                    >
                         Unload all
-                        </Button>
+                    </Button>
                 </div>
                 <div>
                     <Table

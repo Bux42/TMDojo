@@ -1,15 +1,16 @@
 import axios from "axios";
-import { readDataView, ReplayDataPoint, DataViewResult } from "../replays/replayData";
+import { readDataView, DataViewResult } from "../replays/replayData";
 
 interface FilterParams {
-    mapName: any;
-    playerName: string;
-    endRaceTimeMin: number;
-    endRaceTimeMax: number;
-    raceFinished: number;
-    dateMin: any;
-    maxResults: number;
-    orderBy: any;
+    mapName?: any;
+    playerName?: string;
+    mapUId?: string;
+    endRaceTimeMin?: number;
+    endRaceTimeMax?: number;
+    raceFinished?: number;
+    dateMin?: any;
+    maxResults?: number;
+    orderBy?: any;
 }
 
 export interface FileResponse {
@@ -34,6 +35,7 @@ type FilesResult = {
 const DEFAULT_FILTERS = {
     mapName: "",
     playerName: "",
+    mapUId: "",
     endRaceTimeMin: -1,
     endRaceTimeMax: -1,
     raceFinished: -1,
@@ -42,9 +44,9 @@ const DEFAULT_FILTERS = {
     orderBy: "None",
 };
 
-export const getFiles = async (filters: FilterParams = DEFAULT_FILTERS): Promise<FilesResult> => {
+export const getReplays = async (filters: FilterParams = DEFAULT_FILTERS): Promise<FilesResult> => {
     const res = await axios.get(process.env.NEXT_PUBLIC_API_URL + "/replays", {
-        params: filters,
+        params: { ...DEFAULT_FILTERS, ...filters },
         withCredentials: true,
     });
 
@@ -61,4 +63,22 @@ export const fetchReplayData = async (file: FileResponse): Promise<ReplayData> =
     const { samples, minPos, maxPos } = readDataView(dataView);
 
     return { ...file, samples, minPos, maxPos };
+};
+
+export type MapInfo = {
+    mapUid?: string;
+    name?: string;
+    authorScore?: number;
+    goldScore?: number;
+    silverScore?: number;
+    bronzeScore?: number;
+    authordisplayname?: string;
+    exchangeid?: number;
+};
+
+export const getMapInfo = async (mapUId: string): Promise<MapInfo> => {
+    const res = await axios.get(process.env.NEXT_PUBLIC_API_URL + `/maps/${mapUId}/info`, {
+        withCredentials: true,
+    });
+    return res.data;
 };

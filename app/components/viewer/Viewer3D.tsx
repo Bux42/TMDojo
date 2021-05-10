@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import * as THREE from "three";
 import { Canvas } from "@react-three/fiber";
-import { ReplayData } from "../../lib/api/fileRequests";
+import { ReplayData } from "../../lib/api/apiRequests";
 import { ReplayLines } from "./ReplayLines";
 import { Grid } from "./Grid";
 import { CameraController } from "./CameraController";

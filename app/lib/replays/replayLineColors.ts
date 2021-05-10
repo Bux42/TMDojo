@@ -1,4 +1,4 @@
-import { ReplayData } from "../api/fileRequests";
+import { ReplayData } from "../api/apiRequests";
 import * as THREE from "three";
 import { ColorMap, getColorFromMap } from "../utils/colormaps";
 import { ReplayDataPoint } from "./replayData";
@@ -27,7 +27,7 @@ const COLOR_MAP_GEARS: ColorMap = [
 const COLOR_MAP_RPMS: ColorMap = [
     { value: 10000.0, color: { r: 0xff, g: 0x00, b: 0 } },
     { value: 0.0, color: { r: 0x00, g: 0xff, b: 0 } },
-]
+];
 
 export const colorsToBuffer = (colors: THREE.Color[]): THREE.Float32BufferAttribute => {
     const colorBuffer = [];
@@ -120,7 +120,7 @@ export const inputReplayColors = (replay: ReplayData): THREE.Float32BufferAttrib
     for (let i = 0; i < replay.samples.length; i++) {
         const sample = replay.samples[i];
         var input = 0;
-        var color = new THREE.Color(1,1,1);
+        var color = new THREE.Color(1, 1, 1);
         if (sample.inputGasPedal) {
             color.r = 0;
             color.g = 1;
