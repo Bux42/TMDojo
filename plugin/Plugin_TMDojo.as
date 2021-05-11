@@ -6,6 +6,9 @@
 [Setting name="TMDojoEnabled" description="Enable / Disable plugin"]
 bool Enabled = false;
 
+[Setting name="TMDojoOnlySaveFinished" description="Only save race data when race is finished"]
+bool OnlySaveFinished = true;
+
 [Setting name="TMDojoApiUrl" description="TMDojo Api Url"]
 string ApiUrl = "http://localhost";
 
@@ -152,6 +155,9 @@ void RenderMenu()
             ApiUrl = dojo.remoteApi;
             dojo.checkServer();
 		}
+        if (UI::MenuItem(OnlySaveFinished ? "Save all" : "Only save finished", "", false, true)) {
+            OnlySaveFinished = !OnlySaveFinished;
+		}
 		UI::EndMenu();
 	}
 }
@@ -194,23 +200,24 @@ void PostRecordedData(bool finished)
 {
     if (membuff.GetSize() < 100) {
         print("Not saving file, too little data");
+        membuff.Resize(0);
         return;
     }
-
-    print("Save game data size: " + membuff.GetSize());
-    membuff.Seek(0);
-    string reqUrl = ApiUrl + "/save-game-data" +    
-                        "?mapName=" + dojo.mapName +
-                        "&challengeId=" + dojo.challengeId +
-                        "&authorName=" + dojo.authorName +
-                        "&playerName=" + dojo.playerName +
-                        "&playerLogin=" + dojo.playerLogin +
-                        "&webId=" + dojo.webId +
-                        "&endRaceTime=" + dojo.prevRaceTime +
-                        "&raceFinished=" + (finished ? "1" : "0");
-    Net::HttpPost(reqUrl, membuff.ReadToBase64(membuff.GetSize()), "application/octet-stream");
+    if (!OnlySaveFinished || finished) {
+        print("Save game data size: " + membuff.GetSize());
+        membuff.Seek(0);
+        string reqUrl = ApiUrl + "/save-game-data" +    
+                            "?mapName=" + dojo.mapName +
+                            "&challengeId=" + dojo.challengeId +
+                            "&authorName=" + dojo.authorName +
+                            "&playerName=" + dojo.playerName +
+                            "&playerLogin=" + dojo.playerLogin +
+                            "&webId=" + dojo.webId +
+                            "&endRaceTime=" + dojo.prevRaceTime +
+                            "&raceFinished=" + (finished ? "1" : "0");
+        Net::HttpPost(reqUrl, membuff.ReadToBase64(membuff.GetSize()), "application/octet-stream");
+    }
     membuff.Resize(0);
-
     dojo.resetRecording();
 }
 
@@ -231,7 +238,6 @@ void FillBuffer()
 
     membuff.Write(dojo.sm_script.AimYaw);
     membuff.Write(dojo.sm_script.AimPitch);
-    membuff.Write(dojo.sm_script.Upwardness);
 
     membuff.Write(dojo.sm_script.AimDirection.x);
     membuff.Write(dojo.sm_script.AimDirection.y);
