@@ -21,7 +21,7 @@ The project has three parts:
 The racing data gathered by the openplanet plugin is a list of 76 bytes blocks, at every frame-ingame, a new block is added to the list (144 FPS == 9 kb/s of data)
 
 
-Each block stores 20 values:
+Each block stores 19 values:
  - currentRaceTime (int)
  - position (Vec3)
  - aimYaw (float)
