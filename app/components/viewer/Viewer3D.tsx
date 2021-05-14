@@ -3,9 +3,9 @@ import * as THREE from "three";
 import { Canvas } from "@react-three/fiber";
 import { ReplayData } from "../../lib/api/fileRequests";
 import { ReplayLines } from "./ReplayLines";
-import { Grid } from "./Grid";
-import { CameraController } from "./CameraController";
+import { Grid, DEFAULT_GRID_POS } from "./Grid";
 import { SettingsContext } from "../../lib/contexts/SettingsContext";
+import { OrbitControls, Sky } from "@react-three/drei";
 
 const BACKGROUND_COLOR = new THREE.Color(0.05, 0.05, 0.05);
 
@@ -17,7 +17,7 @@ export const Viewer3D = ({ replaysData }: Props): JSX.Element => {
     const { lineType } = useContext(SettingsContext);
 
     return (
-        <div style={{ zIndex: -10 }} className="w-screen h-screen">
+        <div style={{ zIndex: -10 }} className="w-full h-full">
             <Canvas
                 camera={{
                     fov: 45,
@@ -26,9 +26,10 @@ export const Viewer3D = ({ replaysData }: Props): JSX.Element => {
                     far: 50000,
                 }}
             >
-                <color attach="background" args={[BACKGROUND_COLOR]} />
-                <CameraController />
-                <Grid />
+                <Sky distance={100000000} inclination={0} turbidity={0} rayleigh={10} />
+                <OrbitControls dampingFactor={0.2} rotateSpeed={0.4} target={DEFAULT_GRID_POS} />
+
+                <Grid replaysData={replaysData} blockPadding={2} />
                 <ReplayLines replaysData={replaysData} lineType={lineType} />
             </Canvas>
         </div>

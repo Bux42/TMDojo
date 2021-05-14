@@ -1,13 +1,16 @@
 import React, { useState } from "react";
 import { Button, Drawer, Table } from "antd";
-import { ColumnsType } from "antd/lib/table";
+import { ColumnsType, TablePaginationConfig } from "antd/lib/table";
 import { FileResponse } from "../../lib/api/fileRequests";
 import { getEndRaceTimeStr, timeDifference } from "../../lib/utils/time";
+import { TableCurrentDataSource } from "antd/lib/table/interface";
 
 interface Props {
     replays: FileResponse[];
     onLoadReplay: (replay: FileResponse) => void;
     onRemoveReplay: (replay: FileResponse) => void;
+    onLoadAllVisibleReplays: (replays: FileResponse[], selectedReplayDataIds: string[]) => void;
+    onRemoveAllReplays: (replays: FileResponse[]) => void;
     selectedReplayDataIds: string[];
 }
 
@@ -21,9 +24,12 @@ export const SidebarReplays = ({
     replays,
     onLoadReplay,
     onRemoveReplay,
+    onLoadAllVisibleReplays,
+    onRemoveAllReplays,
     selectedReplayDataIds,
 }: Props): JSX.Element => {
     const [visible, setVisible] = useState(false);
+    const [visibleReplays, setVisibleReplays] = useState<FileResponse[]>([]);
 
     const onClose = () => {
         setVisible(false);
@@ -126,11 +132,36 @@ export const SidebarReplays = ({
         return replayList.map((replay) => {
             return {
                 ...replay,
+                key: replay._id,
                 readableTime: getEndRaceTimeStr(replay.endRaceTime),
                 relativeDate: timeDifference(now, replay.date),
                 finished: replay.raceFinished == 1,
             };
         });
+    };
+
+    const onReplayTableChange = (
+        pagination: TablePaginationConfig,
+        currentPageData: TableCurrentDataSource<ExtendedFileResponse>
+    ) => {
+        const { current, pageSize } = pagination;
+
+        if (current == undefined || pageSize == undefined) {
+            return;
+        }
+
+        const curPageIndex = current - 1;
+
+        const replaysOnPage = [];
+        for (
+            let i = curPageIndex * pageSize;
+            i < Math.min((curPageIndex + 1) * pageSize, currentPageData.currentDataSource.length);
+            i++
+        ) {
+            replaysOnPage.push(currentPageData.currentDataSource[i]);
+        }
+
+        setVisibleReplays(replaysOnPage);
     };
 
     return (
@@ -147,7 +178,27 @@ export const SidebarReplays = ({
                 className={"h-screen"}
             >
                 <div>
+                    <Button
+                        type="primary"
+                        onClick={() =>
+                            onLoadAllVisibleReplays(visibleReplays, selectedReplayDataIds)
+                        }
+                    >
+                        Load all visible
+                    </Button>
+                    <Button
+                        type="primary"
+                        danger
+                        onClick={() => onRemoveAllReplays(visibleReplays)}
+                    >
+                        Unload all
+                    </Button>
+                </div>
+                <div>
                     <Table
+                        onChange={(pagination, filters, sorter, currentPageData) => {
+                            onReplayTableChange(pagination, currentPageData);
+                        }}
                         dataSource={addReplayInfo(replays)}
                         columns={columns}
                         size="small"

@@ -1,7 +1,6 @@
 import React, { useContext, useState } from "react";
 import Title from "antd/lib/typography/Title";
 import { Button, Drawer, Select } from "antd";
-import { Option } from "antd/lib/mentions";
 import { SettingsContext } from "../../lib/contexts/SettingsContext";
 import { LineTypes } from "../viewer/ReplayLines";
 
@@ -46,9 +45,9 @@ export const SidebarSettings = (): JSX.Element => {
                     {Object.keys(LineTypes).map((lineTypeKey) => {
                         const { name } = LineTypes[lineTypeKey];
                         return (
-                            <Option key={name} value={lineTypeKey}>
+                            <Select.Option key={name} value={lineTypeKey}>
                                 {name}
-                            </Option>
+                            </Select.Option>
                         );
                     })}
                 </Select>

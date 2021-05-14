@@ -1,5 +1,5 @@
 import axios from "axios";
-import { readDataView, ReplayDataPoint } from "../replays/replayData";
+import { readDataView, ReplayDataPoint, DataViewResult } from "../replays/replayData";
 
 interface FilterParams {
     mapName: any;
@@ -14,7 +14,7 @@ interface FilterParams {
 
 export interface FileResponse {
     authorName: string;
-    challengeId: string;
+    mapUId: string;
     date: number;
     endRaceTime: number;
     file_path: string;
@@ -27,8 +27,8 @@ export interface FileResponse {
 }
 
 type FilesResult = {
-    Files: FileResponse[];
-    TotalResults: number;
+    files: FileResponse[];
+    totalResults: number;
 };
 
 const DEFAULT_FILTERS = {
@@ -42,13 +42,8 @@ const DEFAULT_FILTERS = {
     orderBy: "None",
 };
 
-export interface ReplayData extends FileResponse {
-    samples: ReplayDataPoint[];
-}
-
 export const getFiles = async (filters: FilterParams = DEFAULT_FILTERS): Promise<FilesResult> => {
-    // TODO: Add correct URL for prod (use a .env file)
-    const res = await axios.get(process.env.NEXT_PUBLIC_API_URL + "/get-files", {
+    const res = await axios.get(process.env.NEXT_PUBLIC_API_URL + "/replays", {
         params: filters,
         withCredentials: true,
     });
@@ -56,14 +51,14 @@ export const getFiles = async (filters: FilterParams = DEFAULT_FILTERS): Promise
     return res.data;
 };
 
+export interface ReplayData extends FileResponse, DataViewResult {}
 export const fetchReplayData = async (file: FileResponse): Promise<ReplayData> => {
-    const res = await axios.get(process.env.NEXT_PUBLIC_API_URL + "/get-race-data", {
-        params: { filePath: file.file_path },
+    const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/replays/${file._id}`, {
         responseType: "arraybuffer",
     });
 
     const dataView = new DataView(res.data);
-    const samples = readDataView(dataView);
+    const { samples, minPos, maxPos } = readDataView(dataView);
 
-    return { ...file, samples };
+    return { ...file, samples, minPos, maxPos };
 };
