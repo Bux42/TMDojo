@@ -4,7 +4,7 @@ import { Vector3 } from "three";
 import { ReplayData } from "../../lib/api/fileRequests";
 import { BLOCK_SIZE } from "../../lib/constants/block";
 
-const GRID_COLOR = new THREE.Color(0.01, 0.01, 0.01);
+const GRID_COLOR = new THREE.Color(0, 0, 0);
 const DEFAULT_GRID_SIZE = 48 * 32;
 const DEFAULT_GRID_DIVISIONS = DEFAULT_GRID_SIZE / 32;
 export const DEFAULT_GRID_POS = new THREE.Vector3(DEFAULT_GRID_SIZE / 2, 0, DEFAULT_GRID_SIZE / 2);
