@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { Button, Drawer, Table } from "antd";
-import { ColumnsType } from "antd/lib/table";
+import { ColumnsType, TablePaginationConfig } from "antd/lib/table";
 import { FileResponse } from "../../lib/api/apiRequests";
 import { getEndRaceTimeStr, timeDifference } from "../../lib/utils/time";
+import { TableCurrentDataSource } from "antd/lib/table/interface";
 
 interface Props {
     mapUId: string;
@@ -141,16 +142,28 @@ export const SidebarReplays = ({
         });
     };
 
-    const onReplayTableChange = (pagination: any, currentPageData: any) => {
-        const visibleR = [];
+    const onReplayTableChange = (
+        pagination: TablePaginationConfig,
+        currentPageData: TableCurrentDataSource<ExtendedFileResponse>
+    ) => {
+        const { current, pageSize } = pagination;
+
+        if (current == undefined || pageSize == undefined) {
+            return;
+        }
+
+        const curPageIndex = current - 1;
+
+        const replaysOnPage = [];
         for (
-            let i = (pagination.current - 1) * pagination.pageSize;
-            i < (pagination.current - 1) * pagination.pageSize + pagination.pageSize;
+            let i = curPageIndex * pageSize;
+            i < Math.min((curPageIndex + 1) * pageSize, currentPageData.currentDataSource.length);
             i++
         ) {
-            visibleR.push(currentPageData.currentDataSource[i]);
+            replaysOnPage.push(currentPageData.currentDataSource[i]);
         }
-        setVisibleReplays(visibleR);
+
+        setVisibleReplays(replaysOnPage);
     };
 
     return (
