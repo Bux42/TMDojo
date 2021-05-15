@@ -13,3 +13,7 @@
 .ant-layout {
     height: 100%;
 }
+
+.dojo-map-search-table {
+    height: 50vh;
+}

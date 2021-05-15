@@ -10,10 +10,12 @@ const db = require('../lib/db');
 /**
  * GET /maps
  * Retrieves all unique map names we have replays of
+ * Query params:
+ * - mapName (optional)
  */
 router.get('/', async (req, res, next) => {
   try {
-    const mapNames = await db.getUniqueMapNames();
+    const mapNames = await db.getUniqueMapNames(req.query.mapName);
     res.send(mapNames);
   } catch (err) {
     next(err);

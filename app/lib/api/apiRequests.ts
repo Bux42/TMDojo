@@ -82,3 +82,19 @@ export const getMapInfo = async (mapUId: string): Promise<MapInfo> => {
     });
     return res.data;
 };
+
+export type AvailableMap = {
+    mapName: string;
+    mapUId: string;
+    count: number;
+};
+
+export const getAvailableMaps = async (searchString: string): Promise<AvailableMap[]> => {
+    const res = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/maps${searchString ? `?mapName=${searchString}` : ``}`,
+        {
+            withCredentials: true,
+        }
+    );
+    return res.data;
+};

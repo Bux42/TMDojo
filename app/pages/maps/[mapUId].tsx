@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Layout } from "antd";
 import { useRouter } from "next/router";
 
-import { SidebarReplays } from "../../components/home/SidebarReplays";
-import { SidebarSettings } from "../../components/home/SidebarSettings";
-import { MapHeader } from "../../components/home/MapHeader";
+import { SidebarReplays } from "../../components/maps/SidebarReplays";
+import { SidebarSettings } from "../../components/maps/SidebarSettings";
+import { MapHeader } from "../../components/maps/MapHeader";
 import { Viewer3D } from "../../components/viewer/Viewer3D";
 import {
     getReplays,

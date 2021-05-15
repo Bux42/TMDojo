@@ -10,7 +10,7 @@ interface Props {
 export const MapHeader = ({ mapInfo }: Props): JSX.Element => {
     return (
         <PageHeader
-            onBack={() => null} // TODO: add link to home when that exists
+            onBack={() => (location.href = `${location.origin}/`)}
             title="Replay viewer"
             subTitle={mapInfo.name}
             extra={
