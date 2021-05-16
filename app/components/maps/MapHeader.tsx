@@ -14,7 +14,7 @@ export const MapHeader = ({ mapInfo }: Props): JSX.Element => {
 
     return (
         <PageHeader
-            onBack={() => router.push(`${location.origin}/`)}
+            onBack={() => router.push("/")}
             title="Replay viewer"
             subTitle={cleanTMFormatting(mapInfo.name || "")}
             extra={
