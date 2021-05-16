@@ -1,18 +1,22 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
+import { useRouter } from "next/router";
 import { PageHeader, Button } from "antd";
 
 import { MapInfo } from "../../lib/api/apiRequests";
+import { cleanTMFormatting } from "../../lib/utils/formatting";
 
 interface Props {
     mapInfo: MapInfo;
 }
 
 export const MapHeader = ({ mapInfo }: Props): JSX.Element => {
+    const router = useRouter();
+
     return (
         <PageHeader
-            onBack={() => (location.href = `${location.origin}/`)}
+            onBack={() => router.push(`${location.origin}/`)}
             title="Replay viewer"
-            subTitle={mapInfo.name}
+            subTitle={cleanTMFormatting(mapInfo.name || "")}
             extra={
                 <>
                     <Button

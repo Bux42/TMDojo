@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import { Layout, Input, Table } from "antd";
 import { ColumnsType } from "antd/lib/table";
 
@@ -31,7 +32,11 @@ const Home = (): JSX.Element => {
         {
             title: "Map name",
             dataIndex: "mapName",
-            render: (_, map) => <a href={`/maps/${map.mapUId}`}>{map.mapName}</a>,
+            render: (_, map) => (
+                <Link href={`/maps/${map.mapUId}`}>
+                    <a>{map.mapName}</a>
+                </Link>
+            ),
             sorter: (a, b) => a.mapName.localeCompare(b.mapName),
             width: "90%",
         },
