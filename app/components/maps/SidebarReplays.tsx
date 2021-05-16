@@ -30,12 +30,14 @@ export const SidebarReplays = ({
     onRemoveAllReplays,
     selectedReplayDataIds,
 }: Props): JSX.Element => {
+    const defaultPageSize = 25;
+
     const [visible, setVisible] = useState(false);
     const [visibleReplays, setVisibleReplays] = useState<FileResponse[]>([]);
 
     useEffect(() => {
-        // initialize visible replays with the first 25
-        const initiallyVisibleReplays = replays.slice(0, 25);
+        // initialize visible replays with the first page
+        const initiallyVisibleReplays = replays.slice(0, defaultPageSize);
         setVisibleReplays(() => addReplayInfo(initiallyVisibleReplays));
     }, [replays]);
 
@@ -203,7 +205,7 @@ export const SidebarReplays = ({
                         dataSource={addReplayInfo(replays)}
                         columns={columns}
                         size="small"
-                        pagination={{ defaultPageSize: 25 }}
+                        pagination={{ defaultPageSize }}
                         scroll={{ scrollToFirstRowOnChange: true }}
                     />
                 </div>
