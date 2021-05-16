@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { Button, Drawer, Table } from "antd";
 import { ColumnsType, TablePaginationConfig } from "antd/lib/table";
-import { FileResponse } from "../../lib/api/fileRequests";
+import { FileResponse } from "../../lib/api/apiRequests";
 import { getEndRaceTimeStr, timeDifference } from "../../lib/utils/time";
 import { TableCurrentDataSource } from "antd/lib/table/interface";
 
 interface Props {
+    mapUId: string;
     replays: FileResponse[];
     onLoadReplay: (replay: FileResponse) => void;
     onRemoveReplay: (replay: FileResponse) => void;
@@ -21,6 +22,7 @@ interface ExtendedFileResponse extends FileResponse {
 }
 
 export const SidebarReplays = ({
+    mapUId,
     replays,
     onLoadReplay,
     onRemoveReplay,

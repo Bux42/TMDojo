@@ -10,10 +10,12 @@ const db = require('../lib/db');
 /**
  * GET /maps
  * Retrieves all unique map names we have replays of
+ * Query params:
+ * - mapName (optional)
  */
 router.get('/', async (req, res, next) => {
   try {
-    const mapNames = await db.getUniqueMapNames();
+    const mapNames = await db.getUniqueMapNames(req.query.mapName);
     res.send(mapNames);
   } catch (err) {
     next(err);
@@ -37,25 +39,26 @@ router.get('/:mapUID', async (req, res, next) => {
 });
 
 /**
- * GET /maps/:mapUID/tmx
- * Retrieves map's TMX id
+ * GET /maps/:mapUID/info
+ * Retrieves map's metadata (including tm.io information)
  */
-router.get('/:mapUID/tmx', async (req, res, next) => {
-  // uses param "mapUId" and fetches the TMX id for it
+router.get('/:mapUID/info', async (req, res, next) => {
+  let mapData = {};
+
+  // fetch tm.io data
   try {
-    const tmxRes = await axios.get(`https://trackmania.exchange/api/maps/get_map_info/multi/${req.params.mapUID}`, {
-      withCredentials: true
+    const tmxRes = await axios.get(`https://trackmania.io/api/map/${req.params.mapUID}`, {
+      withCredentials: true,
+      headers: { 'User-Agent': 'TMDojo API - https://github.com/Bux42/TMDojo' }
     });
 
-    const tmxData = tmxRes.data;
-    if (tmxData[0] && tmxData[0].TrackID) {
-      res.send({ tmxId: tmxData[0].TrackID });
-    } else {
-      res.status(404).send({ error: 'No TMX data available for this map.' });
-    }
+    const tmioData = tmxRes.data;
+    mapData = { ...mapData, ...tmioData };
   } catch (error) {
-    next(error);
+    console.log('/maps/:mapUID/info: tm.io request failed with error ', error.toString());
   }
+
+  res.send(mapData);
 });
 
 /**

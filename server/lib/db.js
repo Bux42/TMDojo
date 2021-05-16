@@ -66,44 +66,52 @@ const saveReplayMetadata = (metadata) => {
   });
 };
 
-const getUniqueMapNames = () => {
+const getUniqueMapNames = (mapName) => {
   return new Promise((resolve, reject) => {
     const raceData = db.collection('race_data');
-    // group docs by mapName and count each occurrence
-    raceData.aggregate(
-      [
-        {
-          $group: {
-            _id: '$mapName',
-            count: {
-              $sum: 1
-            }
-          }
-        },
-        {
-          $project: {
-            _id: 0,
-            name: '$_id',
-            count: '$count'
+    const queryPipeline = [
+      {
+        $group: {
+          _id: '$mapUId',
+          mapName: { $first: '$mapName' }, // pass the first instance of mapUId (since it'll always be the same)
+          count: {
+            $sum: 1
           }
         }
-      ],
-      async (aggregateErr, cursor) => {
-        if (aggregateErr) {
-          return reject(aggregateErr);
-        }
-        try {
-          const data = await cursor.toArray();
-          resolve(data);
-        } catch (arrayErr) {
-          reject(arrayErr);
+      },
+      {
+        $project: {
+          _id: false,
+          mapUId: '$_id',
+          mapName: true,
+          count: '$count'
         }
       }
-    );
+    ];
+
+    // only filter by name if there's valid input
+    if (mapName && mapName !== '') {
+      queryPipeline.unshift({
+        $match: {
+          mapName: { $regex: `.*${mapName}.*`, $options: 'i' }
+        }
+      });
+    }
+    raceData.aggregate(queryPipeline, async (aggregateErr, cursor) => {
+      if (aggregateErr) {
+        return reject(aggregateErr);
+      }
+      try {
+        const data = await cursor.toArray();
+        resolve(data);
+      } catch (arrayErr) {
+        reject(arrayErr);
+      }
+    });
   });
 };
 
-const getReplays = (mapName = '', playerName = '', raceFinished = -1, orderBy = 'None', maxResults = 1000) => {
+const getReplays = (mapName = '', playerName = '', mapUId = '', raceFinished = -1, orderBy = 'None', maxResults = 1000) => {
   return new Promise((resolve, reject) => {
     const raceData = db.collection('race_data');
     const query = {};
@@ -118,6 +126,11 @@ const getReplays = (mapName = '', playerName = '', raceFinished = -1, orderBy = 
       query['playerName'] = {
         $regex: `.*${playerName}.*`,
         $options: 'i'
+      };
+    }
+    if (mapUId.length > 0) {
+      query['mapUId'] = {
+        $regex: `.*${mapUId}.*`
       };
     }
     if (raceFinished != -1) {

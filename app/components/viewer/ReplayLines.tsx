@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from "react";
 import * as THREE from "three";
-import { ReplayData as ReplayData } from "../../lib/api/fileRequests";
+import { ReplayData as ReplayData } from "../../lib/api/apiRequests";
 import {
     accelerationReplayColors,
     colorsToBuffer,
@@ -8,7 +8,7 @@ import {
     gearReplayColors,
     rpmReplayColors,
     speedReplayColors,
-    inputReplayColors
+    inputReplayColors,
 } from "../../lib/replays/replayLineColors";
 
 export interface LineType {
@@ -20,8 +20,8 @@ export const LineTypes: { [name: string]: LineType } = {
     speed: { name: "Speed", colorsCallback: speedReplayColors },
     acceleration: { name: "Acceleration", colorsCallback: accelerationReplayColors },
     gear: { name: "Gear", colorsCallback: gearReplayColors },
-    rpm: { name: "RPMs", colorsCallback: rpmReplayColors},
-    inputs: { name: "Inputs", colorsCallback: inputReplayColors}
+    rpm: { name: "RPMs", colorsCallback: rpmReplayColors },
+    inputs: { name: "Inputs", colorsCallback: inputReplayColors },
 };
 
 interface ReplayLineProps {
