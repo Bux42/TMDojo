@@ -6,6 +6,7 @@ import { ReplayLines } from "./ReplayLines";
 import { Grid, DEFAULT_GRID_POS } from "./Grid";
 import { SettingsContext } from "../../lib/contexts/SettingsContext";
 import { OrbitControls, Sky } from "@react-three/drei";
+import { GraphContext } from "../../lib/contexts/GraphContext";
 
 const BACKGROUND_COLOR = new THREE.Color(0.05, 0.05, 0.05);
 
@@ -15,7 +16,7 @@ interface Props {
 
 export const Viewer3D = ({ replaysData }: Props): JSX.Element => {
     const { lineType } = useContext(SettingsContext);
-
+    const { range } = useContext(GraphContext);
     return (
         <div style={{ zIndex: -10 }} className="w-full h-full">
             <Canvas

@@ -3,6 +3,7 @@ import { Layout } from "antd";
 
 import { SidebarReplays } from "../components/home/SidebarReplays";
 import { SidebarSettings } from "../components/home/SidebarSettings";
+import { SidebarCharts } from "../components/home/SidebarCharts";
 import { MapHeader } from "../components/home/MapHeader";
 import { Viewer3D } from "../components/viewer/Viewer3D";
 import { getFiles, FileResponse, fetchReplayData, ReplayData } from "../lib/api/fileRequests";
@@ -64,6 +65,7 @@ const Home = (): JSX.Element => {
                     selectedReplayDataIds={selectedReplayData.map((replay) => replay._id)}
                 />
                 <SidebarSettings />
+                <SidebarCharts replaysData={selectedReplayData} />
                 <Viewer3D replaysData={selectedReplayData} />
             </Layout.Content>
         </Layout>
