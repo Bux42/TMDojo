@@ -30,7 +30,7 @@ export const Viewer3D = ({ replaysData }: Props): JSX.Element => {
                 <OrbitControls dampingFactor={0.2} rotateSpeed={0.4} target={DEFAULT_GRID_POS} />
 
                 <Grid replaysData={replaysData} blockPadding={2} />
-                <ReplayLines replaysData={replaysData} lineType={lineType} />
+                <ReplayLines replaysData={replaysData} lineType={lineType} showGears={true} />
             </Canvas>
         </div>
     );

@@ -31,7 +31,10 @@ const Home = (): JSX.Element => {
         setSelectedReplayData(replayDataFiltered);
     };
 
-    const onLoadAllVisibleReplays = async (replays: FileResponse[], selectedReplayDataIds: string[]) => {
+    const onLoadAllVisibleReplays = async (
+        replays: FileResponse[],
+        selectedReplayDataIds: string[]
+    ) => {
         const fetchedReplays = [];
         for (let i = 0; i < replays.length; i++) {
             if (selectedReplayDataIds.indexOf(replays[i]._id) == -1) {
@@ -40,7 +43,7 @@ const Home = (): JSX.Element => {
             }
         }
         setSelectedReplayData([...selectedReplayData, ...fetchedReplays]);
-    }
+    };
 
     const onRemoveAllReplays = async (replaysToRemove: FileResponse[]) => {
         const replayDataFiltered = selectedReplayData.filter(function (el) {
