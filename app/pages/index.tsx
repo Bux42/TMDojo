@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { Layout, Input, Table } from "antd";
+import { Layout, Input, Table, Tooltip, Button } from "antd";
 import { ColumnsType } from "antd/lib/table";
 
 import { AvailableMap, getAvailableMaps } from "../lib/api/apiRequests";
+import { ReloadOutlined } from "@ant-design/icons";
 
 interface ExtendedAvailableMap extends AvailableMap {
     key: string;
@@ -53,7 +54,17 @@ const Home = (): JSX.Element => {
         <Layout>
             <Layout.Content className="w-3/4 m-auto h-full flex flex-col justify-center">
                 <div>
-                    Looking for a map?
+                    <div className="flex flex-row items-center my-2 gap-4">
+                        <span>Looking for a map?</span>
+                        <Tooltip title="Refresh">
+                            <Button
+                                shape="circle"
+                                size="large"
+                                icon={<ReloadOutlined style={{ color: "rgba(0, 0, 0, 0.85)" }} />}
+                                onClick={fetchMaps}
+                            />
+                        </Tooltip>
+                    </div>
                     <Input.Search
                         placeholder="Enter a map name"
                         onSearch={(searchVal) => setSearchString(searchVal)}

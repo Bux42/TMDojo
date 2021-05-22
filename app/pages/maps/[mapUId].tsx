@@ -23,11 +23,12 @@ const Home = (): JSX.Element => {
     const router = useRouter();
     const { mapUId } = router.query;
 
+    const fetchAndSetReplays = async () => {
+        const { files } = await getReplays({ mapUId: `${mapUId}` });
+        setReplays(files);
+    };
+
     useEffect(() => {
-        const fetchAndSetReplays = async () => {
-            const { files } = await getReplays({ mapUId: `${mapUId}` });
-            setReplays(files);
-        };
         if (mapUId !== undefined) {
             fetchAndSetReplays();
         }
@@ -87,6 +88,7 @@ const Home = (): JSX.Element => {
                     onLoadAllVisibleReplays={onLoadAllVisibleReplays}
                     onRemoveAllReplays={onRemoveAllReplays}
                     selectedReplayDataIds={selectedReplayData.map((replay) => replay._id)}
+                    onRefreshReplays={fetchAndSetReplays}
                 />
                 <SidebarSettings />
                 <Viewer3D replaysData={selectedReplayData} />
