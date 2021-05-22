@@ -57,13 +57,14 @@ const Home = (): JSX.Element => {
         replays: FileResponse[],
         selectedReplayDataIds: string[]
     ) => {
-        const fetchedReplays = [];
-        for (let i = 0; i < replays.length; i++) {
-            if (selectedReplayDataIds.indexOf(replays[i]._id) == -1) {
-                const replayData = await fetchReplayData(replays[i]);
-                fetchedReplays.push(replayData);
-            }
-        }
+        const filtered = replays.filter(
+            (replay) => selectedReplayDataIds.indexOf(replay._id) == -1
+        );
+        const fetchedReplays = await Promise.all(
+            filtered.map((replay) => {
+                return fetchReplayData(replay);
+            })
+        );
         setSelectedReplayData([...selectedReplayData, ...fetchedReplays]);
     };
 
