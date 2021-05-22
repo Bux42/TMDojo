@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import * as THREE from "three";
 import { Billboard, Sphere, Text } from "@react-three/drei";
-import { ReplayData } from "../../lib/api/fileRequests";
+import { ReplayData } from "../../lib/api/apiRequests";
 import { ReplayDataPoint } from "../../lib/replays/replayData";
 import { DoubleSide } from "three";
 
