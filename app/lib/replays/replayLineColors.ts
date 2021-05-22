@@ -1,4 +1,4 @@
-import { ReplayData } from "../api/fileRequests";
+import { ReplayData } from "../api/apiRequests";
 import * as THREE from "three";
 import { ColorMap, getColorFromMap } from "../utils/colormaps";
 import { ReplayDataPoint } from "./replayData";

@@ -1,73 +1,72 @@
 import React, { useEffect, useState } from "react";
-import { Layout } from "antd";
+import Link from "next/link";
+import { Layout, Input, Table } from "antd";
+import { ColumnsType } from "antd/lib/table";
 
-import { SidebarReplays } from "../components/home/SidebarReplays";
-import { SidebarSettings } from "../components/home/SidebarSettings";
-import { MapHeader } from "../components/home/MapHeader";
-import { Viewer3D } from "../components/viewer/Viewer3D";
-import { getFiles, FileResponse, fetchReplayData, ReplayData } from "../lib/api/fileRequests";
+import { AvailableMap, getAvailableMaps } from "../lib/api/apiRequests";
+
+interface ExtendedAvailableMap extends AvailableMap {
+    key: string;
+}
 
 const Home = (): JSX.Element => {
-    const [replays, setReplays] = useState<FileResponse[]>([]);
-    const [selectedReplayData, setSelectedReplayData] = useState<ReplayData[]>([]);
+    const [maps, setMaps] = useState<ExtendedAvailableMap[]>([]);
+    const [searchString, setSearchString] = useState<string>("");
+
+    const fetchMaps = async () => {
+        const fetchedMaps = await getAvailableMaps(searchString);
+        const preparedMaps = fetchedMaps.map((fetchedMap) => {
+            return {
+                ...fetchedMap,
+                key: fetchedMap.mapUId,
+            };
+        });
+        setMaps(preparedMaps);
+    };
 
     useEffect(() => {
-        const fetchAndSetReplays = async () => {
-            const { files } = await getFiles();
-            setReplays(files);
-        };
-        fetchAndSetReplays();
-    }, []);
+        fetchMaps();
+    }, [searchString]);
 
-    const onLoadReplay = async (replay: FileResponse) => {
-        const replayData = await fetchReplayData(replay);
-        setSelectedReplayData([...selectedReplayData, replayData]);
-    };
-
-    const onRemoveReplay = async (replayToRemove: FileResponse) => {
-        const replayDataFiltered = selectedReplayData.filter(
-            (replay) => replay._id != replayToRemove._id
-        );
-        setSelectedReplayData(replayDataFiltered);
-    };
-
-    const onLoadAllVisibleReplays = async (
-        replays: FileResponse[],
-        selectedReplayDataIds: string[]
-    ) => {
-        const fetchedReplays = [];
-        for (let i = 0; i < replays.length; i++) {
-            if (selectedReplayDataIds.indexOf(replays[i]._id) == -1) {
-                const replayData = await fetchReplayData(replays[i]);
-                fetchedReplays.push(replayData);
-            }
-        }
-        setSelectedReplayData([...selectedReplayData, ...fetchedReplays]);
-    };
-
-    const onRemoveAllReplays = async (replaysToRemove: FileResponse[]) => {
-        const replayDataFiltered = selectedReplayData.filter(function (el) {
-            return replaysToRemove.includes(el);
-        });
-        setSelectedReplayData(replayDataFiltered);
-    };
+    const columns: ColumnsType<ExtendedAvailableMap> = [
+        {
+            title: "Map name",
+            dataIndex: "mapName",
+            render: (_, map) => (
+                <Link href={`/maps/${map.mapUId}`}>
+                    <a>{map.mapName}</a>
+                </Link>
+            ),
+            sorter: (a, b) => a.mapName.localeCompare(b.mapName),
+            width: "90%",
+        },
+        {
+            title: "Replays",
+            dataIndex: "count",
+            sorter: (a, b) => a.count - b.count,
+            defaultSortOrder: "descend",
+            width: "10%",
+        },
+    ];
 
     return (
         <Layout>
-            {/* TODO: enable this when we have a mapUId available
-                <MapHeader mapUId="h_1dfEJJ8m7eY0jB6Ka7XWof6w" /> 
-            */}
-            <Layout.Content>
-                <SidebarReplays
-                    replays={replays}
-                    onLoadReplay={onLoadReplay}
-                    onRemoveReplay={onRemoveReplay}
-                    onLoadAllVisibleReplays={onLoadAllVisibleReplays}
-                    onRemoveAllReplays={onRemoveAllReplays}
-                    selectedReplayDataIds={selectedReplayData.map((replay) => replay._id)}
-                />
-                <SidebarSettings />
-                <Viewer3D replaysData={selectedReplayData} />
+            <Layout.Content className="w-3/4 m-auto h-full flex flex-col justify-center">
+                <div>
+                    Looking for a map?
+                    <Input.Search
+                        placeholder="Enter a map name"
+                        onSearch={(searchVal) => setSearchString(searchVal)}
+                    />
+                    <Table
+                        className="dojo-map-search-table"
+                        dataSource={maps}
+                        columns={columns}
+                        size="small"
+                        showSorterTooltip={false}
+                        pagination={{ defaultPageSize: 10, hideOnSinglePage: true }}
+                    />
+                </div>
             </Layout.Content>
         </Layout>
     );

@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Drawer, Table } from "antd";
 import { ColumnsType, TablePaginationConfig } from "antd/lib/table";
-import { FileResponse } from "../../lib/api/fileRequests";
+import { FileResponse } from "../../lib/api/apiRequests";
 import { getEndRaceTimeStr, timeDifference } from "../../lib/utils/time";
 import { TableCurrentDataSource } from "antd/lib/table/interface";
 
 interface Props {
+    mapUId: string;
     replays: FileResponse[];
     onLoadReplay: (replay: FileResponse) => void;
     onRemoveReplay: (replay: FileResponse) => void;
@@ -21,6 +22,7 @@ interface ExtendedFileResponse extends FileResponse {
 }
 
 export const SidebarReplays = ({
+    mapUId,
     replays,
     onLoadReplay,
     onRemoveReplay,
@@ -28,8 +30,16 @@ export const SidebarReplays = ({
     onRemoveAllReplays,
     selectedReplayDataIds,
 }: Props): JSX.Element => {
+    const defaultPageSize = 25;
+
     const [visible, setVisible] = useState(false);
     const [visibleReplays, setVisibleReplays] = useState<FileResponse[]>([]);
+
+    useEffect(() => {
+        // initialize visible replays with the first page
+        const initiallyVisibleReplays = replays.slice(0, defaultPageSize);
+        setVisibleReplays(() => addReplayInfo(initiallyVisibleReplays));
+    }, [replays]);
 
     const onClose = () => {
         setVisible(false);
@@ -47,13 +57,6 @@ export const SidebarReplays = ({
     };
 
     const columns: ColumnsType<ExtendedFileResponse> = [
-        {
-            title: "Map",
-            dataIndex: "mapName",
-            filters: getUniqueFilters((replay) => replay.mapName),
-            onFilter: (value, record) => record.mapName === value,
-            filterMultiple: false,
-        },
         {
             title: "Player",
             dataIndex: "playerName",
@@ -99,7 +102,7 @@ export const SidebarReplays = ({
             title: "",
             key: "load",
             align: "center",
-            width: 80,
+            width: 120,
             render: (_, replay) => {
                 const selected = selectedReplayDataIds.indexOf(replay._id) != -1;
                 return !selected ? (
@@ -202,8 +205,8 @@ export const SidebarReplays = ({
                         dataSource={addReplayInfo(replays)}
                         columns={columns}
                         size="small"
-                        pagination={{ defaultPageSize: 25 }}
-                        scroll={{ scrollToFirstRowOnChange: true, y: 675, x: "max-content" }}
+                        pagination={{ defaultPageSize }}
+                        scroll={{ scrollToFirstRowOnChange: true }}
                     />
                 </div>
             </Drawer>

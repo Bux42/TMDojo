@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from "react";
 import * as THREE from "three";
-import { ReplayData } from "../../lib/api/fileRequests";
+import { ReplayData } from "../../lib/api/apiRequests";
 import {
     accelerationReplayColors,
     defaultReplayColors,
