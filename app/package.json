@@ -10,6 +10,7 @@
         "lint": "eslint . --ext ts --ext tsx --ext js"
     },
     "dependencies": {
+        "@ant-design/icons": "^4.6.2",
         "@babel/core": "^7.13.10",
         "@react-three/drei": "^4.3.3",
         "@react-three/fiber": "^6.0.16",

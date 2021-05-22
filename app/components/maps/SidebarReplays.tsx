@@ -1,9 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { Button, Drawer, Table } from "antd";
+import { Button, Drawer, Table, Tooltip } from "antd";
 import { ColumnsType, TablePaginationConfig } from "antd/lib/table";
 import { FileResponse } from "../../lib/api/apiRequests";
 import { getEndRaceTimeStr, timeDifference } from "../../lib/utils/time";
 import { TableCurrentDataSource } from "antd/lib/table/interface";
+import { ReloadOutlined } from "@ant-design/icons";
+
+interface ExtendedFileResponse extends FileResponse {
+    readableTime: string;
+    relativeDate: string;
+    finished: boolean;
+}
 
 interface Props {
     mapUId: string;
@@ -12,13 +19,8 @@ interface Props {
     onRemoveReplay: (replay: FileResponse) => void;
     onLoadAllVisibleReplays: (replays: FileResponse[], selectedReplayDataIds: string[]) => void;
     onRemoveAllReplays: (replays: FileResponse[]) => void;
+    onRefreshReplays: () => void;
     selectedReplayDataIds: string[];
-}
-
-interface ExtendedFileResponse extends FileResponse {
-    readableTime: string;
-    relativeDate: string;
-    finished: boolean;
 }
 
 export const SidebarReplays = ({
@@ -28,6 +30,7 @@ export const SidebarReplays = ({
     onRemoveReplay,
     onLoadAllVisibleReplays,
     onRemoveAllReplays,
+    onRefreshReplays,
     selectedReplayDataIds,
 }: Props): JSX.Element => {
     const defaultPageSize = 25;
@@ -180,22 +183,34 @@ export const SidebarReplays = ({
                 visible={visible}
                 className={"h-screen"}
             >
-                <div>
-                    <Button
-                        type="primary"
-                        onClick={() =>
-                            onLoadAllVisibleReplays(visibleReplays, selectedReplayDataIds)
-                        }
-                    >
-                        Load all visible
-                    </Button>
-                    <Button
-                        type="primary"
-                        danger
-                        onClick={() => onRemoveAllReplays(visibleReplays)}
-                    >
-                        Unload all
-                    </Button>
+                <div className="flex flex-row justify-between items-center mb-6 mt-2 mx-4">
+                    <div className="flex flex-row gap-4">
+                        <Button
+                            type="primary"
+                            onClick={() =>
+                                onLoadAllVisibleReplays(visibleReplays, selectedReplayDataIds)
+                            }
+                        >
+                            Load all visible
+                        </Button>
+                        <Button
+                            type="primary"
+                            danger
+                            onClick={() => onRemoveAllReplays(visibleReplays)}
+                        >
+                            Unload all
+                        </Button>
+                    </div>
+                    <div className="mr-6">
+                        <Tooltip title="Refresh">
+                            <Button
+                                shape="circle"
+                                size="large"
+                                icon={<ReloadOutlined style={{ color: "rgba(0, 0, 0, 0.85)" }} />}
+                                onClick={onRefreshReplays}
+                            />
+                        </Tooltip>
+                    </div>
                 </div>
                 <div>
                     <Table
