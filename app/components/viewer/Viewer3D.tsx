@@ -14,7 +14,7 @@ interface Props {
 }
 
 export const Viewer3D = ({ replaysData }: Props): JSX.Element => {
-    const { lineType } = useContext(SettingsContext);
+    const { lineType, showGearChanges } = useContext(SettingsContext);
 
     return (
         <div style={{ zIndex: -10 }} className="w-full h-full">
@@ -30,7 +30,11 @@ export const Viewer3D = ({ replaysData }: Props): JSX.Element => {
                 <OrbitControls dampingFactor={0.2} rotateSpeed={0.4} target={DEFAULT_GRID_POS} />
 
                 <Grid replaysData={replaysData} blockPadding={2} />
-                <ReplayLines replaysData={replaysData} lineType={lineType} showGears={true} />
+                <ReplayLines
+                    replaysData={replaysData}
+                    lineType={lineType}
+                    showGearChanges={showGearChanges}
+                />
             </Canvas>
         </div>
     );

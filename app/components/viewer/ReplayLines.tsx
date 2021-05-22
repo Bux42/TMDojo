@@ -56,9 +56,13 @@ const ReplayLine = ({ replay, lineType }: ReplayLineProps) => {
 interface ReplayLinesProps {
     replaysData: ReplayData[];
     lineType: LineType;
-    showGears: boolean;
+    showGearChanges: boolean;
 }
-export const ReplayLines = ({ replaysData, lineType }: ReplayLinesProps): JSX.Element => {
+export const ReplayLines = ({
+    replaysData,
+    lineType,
+    showGearChanges,
+}: ReplayLinesProps): JSX.Element => {
     return (
         <>
             {replaysData.map((replay) => {
@@ -69,7 +73,9 @@ export const ReplayLines = ({ replaysData, lineType }: ReplayLinesProps): JSX.El
                             replay={replay}
                             lineType={lineType}
                         />
-                        <ReplayGears key={`replay-${replay._id}-gears`} replay={replay} />
+                        {showGearChanges && (
+                            <ReplayGears key={`replay-${replay._id}-gears`} replay={replay} />
+                        )}
                     </>
                 );
             })}
