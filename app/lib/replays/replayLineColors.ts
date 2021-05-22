@@ -14,12 +14,12 @@ const COLOR_MAP_ACCELERATION: ColorMap = [
     { value: 10.0, color: { r: 0x00, g: 0xff, b: 0 } },
 ];
 
-const COLOR_MAP_GEARS: ColorMap = [
+export const COLOR_MAP_GEARS: ColorMap = [
     { value: 1.0, color: { r: 0xaa, g: 0x00, b: 0x00 } },
     { value: 2.0, color: { r: 0xff, g: 0x33, b: 0x22 } },
     { value: 3.0, color: { r: 0x33, g: 0xee, b: 0x44 } },
     { value: 4.0, color: { r: 0x44, g: 0x33, b: 0xee } },
-    { value: 5.0, color: { r: 0x22, g: 0x88, b: 0x33 } },
+    { value: 5.0, color: { r: 0x11, g: 0xaa, b: 0xaa } },
     { value: 6.0, color: { r: 0x66, g: 0x66, b: 0xff } },
     { value: 7.0, color: { r: 0xff, g: 0xff, b: 0xff } },
 ];

@@ -4,18 +4,18 @@ import { Billboard, Sphere, Text } from "@react-three/drei";
 import { ReplayData } from "../../lib/api/apiRequests";
 import { ReplayDataPoint } from "../../lib/replays/replayData";
 import { DoubleSide } from "three";
+import { getColorFromMap } from "../../lib/utils/colormaps";
+import { COLOR_MAP_GEARS } from "../../lib/replays/replayLineColors";
 
 interface GearIndicatorProps {
     gearChange: GearChange;
 }
 const GearIndicator = ({ gearChange }: GearIndicatorProps) => {
+    const color = getColorFromMap(gearChange.engineCurGear, COLOR_MAP_GEARS);
+
     return (
         <Sphere position={gearChange.sample.position} args={[0.5]}>
-            <meshBasicMaterial
-                attach="material"
-                side={DoubleSide}
-                color={gearChange.gearUp ? "green" : "red"}
-            />
+            <meshBasicMaterial attach="material" side={DoubleSide} color={color} />
         </Sphere>
     );
 };
@@ -24,6 +24,8 @@ interface GearTextProps {
     gearChange: GearChange;
 }
 const GearText = ({ gearChange }: GearTextProps) => {
+    const color = getColorFromMap(gearChange.engineCurGear, COLOR_MAP_GEARS);
+
     return (
         <Billboard
             position={new THREE.Vector3().addVectors(
@@ -33,7 +35,7 @@ const GearText = ({ gearChange }: GearTextProps) => {
             args={[0, 0]}
         >
             <Text
-                color={gearChange.gearUp ? "green" : "red"}
+                color={color}
                 fontSize={5}
                 maxWidth={200}
                 lineHeight={1}
