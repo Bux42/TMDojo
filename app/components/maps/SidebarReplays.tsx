@@ -206,7 +206,7 @@ export const SidebarReplays = ({
                             <Button
                                 shape="circle"
                                 size="large"
-                                icon={<ReloadOutlined style={{ color: "rgba(0, 0, 0, 0.85)" }} />}
+                                icon={<ReloadOutlined />}
                                 onClick={onRefreshReplays}
                             />
                         </Tooltip>
