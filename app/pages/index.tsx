@@ -60,7 +60,7 @@ const Home = (): JSX.Element => {
                             <Button
                                 shape="circle"
                                 size="large"
-                                icon={<ReloadOutlined style={{ color: "rgba(0, 0, 0, 0.85)" }} />}
+                                icon={<ReloadOutlined />}
                                 onClick={fetchMaps}
                             />
                         </Tooltip>
