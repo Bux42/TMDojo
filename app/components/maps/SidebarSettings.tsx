@@ -1,12 +1,14 @@
 import React, { useContext, useState } from "react";
 import Title from "antd/lib/typography/Title";
-import { Button, Drawer, Select } from "antd";
+import { Button, Checkbox, Drawer, Select } from "antd";
 import { SettingsContext } from "../../lib/contexts/SettingsContext";
 import { LineTypes } from "../viewer/ReplayLines";
 
 export const SidebarSettings = (): JSX.Element => {
     const [visible, setVisible] = useState(false);
-    const { lineType, changeLineType } = useContext(SettingsContext);
+    const { lineType, changeLineType, showGearChanges, setShowGearChanges } = useContext(
+        SettingsContext
+    );
 
     const onClose = () => {
         setVisible(false);
@@ -17,7 +19,7 @@ export const SidebarSettings = (): JSX.Element => {
     };
 
     const onChangeLineType = (newLineTypeKey: string) => {
-	const newLineType = LineTypes[newLineTypeKey];
+        const newLineType = LineTypes[newLineTypeKey];
         if (newLineType != undefined) {
             changeLineType(newLineType);
         }
@@ -51,6 +53,14 @@ export const SidebarSettings = (): JSX.Element => {
                         );
                     })}
                 </Select>
+
+                <Checkbox
+                    className={"w-full py-6 select-none"}
+                    onChange={(e) => setShowGearChanges(e.target.checked)}
+                    checked={showGearChanges}
+                >
+                    Show Gear Changes
+                </Checkbox>
             </Drawer>
         </div>
     );

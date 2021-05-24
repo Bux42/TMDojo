@@ -1,30 +1,22 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
+import { useRouter } from "next/router";
 import { PageHeader, Button } from "antd";
 
-import { getTmxId } from "../../lib/api/tmxRequests";
+import { MapInfo } from "../../lib/api/apiRequests";
+import { cleanTMFormatting } from "../../lib/utils/formatting";
 
 interface Props {
-    mapUId: string;
+    mapInfo: MapInfo;
 }
 
-export const MapHeader = ({ mapUId }: Props): JSX.Element => {
-    const [tmxId, setTmxId] = useState("");
-
-    useEffect(() => {
-        const fetchTmxId = async () => {
-            const fetchedTmxId = await getTmxId(mapUId);
-            if (fetchedTmxId) {
-                setTmxId(fetchedTmxId);
-            }
-        };
-        fetchTmxId();
-    }, []);
+export const MapHeader = ({ mapInfo }: Props): JSX.Element => {
+    const router = useRouter();
 
     return (
         <PageHeader
-            onBack={() => null} // TODO: add link to home when that exists
+            onBack={() => router.push("/")}
             title="Replay viewer"
-            subTitle="Map: Map name"
+            subTitle={cleanTMFormatting(mapInfo.name || "")}
             extra={
                 <>
                     <Button
@@ -32,17 +24,17 @@ export const MapHeader = ({ mapUId }: Props): JSX.Element => {
                         type="primary"
                         onClick={() => {
                             // TODO: how do we want to route? probably should have a convention
-                            location.href = `https://trackmania.io/#/leaderboard/${mapUId}`;
+                            location.href = `https://trackmania.io/#/leaderboard/${mapInfo.mapUid}`;
                         }}
                     >
                         trackmania.io
                     </Button>
-                    {tmxId && tmxId !== "" ? (
+                    {mapInfo.exchangeid ? (
                         <Button
                             key="tmx"
                             type="primary"
                             onClick={() => {
-                                location.href = `https://trackmania.exchange/maps/${tmxId}`;
+                                location.href = `https://trackmania.exchange/maps/${mapInfo.exchangeid}`;
                             }}
                         >
                             TM Exchange

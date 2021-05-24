@@ -1,15 +1,15 @@
 import React, { useCallback, useMemo } from "react";
 import * as THREE from "three";
-import { ReplayData as ReplayData } from "../../lib/api/fileRequests";
+import { ReplayData } from "../../lib/api/apiRequests";
 import {
     accelerationReplayColors,
-    colorsToBuffer,
     defaultReplayColors,
     gearReplayColors,
     rpmReplayColors,
     speedReplayColors,
-    inputReplayColors
+    inputReplayColors,
 } from "../../lib/replays/replayLineColors";
+import { ReplayGears } from "./ReplayGears";
 
 export interface LineType {
     name: string;
@@ -20,8 +20,8 @@ export const LineTypes: { [name: string]: LineType } = {
     speed: { name: "Speed", colorsCallback: speedReplayColors },
     acceleration: { name: "Acceleration", colorsCallback: accelerationReplayColors },
     gear: { name: "Gear", colorsCallback: gearReplayColors },
-    rpm: { name: "RPMs", colorsCallback: rpmReplayColors},
-    inputs: { name: "Inputs", colorsCallback: inputReplayColors}
+    rpm: { name: "RPMs", colorsCallback: rpmReplayColors },
+    inputs: { name: "Inputs", colorsCallback: inputReplayColors },
 };
 
 interface ReplayLineProps {
@@ -29,7 +29,7 @@ interface ReplayLineProps {
     lineType: LineType;
 }
 const ReplayLine = ({ replay, lineType }: ReplayLineProps) => {
-    const points = useMemo(() => replay.samples.map((sample) => sample.position), []);
+    const points = useMemo(() => replay.samples.map((sample) => sample.position), [replay]);
     const colorBuffer = useMemo(() => lineType.colorsCallback(replay), [replay, lineType]);
 
     const onUpdate = useCallback(
@@ -56,12 +56,28 @@ const ReplayLine = ({ replay, lineType }: ReplayLineProps) => {
 interface ReplayLinesProps {
     replaysData: ReplayData[];
     lineType: LineType;
+    showGearChanges: boolean;
 }
-export const ReplayLines = ({ replaysData, lineType }: ReplayLinesProps): JSX.Element => {
+export const ReplayLines = ({
+    replaysData,
+    lineType,
+    showGearChanges,
+}: ReplayLinesProps): JSX.Element => {
     return (
         <>
             {replaysData.map((replay) => {
-                return <ReplayLine key={replay._id} replay={replay} lineType={lineType} />;
+                return (
+                    <>
+                        <ReplayLine
+                            key={`replay-${replay._id}-line`}
+                            replay={replay}
+                            lineType={lineType}
+                        />
+                        {showGearChanges && (
+                            <ReplayGears key={`replay-${replay._id}-gears`} replay={replay} />
+                        )}
+                    </>
+                );
             })}
         </>
     );

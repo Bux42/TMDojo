@@ -1,18 +1,10 @@
-import React, { useState } from "react";
-import { Button, Drawer, Table } from "antd";
+import React, { useState, useEffect } from "react";
+import { Button, Drawer, Table, Tooltip } from "antd";
 import { ColumnsType, TablePaginationConfig } from "antd/lib/table";
-import { FileResponse } from "../../lib/api/fileRequests";
+import { FileResponse } from "../../lib/api/apiRequests";
 import { getEndRaceTimeStr, timeDifference } from "../../lib/utils/time";
 import { TableCurrentDataSource } from "antd/lib/table/interface";
-
-interface Props {
-    replays: FileResponse[];
-    onLoadReplay: (replay: FileResponse) => void;
-    onRemoveReplay: (replay: FileResponse) => void;
-    onLoadAllVisibleReplays: (replays: FileResponse[], selectedReplayDataIds: string[]) => void;
-    onRemoveAllReplays: (replays: FileResponse[]) => void;
-    selectedReplayDataIds: string[];
-}
+import { ReloadOutlined } from "@ant-design/icons";
 
 interface ExtendedFileResponse extends FileResponse {
     readableTime: string;
@@ -20,16 +12,37 @@ interface ExtendedFileResponse extends FileResponse {
     finished: boolean;
 }
 
+interface Props {
+    mapUId: string;
+    replays: FileResponse[];
+    onLoadReplay: (replay: FileResponse) => void;
+    onRemoveReplay: (replay: FileResponse) => void;
+    onLoadAllVisibleReplays: (replays: FileResponse[], selectedReplayDataIds: string[]) => void;
+    onRemoveAllReplays: (replays: FileResponse[]) => void;
+    onRefreshReplays: () => void;
+    selectedReplayDataIds: string[];
+}
+
 export const SidebarReplays = ({
+    mapUId,
     replays,
     onLoadReplay,
     onRemoveReplay,
     onLoadAllVisibleReplays,
     onRemoveAllReplays,
+    onRefreshReplays,
     selectedReplayDataIds,
 }: Props): JSX.Element => {
+    const defaultPageSize = 25;
+
     const [visible, setVisible] = useState(false);
     const [visibleReplays, setVisibleReplays] = useState<FileResponse[]>([]);
+
+    useEffect(() => {
+        // initialize visible replays with the first page
+        const initiallyVisibleReplays = replays.slice(0, defaultPageSize);
+        setVisibleReplays(() => addReplayInfo(initiallyVisibleReplays));
+    }, [replays]);
 
     const onClose = () => {
         setVisible(false);
@@ -47,13 +60,6 @@ export const SidebarReplays = ({
     };
 
     const columns: ColumnsType<ExtendedFileResponse> = [
-        {
-            title: "Map",
-            dataIndex: "mapName",
-            filters: getUniqueFilters((replay) => replay.mapName),
-            onFilter: (value, record) => record.mapName === value,
-            filterMultiple: false,
-        },
         {
             title: "Player",
             dataIndex: "playerName",
@@ -99,7 +105,7 @@ export const SidebarReplays = ({
             title: "",
             key: "load",
             align: "center",
-            width: 80,
+            width: 120,
             render: (_, replay) => {
                 const selected = selectedReplayDataIds.indexOf(replay._id) != -1;
                 return !selected ? (
@@ -177,22 +183,34 @@ export const SidebarReplays = ({
                 visible={visible}
                 className={"h-screen"}
             >
-                <div>
-                    <Button
-                        type="primary"
-                        onClick={() =>
-                            onLoadAllVisibleReplays(visibleReplays, selectedReplayDataIds)
-                        }
-                    >
-                        Load all visible
-                    </Button>
-                    <Button
-                        type="primary"
-                        danger
-                        onClick={() => onRemoveAllReplays(visibleReplays)}
-                    >
-                        Unload all
-                    </Button>
+                <div className="flex flex-row justify-between items-center mb-6 mt-2 mx-4">
+                    <div className="flex flex-row gap-4">
+                        <Button
+                            type="primary"
+                            onClick={() =>
+                                onLoadAllVisibleReplays(visibleReplays, selectedReplayDataIds)
+                            }
+                        >
+                            Load all visible
+                        </Button>
+                        <Button
+                            type="primary"
+                            danger
+                            onClick={() => onRemoveAllReplays(visibleReplays)}
+                        >
+                            Unload all
+                        </Button>
+                    </div>
+                    <div className="mr-6">
+                        <Tooltip title="Refresh">
+                            <Button
+                                shape="circle"
+                                size="large"
+                                icon={<ReloadOutlined />}
+                                onClick={onRefreshReplays}
+                            />
+                        </Tooltip>
+                    </div>
                 </div>
                 <div>
                     <Table
@@ -202,8 +220,8 @@ export const SidebarReplays = ({
                         dataSource={addReplayInfo(replays)}
                         columns={columns}
                         size="small"
-                        pagination={{ defaultPageSize: 25 }}
-                        scroll={{ scrollToFirstRowOnChange: true, y: 675, x: "max-content" }}
+                        pagination={{ defaultPageSize }}
+                        scroll={{ scrollToFirstRowOnChange: true }}
                     />
                 </div>
             </Drawer>

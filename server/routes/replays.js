@@ -12,6 +12,7 @@ const db = require('../lib/db');
  * Query params:
  * - mapName (optional)
  * - playerName (optional)
+ * - mapUId (optional)
  * - raceFinished (optional)
  * - orderBy (optional)
  * - maxResults (optional)
@@ -24,6 +25,7 @@ router.get('/', async (req, res, next) => {
     const replays = await db.getReplays(
       req.query.mapName,
       req.query.playerName,
+      req.query.mapUId,
       req.query.raceFinished,
       req.query.orderBy,
       req.query.maxResults
