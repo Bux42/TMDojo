@@ -13,6 +13,14 @@ interface Props {
 export const MapHeader = ({ mapInfo }: Props): JSX.Element => {
     const router = useRouter();
 
+    const hasExchangeId = mapInfo.exchangeid !== undefined && mapInfo.exchangeid !== 0;
+
+    const TmxButton = () => (
+        <Button key="tmx" type="primary" disabled={!hasExchangeId}>
+            TM Exchange
+        </Button>
+    );
+
     return (
         <PageHeader
             onBack={() => router.push("/")}
@@ -28,16 +36,14 @@ export const MapHeader = ({ mapInfo }: Props): JSX.Element => {
                         </a>
                     </Link>
 
-                    {mapInfo.exchangeid ? (
+                    {hasExchangeId ? (
                         <Link href={`https://trackmania.exchange/maps/${mapInfo.exchangeid}`}>
                             <a target="__blank">
-                                <Button key="tmx" type="primary">
-                                    TM Exchange
-                                </Button>
+                                <TmxButton />
                             </a>
                         </Link>
                     ) : (
-                        <></>
+                        <TmxButton />
                     )}
                 </>
             }
