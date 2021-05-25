@@ -33,7 +33,7 @@ export const SidebarReplays = ({
     onRefreshReplays,
     selectedReplayDataIds,
 }: Props): JSX.Element => {
-    const defaultPageSize = 25;
+    const defaultPageSize = 14;
 
     const [visible, setVisible] = useState(false);
     const [visibleReplays, setVisibleReplays] = useState<FileResponse[]>([]);
@@ -183,7 +183,7 @@ export const SidebarReplays = ({
                 visible={visible}
                 className={"h-screen"}
             >
-                <div className="flex flex-row justify-between items-center mb-6 mt-2 mx-4">
+                <div className="flex flex-row justify-between items-center mb-4 mx-4">
                     <div className="flex flex-row gap-4">
                         <Button
                             type="primary"
@@ -220,7 +220,10 @@ export const SidebarReplays = ({
                         dataSource={addReplayInfo(replays)}
                         columns={columns}
                         size="small"
-                        pagination={{ defaultPageSize }}
+                        pagination={{
+                            pageSize: defaultPageSize,
+                            position: ["bottomCenter"],
+                        }}
                         scroll={{ scrollToFirstRowOnChange: true }}
                     />
                 </div>
