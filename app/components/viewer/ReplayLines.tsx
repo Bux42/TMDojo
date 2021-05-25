@@ -1,7 +1,6 @@
 import React, { useCallback, useContext, useMemo } from "react";
 import * as THREE from "three";
 import { ReplayData as ReplayData } from "../../lib/api/fileRequests";
-import GlobalObject from "../../lib/contexts/GraphContext";
 import {
     accelerationReplayColors,
     colorsToBuffer,
@@ -31,11 +30,7 @@ interface ReplayLineProps {
 }
 const ReplayLine = ({ replay, lineType }: ReplayLineProps) => {
     let pointsTmp: THREE.Vector3[] = [];
-    if (GlobalObject.range.length > 0) {
-        pointsTmp = replay.samples.filter((sample) => sample.currentRaceTime >= GlobalObject.range[0] && sample.currentRaceTime <= GlobalObject.range[1]).map((sample) => sample.position);
-    } else {
-        pointsTmp = replay.samples.map((sample) => sample.position, [])
-    }
+    pointsTmp = replay.samples.map((sample) => sample.position, [])
     const points = useMemo(() => pointsTmp, []);
     const colorBuffer = useMemo(() => lineType.colorsCallback(replay), [replay, lineType]);
 

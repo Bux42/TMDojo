@@ -10,11 +10,25 @@ export const GraphContext = createContext<GraphContextProps>({
     changeRange: () => { },
 });
 
+let timer: NodeJS.Timeout;
+
+const debounce = (callback: () => any, timeout: number) => {
+    return () => {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            callback();
+        }, timeout);
+    };
+};
+
 export const GraphProvider = ({ children }: any): JSX.Element => {
     const [range, setRange] = useState<number[]>([]);
 
     const changeRange = (newRange: number[]) => {
-        setRange(newRange);
+        let myDebounce = debounce(function() {
+            setRange(newRange);
+        }, 200);
+        myDebounce();
     };
 
     return (
@@ -28,9 +42,3 @@ export const GraphProvider = ({ children }: any): JSX.Element => {
         </GraphContext.Provider>
     );
 };
-
-const GlobalObject = {
-    range: [] as number[],
-    lastUpdate: Date.now()
-}
-export default GlobalObject;
