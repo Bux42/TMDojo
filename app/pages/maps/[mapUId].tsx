@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import Head from "next/head";
 import { Layout } from "antd";
 import { useRouter } from "next/router";
 
@@ -14,6 +15,7 @@ import {
     ReplayData,
     MapInfo,
 } from "../../lib/api/apiRequests";
+import { HeadTitle } from "../../components/common/HeadTitle";
 
 const Home = (): JSX.Element => {
     const [replays, setReplays] = useState<FileResponse[]>([]);
@@ -77,23 +79,26 @@ const Home = (): JSX.Element => {
     };
 
     return (
-        <Layout>
-            <MapHeader mapInfo={mapData} />
-            <Layout.Content>
-                <SidebarReplays
-                    mapUId={`${mapUId}`}
-                    replays={replays}
-                    onLoadReplay={onLoadReplay}
-                    onRemoveReplay={onRemoveReplay}
-                    onLoadAllVisibleReplays={onLoadAllVisibleReplays}
-                    onRemoveAllReplays={onRemoveAllReplays}
-                    selectedReplayDataIds={selectedReplayData.map((replay) => replay._id)}
-                    onRefreshReplays={fetchAndSetReplays}
-                />
-                <SidebarSettings />
-                <Viewer3D replaysData={selectedReplayData} />
-            </Layout.Content>
-        </Layout>
+        <>
+            <HeadTitle mapInfo={mapData} />
+            <Layout>
+                <MapHeader mapInfo={mapData} />
+                <Layout.Content>
+                    <SidebarReplays
+                        mapUId={`${mapUId}`}
+                        replays={replays}
+                        onLoadReplay={onLoadReplay}
+                        onRemoveReplay={onRemoveReplay}
+                        onLoadAllVisibleReplays={onLoadAllVisibleReplays}
+                        onRemoveAllReplays={onRemoveAllReplays}
+                        selectedReplayDataIds={selectedReplayData.map((replay) => replay._id)}
+                        onRefreshReplays={fetchAndSetReplays}
+                    />
+                    <SidebarSettings />
+                    <Viewer3D replaysData={selectedReplayData} />
+                </Layout.Content>
+            </Layout>
+        </>
     );
 };
 
