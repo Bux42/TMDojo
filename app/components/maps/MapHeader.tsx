@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { PageHeader, Button } from "antd";
 
@@ -12,6 +13,14 @@ interface Props {
 export const MapHeader = ({ mapInfo }: Props): JSX.Element => {
     const router = useRouter();
 
+    const hasExchangeId = mapInfo.exchangeid !== undefined && mapInfo.exchangeid !== 0;
+
+    const TmxButton = () => (
+        <Button key="tmx" type="primary" disabled={!hasExchangeId}>
+            TM Exchange
+        </Button>
+    );
+
     return (
         <PageHeader
             onBack={() => router.push("/")}
@@ -19,28 +28,22 @@ export const MapHeader = ({ mapInfo }: Props): JSX.Element => {
             subTitle={cleanTMFormatting(mapInfo.name || "")}
             extra={
                 <>
-                    <Button
-                        key="tm.io"
-                        type="primary"
-                        onClick={() => {
-                            // TODO: how do we want to route? probably should have a convention
-                            location.href = `https://trackmania.io/#/leaderboard/${mapInfo.mapUid}`;
-                        }}
-                    >
-                        trackmania.io
-                    </Button>
-                    {mapInfo.exchangeid ? (
-                        <Button
-                            key="tmx"
-                            type="primary"
-                            onClick={() => {
-                                location.href = `https://trackmania.exchange/maps/${mapInfo.exchangeid}`;
-                            }}
-                        >
-                            TM Exchange
-                        </Button>
+                    <Link href={`https://trackmania.io/#/leaderboard/${mapInfo.mapUid}`}>
+                        <a target="__blank">
+                            <Button key="tm.io" type="primary">
+                                trackmania.io
+                            </Button>
+                        </a>
+                    </Link>
+
+                    {hasExchangeId ? (
+                        <Link href={`https://trackmania.exchange/maps/${mapInfo.exchangeid}`}>
+                            <a target="__blank">
+                                <TmxButton />
+                            </a>
+                        </Link>
                     ) : (
-                        <></>
+                        <TmxButton />
                     )}
                 </>
             }
