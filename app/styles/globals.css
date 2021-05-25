@@ -34,3 +34,6 @@
 .ant-btn {
     line-height: 0.5 !important;
 }
+.ant-pagination-item-link {
+    line-height: 0.8 !important;
+}
