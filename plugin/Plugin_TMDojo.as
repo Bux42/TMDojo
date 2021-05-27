@@ -16,30 +16,39 @@ int RECORDING_FPS = 60;
 
 class TMDojo
 {
+    // NOD references
     CGameCtnApp@ app;
     CGameCtnChallenge@ rootMap;
     CSmScriptPlayer@ sm_script;
     CGamePlaygroundUIConfig@ uiConfig;
     CTrackManiaNetwork@ network;
 
+    // Map info
     string mapUId;
     string mapName;
     string authorName;
 
+    // Player info
     string playerName;
     string playerLogin;
     string webId;
 
+    // API URLs
     string localApi = "http://localhost";
     string remoteApi = "https://api.tmdojo.com";
 
-    int prevRaceTime = -6666;
-
+    // Misc.
     bool showMenu = true;
     bool serverAvailable = false;
 
+    // Record info
     bool recording = false;
     int latestRecordedTime = -6666;
+    int prevRaceTime = -6666;
+
+    // AFK checks
+    vec3 latestPlayerPosition;
+    int numSamePositions = 0;
 
     TMDojo() {
         print("[TMDojo]: Init");
@@ -114,7 +123,7 @@ class TMDojo
     bool shouldStartRecording() {
         if (canRecord()) {     
             int curRaceTime = dojo.sm_script.CurrentRaceTime;
-            return curRaceTime > -300 && curRaceTime < 0;
+            return curRaceTime > -100 && curRaceTime < 0;
         }
         return false;
     }
@@ -152,7 +161,7 @@ void RenderMenu()
             ApiUrl = otherApi;
             dojo.checkServer();
 		}
-        if (UI::MenuItem(OnlySaveFinished ? "[  ]  Save finished runs only" : "[X]  Save finished runs only", "", false, true)) {
+        if (UI::MenuItem(OnlySaveFinished ? "[X]  Save finished runs only" : "[  ]  Save finished runs only", "", false, true)) {
             OnlySaveFinished = !OnlySaveFinished;
 		}
 		UI::EndMenu();
@@ -184,8 +193,23 @@ void Render()
                 // Record current data
                 int timeSinceLastRecord = dojo.sm_script.CurrentRaceTime - dojo.latestRecordedTime;
                 if (timeSinceLastRecord > (1.0 / RECORDING_FPS) * 1000) {
-                    FillBuffer();
-                    dojo.latestRecordedTime = dojo.sm_script.CurrentRaceTime;
+                    // Keep track of the amount of samples for which the position did not changed, used to pause recording
+                    if (dojo.sm_script != null &&
+                        Math::Abs(dojo.latestPlayerPosition.x - dojo.sm_script.Position.x) < 0.001 &&
+                        Math::Abs(dojo.latestPlayerPosition.y - dojo.sm_script.Position.y) < 0.001 && 
+                        Math::Abs(dojo.latestPlayerPosition.z - dojo.sm_script.Position.z) < 0.001 ) {
+                        dojo.numSamePositions += 1;
+                    } else {
+                        dojo.numSamePositions = 0;
+                    }
+
+                    // Fill buffer if player has moved recently
+                    if (dojo.numSamePositions < RECORDING_FPS) {
+                        FillBuffer();
+                        dojo.latestRecordedTime = dojo.sm_script.CurrentRaceTime;
+                    }
+
+                    dojo.latestPlayerPosition = dojo.sm_script.Position;
                 }
             }
             dojo.prevRaceTime = dojo.sm_script.CurrentRaceTime;
