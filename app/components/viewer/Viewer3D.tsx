@@ -1,11 +1,11 @@
-import React, { useContext } from "react";
-import * as THREE from "three";
-import { Canvas } from "@react-three/fiber";
-import { ReplayData } from "../../lib/api/apiRequests";
-import { ReplayLines } from "./ReplayLines";
-import { Grid, DEFAULT_GRID_POS } from "./Grid";
-import { SettingsContext } from "../../lib/contexts/SettingsContext";
-import { OrbitControls, Sky } from "@react-three/drei";
+import React, { useContext } from 'react';
+import * as THREE from 'three';
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls, Sky } from '@react-three/drei';
+import { ReplayData } from '../../lib/api/apiRequests';
+import { ReplayLines } from './ReplayLines';
+import { Grid, DEFAULT_GRID_POS } from './Grid';
+import { SettingsContext } from '../../lib/contexts/SettingsContext';
 
 const BACKGROUND_COLOR = new THREE.Color(0.05, 0.05, 0.05);
 
@@ -13,7 +13,7 @@ interface Props {
     replaysData: ReplayData[];
 }
 
-export const Viewer3D = ({ replaysData }: Props): JSX.Element => {
+const Viewer3D = ({ replaysData }: Props): JSX.Element => {
     const { lineType, showGearChanges } = useContext(SettingsContext);
 
     return (
@@ -39,3 +39,5 @@ export const Viewer3D = ({ replaysData }: Props): JSX.Element => {
         </div>
     );
 };
+
+export default Viewer3D;

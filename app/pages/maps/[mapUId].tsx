@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { Layout } from "antd";
-import { useRouter } from "next/router";
+import React, { useEffect, useState } from 'react';
+import { Layout } from 'antd';
+import { useRouter } from 'next/router';
 
-import { SidebarReplays } from "../../components/maps/SidebarReplays";
-import { SidebarSettings } from "../../components/maps/SidebarSettings";
-import { MapHeader } from "../../components/maps/MapHeader";
-import { Viewer3D } from "../../components/viewer/Viewer3D";
+import SidebarReplays from '../../components/maps/SidebarReplays';
+import SidebarSettings from '../../components/maps/SidebarSettings';
+import MapHeader from '../../components/maps/MapHeader';
+import Viewer3D from '../../components/viewer/Viewer3D';
 import {
     getReplays,
     getMapInfo,
@@ -13,8 +13,8 @@ import {
     fetchReplayData,
     ReplayData,
     MapInfo,
-} from "../../lib/api/apiRequests";
-import { HeadTitle } from "../../components/common/HeadTitle";
+} from '../../lib/api/apiRequests';
+import HeadTitle from '../../components/common/HeadTitle';
 
 const Home = (): JSX.Element => {
     const [replays, setReplays] = useState<FileResponse[]>([]);
@@ -50,30 +50,26 @@ const Home = (): JSX.Element => {
 
     const onRemoveReplay = async (replayToRemove: FileResponse) => {
         const replayDataFiltered = selectedReplayData.filter(
-            (replay) => replay._id != replayToRemove._id
+            (replay) => replay._id !== replayToRemove._id,
         );
         setSelectedReplayData(replayDataFiltered);
     };
 
     const onLoadAllVisibleReplays = async (
-        replays: FileResponse[],
-        selectedReplayDataIds: string[]
+        allReplays: FileResponse[],
+        selectedReplayDataIds: string[],
     ) => {
-        const filtered = replays.filter(
-            (replay) => selectedReplayDataIds.indexOf(replay._id) == -1
+        const filtered = allReplays.filter(
+            (replay) => selectedReplayDataIds.indexOf(replay._id) === -1,
         );
         const fetchedReplays = await Promise.all(
-            filtered.map((replay) => {
-                return fetchReplayData(replay);
-            })
+            filtered.map((replay) => fetchReplayData(replay)),
         );
         setSelectedReplayData([...selectedReplayData, ...fetchedReplays]);
     };
 
     const onRemoveAllReplays = async (replaysToRemove: FileResponse[]) => {
-        const replayDataFiltered = selectedReplayData.filter((el) => {
-            return replaysToRemove.includes(el);
-        });
+        const replayDataFiltered = selectedReplayData.filter((el) => replaysToRemove.includes(el));
         setSelectedReplayData(replayDataFiltered);
     };
 

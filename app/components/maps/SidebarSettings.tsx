@@ -1,13 +1,17 @@
-import React, { useContext, useState } from "react";
-import Title from "antd/lib/typography/Title";
-import { Button, Checkbox, Drawer, Select } from "antd";
-import { SettingsContext } from "../../lib/contexts/SettingsContext";
-import { LineTypes } from "../viewer/ReplayLines";
+import React, { useContext, useState } from 'react';
+import Title from 'antd/lib/typography/Title';
+import {
+    Button, Checkbox, Drawer, Select,
+} from 'antd';
+import { SettingsContext } from '../../lib/contexts/SettingsContext';
+import { LineTypes } from '../viewer/ReplayLines';
 
-export const SidebarSettings = (): JSX.Element => {
+const SidebarSettings = (): JSX.Element => {
     const [visible, setVisible] = useState(false);
-    const { lineType, changeLineType, showGearChanges, setShowGearChanges } = useContext(
-        SettingsContext
+    const {
+        lineType, changeLineType, showGearChanges, setShowGearChanges,
+    } = useContext(
+        SettingsContext,
     );
 
     const onClose = () => {
@@ -20,7 +24,7 @@ export const SidebarSettings = (): JSX.Element => {
 
     const onChangeLineType = (newLineTypeKey: string) => {
         const newLineType = LineTypes[newLineTypeKey];
-        if (newLineType != undefined) {
+        if (newLineType !== undefined) {
             changeLineType(newLineType);
         }
     };
@@ -39,7 +43,7 @@ export const SidebarSettings = (): JSX.Element => {
             >
                 <Title level={5}>Line Type</Title>
                 <Select
-                    className={"w-full"}
+                    className="w-full"
                     size="large"
                     value={lineType.name}
                     onChange={onChangeLineType}
@@ -55,7 +59,7 @@ export const SidebarSettings = (): JSX.Element => {
                 </Select>
 
                 <Checkbox
-                    className={"w-full py-6 select-none"}
+                    className="w-full py-6 select-none"
                     onChange={(e) => setShowGearChanges(e.target.checked)}
                     checked={showGearChanges}
                 >
@@ -65,3 +69,5 @@ export const SidebarSettings = (): JSX.Element => {
         </div>
     );
 };
+
+export default SidebarSettings;

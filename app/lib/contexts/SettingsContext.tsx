@@ -1,5 +1,5 @@
-import React, { createContext, useState } from "react";
-import { LineType, LineTypes } from "../../components/viewer/ReplayLines";
+import React, { createContext, useState } from 'react';
+import { LineType, LineTypes } from '../../components/viewer/ReplayLines';
 
 export interface SettingsContextProps {
     lineType: LineType;
@@ -19,8 +19,8 @@ export const SettingsProvider = ({ children }: any): JSX.Element => {
     const [lineType, setLineType] = useState<LineType>(LineTypes.default);
     const [showGearChanges, setShowGearChanges] = useState(false);
 
-    const changeLineType = (lineType: LineType) => {
-        setLineType(lineType);
+    const changeLineType = (type: LineType) => {
+        setLineType(type);
     };
 
     return (

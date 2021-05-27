@@ -1,4 +1,5 @@
-import * as THREE from "three";
+/* eslint-disable no-bitwise */
+import * as THREE from 'three';
 
 export class ReplayDataPoint {
     offset: any;
@@ -30,6 +31,7 @@ export class ReplayDataPoint {
         this.speed = this.readFloat(dataView);
         this.inputSteer = this.readFloat(dataView);
         const gasAndBrake = this.readInt32(dataView);
+        // TODO: can we get rid of these bitwise operations?
         this.inputGasPedal = gasAndBrake & 1;
         this.inputIsBraking = gasAndBrake & 2;
         this.engineRpm = this.readFloat(dataView);
