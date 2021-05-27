@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@import "~antd/dist/antd.css";
+@import "~antd/dist/antd.dark.css";
 
 @import url("https://fonts.googleapis.com/css?family=Inter:100,200,300,400,500,600,700,800,900&display=swap");
 
@@ -12,4 +12,28 @@
 
 .ant-layout {
     height: 100%;
+}
+
+.dojo-map-search-table {
+    height: 50vh;
+}
+
+/* alignment fixes - TODO: find out why they even happen */
+.ant-table-column-sorters {
+    line-height: 1 !important;
+}
+.ant-input-search-button {
+    line-height: 0.8 !important;
+}
+.ant-page-header-back {
+    line-height: 0.5 !important;
+}
+.ant-drawer-close {
+    line-height: 0.5 !important;
+}
+.ant-btn {
+    line-height: 0.5 !important;
+}
+.ant-pagination-item-link {
+    line-height: 0.8 !important;
 }

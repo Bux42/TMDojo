@@ -22,7 +22,7 @@ class TMDojo
     CGamePlaygroundUIConfig@ uiConfig;
     CTrackManiaNetwork@ network;
 
-    string challengeId;
+    string mapUId;
     string mapName;
     string authorName;
 
@@ -45,7 +45,7 @@ class TMDojo
         print("TMDojo: Init");
         @this.app = GetApp();
         @this.network = cast<CTrackManiaNetwork>(app.Network);
-        this.challengeId = "";
+        this.mapUId = "";
     }
     
     bool checkServer() {
@@ -206,9 +206,9 @@ void PostRecordedData(bool finished)
     if (!OnlySaveFinished || finished) {
         print("Save game data size: " + membuff.GetSize());
         membuff.Seek(0);
-        string reqUrl = ApiUrl + "/save-game-data" +    
+        string reqUrl = ApiUrl + "/replays" +    
                             "?mapName=" + dojo.mapName +
-                            "&challengeId=" + dojo.challengeId +
+                            "&mapUId=" + dojo.mapUId +
                             "&authorName=" + dojo.authorName +
                             "&playerName=" + dojo.playerName +
                             "&playerLogin=" + dojo.playerLogin +
@@ -272,7 +272,7 @@ void ContextChecker()
                 @dojo.rootMap = null;
                 @dojo.sm_script = null;
                 @dojo.uiConfig = null;
-                dojo.challengeId = "";
+                dojo.mapUId = "";
                 dojo.resetRecording();
             } 
 
@@ -295,18 +295,16 @@ void ContextChecker()
             }
 
             // Challenge ID (used to set current map)
-            if (dojo.challengeId.get_Length() == 0) {
-                print("dojo.challengeId.length == 0");
+            if (dojo.mapUId.get_Length() == 0) {
+                print("dojo.mapUId.length == 0");
                 if (@dojo.rootMap != null) {
                     string edChallengeId = dojo.rootMap.EdChallengeId;
                     string authorName = dojo.rootMap.AuthorNickName;
                     string mapName = Regex::Replace(dojo.rootMap.MapInfo.NameForUi, "\\$([0-9a-fA-F]{1,3}|[iIoOnNmMwWsSzZtTgG<>]|[lLhHpP](\\[[^\\]]+\\])?)", "").Replace(" ", "%20");
                     
-                    dojo.challengeId = edChallengeId;
+                    dojo.mapUId = edChallengeId;
                     dojo.authorName = authorName;
                     dojo.mapName = mapName;
-                    string url = ApiUrl + "/set-current-map?id=" + edChallengeId + "&author=" + authorName + "&name=" + mapName;
-                    Net::HttpRequest@ mapReq = Net::HttpGet(url);
                 }
             }
 
