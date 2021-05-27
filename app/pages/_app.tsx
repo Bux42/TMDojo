@@ -9,11 +9,11 @@ interface Props {
     pageProps: any;
 }
 
-const MyApp = ({ Component, pageProps }: Props): React.ReactElement => (
+const App = ({ Component, pageProps }: Props): React.ReactElement => (
     <SettingsProvider>
         <HeadTitle />
         <Component {...pageProps} />
     </SettingsProvider>
 );
 
-export default MyApp;
+export default App;
