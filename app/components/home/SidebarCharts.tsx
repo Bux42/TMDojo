@@ -4,7 +4,7 @@ import { Button, Checkbox, Drawer, Table } from "antd";
 import { ReplayDataPoint } from "../../lib/replays/replayData";
 import { getEndRaceTimeStr } from "../../lib/utils/time";
 import HighchartsReact from "highcharts-react-official";
-import Highcharts from "highcharts/highstock";
+import Highcharts, { isObject } from "highcharts/highstock";
 import { GraphContext } from "../../lib/contexts/GraphContext";
 
 interface ReplayChartProps {
@@ -91,6 +91,8 @@ export const ReplayChart = ({ replaysData, metric }: ReplayChartProps): JSX.Elem
             text: metric
         },
         xAxis: {
+            min: (range.length > 0 ? range[0] : undefined),
+            max: (range.length > 0 ? range[1] : undefined),
             events: {
                 afterSetExtremes: function (event: any) {
                     debounceChangeRange([event.min, event.max]);
@@ -107,9 +109,13 @@ export const ReplayChart = ({ replaysData, metric }: ReplayChartProps): JSX.Elem
         },
         series: replaySeries
     };
+    console.log(metric, "Re rendering, range:", range);
     const debounceChangeRange = (newRange: number[]) => {
         let myDebounce = debounce(function () {
-            changeRange(newRange);
+            if (range[0] != newRange[0] || range[1] != newRange[1]) {
+                console.log(metric, "changeRange, range:", range, ", newRange:", newRange);
+                changeRange(newRange);
+            }
         }, 200);
         myDebounce();
     };
@@ -170,7 +176,7 @@ export const SidebarCharts = ({
         if (isResizing) {
             let offsetBottom = document.body.offsetHeight - (e.clientY - document.body.offsetTop);
             const minHeight = 50;
-            const maxHeight = 600;
+            const maxHeight = 800;
             if (offsetBottom > minHeight && offsetBottom < maxHeight && el1) {
                 el1.style.height = offsetBottom + "px";
             }
