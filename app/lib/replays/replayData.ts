@@ -6,7 +6,6 @@ export class ReplayDataPoint {
     position: THREE.Vector3;
     aimYaw: any;
     aimPitch: any;
-    upwardness: any;
     aimDirection: THREE.Vector3;
     velocity: THREE.Vector3;
     speed: any;
@@ -26,7 +25,6 @@ export class ReplayDataPoint {
         this.position = this.readVector3(dataView);
         this.aimYaw = this.readFloat(dataView);
         this.aimPitch = this.readFloat(dataView);
-        this.upwardness = this.readFloat(dataView);
         this.aimDirection = this.readVector3(dataView);
         this.velocity = this.readVector3(dataView);
         this.speed = this.readFloat(dataView);
@@ -70,7 +68,7 @@ export const readDataView = (dataView: DataView): DataViewResult => {
     let minPos = new THREE.Vector3(Infinity, Infinity, Infinity);
     let maxPos = new THREE.Vector3(-Infinity, -Infinity, -Infinity);
 
-    for (let i = 0; i < dataView.byteLength; i += 80) {
+    for (let i = 0; i < dataView.byteLength; i += 76) {
         const s = new ReplayDataPoint(dataView, i);
         samples.push(s);
         minPos = minPos.min(s.position);
