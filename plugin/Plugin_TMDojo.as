@@ -42,7 +42,7 @@ class TMDojo
     int latestRecordedTime = -6666;
 
     TMDojo() {
-        print("TMDojo: Init");
+        print("[TMDojo]: Init");
         @this.app = GetApp();
         @this.network = cast<CTrackManiaNetwork>(app.Network);
         this.mapUId = "";
@@ -147,15 +147,12 @@ void RenderMenu()
                 dojo.checkServer();
             }
 		}
-        if (UI::MenuItem("Switch to " + dojo.localApi, "", false, true)) {
-            ApiUrl = dojo.localApi;
+        string otherApi = ApiUrl == dojo.localApi ? dojo.remoteApi : dojo.localApi;
+        if (UI::MenuItem("Switch to " + otherApi , "", false, true)) {
+            ApiUrl = otherApi;
             dojo.checkServer();
 		}
-        if (UI::MenuItem("Switch to " + dojo.remoteApi, "", false, true)) {
-            ApiUrl = dojo.remoteApi;
-            dojo.checkServer();
-		}
-        if (UI::MenuItem(OnlySaveFinished ? "Save all" : "Only save finished", "", false, true)) {
+        if (UI::MenuItem(OnlySaveFinished ? "[  ]  Save finished runs only" : "[X]  Save finished runs only", "", false, true)) {
             OnlySaveFinished = !OnlySaveFinished;
 		}
 		UI::EndMenu();
@@ -177,11 +174,11 @@ void Render()
         if (dojo.recording) {
             if (dojo.uiConfig.UISequence == 11) {
                 // Finished track
-                print("Finish " + dojo.sm_script.CurrentRaceTime + ", " + dojo.prevRaceTime);
+                print("[TMDojo]: Finished");
                 PostRecordedData(true);
             } else if (dojo.latestRecordedTime > dojo.sm_script.CurrentRaceTime) {
                 // Give up
-                print("Give up " + dojo.sm_script.CurrentRaceTime + ", " + dojo.prevRaceTime);
+                print("[TMDojo]: Give up");
                 PostRecordedData(false);
             } else {
                 // Record current data
@@ -199,12 +196,12 @@ void Render()
 void PostRecordedData(bool finished) 
 {
     if (membuff.GetSize() < 100) {
-        print("Not saving file, too little data");
+        print("[TMDojo]: Not saving file, too little data");
         membuff.Resize(0);
         return;
     }
     if (!OnlySaveFinished || finished) {
-        print("Save game data size: " + membuff.GetSize());
+        print("[TMDojo]: Saving game data (size: " + membuff.GetSize() / 1024 + " kB)");
         membuff.Seek(0);
         string reqUrl = ApiUrl + "/replays" +    
                             "?mapName=" + dojo.mapName +
@@ -269,48 +266,41 @@ void ContextChecker()
             }
 
             if (@dojo.app.CurrentPlayground == null) {
-                @dojo.rootMap = null;
                 @dojo.sm_script = null;
-                @dojo.uiConfig = null;
+
+                @dojo.rootMap = null;
                 dojo.mapUId = "";
+                dojo.authorName = "";
+                dojo.mapName = "";
+
+                @dojo.uiConfig = null;
+                
                 dojo.resetRecording();
             } 
 
             // SM_SCRIPT (used to get player inputs)
             if (@dojo.sm_script == null) {
-                print("sm_script == null");
                 if (@dojo.app.CurrentPlayground !is null &&
                     dojo.app.CurrentPlayground.GameTerminals[0] !is null &&
-                    dojo.app.CurrentPlayground.GameTerminals[0].GUIPlayer !is null) {
+                    dojo.app.CurrentPlayground.GameTerminals[0].GUIPlayer !is null) {                        
                     @dojo.sm_script = cast<CSmPlayer>(dojo.app.CurrentPlayground.GameTerminals[0].GUIPlayer).ScriptAPI;                    
                 }
             }
 
-            // RootMap
+            // RootMap + map info
             if (@dojo.rootMap == null) {
-                print("rootMap == null");
                 if (@dojo.app.RootMap != null) {
-                    @dojo.rootMap = dojo.app.RootMap;
-                }
-            }
-
-            // Challenge ID (used to set current map)
-            if (dojo.mapUId.get_Length() == 0) {
-                print("dojo.mapUId.length == 0");
-                if (@dojo.rootMap != null) {
-                    string edChallengeId = dojo.rootMap.EdChallengeId;
-                    string authorName = dojo.rootMap.AuthorNickName;
-                    string mapName = Regex::Replace(dojo.rootMap.MapInfo.NameForUi, "\\$([0-9a-fA-F]{1,3}|[iIoOnNmMwWsSzZtTgG<>]|[lLhHpP](\\[[^\\]]+\\])?)", "").Replace(" ", "%20");
-                    
-                    dojo.mapUId = edChallengeId;
-                    dojo.authorName = authorName;
-                    dojo.mapName = mapName;
+                    @dojo.rootMap = dojo.app.RootMap;                    
+                    dojo.mapUId = dojo.rootMap.EdChallengeId;
+                    dojo.authorName = dojo.rootMap.AuthorNickName;
+                    dojo.mapName = Regex::Replace(dojo.rootMap.MapInfo.NameForUi, "\\$([0-9a-fA-F]{1,3}|[iIoOnNmMwWsSzZtTgG<>]|[lLhHpP](\\[[^\\]]+\\])?)", "").Replace(" ", "%20");
                 }
             }
 
             // UI Config (used for finish screen)
             if (@dojo.uiConfig == null) {
-                if (@dojo.app.CurrentPlayground != null) {
+                if (@dojo.app.CurrentPlayground != null &&
+                    @dojo.app.CurrentPlayground.UIConfigs[0] != null) {
                     @dojo.uiConfig = @dojo.app.CurrentPlayground.UIConfigs[0];
                 }
             }
