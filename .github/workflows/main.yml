@@ -9,9 +9,9 @@ jobs:
         working-directory: ./app
         run: |
           npm ci
-          eslint . --ext .js,.jsx,.ts,.tsx
+          npm run lint
       - name: Lint server
         working-directory: ./server
         run: |
           npm ci
-          eslint . --ext .js,.jsx,.ts,.tsx
+          npm run lint
