@@ -1,7 +1,7 @@
-name: CI
+name: Linter checks
 on: push
 jobs:
-  build:
+  app:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -10,6 +10,10 @@ jobs:
         run: |
           npm ci
           npm run lint
+  server:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
       - name: Lint server
         working-directory: ./server
         run: |
