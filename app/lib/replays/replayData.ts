@@ -2,23 +2,23 @@
 import * as THREE from 'three';
 
 export class ReplayDataPoint {
-    offset: any;
-    currentRaceTime: any;
+    offset: number;
+    currentRaceTime: number;
     position: THREE.Vector3;
-    aimYaw: any;
-    aimPitch: any;
+    aimYaw: number;
+    aimPitch: number;
     aimDirection: THREE.Vector3;
     velocity: THREE.Vector3;
-    speed: any;
-    inputSteer: any;
-    inputGasPedal: any;
-    inputIsBraking: any;
-    engineRpm: any;
-    engineCurGear: any;
-    wheelsContactCount: any;
-    wheelsSkiddingCount: any;
-    uiSequence: any;
-    loaded: any = false;
+    speed: number;
+    inputSteer: number;
+    inputGasPedal: boolean;
+    inputIsBraking: boolean;
+    engineRpm: number;
+    engineCurGear: number;
+    wheelsContactCount: number;
+    wheelsSkiddingCount: number;
+    uiSequence: number = -1;
+    loaded: boolean = false;
 
     constructor(dataView: DataView, offset: number) {
         this.offset = offset;
@@ -31,9 +31,10 @@ export class ReplayDataPoint {
         this.speed = this.readFloat(dataView);
         this.inputSteer = this.readFloat(dataView);
         const gasAndBrake = this.readInt32(dataView);
-        // TODO: can we get rid of these bitwise operations?
-        this.inputGasPedal = gasAndBrake & 1;
-        this.inputIsBraking = gasAndBrake & 2;
+        // gasAndBrake are encoded in a single byte using the first 2 bits
+        //  00 = no input, 01 = gas, 10 = brake, 11 = gas+brake
+        this.inputGasPedal = (gasAndBrake & 1) > 0;
+        this.inputIsBraking = (gasAndBrake & 2) > 0;
         this.engineRpm = this.readFloat(dataView);
         this.engineCurGear = this.readInt32(dataView);
         this.wheelsContactCount = this.readInt32(dataView);
