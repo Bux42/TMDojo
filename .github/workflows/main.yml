@@ -4,16 +4,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: move into app
-      run: cd app/
-    - name: Install modules
-      run: npm ci
-    - name: Run ESLint (app)
-      run: eslint . --ext .js,.jsx,.ts,.tsx
-    - name: move into server
-      run: cd ../server/
-    - name: Install modules
-      run: npm ci
-    - name: Run ESLint (server)
-      run: eslint . --ext .js,.jsx,.ts,.tsx
+      - uses: actions/checkout@v2
+      - name: Lint app
+        working-directory: ./app
+        run: |
+          npm ci
+          eslint . --ext .js,.jsx,.ts,.tsx
+      - name: Lint server
+        working-directory: ./server
+        run: |
+          npm ci
+          eslint . --ext .js,.jsx,.ts,.tsx
