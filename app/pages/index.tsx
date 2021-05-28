@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from "react";
-import Link from "next/link";
-import { Layout, Input, Table, Tooltip, Button } from "antd";
-import { ColumnsType } from "antd/lib/table";
+import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
+import {
+    Layout, Input, Table, Tooltip, Button,
+} from 'antd';
+import { ColumnsType } from 'antd/lib/table';
 
-import { AvailableMap, getAvailableMaps } from "../lib/api/apiRequests";
-import { ReloadOutlined } from "@ant-design/icons";
+import { ReloadOutlined } from '@ant-design/icons';
+import { AvailableMap, getAvailableMaps } from '../lib/api/apiRequests';
 
 interface ExtendedAvailableMap extends AvailableMap {
     key: string;
@@ -12,16 +14,14 @@ interface ExtendedAvailableMap extends AvailableMap {
 
 const Home = (): JSX.Element => {
     const [maps, setMaps] = useState<ExtendedAvailableMap[]>([]);
-    const [searchString, setSearchString] = useState<string>("");
+    const [searchString, setSearchString] = useState<string>('');
 
     const fetchMaps = async () => {
         const fetchedMaps = await getAvailableMaps(searchString);
-        const preparedMaps = fetchedMaps.map((fetchedMap) => {
-            return {
-                ...fetchedMap,
-                key: fetchedMap.mapUId,
-            };
-        });
+        const preparedMaps = fetchedMaps.map((fetchedMap) => ({
+            ...fetchedMap,
+            key: fetchedMap.mapUId,
+        }));
         setMaps(preparedMaps);
     };
 
@@ -31,22 +31,25 @@ const Home = (): JSX.Element => {
 
     const columns: ColumnsType<ExtendedAvailableMap> = [
         {
-            title: "Map name",
-            dataIndex: "mapName",
-            render: (_, map) => (
-                <Link href={`/maps/${map.mapUId}`}>
-                    <a>{map.mapName}</a>
-                </Link>
-            ),
+            title: 'Map name',
+            dataIndex: 'mapName',
+            render: (_, map) => {
+                const mapRef = `/maps/${map.mapUId}`;
+                return (
+                    <Link href={mapRef}>
+                        <a href={mapRef}>{map.mapName}</a>
+                    </Link>
+                );
+            },
             sorter: (a, b) => a.mapName.localeCompare(b.mapName),
-            width: "90%",
+            width: '90%',
         },
         {
-            title: "Replays",
-            dataIndex: "count",
+            title: 'Replays',
+            dataIndex: 'count',
             sorter: (a, b) => a.count - b.count,
-            defaultSortOrder: "descend",
-            width: "10%",
+            defaultSortOrder: 'descend',
+            width: '10%',
         },
     ];
 

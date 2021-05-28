@@ -1,16 +1,16 @@
-import React from "react";
-import Link from "next/link";
-import { useRouter } from "next/router";
-import { PageHeader, Button } from "antd";
+import React from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { PageHeader, Button } from 'antd';
 
-import { MapInfo } from "../../lib/api/apiRequests";
-import { cleanTMFormatting } from "../../lib/utils/formatting";
+import { MapInfo } from '../../lib/api/apiRequests';
+import { cleanTMFormatting } from '../../lib/utils/formatting';
 
 interface Props {
     mapInfo: MapInfo;
 }
 
-export const MapHeader = ({ mapInfo }: Props): JSX.Element => {
+const MapHeader = ({ mapInfo }: Props): JSX.Element => {
     const router = useRouter();
 
     const hasExchangeId = mapInfo.exchangeid !== undefined && mapInfo.exchangeid !== 0;
@@ -21,15 +21,19 @@ export const MapHeader = ({ mapInfo }: Props): JSX.Element => {
         </Button>
     );
 
+    const tmioURL = `https://trackmania.io/#/leaderboard/${mapInfo.mapUid}`;
+    const tmxURL = `https://trackmania.exchange/maps/${mapInfo.exchangeid}`;
+
     return (
         <PageHeader
-            onBack={() => router.push("/")}
+            onBack={() => router.push('/')}
             title="Replay viewer"
-            subTitle={cleanTMFormatting(mapInfo.name || "")}
-            extra={
+            subTitle={cleanTMFormatting(mapInfo.name || '')}
+            // anchors need duplicate links for keyboard accessibility
+            extra={(
                 <>
-                    <Link href={`https://trackmania.io/#/leaderboard/${mapInfo.mapUid}`}>
-                        <a target="__blank">
+                    <Link href={tmioURL}>
+                        <a target="_blank" rel="noreferrer" href={tmioURL}>
                             <Button key="tm.io" type="primary">
                                 trackmania.io
                             </Button>
@@ -37,8 +41,8 @@ export const MapHeader = ({ mapInfo }: Props): JSX.Element => {
                     </Link>
 
                     {hasExchangeId ? (
-                        <Link href={`https://trackmania.exchange/maps/${mapInfo.exchangeid}`}>
-                            <a target="__blank">
+                        <Link href={tmxURL}>
+                            <a target="_blank" rel="noreferrer" href={tmxURL}>
                                 <TmxButton />
                             </a>
                         </Link>
@@ -46,7 +50,9 @@ export const MapHeader = ({ mapInfo }: Props): JSX.Element => {
                         <TmxButton />
                     )}
                 </>
-            }
+            )}
         />
     );
 };
+
+export default MapHeader;
