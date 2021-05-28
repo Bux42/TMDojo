@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { Button, Drawer, Table, Tooltip } from "antd";
-import { ColumnsType, TablePaginationConfig } from "antd/lib/table";
-import { FileResponse } from "../../lib/api/apiRequests";
-import { getEndRaceTimeStr, timeDifference } from "../../lib/utils/time";
-import { TableCurrentDataSource } from "antd/lib/table/interface";
-import { ReloadOutlined } from "@ant-design/icons";
+import React, { useState, useEffect } from 'react';
+import {
+    Button, Drawer, Table, Tooltip,
+} from 'antd';
+import { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
+import { TableCurrentDataSource } from 'antd/lib/table/interface';
+import { ReloadOutlined } from '@ant-design/icons';
+import { FileResponse } from '../../lib/api/apiRequests';
+import { getEndRaceTimeStr, timeDifference } from '../../lib/utils/time';
 
 interface ExtendedFileResponse extends FileResponse {
     readableTime: string;
@@ -23,7 +25,7 @@ interface Props {
     selectedReplayDataIds: string[];
 }
 
-export const SidebarReplays = ({
+const SidebarReplays = ({
     mapUId,
     replays,
     onLoadReplay,
@@ -54,40 +56,38 @@ export const SidebarReplays = ({
 
     const getUniqueFilters = (replayFieldCallback: (replay: FileResponse) => string) => {
         const uniques = Array.from(new Set(replays.map(replayFieldCallback)));
-        return uniques.sort().map((val) => {
-            return { text: val, value: val };
-        });
+        return uniques.sort().map((val) => ({ text: val, value: val }));
     };
 
     const columns: ColumnsType<ExtendedFileResponse> = [
         {
-            title: "Player",
-            dataIndex: "playerName",
+            title: 'Player',
+            dataIndex: 'playerName',
             filters: getUniqueFilters((replay) => replay.playerName),
             onFilter: (value, record) => record.playerName === value,
         },
         {
-            title: "Time",
-            dataIndex: "readableTime",
-            align: "right",
+            title: 'Time',
+            dataIndex: 'readableTime',
+            align: 'right',
             width: 120,
             sorter: (a, b) => a.endRaceTime - b.endRaceTime,
         },
         {
-            title: "Date",
-            dataIndex: "relativeDate",
-            align: "right",
+            title: 'Date',
+            dataIndex: 'relativeDate',
+            align: 'right',
             width: 120,
             sorter: (a, b) => a.date - b.date,
         },
         {
-            title: "Finished",
-            dataIndex: "finished",
-            align: "center",
+            title: 'Finished',
+            dataIndex: 'finished',
+            align: 'center',
             width: 120,
             filters: [
-                { text: "Yes", value: true },
-                { text: "No", value: false },
+                { text: 'Yes', value: true },
+                { text: 'No', value: false },
             ],
             onFilter: (value, record) => record.finished === value,
             filterMultiple: false,
@@ -102,18 +102,18 @@ export const SidebarReplays = ({
             ),
         },
         {
-            title: "",
-            key: "load",
-            align: "center",
+            title: '',
+            key: 'load',
+            align: 'center',
             width: 120,
             render: (_, replay) => {
-                const selected = selectedReplayDataIds.indexOf(replay._id) != -1;
+                const selected = selectedReplayDataIds.indexOf(replay._id) !== -1;
                 return !selected ? (
                     <Button
                         size="middle"
                         type="primary"
                         onClick={() => onLoadReplay(replay)}
-                        className={"w-full"}
+                        className="w-full"
                     >
                         Load
                     </Button>
@@ -122,7 +122,7 @@ export const SidebarReplays = ({
                         size="middle"
                         type="primary"
                         danger
-                        className={"w-full"}
+                        className="w-full"
                         onClick={() => onRemoveReplay(replay)}
                     >
                         Remove
@@ -135,24 +135,22 @@ export const SidebarReplays = ({
     const addReplayInfo = (replayList: FileResponse[]): ExtendedFileResponse[] => {
         const now = new Date().getTime();
 
-        return replayList.map((replay) => {
-            return {
-                ...replay,
-                key: replay._id,
-                readableTime: getEndRaceTimeStr(replay.endRaceTime),
-                relativeDate: timeDifference(now, replay.date),
-                finished: replay.raceFinished == 1,
-            };
-        });
+        return replayList.map((replay) => ({
+            ...replay,
+            key: replay._id,
+            readableTime: getEndRaceTimeStr(replay.endRaceTime),
+            relativeDate: timeDifference(now, replay.date),
+            finished: replay.raceFinished === 1,
+        }));
     };
 
     const onReplayTableChange = (
         pagination: TablePaginationConfig,
-        currentPageData: TableCurrentDataSource<ExtendedFileResponse>
+        currentPageData: TableCurrentDataSource<ExtendedFileResponse>,
     ) => {
         const { current, pageSize } = pagination;
 
-        if (current == undefined || pageSize == undefined) {
+        if (current === undefined || pageSize === undefined) {
             return;
         }
 
@@ -181,15 +179,13 @@ export const SidebarReplays = ({
                 width={750}
                 onClose={onClose}
                 visible={visible}
-                className={"h-screen"}
+                className="h-screen"
             >
                 <div className="flex flex-row justify-between items-center mb-4 mx-4">
                     <div className="flex flex-row gap-4">
                         <Button
                             type="primary"
-                            onClick={() =>
-                                onLoadAllVisibleReplays(visibleReplays, selectedReplayDataIds)
-                            }
+                            onClick={() => onLoadAllVisibleReplays(visibleReplays, selectedReplayDataIds)}
                         >
                             Load all visible
                         </Button>
@@ -222,7 +218,7 @@ export const SidebarReplays = ({
                         size="small"
                         pagination={{
                             pageSize: defaultPageSize,
-                            position: ["bottomCenter"],
+                            position: ['bottomCenter'],
                         }}
                         scroll={{ scrollToFirstRowOnChange: true }}
                     />
@@ -231,3 +227,5 @@ export const SidebarReplays = ({
         </div>
     );
 };
+
+export default SidebarReplays;

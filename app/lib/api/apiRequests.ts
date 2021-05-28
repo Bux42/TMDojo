@@ -1,5 +1,5 @@
-import axios from "axios";
-import { readDataView, DataViewResult } from "../replays/replayData";
+import axios from 'axios';
+import { readDataView, DataViewResult } from '../replays/replayData';
 
 interface FilterParams {
     mapName?: any;
@@ -18,7 +18,6 @@ export interface FileResponse {
     mapUId: string;
     date: number;
     endRaceTime: number;
-    file_path: string;
     mapName: string;
     playerLogin: string;
     playerName: string;
@@ -33,19 +32,19 @@ type FilesResult = {
 };
 
 const DEFAULT_FILTERS = {
-    mapName: "",
-    playerName: "",
-    mapUId: "",
+    mapName: '',
+    playerName: '',
+    mapUId: '',
     endRaceTimeMin: -1,
     endRaceTimeMax: -1,
     raceFinished: -1,
     dateMin: new Date(),
     maxResults: 1000,
-    orderBy: "None",
+    orderBy: 'None',
 };
 
 export const getReplays = async (filters: FilterParams = DEFAULT_FILTERS): Promise<FilesResult> => {
-    const res = await axios.get(process.env.NEXT_PUBLIC_API_URL + "/replays", {
+    const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/replays`, {
         params: { ...DEFAULT_FILTERS, ...filters },
         withCredentials: true,
     });
@@ -56,13 +55,15 @@ export const getReplays = async (filters: FilterParams = DEFAULT_FILTERS): Promi
 export interface ReplayData extends FileResponse, DataViewResult {}
 export const fetchReplayData = async (file: FileResponse): Promise<ReplayData> => {
     const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/replays/${file._id}`, {
-        responseType: "arraybuffer",
+        responseType: 'arraybuffer',
     });
 
     const dataView = new DataView(res.data);
     const { samples, minPos, maxPos } = readDataView(dataView);
 
-    return { ...file, samples, minPos, maxPos };
+    return {
+        ...file, samples, minPos, maxPos,
+    };
 };
 
 export type MapInfo = {
@@ -77,7 +78,7 @@ export type MapInfo = {
 };
 
 export const getMapInfo = async (mapUId: string): Promise<MapInfo> => {
-    const res = await axios.get(process.env.NEXT_PUBLIC_API_URL + `/maps/${mapUId}/info`, {
+    const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/maps/${mapUId}/info`, {
         withCredentials: true,
     });
     return res.data;
@@ -91,10 +92,10 @@ export type AvailableMap = {
 
 export const getAvailableMaps = async (searchString: string): Promise<AvailableMap[]> => {
     const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/maps${searchString ? `?mapName=${searchString}` : ``}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/maps${searchString ? `?mapName=${searchString}` : ''}`,
         {
             withCredentials: true,
-        }
+        },
     );
     return res.data;
 };

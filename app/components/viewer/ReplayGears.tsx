@@ -1,11 +1,11 @@
-import React, { useMemo } from "react";
-import * as THREE from "three";
-import { Billboard, Sphere, Text } from "@react-three/drei";
-import { ReplayData } from "../../lib/api/apiRequests";
-import { ReplayDataPoint } from "../../lib/replays/replayData";
-import { DoubleSide } from "three";
-import { getColorFromMap } from "../../lib/utils/colormaps";
-import { COLOR_MAP_GEARS } from "../../lib/replays/replayLineColors";
+import React, { useMemo } from 'react';
+import * as THREE from 'three';
+import { Billboard, Sphere, Text } from '@react-three/drei';
+import { DoubleSide } from 'three';
+import { ReplayData } from '../../lib/api/apiRequests';
+import { ReplayDataPoint } from '../../lib/replays/replayData';
+import { getColorFromMap } from '../../lib/utils/colormaps';
+import { COLOR_MAP_GEARS } from '../../lib/replays/replayLineColors';
 
 interface GearIndicatorProps {
     gearChange: GearChange;
@@ -30,7 +30,7 @@ const GearText = ({ gearChange }: GearTextProps) => {
         <Billboard
             position={new THREE.Vector3().addVectors(
                 gearChange.sample.position,
-                new THREE.Vector3(0, 5, 0)
+                new THREE.Vector3(0, 5, 0),
             )}
             args={[0, 0]}
         >
@@ -40,12 +40,12 @@ const GearText = ({ gearChange }: GearTextProps) => {
                 maxWidth={200}
                 lineHeight={1}
                 letterSpacing={0.02}
-                textAlign={"left"}
+                textAlign="left"
                 font="https://fonts.gstatic.com/s/raleway/v14/1Ptrg8zYS_SKggPNwK4vaqI.woff"
                 anchorX="center"
                 anchorY="middle"
             >
-                <meshBasicMaterial attach="material" side={DoubleSide} color={"red"} />
+                <meshBasicMaterial attach="material" side={DoubleSide} color="red" />
                 {gearChange.engineCurGear}
             </Text>
         </Billboard>
@@ -61,25 +61,25 @@ interface GearChange {
 interface ReplayGearsProps {
     replay: ReplayData;
 }
-export const ReplayGears = ({ replay }: ReplayGearsProps): JSX.Element => {
+const ReplayGears = ({ replay }: ReplayGearsProps): JSX.Element => {
     const gearChanges = useMemo(() => {
-        const gearChanges: GearChange[] = [];
+        const changes: GearChange[] = [];
 
-        let prevSample: ReplayDataPoint | undefined = undefined;
+        let prevSample: ReplayDataPoint | undefined;
 
         for (let i = 0; i < replay.samples.length; i++) {
             const curSample = replay.samples[i];
 
-            if (i == 0) {
+            if (i === 0) {
                 // Gear change to 1 at the start of the replay
-                gearChanges.push({
+                changes.push({
                     sample: curSample,
                     engineCurGear: curSample.engineCurGear,
                     gearUp: true,
                 });
-            } else if (prevSample != undefined) {
-                if (curSample.engineCurGear != prevSample.engineCurGear) {
-                    gearChanges.push({
+            } else if (prevSample !== undefined) {
+                if (curSample.engineCurGear !== prevSample.engineCurGear) {
+                    changes.push({
                         sample: curSample,
                         engineCurGear: curSample.engineCurGear,
                         gearUp: curSample.engineCurGear > prevSample.engineCurGear,
@@ -89,16 +89,19 @@ export const ReplayGears = ({ replay }: ReplayGearsProps): JSX.Element => {
 
             prevSample = curSample;
         }
-        return gearChanges;
+        return changes;
     }, [replay]);
 
     return (
         <>
-            {gearChanges.map((gearChange, i) => (
+            {gearChanges.map((gearChange) => (
                 <>
-                    <GearText key={`gears-text-${replay._id}-${i}`} gearChange={gearChange} />
+                    <GearText
+                        key={`gears-text-${replay._id}-${gearChange.sample.currentRaceTime}`}
+                        gearChange={gearChange}
+                    />
                     <GearIndicator
-                        key={`gears-indicator-${replay._id}-${i}`}
+                        key={`gears-indicator-${replay._id}-${gearChange.sample.currentRaceTime}`}
                         gearChange={gearChange}
                     />
                 </>
@@ -106,3 +109,5 @@ export const ReplayGears = ({ replay }: ReplayGearsProps): JSX.Element => {
         </>
     );
 };
+
+export default ReplayGears;
