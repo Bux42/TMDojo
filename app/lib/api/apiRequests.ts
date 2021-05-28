@@ -18,9 +18,6 @@ export interface FileResponse {
     mapUId: string;
     date: number;
     endRaceTime: number;
-    // TODO: make sure file_path is not returned by the API
-    // eslint-disable-next-line camelcase
-    file_path: string;
     mapName: string;
     playerLogin: string;
     playerName: string;
