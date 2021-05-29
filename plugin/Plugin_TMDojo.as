@@ -20,6 +20,11 @@ const string REMOTE_API = "https://api.tmdojo.com";
 
 int RECORDING_FPS = 60;
 
+class FinishHandle
+{
+    bool finished;
+}
+
 class TMDojo
 {
     // NOD references
@@ -57,17 +62,6 @@ class TMDojo
         @this.app = GetApp();
         @this.network = cast<CTrackManiaNetwork>(app.Network);
         this.mapUId = "";
-    }
-    
-    bool checkServer() {
-        this.playerName = network.PlayerInfo.Name;
-        this.playerLogin = network.PlayerInfo.Login;
-        this.webId = network.PlayerInfo.WebServicesUserId;
-        Net::HttpRequest@ auth = Net::HttpGet(ApiUrl + "/auth?name=" + this.playerName + "&login=" + this.playerLogin + "&webid=" + this.webId);
-        if (auth.String().get_Length() > 0) {
-            return true;
-        }
-        return false;
     }
 
     void drawOverlay() {
@@ -140,6 +134,23 @@ class TMDojo
 TMDojo@ dojo;
 auto membuff = MemoryBuffer(0);
 
+void checkServer() {
+    dojo.serverAvailable = false;
+    dojo.playerName = dojo.network.PlayerInfo.Name;
+    dojo.playerLogin = dojo.network.PlayerInfo.Login;
+    dojo.webId = dojo.network.PlayerInfo.WebServicesUserId;
+    Net::HttpRequest@ auth = Net::HttpGet(ApiUrl + "/auth?name=" + dojo.playerName + "&login=" + dojo.playerLogin + "&webid=" + dojo.webId);
+    while (!auth.Finished()) {
+        yield();
+        sleep(50);
+    }
+    if (auth.String().get_Length() > 0) {
+        dojo.serverAvailable = true;
+    } else {
+        dojo.serverAvailable = false;
+    }
+}
+
 void Main()
 {
     @dojo = TMDojo();
@@ -155,14 +166,16 @@ void RenderMenu()
 		if (UI::MenuItem(Enabled ? "Turn OFF" : "Turn ON", "", false, true)) {
             Enabled = !Enabled;
             if (Enabled) {
-                dojo.checkServer();
+                //dojo.checkServer();
+                startnew(checkServer);
             }
 		}
 
         string otherApi = ApiUrl == LOCAL_API ? REMOTE_API : LOCAL_API;
         if (UI::MenuItem("Switch to " + otherApi , "", false, true)) {
             ApiUrl = otherApi;
-            dojo.checkServer();
+            //dojo.checkServer();
+            startnew(checkServer);
 		}
 
         if (UI::MenuItem(OverlayEnabled ? "[X]  Overlay" : "[  ]  Overlay", "", false, true)) {
@@ -188,16 +201,21 @@ void Render()
             dojo.recording = true;
             dojo.prevRaceTime = dojo.sm_script.CurrentRaceTime;
         }
-
         if (dojo.recording) {
             if (dojo.uiConfig.UISequence == 11) {
                 // Finished track
                 print("[TMDojo]: Finished");
-                PostRecordedData(true);
+
+                ref @fh = FinishHandle();
+                cast<FinishHandle>(fh).finished = true;
+                startnew(PostRecordedData, fh);
             } else if (dojo.latestRecordedTime > dojo.sm_script.CurrentRaceTime) {
                 // Give up
                 print("[TMDojo]: Give up");
-                PostRecordedData(false);
+
+                ref @fh = FinishHandle();
+                cast<FinishHandle>(fh).finished = false;
+                startnew(PostRecordedData, fh);
             } else {
                 // Record current data
                 int timeSinceLastRecord = dojo.sm_script.CurrentRaceTime - dojo.latestRecordedTime;
@@ -226,8 +244,10 @@ void Render()
     }
 }
 
-void PostRecordedData(bool finished) 
-{
+void PostRecordedData(ref @handle) {
+    FinishHandle @fh = cast<FinishHandle>(handle);
+    bool finished = fh.finished;
+
     if (membuff.GetSize() < 100) {
         print("[TMDojo]: Not saving file, too little data");
         membuff.Resize(0);
@@ -294,10 +314,6 @@ void ContextChecker()
 {
     while (true) {
         if (Enabled) {
-            if (!dojo.serverAvailable) {
-                dojo.serverAvailable = dojo.checkServer();
-            }
-
             if (@dojo.app.CurrentPlayground == null) {
                 @dojo.sm_script = null;
 
@@ -316,7 +332,7 @@ void ContextChecker()
                 if (@dojo.app.CurrentPlayground !is null &&
                     dojo.app.CurrentPlayground.GameTerminals[0] !is null &&
                     dojo.app.CurrentPlayground.GameTerminals[0].GUIPlayer !is null) {                        
-                    @dojo.sm_script = cast<CSmPlayer>(dojo.app.CurrentPlayground.GameTerminals[0].GUIPlayer).ScriptAPI;                    
+                    @dojo.sm_script = cast<CSmPlayer>(dojo.app.CurrentPlayground.GameTerminals[0].GUIPlayer).ScriptAPI;    
                 }
             }
 
