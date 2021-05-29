@@ -6,6 +6,9 @@
 [Setting name="TMDojoEnabled" description="Enable / Disable plugin"]
 bool Enabled = false;
 
+[Setting name="TMDojoOverlayEnabled" description="Enable / Disable menu"]
+bool OverlayEnabled = false;
+
 [Setting name="TMDojoOnlySaveFinished" description="Only save race data when race is finished"]
 bool OnlySaveFinished = true;
 
@@ -37,8 +40,7 @@ class TMDojo
     string localApi = "http://localhost";
     string remoteApi = "https://api.tmdojo.com";
 
-    // Misc.
-    bool showMenu = true;
+    // Server status
     bool serverAvailable = false;
 
     // Record info
@@ -68,7 +70,7 @@ class TMDojo
         return false;
     }
 
-    void drawMenu() {
+    void drawOverlay() {
         int panelLeft = 10;
         int panelTop = 120;
 
@@ -161,6 +163,9 @@ void RenderMenu()
             ApiUrl = otherApi;
             dojo.checkServer();
 		}
+        if (UI::MenuItem(OverlayEnabled ? "[X]  Overlay" : "[  ]  Overlay", "", false, true)) {
+            OverlayEnabled = !OverlayEnabled;
+		}
         if (UI::MenuItem(OnlySaveFinished ? "[X]  Save finished runs only" : "[  ]  Save finished runs only", "", false, true)) {
             OnlySaveFinished = !OnlySaveFinished;
 		}
@@ -171,8 +176,8 @@ void RenderMenu()
 void Render()
 {
     if (@dojo != null && Enabled) {
-        if (dojo.showMenu) {
-            dojo.drawMenu();
+        if (OverlayEnabled) {
+            dojo.drawOverlay();
         }
 
         if (!dojo.recording && dojo.shouldStartRecording()) {
