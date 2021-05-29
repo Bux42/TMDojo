@@ -12,8 +12,11 @@ bool OverlayEnabled = false;
 [Setting name="TMDojoOnlySaveFinished" description="Only save race data when race is finished"]
 bool OnlySaveFinished = true;
 
-[Setting name="TMDojoApiUrl" description="TMDojo Api Url"]
-string ApiUrl = "http://localhost";
+[Setting name="TMDojoApiUrl" description="TMDojo API Url"]
+string ApiUrl = LOCAL_API;
+
+const string LOCAL_API = "http://localhost";
+const string REMOTE_API = "https://api.tmdojo.com";
 
 int RECORDING_FPS = 60;
 
@@ -36,9 +39,6 @@ class TMDojo
     string playerLogin;
     string webId;
 
-    // API URLs
-    string localApi = "http://localhost";
-    string remoteApi = "https://api.tmdojo.com";
 
     // Server status
     bool serverAvailable = false;
@@ -158,17 +158,21 @@ void RenderMenu()
                 dojo.checkServer();
             }
 		}
-        string otherApi = ApiUrl == dojo.localApi ? dojo.remoteApi : dojo.localApi;
+
+        string otherApi = ApiUrl == LOCAL_API ? REMOTE_API : LOCAL_API;
         if (UI::MenuItem("Switch to " + otherApi , "", false, true)) {
             ApiUrl = otherApi;
             dojo.checkServer();
 		}
+
         if (UI::MenuItem(OverlayEnabled ? "[X]  Overlay" : "[  ]  Overlay", "", false, true)) {
             OverlayEnabled = !OverlayEnabled;
 		}
+
         if (UI::MenuItem(OnlySaveFinished ? "[X]  Save finished runs only" : "[  ]  Save finished runs only", "", false, true)) {
             OnlySaveFinished = !OnlySaveFinished;
 		}
+
 		UI::EndMenu();
 	}
 }
