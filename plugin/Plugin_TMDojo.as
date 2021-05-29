@@ -203,7 +203,7 @@ void Render()
                 int timeSinceLastRecord = dojo.sm_script.CurrentRaceTime - dojo.latestRecordedTime;
                 if (timeSinceLastRecord > (1.0 / RECORDING_FPS) * 1000) {
                     // Keep track of the amount of samples for which the position did not changed, used to pause recording
-                    if (dojo.sm_script != null &&
+                    if (@dojo.sm_script != null &&
                         Math::Abs(dojo.latestPlayerPosition.x - dojo.sm_script.Position.x) < 0.001 &&
                         Math::Abs(dojo.latestPlayerPosition.y - dojo.sm_script.Position.y) < 0.001 && 
                         Math::Abs(dojo.latestPlayerPosition.z - dojo.sm_script.Position.z) < 0.001 ) {
