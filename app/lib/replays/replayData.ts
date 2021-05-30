@@ -63,20 +63,29 @@ export interface DataViewResult {
     samples: ReplayDataPoint[];
     minPos: THREE.Vector3;
     maxPos: THREE.Vector3;
+    dnfPos: THREE.Vector3;
 }
 
 export const readDataView = (dataView: DataView): DataViewResult => {
     const samples = [];
+    let lastPos: THREE.Vector3 = new THREE.Vector3(0, 0, 0);
+    let dnfPos: THREE.Vector3 = new THREE.Vector3(0, 0, 0);
 
     let minPos = new THREE.Vector3(Infinity, Infinity, Infinity);
     let maxPos = new THREE.Vector3(-Infinity, -Infinity, -Infinity);
 
     for (let i = 0; i < dataView.byteLength; i += 76) {
         const s = new ReplayDataPoint(dataView, i);
+
+        if (s.position.x == 0 && s.position.y == 0 && s.position.z == 0) {
+            dnfPos = lastPos;
+            break;
+        }
         samples.push(s);
         minPos = minPos.min(s.position);
         maxPos = maxPos.max(s.position);
+        lastPos = s.position;
     }
 
-    return { samples, minPos, maxPos };
+    return { samples, minPos, maxPos, dnfPos };
 };

@@ -59,10 +59,10 @@ export const fetchReplayData = async (file: FileResponse): Promise<ReplayData> =
     });
 
     const dataView = new DataView(res.data);
-    const { samples, minPos, maxPos } = readDataView(dataView);
+    const { samples, minPos, maxPos, dnfPos } = readDataView(dataView);
 
     return {
-        ...file, samples, minPos, maxPos,
+        ...file, samples, minPos, maxPos, dnfPos
     };
 };
 
