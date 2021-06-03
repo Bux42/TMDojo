@@ -155,6 +155,7 @@ void Main()
 {
     @dojo = TMDojo();
     startnew(ContextChecker);
+    startnew(ServerChecker);
 }
 
 void RenderMenu()
@@ -166,7 +167,6 @@ void RenderMenu()
 		if (UI::MenuItem(Enabled ? "Turn OFF" : "Turn ON", "", false, true)) {
             Enabled = !Enabled;
             if (Enabled) {
-                //dojo.checkServer();
                 startnew(checkServer);
             }
 		}
@@ -174,7 +174,6 @@ void RenderMenu()
         string otherApi = ApiUrl == LOCAL_API ? REMOTE_API : LOCAL_API;
         if (UI::MenuItem("Switch to " + otherApi , "", false, true)) {
             ApiUrl = otherApi;
-            //dojo.checkServer();
             startnew(checkServer);
 		}
 
@@ -201,6 +200,7 @@ void Render()
             dojo.recording = true;
             dojo.prevRaceTime = dojo.sm_script.CurrentRaceTime;
         }
+
         if (dojo.recording) {
             if (dojo.uiConfig.UISequence == 11) {
                 // Finished track
@@ -300,7 +300,7 @@ void FillBuffer()
     membuff.Write(dojo.sm_script.Speed);
 
     membuff.Write(dojo.sm_script.InputSteer);
-
+    
     membuff.Write(gazAndBrake);
 
     membuff.Write(dojo.sm_script.EngineRpm);
@@ -314,47 +314,58 @@ void ContextChecker()
 {
     while (true) {
         if (Enabled) {
-            if (@dojo.app.CurrentPlayground == null) {
-                @dojo.sm_script = null;
-
-                @dojo.rootMap = null;
-                dojo.mapUId = "";
-                dojo.authorName = "";
-                dojo.mapName = "";
-
-                @dojo.uiConfig = null;
-                
+            if (!dojo.canRecord()) {                
                 dojo.resetRecording();
             } 
 
             // SM_SCRIPT (used to get player inputs)
-            if (@dojo.sm_script == null) {
-                if (@dojo.app.CurrentPlayground !is null &&
-                    dojo.app.CurrentPlayground.GameTerminals[0] !is null &&
-                    dojo.app.CurrentPlayground.GameTerminals[0].GUIPlayer !is null) {                        
+            if (@dojo.app.CurrentPlayground !is null &&
+                dojo.app.CurrentPlayground.GameTerminals[0] !is null &&
+                dojo.app.CurrentPlayground.GameTerminals[0].GUIPlayer !is null) {
+                if (@dojo.sm_script == null) {
                     @dojo.sm_script = cast<CSmPlayer>(dojo.app.CurrentPlayground.GameTerminals[0].GUIPlayer).ScriptAPI;    
                 }
+            } else {
+                @dojo.sm_script = null;
             }
 
             // RootMap + map info
-            if (@dojo.rootMap == null) {
-                if (@dojo.app.RootMap != null) {
-                    @dojo.rootMap = dojo.app.RootMap;                    
+            if (@dojo.app.RootMap != null) {
+                if (@dojo.rootMap == null) {
+                    @dojo.rootMap = dojo.app.RootMap;
                     dojo.mapUId = dojo.rootMap.EdChallengeId;
                     dojo.authorName = dojo.rootMap.AuthorNickName;
                     dojo.mapName = Regex::Replace(dojo.rootMap.MapInfo.NameForUi, "\\$([0-9a-fA-F]{1,3}|[iIoOnNmMwWsSzZtTgG<>]|[lLhHpP](\\[[^\\]]+\\])?)", "").Replace(" ", "%20");
                 }
+            } else {
+                @dojo.rootMap = null;
+                dojo.mapUId = "";
+                dojo.authorName = "";
+                dojo.mapName = "";
             }
 
             // UI Config (used for finish screen)
-            if (@dojo.uiConfig == null) {
-                if (@dojo.app.CurrentPlayground != null &&
-                    @dojo.app.CurrentPlayground.UIConfigs[0] != null) {
+            if (@dojo.app.CurrentPlayground != null &&
+                @dojo.app.CurrentPlayground.UIConfigs[0] != null) {
+                if (@dojo.uiConfig == null) {
                     @dojo.uiConfig = @dojo.app.CurrentPlayground.UIConfigs[0];
                 }
+            } else {
+                @dojo.uiConfig = null;
             }
         }
 
         sleep(250);
+    }
+}
+
+void ServerChecker()
+{
+    while (true) {
+        if (Enabled) {
+            startnew(checkServer);
+        }
+
+        sleep(10000);
     }
 }
