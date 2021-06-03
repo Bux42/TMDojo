@@ -72,6 +72,7 @@ const getUniqueMapNames = (mapName) => new Promise((resolve, reject) => {
                 count: {
                     $sum: 1,
                 },
+                lastUpdate: { $max: '$date' }, // pass the highest date (i.e. latest replay's timestamp)
             },
         },
         {
@@ -80,6 +81,7 @@ const getUniqueMapNames = (mapName) => new Promise((resolve, reject) => {
                 mapUId: '$_id',
                 mapName: true,
                 count: '$count',
+                lastUpdate: true,
             },
         },
     ];
