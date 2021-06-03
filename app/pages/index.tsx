@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
-    Layout, Input, Table, Tooltip, Button,
+    Layout, Input, Table, Tooltip, Button, Card,
 } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 
 import { ReloadOutlined } from '@ant-design/icons';
 import { AvailableMap, getAvailableMaps } from '../lib/api/apiRequests';
+import InfoCard from '../components/landing/InfoCard';
+import { timeDifference } from '../lib/utils/time';
 
 interface ExtendedAvailableMap extends AvailableMap {
     key: string;
@@ -42,23 +44,37 @@ const Home = (): JSX.Element => {
                 );
             },
             sorter: (a, b) => a.mapName.localeCompare(b.mapName),
-            width: '90%',
+            width: '65%',
+        },
+        {
+            title: 'Last updated',
+            dataIndex: 'lastUpdate',
+            render: (timestamp) => {
+                const today = new Date().getTime();
+                return <span title={new Date(timestamp).toLocaleString()}>{timeDifference(today, timestamp)}</span>;
+            },
+            sorter: (a, b) => a.lastUpdate - b.lastUpdate,
+            width: '20%',
         },
         {
             title: 'Replays',
             dataIndex: 'count',
             sorter: (a, b) => a.count - b.count,
             defaultSortOrder: 'descend',
-            width: '10%',
+            width: '15%',
         },
     ];
 
     return (
         <Layout>
-            <Layout.Content className="w-3/4 m-auto h-full flex flex-col justify-center">
-                <div>
-                    <div className="flex flex-row items-center my-2 gap-4">
-                        <span>Looking for a map?</span>
+            <Layout.Content className="w-3/5 m-auto h-full flex flex-col pt-8">
+                <InfoCard />
+                <Card className="mt-8">
+                    <div className="flex flex-row items-center mb-2 gap-4">
+                        <Input.Search
+                            placeholder="Search for a map"
+                            onSearch={(searchVal) => setSearchString(searchVal)}
+                        />
                         <Tooltip title="Refresh">
                             <Button
                                 shape="circle"
@@ -68,10 +84,7 @@ const Home = (): JSX.Element => {
                             />
                         </Tooltip>
                     </div>
-                    <Input.Search
-                        placeholder="Enter a map name"
-                        onSearch={(searchVal) => setSearchString(searchVal)}
-                    />
+
                     <Table
                         className="dojo-map-search-table"
                         dataSource={maps}
@@ -79,8 +92,10 @@ const Home = (): JSX.Element => {
                         size="small"
                         showSorterTooltip={false}
                         pagination={{ defaultPageSize: 10, hideOnSinglePage: true }}
+                        bordered
                     />
-                </div>
+                </Card>
+
             </Layout.Content>
         </Layout>
     );

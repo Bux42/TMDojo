@@ -59,10 +59,12 @@ export const fetchReplayData = async (file: FileResponse): Promise<ReplayData> =
     });
 
     const dataView = new DataView(res.data);
-    const { samples, minPos, maxPos, dnfPos } = readDataView(dataView);
+    const {
+        samples, minPos, maxPos, dnfPos,
+    } = readDataView(dataView);
 
     return {
-        ...file, samples, minPos, maxPos, dnfPos
+        ...file, samples, minPos, maxPos, dnfPos,
     };
 };
 
@@ -88,6 +90,7 @@ export type AvailableMap = {
     mapName: string;
     mapUId: string;
     count: number;
+    lastUpdate: number;
 };
 
 export const getAvailableMaps = async (searchString: string): Promise<AvailableMap[]> => {
