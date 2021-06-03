@@ -4,16 +4,19 @@
 #perms "full"
 
 [Setting name="TMDojoEnabled" description="Enable / Disable plugin"]
-bool Enabled = false;
-
-[Setting name="TMDojoOverlayEnabled" description="Enable / Disable menu"]
-bool OverlayEnabled = false;
+bool Enabled = true;
 
 [Setting name="TMDojoOnlySaveFinished" description="Only save race data when race is finished"]
 bool OnlySaveFinished = true;
 
 [Setting name="TMDojoApiUrl" description="TMDojo API Url"]
-string ApiUrl = LOCAL_API;
+string ApiUrl = REMOTE_API;
+
+[Setting name="TMDojoDebugOverlayEnabled" description="Enable / Disable debug overlay"]
+bool DebugOverlayEnabled = false;
+
+[Setting name="TMDojoOverlayEnabled" description="Enable / Disable overlay"]
+bool OverlayEnabled = true;
 
 const string LOCAL_API = "http://localhost";
 const string REMOTE_API = "https://api.tmdojo.com";
@@ -64,7 +67,7 @@ class TMDojo
         this.mapUId = "";
     }
 
-    void drawOverlay() {
+    void drawDebugOverlay() {
         int panelLeft = 10;
         int panelTop = 120;
 
@@ -110,6 +113,47 @@ class TMDojo
             Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, "CurrentRaceTime: " + sm_script.CurrentRaceTime);
             panelTopCp += topIncr;
         }
+    }
+
+    void drawOverlay() {
+        int panelLeft = 10;
+        int panelTop = 40;
+
+        int panelWidth = this.recording ? 125 : 160;
+        int panelHeight = 36;
+
+        int topIncr = 18;
+
+        // Rectangle
+        nvg::BeginPath();
+        nvg::RoundedRect(panelLeft, panelTop, panelWidth, panelHeight, 5);
+        nvg::FillColor(vec4(0,0,0,0.5));
+        nvg::Fill();
+        nvg::ClosePath();
+
+        // Define colors
+        vec4 white = vec4(1, 1, 1, 1);
+        vec4 gray = vec4(0.1, 0.1, 0.1, 1);
+        vec4 red = vec4(0.95, 0.05, 0.05, 1);
+
+        // Recording circle        
+        int circleLeft = panelLeft + 18;
+        int circleTop = panelTop + 18;
+        nvg::BeginPath();        
+        nvg::Circle(vec2(circleLeft, circleTop), 10);
+        nvg::FillColor(this.recording ? red : gray);
+        nvg::Fill();
+        nvg::StrokeColor(gray);
+        nvg::StrokeWidth(3);
+        nvg::Stroke();
+        nvg::ClosePath();
+
+        // Recording text
+        int textLeft = panelLeft + 38;
+        int textTop = panelTop + 23;
+        nvg::FillColor(this.recording ? red : white);
+        nvg::FillColor(white);
+        nvg::Text(textLeft, textTop, (this.recording ? "Recording" : "Not Recording"));
     }
 
     bool canRecord() {
@@ -181,6 +225,10 @@ void RenderMenu()
             OverlayEnabled = !OverlayEnabled;
 		}
 
+        if (UI::MenuItem(DebugOverlayEnabled ? "[X]  Debug Overlay" : "[  ]  Debug Overlay", "", false, true)) {
+            DebugOverlayEnabled = !DebugOverlayEnabled;
+		}
+
         if (UI::MenuItem(OnlySaveFinished ? "[X]  Save finished runs only" : "[  ]  Save finished runs only", "", false, true)) {
             OnlySaveFinished = !OnlySaveFinished;
 		}
@@ -193,7 +241,12 @@ void Render()
 {
     if (@dojo != null && Enabled) {
         if (OverlayEnabled) {
-            dojo.drawOverlay();
+            if (dojo.canRecord()) {
+                dojo.drawOverlay();
+            }
+        } 
+        if (DebugOverlayEnabled) {
+            dojo.drawDebugOverlay();
         }
 
         if (!dojo.recording && dojo.shouldStartRecording()) {
@@ -300,7 +353,7 @@ void FillBuffer()
     membuff.Write(dojo.sm_script.Speed);
 
     membuff.Write(dojo.sm_script.InputSteer);
-    
+
     membuff.Write(gazAndBrake);
 
     membuff.Write(dojo.sm_script.EngineRpm);
