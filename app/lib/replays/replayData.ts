@@ -77,7 +77,7 @@ export const readDataView = (dataView: DataView): DataViewResult => {
     for (let i = 0; i < dataView.byteLength; i += 76) {
         const s = new ReplayDataPoint(dataView, i);
 
-        if (s.position.x == 0 && s.position.y == 0 && s.position.z == 0) {
+        if (s.position.x === 0 && s.position.y === 0 && s.position.z === 0) {
             dnfPos = lastPos;
             break;
         }
@@ -87,5 +87,7 @@ export const readDataView = (dataView: DataView): DataViewResult => {
         lastPos = s.position;
     }
 
-    return { samples, minPos, maxPos, dnfPos };
+    return {
+        samples, minPos, maxPos, dnfPos,
+    };
 };

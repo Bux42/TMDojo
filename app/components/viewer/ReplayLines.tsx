@@ -75,7 +75,7 @@ export const ReplayLines = ({
                 {showGearChanges && (
                     <ReplayGears key={`replay-${replay._id}-gears`} replay={replay} />
                 )}
-                {(replay.dnfPos.x != 0 && replay.dnfPos.y != 0 && replay.dnfPos.z != 0) && (
+                {(replay.dnfPos.x !== 0 && replay.dnfPos.y !== 0 && replay.dnfPos.z !== 0) && (
                     <ReplayDnf key={`replay-${replay._id}-dnf`} replay={replay} />
                 )}
             </>
