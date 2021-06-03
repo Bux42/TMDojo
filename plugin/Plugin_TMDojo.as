@@ -298,6 +298,8 @@ void Render()
 }
 
 void PostRecordedData(ref @handle) {
+    dojo.recording = false;
+
     FinishHandle @fh = cast<FinishHandle>(handle);
     bool finished = fh.finished;
 
@@ -318,7 +320,11 @@ void PostRecordedData(ref @handle) {
                             "&webId=" + dojo.webId +
                             "&endRaceTime=" + dojo.prevRaceTime +
                             "&raceFinished=" + (finished ? "1" : "0");
-        Net::HttpPost(reqUrl, membuff.ReadToBase64(membuff.GetSize()), "application/octet-stream");
+        Net::HttpRequest@ req = Net::HttpPost(reqUrl, membuff.ReadToBase64(membuff.GetSize()), "application/octet-stream");
+        if (!req.Finished()) {
+            yield();
+        }
+        UI::ShowNotification("TMDojo", "Uploaded replay successfully!");
     }
     membuff.Resize(0);
     dojo.resetRecording();
