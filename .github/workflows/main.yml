@@ -1,0 +1,21 @@
+name: lint
+on: push
+jobs:
+  app:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Lint app
+        working-directory: ./app
+        run: |
+          npm ci
+          npm run lint
+  server:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Lint server
+        working-directory: ./server
+        run: |
+          npm ci
+          npm run lint
