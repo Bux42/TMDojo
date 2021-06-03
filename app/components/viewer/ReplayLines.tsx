@@ -1,6 +1,6 @@
-import React, { useCallback, useMemo } from "react";
-import * as THREE from "three";
-import { ReplayData } from "../../lib/api/apiRequests";
+import React, { useCallback, useMemo } from 'react';
+import * as THREE from 'three';
+import { ReplayData } from '../../lib/api/apiRequests';
 import {
     accelerationReplayColors,
     defaultReplayColors,
@@ -8,20 +8,21 @@ import {
     rpmReplayColors,
     speedReplayColors,
     inputReplayColors,
-} from "../../lib/replays/replayLineColors";
-import { ReplayGears } from "./ReplayGears";
+} from '../../lib/replays/replayLineColors';
+import ReplayDnf from './ReplayDnf';
+import ReplayGears from './ReplayGears';
 
 export interface LineType {
     name: string;
     colorsCallback: (replay: ReplayData) => THREE.Float32BufferAttribute;
 }
 export const LineTypes: { [name: string]: LineType } = {
-    default: { name: "Default", colorsCallback: defaultReplayColors },
-    speed: { name: "Speed", colorsCallback: speedReplayColors },
-    acceleration: { name: "Acceleration", colorsCallback: accelerationReplayColors },
-    gear: { name: "Gear", colorsCallback: gearReplayColors },
-    rpm: { name: "RPMs", colorsCallback: rpmReplayColors },
-    inputs: { name: "Inputs", colorsCallback: inputReplayColors },
+    default: { name: 'Default', colorsCallback: defaultReplayColors },
+    speed: { name: 'Speed', colorsCallback: speedReplayColors },
+    acceleration: { name: 'Acceleration', colorsCallback: accelerationReplayColors },
+    gear: { name: 'Gear', colorsCallback: gearReplayColors },
+    rpm: { name: 'RPMs', colorsCallback: rpmReplayColors },
+    inputs: { name: 'Inputs', colorsCallback: inputReplayColors },
 };
 
 interface ReplayLineProps {
@@ -35,9 +36,9 @@ const ReplayLine = ({ replay, lineType }: ReplayLineProps) => {
     const onUpdate = useCallback(
         (self) => {
             self.setFromPoints(points);
-            self.setAttribute("color", colorBuffer);
+            self.setAttribute('color', colorBuffer);
         },
-        [points, colorBuffer]
+        [points, colorBuffer],
     );
 
     return (
@@ -45,9 +46,9 @@ const ReplayLine = ({ replay, lineType }: ReplayLineProps) => {
             <bufferGeometry onUpdate={onUpdate} />
             <lineBasicMaterial
                 linewidth={10}
-                linecap={"round"}
-                linejoin={"round"}
-                vertexColors={true}
+                linecap="round"
+                linejoin="round"
+                vertexColors
             />
         </line>
     );
@@ -62,23 +63,22 @@ export const ReplayLines = ({
     replaysData,
     lineType,
     showGearChanges,
-}: ReplayLinesProps): JSX.Element => {
-    return (
-        <>
-            {replaysData.map((replay) => {
-                return (
-                    <>
-                        <ReplayLine
-                            key={`replay-${replay._id}-line`}
-                            replay={replay}
-                            lineType={lineType}
-                        />
-                        {showGearChanges && (
-                            <ReplayGears key={`replay-${replay._id}-gears`} replay={replay} />
-                        )}
-                    </>
-                );
-            })}
-        </>
-    );
-};
+}: ReplayLinesProps): JSX.Element => (
+    <>
+        {replaysData.map((replay) => (
+            <>
+                <ReplayLine
+                    key={`replay-${replay._id}-line`}
+                    replay={replay}
+                    lineType={lineType}
+                />
+                {showGearChanges && (
+                    <ReplayGears key={`replay-${replay._id}-gears`} replay={replay} />
+                )}
+                {(replay.dnfPos.x !== 0 && replay.dnfPos.y !== 0 && replay.dnfPos.z !== 0) && (
+                    <ReplayDnf key={`replay-${replay._id}-dnf`} replay={replay} />
+                )}
+            </>
+        ))}
+    </>
+);

@@ -1,7 +1,8 @@
-import { ReplayData } from "../api/apiRequests";
-import * as THREE from "three";
-import { ColorMap, getColorFromMap } from "../utils/colormaps";
-import { ReplayDataPoint } from "./replayData";
+/* eslint-disable no-lonely-if */
+import * as THREE from 'three';
+import { ReplayData } from '../api/apiRequests';
+import { ColorMap, getColorFromMap } from '../utils/colormaps';
+import { ReplayDataPoint } from './replayData';
 
 const COLOR_MAP_SPEED: ColorMap = [
     { value: 0, color: { r: 0xff, g: 0x00, b: 0 } },
@@ -69,36 +70,32 @@ export const rpmReplayColors = (replay: ReplayData): THREE.Float32BufferAttribut
 
 export const accelerationReplayColors = (replay: ReplayData): THREE.Float32BufferAttribute => {
     const colorBuffer = [];
-    let latestValidSample: ReplayDataPoint | undefined = undefined;
+    let latestValidSample: ReplayDataPoint | undefined;
     let latestColor = new THREE.Color(0, 0, 0);
 
     for (let i = 0; i < replay.samples.length; i++) {
         const sample = replay.samples[i];
 
         // Skip sample if the velocity is all 0
-        if (sample.velocity.x == 0 && sample.velocity.y == 0 && sample.velocity.z == 0) {
+        if (sample.velocity.x === 0 && sample.velocity.y === 0 && sample.velocity.z === 0) {
             colorBuffer.push(latestColor.r, latestColor.g, latestColor.b);
         } else {
             // If there is not last valid sample point, set to current sample
-            if (latestValidSample == undefined) {
+            if (latestValidSample === undefined) {
                 latestValidSample = sample;
                 colorBuffer.push(latestColor.r, latestColor.g, latestColor.b);
-                continue;
-            }
-
-            if (latestValidSample.speed == sample.speed) {
+            } else if (latestValidSample.speed === sample.speed) {
                 colorBuffer.push(latestColor.r, latestColor.g, latestColor.b);
-                continue;
+            } else {
+                const speedDiff = sample.speed - latestValidSample.speed;
+                const timeDiff = sample.currentRaceTime - latestValidSample.currentRaceTime;
+                const acc = (speedDiff / timeDiff) * 1000;
+                const color = getColorFromMap(acc, COLOR_MAP_ACCELERATION);
+                colorBuffer.push(color.r, color.g, color.b);
+
+                latestColor = color;
+                latestValidSample = sample;
             }
-
-            const speedDiff = sample.speed - latestValidSample.speed;
-            const timeDiff = sample.currentRaceTime - latestValidSample.currentRaceTime;
-            const acc = (speedDiff / timeDiff) * 1000;
-            const color = getColorFromMap(acc, COLOR_MAP_ACCELERATION);
-            colorBuffer.push(color.r, color.g, color.b);
-
-            latestColor = color;
-            latestValidSample = sample;
         }
     }
 
@@ -119,8 +116,8 @@ export const inputReplayColors = (replay: ReplayData): THREE.Float32BufferAttrib
     const colorBuffer = [];
     for (let i = 0; i < replay.samples.length; i++) {
         const sample = replay.samples[i];
-        var input = 0;
-        var color = new THREE.Color(1, 1, 1);
+        const input = 0;
+        const color = new THREE.Color(1, 1, 1);
         if (sample.inputGasPedal) {
             color.r = 0;
             color.g = 1;
