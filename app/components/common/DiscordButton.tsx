@@ -21,6 +21,7 @@ const DiscordButton = (): JSX.Element => (
     <Link href={DISCORD_URL}>
         <a target="_blank" rel="noreferrer" href={DISCORD_URL}>
             <Button
+                style={{ borderColor: '#5865f2aa', color: '#5865f2', fontWeight: 500 }}
                 size="small"
                 icon={<DiscordIcon />}
                 className="inline-flex items-center dojo-discord-button"

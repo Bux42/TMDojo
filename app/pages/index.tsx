@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
-    Layout, Input, Table, Tooltip, Button,
+    Layout, Input, Table, Tooltip, Button, Card,
 } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 
@@ -44,7 +44,7 @@ const Home = (): JSX.Element => {
                 );
             },
             sorter: (a, b) => a.mapName.localeCompare(b.mapName),
-            width: '80%',
+            width: '65%',
         },
         {
             title: 'Last updated',
@@ -54,24 +54,27 @@ const Home = (): JSX.Element => {
                 return <span title={new Date(timestamp).toLocaleString()}>{timeDifference(today, timestamp)}</span>;
             },
             sorter: (a, b) => a.lastUpdate - b.lastUpdate,
-            width: '10%',
+            width: '20%',
         },
         {
             title: 'Replays',
             dataIndex: 'count',
             sorter: (a, b) => a.count - b.count,
             defaultSortOrder: 'descend',
-            width: '10%',
+            width: '15%',
         },
     ];
 
     return (
         <Layout>
-            <Layout.Content className="w-3/4 m-auto h-full flex flex-col pt-8">
+            <Layout.Content className="w-3/5 m-auto h-full flex flex-col pt-8">
                 <InfoCard />
-                <div>
-                    <div className="flex flex-row items-center my-2 gap-4">
-                        <span>Looking for a map?</span>
+                <Card className="mt-8">
+                    <div className="flex flex-row items-center mb-2 gap-4">
+                        <Input.Search
+                            placeholder="Search for a map"
+                            onSearch={(searchVal) => setSearchString(searchVal)}
+                        />
                         <Tooltip title="Refresh">
                             <Button
                                 shape="circle"
@@ -81,10 +84,7 @@ const Home = (): JSX.Element => {
                             />
                         </Tooltip>
                     </div>
-                    <Input.Search
-                        placeholder="Enter a map name"
-                        onSearch={(searchVal) => setSearchString(searchVal)}
-                    />
+
                     <Table
                         className="dojo-map-search-table"
                         dataSource={maps}
@@ -92,8 +92,10 @@ const Home = (): JSX.Element => {
                         size="small"
                         showSorterTooltip={false}
                         pagination={{ defaultPageSize: 10, hideOnSinglePage: true }}
+                        bordered
                     />
-                </div>
+                </Card>
+
             </Layout.Content>
         </Layout>
     );

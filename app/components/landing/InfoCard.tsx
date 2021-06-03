@@ -16,6 +16,10 @@ const InfoCard = (): JSX.Element => {
             tab: 'What\'s this?',
         },
         {
+            key: 'howDoIUseThis',
+            tab: 'How do I use this?',
+        },
+        {
             key: 'howDoesThisWork',
             tab: 'How does it work?',
         },
@@ -32,6 +36,14 @@ const InfoCard = (): JSX.Element => {
         'Ever been confused because you just can\'t figure out that one dirt gear?',
         '',
         'We want to give you the tools to really understand your replays - with a 3D view of the map and a ton of data!',
+    ];
+    const howDoIUseThisText = [
+        'Simply pick a map from the table and open it.',
+        '',
+        'In the map view, open the replay menu on the left and load the replays you want to inspect.',
+        'Now you can change the display settings to different modes using the menu on the right.',
+        '',
+        'To navigate around the 3D view, use right mouse button to move and left to rotate - scroll wheel zooms in and out.',
     ];
     const howDoesThisWorkText = [
         'We\'re planning on supporting several ways for you to submit runs:',
@@ -56,6 +68,9 @@ const InfoCard = (): JSX.Element => {
     const tabContent = {
         welcome: (
             <div>{welcomeText.map((text, i) => <p key={`${text}_${i}`}>{text === '' ? <br /> : text}</p>)}</div>
+        ),
+        howDoIUseThis: (
+            <div>{howDoIUseThisText.map((text, i) => <p key={`${text}_${i}`}>{text === '' ? <br /> : text}</p>)}</div>
         ),
         howDoesThisWork: (
             <div>{howDoesThisWorkText.map((text, i) => <p key={`${text}_${i}`}>{text === '' ? <br /> : text}</p>)}</div>

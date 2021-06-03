@@ -35,9 +35,8 @@
 .ant-pagination-item-link {
   line-height: 0.8 !important;
 }
-
-.dojo-map-search-table {
-  height: 50vh;
+.ant-btn > .anticon {
+  line-height: 0 !important;
 }
 
 .dojo-info-card {
