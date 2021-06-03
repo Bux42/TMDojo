@@ -65,21 +65,23 @@ const InfoCard = (): JSX.Element => {
             <span> and let us know what you think!</span>
         </span>,
     ];
+
+    const transformTextToDOM = (textArray: (string | JSX.Element)[]) => textArray.map(
+        (text:string|JSX.Element, i:number) => <p key={`${text}_${i}`}>{text === '' ? <br /> : text}</p>,
+    );
+
     const tabContent = {
         welcome: (
-            <div>{welcomeText.map((text, i) => <p key={`${text}_${i}`}>{text === '' ? <br /> : text}</p>)}</div>
+            <div>{transformTextToDOM(welcomeText)}</div>
         ),
         howDoIUseThis: (
-            <div>{howDoIUseThisText.map((text, i) => <p key={`${text}_${i}`}>{text === '' ? <br /> : text}</p>)}</div>
+            <div>{transformTextToDOM(howDoIUseThisText)}</div>
         ),
         howDoesThisWork: (
-            <div>{howDoesThisWorkText.map((text, i) => <p key={`${text}_${i}`}>{text === '' ? <br /> : text}</p>)}</div>
+            <div>{transformTextToDOM(howDoesThisWorkText)}</div>
         ),
         getInvolved: (
-            <div>
-                {getInvolvedText.map((text, i) => <p key={`${text}_${i}`}>{text === '' ? <br /> : text}</p>)}
-
-            </div>
+            <div>{transformTextToDOM(getInvolvedText)}</div>
         ),
     };
 
