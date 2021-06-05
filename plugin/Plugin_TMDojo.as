@@ -316,7 +316,7 @@ void PostRecordedData(ref @handle) {
                             "&playerName=" + dojo.playerName +
                             "&playerLogin=" + dojo.playerLogin +
                             "&webId=" + dojo.webId +
-                            "&endRaceTime=" + dojo.prevRaceTime +
+                            "&endRaceTime=" + dojo.latestRecordedTime +
                             "&raceFinished=" + (finished ? "1" : "0");
         Net::HttpRequest@ req = Net::HttpPost(reqUrl, membuff.ReadToBase64(membuff.GetSize()), "application/octet-stream");
         if (!req.Finished()) {
