@@ -47,7 +47,6 @@ class TMDojo
     string playerLogin;
     string webId;
 
-
     // Server status
     bool serverAvailable = false;
 
@@ -179,7 +178,6 @@ TMDojo@ dojo;
 auto membuff = MemoryBuffer(0);
 
 void checkServer() {
-    dojo.serverAvailable = false;
     dojo.playerName = dojo.network.PlayerInfo.Name;
     dojo.playerLogin = dojo.network.PlayerInfo.Login;
     dojo.webId = dojo.network.PlayerInfo.WebServicesUserId;
@@ -422,7 +420,10 @@ void ServerChecker()
 {
     while (true) {
         if (Enabled) {
-            startnew(checkServer);
+            // Periodically check server if it is not available or when you are using a local dev API
+            if (!dojo.serverAvailable || ApiUrl == LOCAL_API) {
+                startnew(checkServer);
+            }
         }
 
         sleep(10000);
