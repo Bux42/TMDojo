@@ -15,6 +15,7 @@ import {
     MapInfo,
 } from '../../lib/api/apiRequests';
 import HeadTitle from '../../components/common/HeadTitle';
+import { cleanTMFormatting } from '../../lib/utils/formatting';
 
 const Home = (): JSX.Element => {
     const [replays, setReplays] = useState<FileResponse[]>([]);
@@ -73,9 +74,11 @@ const Home = (): JSX.Element => {
         setSelectedReplayData(replayDataFiltered);
     };
 
+    const getTitle = () => (mapData?.name ? `${cleanTMFormatting(mapData.name)} - TMDojo` : 'TMDojo');
+
     return (
         <>
-            <HeadTitle mapInfo={mapData} />
+            <HeadTitle title={getTitle()} />
             <Layout>
                 <MapHeader mapInfo={mapData} />
                 <Layout.Content>
