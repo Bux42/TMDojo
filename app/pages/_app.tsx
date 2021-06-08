@@ -33,6 +33,7 @@ const App = ({ Component, pageProps }: Props): React.ReactElement => (
                     </>
                 )
             }
+            <link rel="icon" href="/favicon.ico" />
             <title>TMDojo</title>
         </Head>
         <Component {...pageProps} />
