@@ -11,7 +11,6 @@ const HeadTitle = ({ title }: HeadTitleProps): JSX.Element => {
     return (
         <Head>
             <title>{pageTitle}</title>
-            <link rel="icon" href="/favicon.ico" />
         </Head>
     );
 };
