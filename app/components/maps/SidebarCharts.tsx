@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useState } from "react";
-import { ReplayData } from "../../lib/api/fileRequests";
 import { Button, Checkbox, Drawer, Table } from "antd";
 import { ReplayDataPoint } from "../../lib/replays/replayData";
 import { getEndRaceTimeStr } from "../../lib/utils/time";
 import Highcharts, { isObject } from "highcharts/highstock";
 import HighchartsReact from "highcharts-react-official";
+import { ReplayData } from "../../lib/api/apiRequests";
 
 interface ReplayChartProps {
     replaysData: ReplayData[];
