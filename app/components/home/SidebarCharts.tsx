@@ -3,13 +3,14 @@ import { ReplayData } from "../../lib/api/fileRequests";
 import { Button, Checkbox, Drawer, Table } from "antd";
 import { ReplayDataPoint } from "../../lib/replays/replayData";
 import { getEndRaceTimeStr } from "../../lib/utils/time";
-import HighchartsReact from "highcharts-react-official";
 import Highcharts, { isObject } from "highcharts/highstock";
-import { GraphContext } from "../../lib/contexts/GraphContext";
+import HighchartsReact from "highcharts-react-official";
 
 interface ReplayChartProps {
     replaysData: ReplayData[];
-    metric: string
+    metric: string;
+    addChartFunc: any;
+    callBack: any;
 }
 
 interface Props {
@@ -20,11 +21,10 @@ function read_prop(obj: any, prop: any) {
     return obj[prop];
 }
 
-export const ReplayChart = ({ replaysData, metric }: ReplayChartProps): JSX.Element => {
-    const { range, changeRange } = useContext(GraphContext);
-    let replaySeries: any[] = [];
+export const ReplayChart = ({ replaysData, metric, addChartFunc, callBack }: ReplayChartProps): JSX.Element => {
+    const replaySeries: any[] = [];
     replaysData.forEach((replay: ReplayData) => {
-        let replayData: any = [];
+        const replayData: any = [];
         replay.samples.forEach((sample: ReplayDataPoint) => {
             replayData.push([sample.currentRaceTime, read_prop(sample, metric)]);
         });
@@ -38,64 +38,30 @@ export const ReplayChart = ({ replaysData, metric }: ReplayChartProps): JSX.Elem
                 lineColor: "#FFFFFF"
             },
             tooltip: {
-                valueDecimals: 2
+                valueDecimals: 3
             }
         })
     });
-    let options = {
+    const options = {
         chart: {
             height: 395
         },
         rangeSelector: {
-            enabled: true,
-            inputEnabled: true,
+            enabled: false,
+            inputEnabled: false,
             x: 0,
-            verticalAlign: "top",
-            buttonPosition: {
-                align: "left"
-            },
-            allButtonsEnabled: true,
-            buttons: [
-                {
-                    type: "month",
-                    count: 3,
-                    text: "Day",
-                    dataGrouping: {
-                        forced: true,
-                        units: [["day", [1]]]
-                    }
-                },
-                {
-                    type: "year",
-                    count: 1,
-                    text: "Week",
-                    dataGrouping: {
-                        forced: true,
-                        units: [["week", [1]]]
-                    }
-                },
-                {
-                    type: "all",
-                    text: "Month",
-                    dataGrouping: {
-                        forced: true,
-                        units: [["month", [1]]]
-                    }
-                }
-            ],
-            buttonTheme: {
-                width: 60
-            },
+            verticalAlign: "top"
         },
         title: {
             text: metric
         },
         xAxis: {
-            min: (range.length > 0 ? range[0] : undefined),
-            max: (range.length > 0 ? range[1] : undefined),
             events: {
                 afterSetExtremes: function (event: any) {
-                    debounceChangeRange([event.min, event.max]);
+                    callBack({
+                        "Event": event,
+                        "Metric": metric
+                    });
                 }
             },
             scrollbar: {
@@ -105,34 +71,14 @@ export const ReplayChart = ({ replaysData, metric }: ReplayChartProps): JSX.Elem
             opposite: false
         },
         yAxis: {
-            //max: 300,
+            type: "date",
         },
         series: replaySeries
     };
-    console.log(metric, "Re rendering, range:", range);
-    const debounceChangeRange = (newRange: number[]) => {
-        let myDebounce = debounce(function () {
-            if (range[0] != newRange[0] || range[1] != newRange[1]) {
-                console.log(metric, "changeRange, range:", range, ", newRange:", newRange);
-                changeRange(newRange);
-            }
-        }, 200);
-        myDebounce();
-    };
+    const highCharts = <HighchartsReact constructorType={"stockChart"} highcharts={Highcharts} options={options} />;
+    addChartFunc(highCharts);
     return (
-        <HighchartsReact constructorType={"stockChart"} highcharts={Highcharts} options={options} />
-    )
-}
-
-export const ChartRange = ({ }): JSX.Element => {
-    const { range, changeRange } = useContext(GraphContext);
-
-    return (
-        <div>
-            <div>
-                Start: {parseInt(range[0]?.toString())} End: {parseInt(range[1]?.toString())}
-            </div>
-        </div>
+        highCharts
     )
 }
 
@@ -152,6 +98,11 @@ export const SidebarCharts = ({
 }: Props): JSX.Element => {
     const [visible, setVisible] = useState(false);
     const [selectedCharts, setSelectedCharts] = useState<string[]>([]);
+    let childCharts: any[] = [];
+
+    const addChart = (chart: any) => {
+        childCharts.push(chart);
+    };
 
     let el1: any;
     let isResizing = false;
@@ -174,7 +125,7 @@ export const SidebarCharts = ({
 
     const onMouseMove = (e: any) => {
         if (isResizing) {
-            let offsetBottom = document.body.offsetHeight - (e.clientY - document.body.offsetTop);
+            const offsetBottom = document.body.offsetHeight - (e.clientY - document.body.offsetTop);
             const minHeight = 50;
             const maxHeight = 800;
             if (offsetBottom > minHeight && offsetBottom < maxHeight && el1) {
@@ -203,9 +154,34 @@ export const SidebarCharts = ({
         } else {
             if (selectedCharts.includes(e.target.name)) {
                 setSelectedCharts(selectedCharts.filter(x => x != e.target.name));
+                childCharts = childCharts.filter(x => x.props.options.title.text != e.target.name);
             }
         }
     }
+
+    const debounceChangeRange = (data: any) => {
+        const myDebounce = debounce(function () {
+            childCharts.forEach((chart: any) => {
+                if (chart.props.options.title.text != data.Metric) {
+                    chart.props.highcharts.charts.forEach((subChart: any) => {
+                        if (subChart && subChart.xAxis) {
+                            subChart.xAxis[0].setExtremes(data.Event.min, data.Event.max);
+                        }
+                    });
+                }
+            });
+        }, 200);
+        myDebounce();
+    };
+    
+    const successCallBackData = (data: any) => {
+        debounceChangeRange(data);
+     }
+
+    const replayCharts = selectedCharts.map(metric => (
+        <ReplayChart addChartFunc={addChart} callBack={successCallBackData} replaysData={replaysData} metric={metric} key={metric}></ReplayChart>
+    ));
+
     return (
         <div className="absolute right-0 left-0 bottom-0 mx-auto z-10" style={{ width: '50px' }}>
             <Button onClick={toggleSidebar} shape="round" size="large">
@@ -238,15 +214,12 @@ export const SidebarCharts = ({
                     onMouseDown={onMouseDown}
                 />
                 <div>
-                    <ChartRange></ChartRange>
                     <div>
                         <Checkbox name="speed" onChange={toggleCheckbox}>Speed</Checkbox>
                         <Checkbox name="inputSteer" onChange={toggleCheckbox}>Inputs</Checkbox>
                         <Checkbox name="engineRpm" onChange={toggleCheckbox}>RPMs</Checkbox>
                     </div>
-                    {selectedCharts.map(metric => (
-                        <ReplayChart replaysData={replaysData} metric={metric} key={metric}></ReplayChart>
-                    ))}
+                    {replayCharts}
                 </div>
             </Drawer>
         </div>

@@ -119,7 +119,7 @@ export const inputReplayColors = (replay: ReplayData): THREE.Float32BufferAttrib
     const colorBuffer = [];
     for (let i = 0; i < replay.samples.length; i++) {
         const sample = replay.samples[i];
-        var input = 0;
+        const input = 0;
         var color = new THREE.Color(1,1,1);
         if (sample.inputGasPedal) {
             color.r = 0;
