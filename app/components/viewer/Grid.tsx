@@ -1,8 +1,8 @@
-import React from "react";
-import * as THREE from "three";
-import { Vector3 } from "three";
-import { ReplayData } from "../../lib/api/fileRequests";
-import { BLOCK_SIZE } from "../../lib/constants/block";
+import React from 'react';
+import * as THREE from 'three';
+import { Vector3 } from 'three';
+import { ReplayData } from '../../lib/api/apiRequests';
+import { BLOCK_SIZE } from '../../lib/constants/block';
 
 const GRID_COLOR = new THREE.Color(0, 0, 0);
 const DEFAULT_GRID_SIZE = 48 * 32;

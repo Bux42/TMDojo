@@ -1,22 +1,21 @@
-import React, { useContext } from "react";
-import * as THREE from "three";
-import { Canvas } from "@react-three/fiber";
-import { ReplayData } from "../../lib/api/fileRequests";
-import { ReplayLines } from "./ReplayLines";
-import { Grid, DEFAULT_GRID_POS } from "./Grid";
-import { SettingsContext } from "../../lib/contexts/SettingsContext";
-import { OrbitControls, Sky } from "@react-three/drei";
-import { GraphContext } from "../../lib/contexts/GraphContext";
-
-const BACKGROUND_COLOR = new THREE.Color(0.05, 0.05, 0.05);
+import React, { useContext } from 'react';
+import * as THREE from 'three';
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls, Sky } from '@react-three/drei';
+import { ReplayData } from '../../lib/api/apiRequests';
+import { ReplayLines } from './ReplayLines';
+import { Grid, DEFAULT_GRID_POS } from './Grid';
+import { SettingsContext } from '../../lib/contexts/SettingsContext';
+import { GraphContext } from '../../lib/contexts/GraphContext';
 
 interface Props {
     replaysData: ReplayData[];
 }
 
-export const Viewer3D = ({ replaysData }: Props): JSX.Element => {
-    const { lineType } = useContext(SettingsContext);
+const Viewer3D = ({ replaysData }: Props): JSX.Element => {
+    const { lineType, showGearChanges } = useContext(SettingsContext);
     const { range } = useContext(GraphContext);
+
     return (
         <div style={{ zIndex: -10 }} className="w-full h-full">
             <Canvas
@@ -31,8 +30,15 @@ export const Viewer3D = ({ replaysData }: Props): JSX.Element => {
                 <OrbitControls dampingFactor={0.2} rotateSpeed={0.4} target={DEFAULT_GRID_POS} />
 
                 <Grid replaysData={replaysData} blockPadding={2} />
-                <ReplayLines replaysData={replaysData} lineType={lineType} range={range} />
+                <ReplayLines
+                    replaysData={replaysData}
+                    lineType={lineType}
+                    showGearChanges={showGearChanges}
+                    range={range}
+                />
             </Canvas>
         </div>
     );
 };
+
+export default Viewer3D;

@@ -1,4 +1,4 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useState } from 'react';
 
 export interface GraphContextProps {
     range: number[]
@@ -10,22 +10,21 @@ export const GraphContext = createContext<GraphContextProps>({
     changeRange: () => { },
 });
 
+// eslint-disable-next-line no-undef
 let timer: NodeJS.Timeout;
 
-const debounce = (callback: () => any, timeout: number) => {
-    return () => {
-        clearTimeout(timer);
-        timer = setTimeout(() => {
-            callback();
-        }, timeout);
-    };
+const debounce = (callback: () => any, timeout: number) => () => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+        callback();
+    }, timeout);
 };
 
 export const GraphProvider = ({ children }: any): JSX.Element => {
     const [range, setRange] = useState<number[]>([]);
 
     const changeRange = (newRange: number[]) => {
-        let myDebounce = debounce(function() {
+        const myDebounce = debounce(() => {
             setRange(newRange);
         }, 200);
         myDebounce();

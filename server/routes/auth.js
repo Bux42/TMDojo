@@ -1,4 +1,5 @@
 const express = require('express');
+
 const router = express.Router();
 
 const db = require('../lib/db');
@@ -12,12 +13,12 @@ const db = require('../lib/db');
  * - name
  */
 router.get('/', async (req, res, next) => {
-  try {
-    await db.authenticateUser(req.query.webid, req.query.login, req.query.name);
-    res.send('auth done'); // TODO: the plugin expects text for some reason - it should just check the return code
-  } catch (err) {
-    next(err);
-  }
+    try {
+        await db.authenticateUser(req.query.webid, req.query.login, req.query.name);
+        res.send('auth done'); // TODO: the plugin expects text for some reason - it should just check the return code
+    } catch (err) {
+        next(err);
+    }
 });
 
 module.exports = router;
