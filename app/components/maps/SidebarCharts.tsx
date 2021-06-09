@@ -24,7 +24,7 @@ export const ReplayChart = ({ replaysData, metric, addChartFunc, callBack }: Rep
     replaysData.forEach((replay: ReplayData) => {
         const replayData: any = [];
         replay.samples.forEach((sample: ReplayDataPoint) => {
-            replayData.push([sample.currentRaceTime, read_prop(sample, metric)]);
+            replayData.push([sample.currentRaceTime, readProp(sample, metric)]);
         });
         replaySeries.push({
             name: `${replay.playerName} ${getEndRaceTimeStr(replay.endRaceTime)}`,
