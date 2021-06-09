@@ -41,6 +41,9 @@ export const ReplayChart = ({ replaysData, metric, addChartFunc, callBack }: Rep
         })
     });
     const options = {
+        credits: {
+            enabled: false
+        },
         chart: {
             height: 395,
         },
