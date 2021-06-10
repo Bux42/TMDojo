@@ -31,8 +31,6 @@ interface ReplayLineProps {
     range: number[];
 }
 const ReplayLine = ({ replay, lineType, range }: ReplayLineProps) => {
-    console.log('ReplayLine range:', range);
-
     const points = useMemo(() => {
         if (range.length > 0) {
             return replay.samples

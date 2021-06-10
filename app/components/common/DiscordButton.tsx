@@ -8,7 +8,7 @@ import {
 
 import DiscordSVG from '../../assets/discord.svg';
 
-const DiscordIcon = (props:any): JSX.Element => (
+const DiscordIcon = (props: any): JSX.Element => (
     <Icon
         component={DiscordSVG}
         {...props}

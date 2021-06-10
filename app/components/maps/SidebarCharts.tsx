@@ -1,14 +1,21 @@
-import React, { useContext, useEffect, useState } from "react";
-import { Button, Checkbox, Drawer, Table } from "antd";
-import { ReplayDataPoint } from "../../lib/replays/replayData";
-import { getEndRaceTimeStr } from "../../lib/utils/time";
-import Highcharts, { isObject } from "highcharts/highstock";
-import HighchartsReact from "highcharts-react-official";
-import { ReplayData } from "../../lib/api/apiRequests";
+import React, { useEffect, useState } from 'react';
+import {
+    Button, Checkbox, Drawer,
+} from 'antd';
+import Highcharts from 'highcharts/highstock';
+import HighchartsReact from 'highcharts-react-official';
+import { ReplayData } from '../../lib/api/apiRequests';
+import { defaultChartOptions } from '../../lib/charts/chartOptions';
+import {
+    engineCurrGearChartData,
+    engineRPMsChartData,
+    inputSteerChartData,
+    speedChartData,
+} from '../../lib/charts/chartData';
 
 interface ReplayChartProps {
     replaysData: ReplayData[];
-    metric: string;
+    metric: ChartType;
     addChartFunc: any;
     callBack: any;
 }
@@ -17,71 +24,62 @@ interface Props {
     replaysData: ReplayData[];
 }
 
+export interface ChartType {
+    name: string;
+    chartOptionsCallback: () => any;
+    chartDataCallback: (replay: ReplayData) => any;
+}
+export const ChartTypes: { [name: string]: ChartType } = {
+    speed: {
+        name: 'speed',
+        chartOptionsCallback: defaultChartOptions,
+        chartDataCallback: speedChartData,
+    },
+    inputSteer: {
+        name: 'inputSteer',
+        chartOptionsCallback: defaultChartOptions,
+        chartDataCallback: inputSteerChartData,
+    },
+    engineRPMs: {
+        name: 'engineRPMs',
+        chartOptionsCallback: defaultChartOptions,
+        chartDataCallback: engineRPMsChartData,
+    },
+    engineCurrGear: {
+        name: 'engineCurrGear',
+        chartOptionsCallback: defaultChartOptions,
+        chartDataCallback: engineCurrGearChartData,
+    },
+};
+
 const readProp = (obj: any, prop: any) => obj[prop];
 
-export const ReplayChart = ({ replaysData, metric, addChartFunc, callBack }: ReplayChartProps): JSX.Element => {
+export const ReplayChart = ({
+    replaysData, metric, addChartFunc, callBack,
+}: ReplayChartProps): JSX.Element => {
     const replaySeries: any[] = [];
     replaysData.forEach((replay: ReplayData) => {
-        const replayData: any = [];
-        replay.samples.forEach((sample: ReplayDataPoint) => {
-            replayData.push([sample.currentRaceTime, readProp(sample, metric)]);
-        });
-        replaySeries.push({
-            name: `${replay.playerName} ${getEndRaceTimeStr(replay.endRaceTime)}`,
-            data: replayData,
-            marker: {
-                enabled: null,
-                radius: 3,
-                lineWidth: 1,
-                lineColor: '#FFFFFF',
-            },
-            tooltip: {
-                valueDecimals: 3
-            }
-        })
+        replaySeries.push(metric.chartDataCallback(replay));
     });
-    const options = {
-        credits: {
-            enabled: false
+
+    const options = metric.chartOptionsCallback();
+    options.title.text = metric.name;
+    options.series = replaySeries;
+    options.xAxis.events = {
+        afterSetExtremes(event: any) {
+            callBack({
+                Event: event,
+                Metric: metric,
+            });
         },
-        chart: {
-            height: 395,
-        },
-        rangeSelector: {
-            enabled: false,
-            inputEnabled: false,
-            x: 0,
-            verticalAlign: "top"
-        },
-        title: {
-            text: metric,
-        },
-        xAxis: {
-            events: {
-                afterSetExtremes: function (event: any) {
-                    callBack({
-                        "Event": event,
-                        "Metric": metric
-                    });
-                }
-            },
-            scrollbar: {
-                enabled: true,
-            },
-            type: 'number',
-            opposite: false,
-        },
-        yAxis: {
-            type: "date",
-        },
-        series: replaySeries,
     };
-    const highCharts = <HighchartsReact constructorType={"stockChart"} highcharts={Highcharts} options={options} />;
+
+    const highCharts = <HighchartsReact constructorType="stockChart" highcharts={Highcharts} options={options} />;
     addChartFunc(highCharts);
     return (
         highCharts
-    )
-}
+    );
+};
 
 // eslint-disable-next-line no-undef
 let timer: NodeJS.Timeout;
@@ -97,7 +95,7 @@ export const SidebarCharts = ({
     replaysData,
 }: Props): JSX.Element => {
     const [visible, setVisible] = useState(false);
-    const [selectedCharts, setSelectedCharts] = useState<string[]>([]);
+    const [selectedCharts, setSelectedCharts] = useState<ChartType[]>([]);
     let childCharts: any[] = [];
 
     const addChart = (chart: any) => {
@@ -148,21 +146,19 @@ export const SidebarCharts = ({
 
     const toggleCheckbox = (e: any) => {
         if (e.target.checked) {
-            if (!selectedCharts.includes(e.target.name)) {
-                setSelectedCharts([...selectedCharts, e.target.name]);
+            if (!selectedCharts.includes(readProp(ChartTypes, e.target.name))) {
+                setSelectedCharts([...selectedCharts, readProp(ChartTypes, e.target.name)]);
             }
-        } else {
-            if (selectedCharts.includes(e.target.name)) {
-                setSelectedCharts(selectedCharts.filter(x => x != e.target.name));
-                childCharts = childCharts.filter(x => x.props.options.title.text != e.target.name);
-            }
+        } else if (selectedCharts.includes(readProp(ChartTypes, e.target.name))) {
+            setSelectedCharts(selectedCharts.filter((x) => x.name !== e.target.name));
+            childCharts = childCharts.filter((x) => x.props.options.title.text !== e.target.name);
         }
-    }
+    };
 
     const debounceChangeRange = (data: any) => {
-        const myDebounce = debounce(function () {
+        const myDebounce = debounce(() => {
             childCharts.forEach((chart: any) => {
-                if (chart.props.options.title.text != data.Metric) {
+                if (chart.props.options.title.text !== data.Metric) {
                     chart.props.highcharts.charts.forEach((subChart: any) => {
                         if (subChart && subChart.xAxis) {
                             subChart.xAxis[0].setExtremes(data.Event.min, data.Event.max);
@@ -173,15 +169,19 @@ export const SidebarCharts = ({
         }, 200);
         myDebounce();
     };
-    
+
     const successCallBackData = (data: any) => {
         debounceChangeRange(data);
-     }
-
-    const replayCharts = selectedCharts.map(metric => (
-        <ReplayChart addChartFunc={addChart} callBack={successCallBackData} replaysData={replaysData} metric={metric} key={metric}></ReplayChart>
+    };
+    const replayCharts = selectedCharts.map((metric) => (
+        <ReplayChart
+            addChartFunc={addChart}
+            callBack={successCallBackData}
+            replaysData={replaysData}
+            metric={metric}
+            key={metric.name}
+        />
     ));
-
     return (
         <div className="absolute right-0 left-0 bottom-0 m-8 mx-auto z-10" style={{ width: '50px' }}>
             <Button onClick={toggleSidebar} shape="round" size="large">
@@ -215,9 +215,9 @@ export const SidebarCharts = ({
                 />
                 <div>
                     <div>
-                        <Checkbox name="speed" onChange={toggleCheckbox}>Speed</Checkbox>
-                        <Checkbox name="inputSteer" onChange={toggleCheckbox}>Inputs</Checkbox>
-                        <Checkbox name="engineRpm" onChange={toggleCheckbox}>RPMs</Checkbox>
+                        {Object.keys(ChartTypes).map((chartType) => (
+                            <Checkbox name={chartType} onChange={toggleCheckbox}>{chartType}</Checkbox>
+                        ))}
                     </div>
                     {replayCharts}
                 </div>
