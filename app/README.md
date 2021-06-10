@@ -1,34 +1,24 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# TMDojo App
 
-## Getting Started
+This is the TMDojo front-end - based on React.js and Next.js.
 
-First, run the development server:
+## Setup
 
-```bash
-npm run dev
-# or
-yarn dev
-```
+First, install the app's dependencies using `npm install`.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Configuration
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+Use the `.env.local.template` to create your own `.env.local` - this is the main configuration file for the application.
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+- `NEXT_PUBLIC_API_URL` is the API the UI is using - for local development, this should simply be `http://localhost`.
+- `NEXT_PUBLIC_ANALYTICS_ID` is a Google Analytics `Mess-ID` - it's optional and intended to be used on production only.
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+### Running the Server
 
-## Learn More
+Having set everything up, you can start the development server using `npm run dev`. The server will run on port `4200`.
 
-To learn more about Next.js, take a look at the following resources:
+Pages are initially built on-demand, and then auto-refreshed when changes are detected.
 
--   [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
--   [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deployment
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+Every commit is being deployed to a preview environment on [Vercel](https://vercel.com). Keep in mind that this is using the current `staging` API.
