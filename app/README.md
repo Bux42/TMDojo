@@ -21,4 +21,4 @@ Pages are initially built on-demand, and then auto-refreshed when changes are de
 
 ## Deployment
 
-Every commit is being deployed to a preview environment on [Vercel](https://vercel.com). Keep in mind that this is using the current `staging` API.
+Every commit is being deployed to a preview environment on [Vercel](https://vercel.com). Keep in mind that this is using the current `main` API.
