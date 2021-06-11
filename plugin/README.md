@@ -2,6 +2,10 @@
 
 This is the main plugin to be used to record Trackmania replay data in real-time.
 
+## Disclaimer
+
+The plugin is actively being developed, and therefore it's not signed (as it changes from time to time). So in order to run the plugin locally, you need to have Club Access.
+
 ## Available data
 
 The racing data gathered by the openplanet plugin is a list of 76 bytes blocks, collected every frame (assuming 60 frames per second).
