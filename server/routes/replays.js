@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 
 const fs = require('fs');
+var zlib = require('zlib');
 const path = require('path');
 
 const db = require('../lib/db');
@@ -52,7 +53,9 @@ router.get('/:replayId', async (req, res, next) => {
             if (req.query.download === 'true') {
                 res.download(filePath, req.query.fileName || req.params.replayId);
             } else {
-                res.sendFile(filePath);
+                const file = fs.readFileSync(filePath);
+                const unzipped = zlib.unzipSync(file);
+                res.send(unzipped);
             }
         } else {
             res.status(404).send();
@@ -129,8 +132,9 @@ router.post('/', (req, res, next) => {
     req.on('end', () => {
         const buff = Buffer.from(completeData, 'base64');
         const fileName = `${req.query.endRaceTime}_${req.query.playerName}_${Date.now()}`;
-        const filePath = `maps/${req.query.authorName}/${req.query.mapName}/${fileName}`;
-        fs.writeFile(filePath, buff, async (writeErr) => {
+        const filePath = `maps/${req.query.authorName}/${req.query.mapName}/${fileName}.gz`;
+
+        fs.writeFile(filePath, zlib.gzipSync(buff), async (writeErr) => {
             if (writeErr) {
                 return next(writeErr);
             }
