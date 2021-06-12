@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 
 const fs = require('fs');
-var zlib = require('zlib');
+const zlib = require('zlib');
 const path = require('path');
 
 const db = require('../lib/db');
