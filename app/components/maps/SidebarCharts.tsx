@@ -5,12 +5,13 @@ import {
 import Highcharts from 'highcharts/highstock';
 import HighchartsReact from 'highcharts-react-official';
 import { ReplayData } from '../../lib/api/apiRequests';
-import { defaultChartOptions } from '../../lib/charts/chartOptions';
+import { defaultChartOptions, rpmsAndGearChartOptions } from '../../lib/charts/chartOptions';
 import {
     engineCurrGearChartData,
     engineRPMsChartData,
     inputSteerChartData,
     speedChartData,
+    rpmsAndGearChartData,
 } from '../../lib/charts/chartData';
 
 interface ReplayChartProps {
@@ -50,6 +51,11 @@ export const ChartTypes: { [name: string]: ChartType } = {
         chartOptionsCallback: defaultChartOptions,
         chartDataCallback: engineCurrGearChartData,
     },
+    rpmsAndGear: {
+        name: 'rpmsAndGear',
+        chartOptionsCallback: rpmsAndGearChartOptions,
+        chartDataCallback: rpmsAndGearChartData,
+    },
 };
 
 const readProp = (obj: any, prop: any) => obj[prop];
@@ -59,7 +65,15 @@ export const ReplayChart = ({
 }: ReplayChartProps): JSX.Element => {
     const replaySeries: any[] = [];
     replaysData.forEach((replay: ReplayData) => {
-        replaySeries.push(metric.chartDataCallback(replay));
+        if (metric.name === 'rpmsAndGear') {
+            const gearSerie = ChartTypes.engineCurrGear.chartDataCallback(replay);
+            gearSerie.yAxis = 1;
+            replaySeries.push(gearSerie);
+            const rpmSerie = ChartTypes.engineRPMs.chartDataCallback(replay);
+            replaySeries.push(rpmSerie);
+        } else {
+            replaySeries.push(metric.chartDataCallback(replay));
+        }
     });
 
     const options = metric.chartOptionsCallback();
@@ -216,7 +230,7 @@ export const SidebarCharts = ({
                 <div>
                     <div>
                         {Object.keys(ChartTypes).map((chartType) => (
-                            <Checkbox name={chartType} onChange={toggleCheckbox}>{chartType}</Checkbox>
+                            <Checkbox name={chartType} key={chartType} onChange={toggleCheckbox}>{chartType}</Checkbox>
                         ))}
                     </div>
                     {replayCharts}

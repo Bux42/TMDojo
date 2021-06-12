@@ -39,6 +39,9 @@ export const chartOptionsTemplate = (): any => {
                 color: '#ffffff',
             },
         },
+        tooltip: {
+            shared: true,
+        },
         xAxis: {
             scrollbar: scrollBarOptions,
             type: 'number',
@@ -54,5 +57,28 @@ export const chartOptionsTemplate = (): any => {
 
 export const defaultChartOptions = (): any => {
     const options = chartOptionsTemplate();
+    return options;
+};
+
+export const rpmsAndGearChartOptions = (): any => {
+    const options = chartOptionsTemplate();
+    options.yAxis = [{
+        title: {
+            text: 'RPMs',
+        },
+        labels: {
+            format: '{value} RPMs',
+        },
+        lineWidth: 2,
+    }, {
+        title: {
+            text: 'Gear',
+        },
+        labels: {
+            format: 'Gear {value}',
+        },
+        lineWidth: 2,
+        opposite: true,
+    }];
     return options;
 };
