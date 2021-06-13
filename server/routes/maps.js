@@ -1,3 +1,11 @@
+/** Map data model
+ * - _id
+ * - mapName
+ * - mapUId
+ * - authorName
+ * - thumbnailURL (not implemented yet)
+ */
+
 const express = require('express');
 
 const router = express.Router();
