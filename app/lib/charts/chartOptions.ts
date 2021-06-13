@@ -82,3 +82,26 @@ export const rpmsAndGearChartOptions = (): any => {
     }];
     return options;
 };
+
+export const accelAndBrakeChartOptions = (): any => {
+    const options = chartOptionsTemplate();
+    options.yAxis = [{
+        title: {
+            text: 'Gaz',
+        },
+        labels: {
+            format: 'Gaz {value}',
+        },
+        lineWidth: 2,
+    }, {
+        title: {
+            text: 'Brake',
+        },
+        labels: {
+            format: 'Brake {value}',
+        },
+        lineWidth: 2,
+        opposite: true,
+    }];
+    return options;
+};

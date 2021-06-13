@@ -5,13 +5,15 @@ import {
 import Highcharts from 'highcharts/highstock';
 import HighchartsReact from 'highcharts-react-official';
 import { ReplayData } from '../../lib/api/apiRequests';
-import { defaultChartOptions, rpmsAndGearChartOptions } from '../../lib/charts/chartOptions';
+import { accelAndBrakeChartOptions, defaultChartOptions, rpmsAndGearChartOptions } from '../../lib/charts/chartOptions';
 import {
     engineCurrGearChartData,
     engineRPMsChartData,
     inputSteerChartData,
     speedChartData,
-    rpmsAndGearChartData,
+    inputGazPedalChartData,
+    inputIsBrakingChartData,
+    inputSteer2ChartData,
 } from '../../lib/charts/chartData';
 
 interface ReplayChartProps {
@@ -28,33 +30,43 @@ interface Props {
 export interface ChartType {
     name: string;
     chartOptionsCallback: () => any;
-    chartDataCallback: (replay: ReplayData) => any;
+    chartDataCallback: ((replay: ReplayData) => any)[];
 }
 export const ChartTypes: { [name: string]: ChartType } = {
     speed: {
         name: 'speed',
         chartOptionsCallback: defaultChartOptions,
-        chartDataCallback: speedChartData,
+        chartDataCallback: [speedChartData],
     },
     inputSteer: {
         name: 'inputSteer',
         chartOptionsCallback: defaultChartOptions,
-        chartDataCallback: inputSteerChartData,
+        chartDataCallback: [inputSteerChartData],
     },
     engineRPMs: {
         name: 'engineRPMs',
         chartOptionsCallback: defaultChartOptions,
-        chartDataCallback: engineRPMsChartData,
+        chartDataCallback: [engineRPMsChartData],
     },
     engineCurrGear: {
         name: 'engineCurrGear',
         chartOptionsCallback: defaultChartOptions,
-        chartDataCallback: engineCurrGearChartData,
+        chartDataCallback: [engineCurrGearChartData],
     },
     rpmsAndGear: {
         name: 'rpmsAndGear',
         chartOptionsCallback: rpmsAndGearChartOptions,
-        chartDataCallback: rpmsAndGearChartData,
+        chartDataCallback: [engineCurrGearChartData, engineRPMsChartData],
+    },
+    accelAndBrake: {
+        name: 'accelAndBrake',
+        chartOptionsCallback: accelAndBrakeChartOptions,
+        chartDataCallback: [inputGazPedalChartData, inputIsBrakingChartData],
+    },
+    inputSteer2: {
+        name: 'inputSteer2',
+        chartOptionsCallback: defaultChartOptions,
+        chartDataCallback: [inputSteer2ChartData],
     },
 };
 
@@ -65,14 +77,16 @@ export const ReplayChart = ({
 }: ReplayChartProps): JSX.Element => {
     const replaySeries: any[] = [];
     replaysData.forEach((replay: ReplayData) => {
-        if (metric.name === 'rpmsAndGear') {
-            const gearSerie = ChartTypes.engineCurrGear.chartDataCallback(replay);
-            gearSerie.yAxis = 1;
-            replaySeries.push(gearSerie);
-            const rpmSerie = ChartTypes.engineRPMs.chartDataCallback(replay);
-            replaySeries.push(rpmSerie);
+        if (metric.chartDataCallback.length > 1) {
+            for (let i = 0; i < metric.chartDataCallback.length; i++) {
+                const serie = metric.chartDataCallback[i](replay);
+                if (i === 0) {
+                    serie.yAxis = i + 1;
+                }
+                replaySeries.push(serie);
+            }
         } else {
-            replaySeries.push(metric.chartDataCallback(replay));
+            replaySeries.push(metric.chartDataCallback[0](replay));
         }
     });
 

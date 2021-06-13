@@ -37,6 +37,42 @@ export const inputSteerChartData = (replay: ReplayData): any => {
     return chartData;
 };
 
+export const inputSteer2ChartData = (replay: ReplayData): any => {
+    const chartData: any = chartDataTemplate(replay, 3);
+    chartData.marker.enabled = true;
+    chartData.colorByPoint = true;
+    replay.samples.forEach((sample: ReplayDataPoint) => {
+        let datapoint;
+        if (sample.inputIsBraking && !sample.inputGasPedal) {
+            datapoint = {
+                x: sample.currentRaceTime,
+                y: sample.inputSteer,
+                color: '#db1a1a',
+            };
+        } else if (!sample.inputIsBraking && sample.inputGasPedal) {
+            datapoint = {
+                x: sample.currentRaceTime,
+                y: sample.inputSteer,
+                color: '#1adb30',
+            };
+        } else if (sample.inputIsBraking && sample.inputGasPedal) {
+            datapoint = {
+                x: sample.currentRaceTime,
+                y: sample.inputSteer,
+                color: '#dbbb1a',
+            };
+        } else {
+            datapoint = {
+                x: sample.currentRaceTime,
+                y: sample.inputSteer,
+                color: '#ffffff',
+            };
+        }
+        chartData.data.push(datapoint);
+    });
+    return chartData;
+};
+
 export const engineRPMsChartData = (replay: ReplayData): any => {
     const chartData: any = chartDataTemplate(replay, 3);
     replay.samples.forEach((sample: ReplayDataPoint) => {
@@ -53,19 +89,18 @@ export const engineCurrGearChartData = (replay: ReplayData): any => {
     return chartData;
 };
 
-export const rpmsAndGearChartData = (replay: ReplayData): any => {
-    const chartData: any[] = [chartDataTemplate(replay, 0), chartDataTemplate(replay, 3)];
-    chartData[0].type = 'spline';
-    chartData[0].name = 'Gear';
-    chartData[0].yAxis = 1;
-    chartData[1].type = 'spline';
-    chartData[1].name = 'RPMs';
-    chartData[1].yAxis = 2;
+export const inputGazPedalChartData = (replay: ReplayData): any => {
+    const chartData: any = chartDataTemplate(replay, 0);
     replay.samples.forEach((sample: ReplayDataPoint) => {
-        chartData[0].data.push([sample.currentRaceTime, sample.engineCurGear]);
+        chartData.data.push([sample.currentRaceTime, sample.inputGasPedal ? 1 : 0]);
     });
+    return chartData;
+};
+
+export const inputIsBrakingChartData = (replay: ReplayData): any => {
+    const chartData: any = chartDataTemplate(replay, 0);
     replay.samples.forEach((sample: ReplayDataPoint) => {
-        chartData[1].data.push([sample.currentRaceTime, sample.engineRpm]);
+        chartData.data.push([sample.currentRaceTime, sample.inputIsBraking ? 1 : 0]);
     });
     return chartData;
 };
