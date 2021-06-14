@@ -130,7 +130,7 @@ router.post('/', (req, res, next) => {
     // make sure all required parameters are present
     let requestValid = true;
     paramNames.forEach((paramName) => {
-        if (!req.query[paramName]) {
+        if (!Object.prototype.hasOwnProperty.call(req.query, paramName)) {
             requestValid = false;
         }
     });
