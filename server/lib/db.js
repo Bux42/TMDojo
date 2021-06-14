@@ -192,7 +192,8 @@ const getReplays = (
     addRegexFilter(mapName, 'mapName');
     addRegexFilter(playerName, 'playerName');
     addRegexFilter(mapUId, 'mapUId');
-    if (raceFinished) {
+
+    if (raceFinished && raceFinished !== '-1') {
         pipeline.push({
             $match: {
                 raceFinished: parseInt(raceFinished, 10),
@@ -200,7 +201,7 @@ const getReplays = (
         });
     }
 
-    if (orderBy) {
+    if (orderBy && orderBy !== 'None') {
         const order = {};
         if (orderBy === 'Time Desc') {
             order.endRaceTime = -1;
