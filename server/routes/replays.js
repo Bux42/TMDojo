@@ -121,7 +121,23 @@ router.get('/:replayId/export', async (req, res, next) => {
  * - playerLogin
  * - webId
  */
+// eslint-disable-next-line consistent-return
 router.post('/', (req, res, next) => {
+    const paramNames = [
+        'authorName', 'mapName', 'mapUId', 'endRaceTime', 'raceFinished', 'playerName', 'playerLogin', 'webId',
+    ];
+
+    // make sure all required parameters are present
+    let requestValid = true;
+    paramNames.forEach((paramName) => {
+        if (!req.query[paramName]) {
+            requestValid = false;
+        }
+    });
+    if (!requestValid) {
+        return res.status(400).send({ message: 'Request is missing one or more parameters' });
+    }
+
     // prepare directories
     if (!fs.existsSync(`maps/${req.query.authorName}`)) {
         fs.mkdirSync(`maps/${req.query.authorName}`);
@@ -184,9 +200,7 @@ router.post('/', (req, res, next) => {
         });
     });
 
-    req.on('error', (err) => {
-        next(err);
-    });
+    req.on('error', (err) => next(err));
 });
 
 /**
