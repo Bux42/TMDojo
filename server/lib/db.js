@@ -123,9 +123,11 @@ const getMapByUId = (mapUId) => new Promise((resolve, reject) => {
     });
 });
 
-const saveMap = (mapData) => new Promise((resolve) => {
+const saveMap = (mapData) => new Promise((resolve, reject) => {
     const maps = db.collection('maps');
-    maps.insertOne(mapData).then((operation) => resolve({ _id: operation?.insertedId }));
+    maps.insertOne(mapData)
+        .then((operation) => resolve({ _id: operation?.insertedId }))
+        .catch((error) => reject(error));
 });
 
 const getUserByWebId = (webId) => new Promise((resolve, reject) => {
@@ -138,9 +140,11 @@ const getUserByWebId = (webId) => new Promise((resolve, reject) => {
     });
 });
 
-const saveUser = (userData) => new Promise((resolve) => {
+const saveUser = (userData) => new Promise((resolve, reject) => {
     const users = db.collection('users');
-    users.insertOne(userData).then((operation) => resolve({ _id: operation?.insertedId }));
+    users.insertOne(userData)
+        .then((operation) => resolve({ _id: operation?.insertedId }))
+        .catch((error) => reject(error));
 });
 
 const getReplays = (
@@ -308,9 +312,11 @@ const getReplayByFilePath = (filePath) => new Promise((resolve, reject) => {
     });
 });
 
-const saveReplayMetadata = (metadata) => new Promise((resolve) => {
+const saveReplayMetadata = (metadata) => new Promise((resolve, reject) => {
     const replays = db.collection('replays');
-    replays.insertOne(metadata).then((operation) => resolve({ _id: operation?.insertedId }));
+    replays.insertOne(metadata)
+        .then((operation) => resolve({ _id: operation?.insertedId }))
+        .catch((error) => reject(error));
 });
 
 module.exports = {
