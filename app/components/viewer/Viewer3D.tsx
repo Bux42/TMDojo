@@ -4,15 +4,13 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Sky } from '@react-three/drei';
 import { ReplayData } from '../../lib/api/apiRequests';
 import { ReplayLines } from './ReplayLines';
+import CenterCircle from './CenterCircle';
 import { Grid, DEFAULT_GRID_POS } from './Grid';
 import { SettingsContext } from '../../lib/contexts/SettingsContext';
-
-const BACKGROUND_COLOR = new THREE.Color(0.05, 0.05, 0.05);
 
 interface Props {
     replaysData: ReplayData[];
 }
-
 const Viewer3D = ({ replaysData }: Props): JSX.Element => {
     const { lineType, showGearChanges } = useContext(SettingsContext);
 
@@ -28,6 +26,7 @@ const Viewer3D = ({ replaysData }: Props): JSX.Element => {
             >
                 <Sky distance={100000000} inclination={0} turbidity={0} rayleigh={10} />
                 <OrbitControls dampingFactor={0.2} rotateSpeed={0.4} target={DEFAULT_GRID_POS} />
+                <CenterCircle />
 
                 <Grid replaysData={replaysData} blockPadding={2} />
                 <ReplayLines
