@@ -123,6 +123,7 @@ router.get('/:replayId/export', async (req, res, next) => {
  */
 // eslint-disable-next-line consistent-return
 router.post('/', (req, res, next) => {
+    req.query.mapName = decodeURI(req.query.mapName);
     const paramNames = [
         'authorName', 'mapName', 'mapUId', 'endRaceTime', 'raceFinished', 'playerName', 'playerLogin', 'webId',
     ];
