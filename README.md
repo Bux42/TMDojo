@@ -2,7 +2,7 @@
 
 TMDojo is a map and replay data visualization tool for Trackmania 2020.
 
-![alt text](https://cdn.discordapp.com/attachments/424967293538402334/834084842084892772/unknown.png)
+![alt text](https://i.imgur.com/PPt6OFA.png)
 
 The goal is to be able to **browse, analyze, and compare** Trackmania replay data.
 For that, we're aiming to provide a wide variety of tools such as a 3D view of the map and detailed charts with all the available data.

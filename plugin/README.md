@@ -29,7 +29,7 @@ Each block stores 19 values:
 ## Linking the Dev Version to your Local Openplanet Directory
 
 You can create a symbolic link for automatic synchronisation of the plugin with the command "mklink".
-To do so, open `cmd` as admin, navigate to your Openplanet `/scripts` directory and run the following command:
+To do so, open `cmd` as admin, navigate to your Openplanet `/Scripts` directory and run the following command:
 
 `mklink Plugin_TMDojo.as [path to the plugin file in the repository]`
 
