@@ -138,12 +138,14 @@ router.post('/', (req, res, next) => {
         return res.status(400).send({ message: 'Request is missing one or more parameters' });
     }
 
+    const secureMapName = decodeURIComponent(req.query.mapName);
+
     // prepare directories
     if (!fs.existsSync(`maps/${req.query.authorName}`)) {
         fs.mkdirSync(`maps/${req.query.authorName}`);
     }
-    if (!fs.existsSync(`maps/${req.query.authorName}/${req.query.mapName}`)) {
-        fs.mkdirSync(`maps/${req.query.authorName}/${req.query.mapName}`);
+    if (!fs.existsSync(`maps/${req.query.authorName}/${secureMapName}`)) {
+        fs.mkdirSync(`maps/${req.query.authorName}/${secureMapName}`);
     }
 
     let completeData = '';
@@ -154,7 +156,7 @@ router.post('/', (req, res, next) => {
     req.on('end', () => {
         const buff = Buffer.from(completeData, 'base64');
         const fileName = `${req.query.endRaceTime}_${req.query.playerName}_${Date.now()}`;
-        const filePath = `maps/${req.query.authorName}/${req.query.mapName}/${fileName}`;
+        const filePath = `maps/${req.query.authorName}/${secureMapName}/${fileName}`;
         fs.writeFile(filePath, buff, async (writeErr) => {
             if (writeErr) {
                 return next(writeErr);
@@ -167,7 +169,7 @@ router.post('/', (req, res, next) => {
                 let map = await db.getMapByUId(req.query.mapUId);
                 if (!map) {
                     map = await db.saveMap({
-                        mapName: req.query.mapName,
+                        mapName: secureMapName,
                         mapUId: req.query.mapUId,
                         authorName: req.query.authorName,
                     });
