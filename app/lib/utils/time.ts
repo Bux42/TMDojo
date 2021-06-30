@@ -1,4 +1,4 @@
-export const getEndRaceTimeStr = (endRaceTime: number): string => {
+export const getRaceTimeStr = (endRaceTime: number): string => {
     const milliseconds = endRaceTime % 1000;
     const seconds = Math.floor((endRaceTime / 1000) % 60);
     const minutes = Math.floor((endRaceTime / (60 * 1000)) % 60);
@@ -8,6 +8,27 @@ export const getEndRaceTimeStr = (endRaceTime: number): string => {
         + `${minutes > 0 ? String(seconds).padStart(2, '0') : seconds}`
         + '.'}${String(milliseconds).padEnd(3, '0')}`
     );
+};
+
+export const getRaceTimeNumber = (endRaceTime: number): number => {
+    let nb: number = endRaceTime;
+    let ret = 0;
+
+    const milliseconds = Math.round((nb % 1) * 1000);
+    nb -= milliseconds / 1000;
+
+    let i = 1;
+    while (nb > 0) {
+        ret += (nb % 10) * i;
+        nb -= nb % 10;
+        nb = Math.round(nb / 10);
+        i *= 10;
+    }
+    let seconds = ret % 100;
+    ret -= seconds;
+    ret /= 100;
+    seconds += ret * 60;
+    return (milliseconds + (seconds * 1000));
 };
 
 export const timeDifference = (current: number, previous: number): string => {

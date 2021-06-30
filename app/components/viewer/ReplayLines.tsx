@@ -28,8 +28,9 @@ export const LineTypes: { [name: string]: LineType } = {
 interface ReplayLineProps {
     replay: ReplayData;
     lineType: LineType;
+    replayLineOpacity: number;
 }
-const ReplayLine = ({ replay, lineType }: ReplayLineProps) => {
+const ReplayLine = ({ replay, lineType, replayLineOpacity }: ReplayLineProps) => {
     const points = useMemo(() => replay.samples.map((sample) => sample.position), [replay]);
     const colorBuffer = useMemo(() => lineType.colorsCallback(replay), [replay, lineType]);
 
@@ -46,6 +47,8 @@ const ReplayLine = ({ replay, lineType }: ReplayLineProps) => {
             <bufferGeometry onUpdate={onUpdate} />
             <lineBasicMaterial
                 linewidth={10}
+                transparent
+                opacity={replayLineOpacity}
                 linecap="round"
                 linejoin="round"
                 vertexColors
@@ -57,11 +60,13 @@ const ReplayLine = ({ replay, lineType }: ReplayLineProps) => {
 interface ReplayLinesProps {
     replaysData: ReplayData[];
     lineType: LineType;
+    replayLineOpacity: number;
     showGearChanges: boolean;
 }
 export const ReplayLines = ({
     replaysData,
     lineType,
+    replayLineOpacity,
     showGearChanges,
 }: ReplayLinesProps): JSX.Element => (
     <>
@@ -71,6 +76,7 @@ export const ReplayLines = ({
                     key={`replay-${replay._id}-line`}
                     replay={replay}
                     lineType={lineType}
+                    replayLineOpacity={replayLineOpacity}
                 />
                 {showGearChanges && (
                     <ReplayGears key={`replay-${replay._id}-gears`} replay={replay} />

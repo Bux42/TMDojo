@@ -6,7 +6,7 @@ import { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
 import { TableCurrentDataSource } from 'antd/lib/table/interface';
 import { ReloadOutlined } from '@ant-design/icons';
 import { FileResponse } from '../../lib/api/apiRequests';
-import { getEndRaceTimeStr, timeDifference } from '../../lib/utils/time';
+import { getRaceTimeStr, timeDifference } from '../../lib/utils/time';
 
 interface ExtendedFileResponse extends FileResponse {
     readableTime: string;
@@ -138,7 +138,7 @@ const SidebarReplays = ({
         return replayList.map((replay) => ({
             ...replay,
             key: replay._id,
-            readableTime: getEndRaceTimeStr(replay.endRaceTime),
+            readableTime: getRaceTimeStr(replay.endRaceTime),
             relativeDate: timeDifference(now, replay.date),
             finished: replay.raceFinished === 1,
         }));

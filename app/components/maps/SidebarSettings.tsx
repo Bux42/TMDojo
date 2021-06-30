@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import Title from 'antd/lib/typography/Title';
 import {
-    Button, Checkbox, Drawer, Select,
+    Button, Checkbox, Drawer, Select, Row, Col, Slider,
 } from 'antd';
 import { SettingsContext } from '../../lib/contexts/SettingsContext';
 import { LineTypes } from '../viewer/ReplayLines';
@@ -9,7 +9,11 @@ import { LineTypes } from '../viewer/ReplayLines';
 const SidebarSettings = (): JSX.Element => {
     const [visible, setVisible] = useState(false);
     const {
-        lineType, changeLineType, showGearChanges, setShowGearChanges,
+        lineType, changeLineType,
+        showGearChanges, setShowGearChanges,
+        showFPS, setShowFPS,
+        showInputOverlay, setShowInputOverlay,
+        replayLineOpacity, setReplayLineOpacity,
     } = useContext(
         SettingsContext,
     );
@@ -57,14 +61,55 @@ const SidebarSettings = (): JSX.Element => {
                         );
                     })}
                 </Select>
+                <Row className="w-full">
+                    <Col>
+                        <Checkbox
+                            className="w-full py-6 select-none"
+                            onChange={(e) => setShowGearChanges(e.target.checked)}
+                            checked={showGearChanges}
+                        >
+                            Show Gear Changes
+                        </Checkbox>
+                    </Col>
+                </Row>
+                <Row className="w-full">
+                    <Col>
+                        <Checkbox
+                            className="w-full py-6 select-none"
+                            onChange={(e) => setShowFPS(e.target.checked)}
+                            checked={showFPS}
+                        >
+                            Show FPS
+                        </Checkbox>
+                    </Col>
+                </Row>
+                <Row className="w-full">
+                    <Col>
+                        <Checkbox
+                            className="w-full py-6 select-none"
+                            onChange={(e) => setShowInputOverlay(e.target.checked)}
+                            checked={showInputOverlay}
+                        >
+                            Show Input Overlay
+                        </Checkbox>
+                    </Col>
+                </Row>
+                <Row className="w-full">
+                    <Col>
+                        Line Opacity
+                    </Col>
+                    <Col span={10}>
 
-                <Checkbox
-                    className="w-full py-6 select-none"
-                    onChange={(e) => setShowGearChanges(e.target.checked)}
-                    checked={showGearChanges}
-                >
-                    Show Gear Changes
-                </Checkbox>
+                        <Slider
+                            min={0}
+                            max={1}
+                            onChange={(e) => setReplayLineOpacity(e)}
+                            value={typeof replayLineOpacity === 'number' ? replayLineOpacity : 0}
+                            step={0.1}
+                        />
+                    </Col>
+                </Row>
+
             </Drawer>
         </div>
     );
