@@ -3,6 +3,7 @@ import Title from 'antd/lib/typography/Title';
 import {
     Button, Checkbox, Drawer, Select, Row, Col, Slider,
 } from 'antd';
+import { CheckboxChangeEvent } from 'antd/lib/checkbox';
 import { SettingsContext } from '../../lib/contexts/SettingsContext';
 import { LineTypes } from '../viewer/ReplayLines';
 
@@ -65,7 +66,7 @@ const SidebarSettings = (): JSX.Element => {
                     <Col>
                         <Checkbox
                             className="w-full py-6 select-none"
-                            onChange={(e) => setShowGearChanges(e.target.checked)}
+                            onChange={(e: CheckboxChangeEvent) => setShowGearChanges(e.target.checked)}
                             checked={showGearChanges}
                         >
                             Show Gear Changes
@@ -76,7 +77,7 @@ const SidebarSettings = (): JSX.Element => {
                     <Col>
                         <Checkbox
                             className="w-full py-6 select-none"
-                            onChange={(e) => setShowFPS(e.target.checked)}
+                            onChange={(e: CheckboxChangeEvent) => setShowFPS(e.target.checked)}
                             checked={showFPS}
                         >
                             Show FPS
@@ -87,7 +88,7 @@ const SidebarSettings = (): JSX.Element => {
                     <Col>
                         <Checkbox
                             className="w-full py-6 select-none"
-                            onChange={(e) => setShowInputOverlay(e.target.checked)}
+                            onChange={(e: CheckboxChangeEvent) => setShowInputOverlay(e.target.checked)}
                             checked={showInputOverlay}
                         >
                             Show Input Overlay
@@ -103,7 +104,7 @@ const SidebarSettings = (): JSX.Element => {
                         <Slider
                             min={0}
                             max={1}
-                            onChange={(e) => setReplayLineOpacity(e)}
+                            onChange={(e: number) => setReplayLineOpacity(e)}
                             value={typeof replayLineOpacity === 'number' ? replayLineOpacity : 0}
                             step={0.1}
                         />

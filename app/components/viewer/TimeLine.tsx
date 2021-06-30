@@ -74,7 +74,7 @@ const TimeLineView = ({ replaysData, timeLineGlobal }: TimeLineViewProps) => {
         timeLineGlobal.currentRaceTime = Math.round(e);
     };
 
-    const onChangeTextInput = (e: any) => {
+    const onChangeTextInput = (e: number) => {
         if (e % 1 === 0) {
             setValue(Math.round(e));
             timeLineGlobal.currentRaceTime = Math.round(e);
@@ -85,7 +85,7 @@ const TimeLineView = ({ replaysData, timeLineGlobal }: TimeLineViewProps) => {
         }
     };
 
-    const onClick = (e: any) => {
+    const onClick = () => {
         playing = !playing;
         if (!playing) {
             onChange(timeLineGlobal.currentRaceTime - 1);
@@ -101,7 +101,7 @@ const TimeLineView = ({ replaysData, timeLineGlobal }: TimeLineViewProps) => {
         }
     };
 
-    const onChangeInterval = (e: any) => {
+    const onChangeInterval = (e: number) => {
         setSampleInterval(e);
         if (playing) {
             clearInterval(playInterval);
