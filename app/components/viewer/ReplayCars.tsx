@@ -92,33 +92,25 @@ const ReplayCar = ({
 }: ReplayCarProps) => {
     const mesh = useRef<THREE.Mesh>(null!);
     const meshTxt = useRef<THREE.Mesh>(null!);
-    const tetrahedronMesh = useRef<THREE.Mesh>(null!);
+    const stadiumCarMesh = useRef<THREE.Mesh>(null!);
+    const velocityRef = useRef<THREE.Mesh>(null!);
 
     const CurrentSampleRef = useRef<ReplayDataPoint>(null!);
 
     let sampleIndex = 0;
     let hovered: boolean = false;
+    let prevOnClick : number = Date.now();
 
     const pressedKeys: any = {};
 
     fbx.children.forEach((child: any) => {
-        if (child.material.length) {
-            child.material.forEach((mat: any) => {
-                mat.opacity = 0.3;
-                mat.color = {
-                    r: replay.color.r,
-                    g: replay.color.g,
-                    b: replay.color.b,
-                };
-            });
-        } else {
-            child.material.opacity = 0.3;
-            child.material.color = {
-                r: replay.color.r,
-                g: replay.color.g,
-                b: replay.color.b,
-            };
-        }
+        child.material = child.material.clone();
+        child.material.opacity = 0.3;
+        child.material.color = {
+            r: replay.color.r,
+            g: replay.color.g,
+            b: replay.color.b,
+        };
     });
 
     useFrame((state, delta) => {
@@ -126,7 +118,7 @@ const ReplayCar = ({
             return;
         }
 
-        if (mesh && mesh.current && mesh.current.parent) {
+        if (mesh && mesh.current && mesh.current) {
             sampleIndex = 0;
             while (sampleIndex + 1 < replay.samples.length
                     && replay.samples[sampleIndex].currentRaceTime < timeLineGlobal.currentRaceTime) {
@@ -138,14 +130,6 @@ const ReplayCar = ({
             meshTxt.current.children[0].scale.set(dist / 300, dist / 300, dist / 300);
 
             const distToCamera = replay.samples[sampleIndex].position.distanceTo(camera.position);
-
-            if (timeLineGlobal.followedReplay != null && timeLineGlobal.followedReplay._id === replay._id) {
-                let i = 0;
-                i++;
-                if (orbitControlsRef && orbitControlsRef.current) {
-                    orbitControlsRef.current.target.lerp(replay.samples[sampleIndex].position, 0.4);
-                }
-            }
 
             if (hovered) {
                 (meshTxt.current.children[0] as any).text = `
@@ -164,12 +148,30 @@ const ReplayCar = ({
             );
 
             mesh.current.position.lerp(replay.samples[sampleIndex].position, 0.4);
-            tetrahedronMesh.current.rotation.setFromQuaternion(
+            stadiumCarMesh.current.rotation.setFromQuaternion(
                 vecToQuat(replay.samples[sampleIndex].dir, replay.samples[sampleIndex].up),
             );
 
-            tetrahedronMesh.current.children[0].rotation.y = replay.samples[sampleIndex].wheelAngle;
-            tetrahedronMesh.current.children[6].rotation.y = replay.samples[sampleIndex].wheelAngle;
+            stadiumCarMesh.current.children[2].rotation.y = replay.samples[sampleIndex].wheelAngle;
+            stadiumCarMesh.current.children[4].rotation.y = replay.samples[sampleIndex].wheelAngle;
+
+            velocityRef.current.rotation.setFromQuaternion(
+                vecToQuat(replay.samples[sampleIndex].dir, replay.samples[sampleIndex].up),
+            );
+
+            const camPos = replay.samples[sampleIndex].velocity.clone().negate().divideScalar(3);
+            camPos.x += 4;
+            camPos.y += 5;
+            velocityRef.current.position.lerp(camPos, 0.4);
+
+            if (timeLineGlobal.followedReplay != null && timeLineGlobal.followedReplay._id === replay._id) {
+                if (orbitControlsRef && orbitControlsRef.current) {
+                    orbitControlsRef.current.target.lerp(replay.samples[sampleIndex].position, 0.4);
+                    const camWorldPos: THREE.Vector3 = new THREE.Vector3();
+                    velocityRef.current.getWorldPosition(camWorldPos);
+                    camera.position.lerp(camWorldPos, 0.3);
+                }
+            }
         }
     });
 
@@ -182,11 +184,14 @@ const ReplayCar = ({
     };
 
     const onClick = () => {
-        if (timeLineGlobal.followedReplay === null
-            || timeLineGlobal.followedReplay._id !== replay._id) {
-            timeLineGlobal.followedReplay = replay;
-        } else {
-            timeLineGlobal.followedReplay = null;
+        if (Date.now() - prevOnClick > 100) {
+            if (timeLineGlobal.followedReplay === null
+                || timeLineGlobal.followedReplay._id !== replay._id) {
+                timeLineGlobal.followedReplay = replay;
+            } else {
+                timeLineGlobal.followedReplay = null;
+            }
+            prevOnClick = Date.now();
         }
     };
 
@@ -214,10 +219,11 @@ const ReplayCar = ({
                 ref={mesh}
                 scale={1}
             >
+
                 <primitive
                     object={fbx}
                     dispose={null}
-                    ref={tetrahedronMesh}
+                    ref={stadiumCarMesh}
                     scale={0.01}
                     onPointerLeave={onPointerLeave}
                     onPointerMove={onPointerMove}
@@ -225,8 +231,10 @@ const ReplayCar = ({
                     receiveShadow
                     castShadow
                 />
+
                 {showInputOverlay
                     && <InputOverlay parentRef={mesh} sampleRef={CurrentSampleRef} camera={camera} />}
+
                 <mesh
                     ref={meshTxt}
                 >
@@ -238,6 +246,12 @@ const ReplayCar = ({
                             <meshPhongMaterial attach="material" side={DoubleSide} color={opts.color} />
                         ) : null}
                     </text>
+                </mesh>
+                <mesh
+                    ref={velocityRef}
+                >
+                    <sphereBufferGeometry args={[0.1, 30, 30]} attach="geometry" />
+                    <meshBasicMaterial color={replay.color} transparent opacity={0} attach="material" />
                 </mesh>
 
             </mesh>

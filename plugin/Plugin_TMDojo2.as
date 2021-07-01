@@ -468,7 +468,7 @@ class TMDojo
 void PostRecordedData(ref @handle) {
     recording = false;
 
-    if (!g_dojo.serverAvailable) {
+    if (!g_dojo.serverAvailable || !Enabled) {
         latestRecordedTime = -6666;
         membuff.Resize(0);
         return;
