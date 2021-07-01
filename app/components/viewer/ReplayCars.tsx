@@ -85,10 +85,11 @@ interface ReplayCarProps {
     orbitControlsRef: any;
     showInputOverlay: boolean;
     fbx: THREE.Object3D;
+    replayCarOpacity: number;
 }
 
 const ReplayCar = ({
-    replay, timeLineGlobal, camera, orbitControlsRef, showInputOverlay, fbx,
+    replay, timeLineGlobal, camera, orbitControlsRef, showInputOverlay, fbx, replayCarOpacity,
 }: ReplayCarProps) => {
     const mesh = useRef<THREE.Mesh>(null!);
     const meshTxt = useRef<THREE.Mesh>(null!);
@@ -105,7 +106,7 @@ const ReplayCar = ({
 
     fbx.children.forEach((child: any) => {
         child.material = child.material.clone();
-        child.material.opacity = 0.3;
+        child.material.opacity = replayCarOpacity;
         child.material.color = {
             r: replay.color.r,
             g: replay.color.g,
@@ -264,6 +265,7 @@ interface ReplayCarsProps {
     timeLineGlobal: any;
     orbitControlsRef: any;
     showInputOverlay: boolean;
+    replayCarOpacity: number;
 }
 
 export const ReplayCars = ({
@@ -271,6 +273,7 @@ export const ReplayCars = ({
     timeLineGlobal,
     orbitControlsRef,
     showInputOverlay,
+    replayCarOpacity,
 }: ReplayCarsProps): JSX.Element => {
     const camera = useThree((state) => state.camera);
     const fbx = useFBX('/StadiumCarWheelsSeparated.fbx');
@@ -287,6 +290,7 @@ export const ReplayCars = ({
                         orbitControlsRef={orbitControlsRef}
                         showInputOverlay={showInputOverlay}
                         fbx={fbx.clone()}
+                        replayCarOpacity={replayCarOpacity}
                     />
                 </>
             ))}

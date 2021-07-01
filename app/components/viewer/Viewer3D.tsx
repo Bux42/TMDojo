@@ -20,7 +20,12 @@ const timeLineGlobal = new TimeLineInfos();
 
 const Viewer3D = ({ replaysData }: Props): JSX.Element => {
     const {
-        lineType, showGearChanges, showFPS, showInputOverlay, replayLineOpacity,
+        lineType,
+        showGearChanges,
+        showFPS,
+        showInputOverlay,
+        replayLineOpacity,
+        replayCarOpacity,
     } = useContext(SettingsContext);
     const orbitControlsRef = useRef<any>();
 
@@ -62,6 +67,7 @@ const Viewer3D = ({ replaysData }: Props): JSX.Element => {
                         timeLineGlobal={timeLineGlobal}
                         orbitControlsRef={orbitControlsRef}
                         showInputOverlay={showInputOverlay}
+                        replayCarOpacity={replayCarOpacity}
                     />
                 </Suspense>
 

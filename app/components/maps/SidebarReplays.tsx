@@ -5,6 +5,7 @@ import {
 import { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
 import { TableCurrentDataSource } from 'antd/lib/table/interface';
 import { ReloadOutlined } from '@ant-design/icons';
+import Link from 'next/link';
 import { FileResponse } from '../../lib/api/apiRequests';
 import { getRaceTimeStr, timeDifference } from '../../lib/utils/time';
 
@@ -65,6 +66,15 @@ const SidebarReplays = ({
             dataIndex: 'playerName',
             filters: getUniqueFilters((replay) => replay.playerName),
             onFilter: (value, record) => record.playerName === value,
+            render: (text, replay) => (
+                <>
+                    <Link href={`https://trackmania.io/#/player/${replay.webId}`}>
+                        <a target="_blank" rel="noreferrer" href={`https://trackmania.io/#/player/${replay.webId}`}>
+                            {replay.playerName}
+                        </a>
+                    </Link>
+                </>
+            ),
         },
         {
             title: 'Time',

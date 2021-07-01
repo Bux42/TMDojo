@@ -15,6 +15,7 @@ const SidebarSettings = (): JSX.Element => {
         showFPS, setShowFPS,
         showInputOverlay, setShowInputOverlay,
         replayLineOpacity, setReplayLineOpacity,
+        replayCarOpacity, setReplayCarOpacity,
     } = useContext(
         SettingsContext,
     );
@@ -96,7 +97,7 @@ const SidebarSettings = (): JSX.Element => {
                     </Col>
                 </Row>
                 <Row className="w-full">
-                    <Col>
+                    <Col span={7}>
                         Line Opacity
                     </Col>
                     <Col span={10}>
@@ -106,6 +107,21 @@ const SidebarSettings = (): JSX.Element => {
                             max={1}
                             onChange={(e: number) => setReplayLineOpacity(e)}
                             value={typeof replayLineOpacity === 'number' ? replayLineOpacity : 0}
+                            step={0.1}
+                        />
+                    </Col>
+                </Row>
+                <Row className="w-full">
+                    <Col span={7}>
+                        Car Opacity
+                    </Col>
+                    <Col span={10}>
+
+                        <Slider
+                            min={0}
+                            max={1}
+                            onChange={(e: number) => setReplayCarOpacity(e)}
+                            value={typeof replayCarOpacity === 'number' ? replayCarOpacity : 0}
                             step={0.1}
                         />
                     </Col>
