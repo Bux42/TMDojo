@@ -10,27 +10,6 @@ export const getRaceTimeStr = (endRaceTime: number): string => {
     );
 };
 
-export const getRaceTimeNumber = (endRaceTime: number): number => {
-    let nb: number = endRaceTime;
-    let ret = 0;
-
-    const milliseconds = Math.round((nb % 1) * 1000);
-    nb -= milliseconds / 1000;
-
-    let i = 1;
-    while (nb > 0) {
-        ret += (nb % 10) * i;
-        nb -= nb % 10;
-        nb = Math.round(nb / 10);
-        i *= 10;
-    }
-    let seconds = ret % 100;
-    ret -= seconds;
-    ret /= 100;
-    seconds += ret * 60;
-    return (milliseconds + (seconds * 1000));
-};
-
 export const timeDifference = (current: number, previous: number): string => {
     const msPerMinute = 60 * 1000;
     const msPerHour = msPerMinute * 60;

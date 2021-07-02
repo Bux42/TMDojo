@@ -10,7 +10,7 @@ import {
     Slider, InputNumber, Row, Col, Button,
 } from 'antd';
 import { ReplayData } from '../../lib/api/apiRequests';
-import { getRaceTimeNumber, getRaceTimeStr, timeDifference } from '../../lib/utils/time';
+import { getRaceTimeStr, timeDifference } from '../../lib/utils/time';
 
 export class TimeLineInfos {
     currentRaceTime: number;
@@ -74,17 +74,6 @@ const TimeLineView = ({ replaysData, timeLineGlobal }: TimeLineViewProps) => {
         timeLineGlobal.currentRaceTime = Math.round(e);
     };
 
-    const onChangeTextInput = (e: number) => {
-        if (e % 1 === 0) {
-            setValue(Math.round(e));
-            timeLineGlobal.currentRaceTime = Math.round(e);
-        } else {
-            const raceTimeNb = getRaceTimeNumber(e);
-            setValue(raceTimeNb);
-            timeLineGlobal.currentRaceTime = raceTimeNb;
-        }
-    };
-
     const onClick = () => {
         playing = !playing;
         if (!playing) {
@@ -139,7 +128,7 @@ const TimeLineView = ({ replaysData, timeLineGlobal }: TimeLineViewProps) => {
                         style={{ margin: '0 16px' }}
                         step={0.01}
                         value={value}
-                        onChange={onChangeTextInput}
+                        readOnly
                         formatter={timeFormat}
                     />
                 </Col>

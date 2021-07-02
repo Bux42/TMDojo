@@ -6,7 +6,7 @@ import {
 } from '@react-three/fiber';
 import * as THREE from 'three';
 import {
-    BufferAttribute, BufferGeometry, DoubleSide, Triangle,
+    BufferAttribute, BufferGeometry, DoubleSide, MeshPhongMaterial, Triangle,
 } from 'three';
 import React, {
     useRef, useState, useEffect, useMemo, Suspense,
@@ -104,14 +104,18 @@ const ReplayCar = ({
 
     const pressedKeys: any = {};
 
+    const childrend: THREE.Mesh = fbx.children[0] as THREE.Mesh;
+    const material: THREE.MeshPhongMaterial = childrend.material as THREE.MeshPhongMaterial;
+    const matClone = material.clone();
+    matClone.opacity = replayCarOpacity;
+    matClone.color = new THREE.Color(
+        replay.color.r,
+        replay.color.g,
+        replay.color.b,
+    );
+
     fbx.children.forEach((child: any) => {
-        child.material = child.material.clone();
-        child.material.opacity = replayCarOpacity;
-        child.material.color = {
-            r: replay.color.r,
-            g: replay.color.g,
-            b: replay.color.b,
-        };
+        child.material = matClone;
     });
 
     useFrame((state, delta) => {
@@ -127,21 +131,18 @@ const ReplayCar = ({
             }
             CurrentSampleRef.current = replay.samples[sampleIndex];
 
-            const dist = mesh.current.position.distanceTo(camera.position);
-            meshTxt.current.children[0].scale.set(dist / 300, dist / 300, dist / 300);
-
             const distToCamera = replay.samples[sampleIndex].position.distanceTo(camera.position);
 
             if (hovered) {
                 (meshTxt.current.children[0] as any).text = `
                 ${replay.playerName}\n
                 ${getRaceTimeStr(replay.endRaceTime)}\n
-                distToCamera: ${distToCamera}\n
                 (click to focus/unfocus)`;
             } else {
                 (meshTxt.current.children[0] as any).text = '';
             }
 
+            meshTxt.current.scale.set(distToCamera / 400, distToCamera / 400, distToCamera / 400);
             meshTxt.current.rotation.set(
                 camera.rotation.x,
                 camera.rotation.y,
@@ -240,7 +241,7 @@ const ReplayCar = ({
                     ref={meshTxt}
                 >
                     <text
-                        position-z={30}
+                        position-z={200}
                         {...opts}
                     >
                         {opts.materialType === 'MeshPhongMaterial' ? (
