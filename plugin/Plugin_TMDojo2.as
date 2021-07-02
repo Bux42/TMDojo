@@ -135,7 +135,7 @@ class FinishHandle
 
 class TMDojo
 {
-	EPadType m_currentPadType = EPadType(-1);
+	CInputScriptPad::EPadType m_currentPadType = CInputScriptPad::EPadType(-1);
 
     CTrackManiaNetwork@ network;
     int prevRaceTime = -6666;
