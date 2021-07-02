@@ -31,10 +31,11 @@ interface ReplayCarProps {
     showInputOverlay: boolean;
     fbx: THREE.Object3D;
     replayCarOpacity: number;
+    cameraMode: string;
 }
 
 const ReplayCar = ({
-    replay, timeLineGlobal, camera, orbitControlsRef, showInputOverlay, fbx, replayCarOpacity,
+    replay, timeLineGlobal, camera, orbitControlsRef, showInputOverlay, fbx, replayCarOpacity, cameraMode,
 }: ReplayCarProps) => {
     const mesh = useRef<THREE.Mesh>(null!);
     const meshTxt = useRef<THREE.Mesh>(null!);
@@ -82,6 +83,7 @@ const ReplayCar = ({
                 (meshTxt.current.children[0] as any).text = `
                 ${replay.playerName}\n
                 ${getRaceTimeStr(replay.endRaceTime)}\n
+                cameraMode: ${cameraMode}\n
                 (click to focus/unfocus)`;
             } else {
                 (meshTxt.current.children[0] as any).text = '';
@@ -114,9 +116,11 @@ const ReplayCar = ({
             if (timeLineGlobal.followedReplay != null && timeLineGlobal.followedReplay._id === replay._id) {
                 if (orbitControlsRef && orbitControlsRef.current) {
                     orbitControlsRef.current.target.lerp(replay.samples[sampleIndex].position, 0.4);
-                    const camWorldPos: THREE.Vector3 = new THREE.Vector3();
-                    velocityRef.current.getWorldPosition(camWorldPos);
-                    camera.position.lerp(camWorldPos, 0.3);
+                    if (cameraMode === '1') {
+                        const camWorldPos: THREE.Vector3 = new THREE.Vector3();
+                        velocityRef.current.getWorldPosition(camWorldPos);
+                        camera.position.lerp(camWorldPos, 0.3);
+                    }
                 }
             }
         }
@@ -153,6 +157,8 @@ const ReplayCar = ({
         font: fonts.Comfortaa,
         anchorX: 'center',
         anchorY: 'middle',
+        outlineWidth: 0.5,
+        outlineColor: 'black',
     });
     const [rotation, setRotation] = useState([0, 0, 0, 0]);
 
@@ -212,6 +218,7 @@ interface ReplayCarsProps {
     orbitControlsRef: any;
     showInputOverlay: boolean;
     replayCarOpacity: number;
+    cameraMode: string;
 }
 
 export const ReplayCars = ({
@@ -220,6 +227,7 @@ export const ReplayCars = ({
     orbitControlsRef,
     showInputOverlay,
     replayCarOpacity,
+    cameraMode,
 }: ReplayCarsProps): JSX.Element => {
     const camera = useThree((state) => state.camera);
     const fbx = useFBX('/StadiumCarWheelsSeparated.fbx');
@@ -237,6 +245,7 @@ export const ReplayCars = ({
                         showInputOverlay={showInputOverlay}
                         fbx={fbx.clone()}
                         replayCarOpacity={replayCarOpacity}
+                        cameraMode={cameraMode}
                     />
                 </>
             ))}

@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import Title from 'antd/lib/typography/Title';
 import {
-    Button, Checkbox, Drawer, Select, Row, Col, Slider,
+    Button, Checkbox, Drawer, Select, Row, Col, Slider, Radio, RadioChangeEvent,
 } from 'antd';
 import { CheckboxChangeEvent } from 'antd/lib/checkbox';
 import { SettingsContext } from '../../lib/contexts/SettingsContext';
@@ -16,6 +16,8 @@ const SidebarSettings = (): JSX.Element => {
         showInputOverlay, setShowInputOverlay,
         replayLineOpacity, setReplayLineOpacity,
         replayCarOpacity, setReplayCarOpacity,
+        cameraMode, setCameraMode,
+
     } = useContext(
         SettingsContext,
     );
@@ -126,7 +128,21 @@ const SidebarSettings = (): JSX.Element => {
                         />
                     </Col>
                 </Row>
-
+                <Row>
+                    <Col span={7}>
+                        Camera Mode
+                    </Col>
+                    <Col span={14}>
+                        <Radio.Group
+                            defaultValue={cameraMode}
+                            buttonStyle="solid"
+                            onChange={(e: RadioChangeEvent) => setCameraMode(e.target.value)}
+                        >
+                            <Radio.Button value="0">Target</Radio.Button>
+                            <Radio.Button value="1">Cam 1</Radio.Button>
+                        </Radio.Group>
+                    </Col>
+                </Row>
             </Drawer>
         </div>
     );

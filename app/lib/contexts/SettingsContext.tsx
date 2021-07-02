@@ -13,7 +13,9 @@ export interface SettingsContextProps {
     replayLineOpacity: number;
     setReplayLineOpacity: (setLineOpacity: number) => void;
     replayCarOpacity: number;
-    setReplayCarOpacity: (setCarOpacity: number) => void;
+    setReplayCarOpacity: (setCameraMode: number) => void;
+    cameraMode: string;
+    setCameraMode: (setCameraMode: string) => void;
 }
 
 export const SettingsContext = createContext<SettingsContextProps>({
@@ -29,6 +31,8 @@ export const SettingsContext = createContext<SettingsContextProps>({
     setReplayLineOpacity: () => {},
     replayCarOpacity: 0.5,
     setReplayCarOpacity: () => {},
+    cameraMode: '1',
+    setCameraMode: () => {},
 });
 
 export const SettingsProvider = ({ children }: any): JSX.Element => {
@@ -38,6 +42,7 @@ export const SettingsProvider = ({ children }: any): JSX.Element => {
     const [showInputOverlay, setShowInputOverlay] = useState(true);
     const [replayLineOpacity, setReplayLineOpacity] = useState(0.5);
     const [replayCarOpacity, setReplayCarOpacity] = useState(0.5);
+    const [cameraMode, setCameraMode] = useState('1');
 
     const changeLineType = (type: LineType) => {
         setLineType(type);
@@ -58,6 +63,8 @@ export const SettingsProvider = ({ children }: any): JSX.Element => {
                 setReplayLineOpacity,
                 replayCarOpacity,
                 setReplayCarOpacity,
+                cameraMode,
+                setCameraMode,
             }}
         >
             {children}
