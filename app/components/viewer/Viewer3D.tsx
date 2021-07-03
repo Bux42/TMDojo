@@ -4,11 +4,11 @@ import { Canvas, useLoader, useThree } from '@react-three/fiber';
 import { OrbitControls, Sky } from '@react-three/drei';
 import { ReplayData } from '../../lib/api/apiRequests';
 import { ReplayLines } from './ReplayLines';
-import { ReplayCars } from './ReplayCars';
 import { TimeLine, TimeLineInfos } from './TimeLine';
 import { Grid, DEFAULT_GRID_POS } from './Grid';
 import { SettingsContext } from '../../lib/contexts/SettingsContext';
 import FrameRate from './FrameRate';
+import ReplayCars from './ReplayCars';
 
 const BACKGROUND_COLOR = new THREE.Color(0.05, 0.05, 0.05);
 

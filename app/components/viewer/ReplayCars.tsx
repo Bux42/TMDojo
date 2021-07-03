@@ -1,6 +1,5 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable react/jsx-props-no-spreading */
-/* eslint-disable import/prefer-default-export */
 import {
     extend, useFrame, Canvas, useThree, useLoader,
 } from '@react-three/fiber';
@@ -220,7 +219,7 @@ interface ReplayCarsProps {
     cameraMode: CameraMode;
 }
 
-export const ReplayCars = ({
+const ReplayCars = ({
     replaysData,
     timeLineGlobal,
     orbitControlsRef,
@@ -251,3 +250,5 @@ export const ReplayCars = ({
         </>
     );
 };
+
+export default ReplayCars;

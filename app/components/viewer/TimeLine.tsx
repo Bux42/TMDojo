@@ -1,5 +1,4 @@
 /* eslint-disable no-param-reassign */
-/* eslint-disable import/prefer-default-export */
 import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import {
