@@ -78,8 +78,8 @@ const InputBrakeOverlay = ({ sampleRef }: InputOverlayItemProps) => {
     );
 };
 
-const InputGazOverlay = ({ sampleRef }: InputOverlayItemProps) => {
-    const gazMeshRef = useRef<THREE.Mesh>(null!);
+const InputGasOverlay = ({ sampleRef }: InputOverlayItemProps) => {
+    const gasMeshRef = useRef<THREE.Mesh>(null!);
     const accelInputFloats: Float32Array[] = [
         new Float32Array([
             -1.8, 0.1, 0,
@@ -99,13 +99,13 @@ const InputGazOverlay = ({ sampleRef }: InputOverlayItemProps) => {
     ];
 
     useFrame(() => {
-        if (sampleRef.current && gazMeshRef && gazMeshRef.current) {
+        if (sampleRef.current && gasMeshRef && gasMeshRef.current) {
             if (sampleRef.current.inputGasPedal) {
-                gazMeshRef.current.children.forEach((children: any) => {
+                gasMeshRef.current.children.forEach((children: any) => {
                     children.material.opacity = 0.6;
                 });
             } else {
-                gazMeshRef.current.children.forEach((children: any) => {
+                gasMeshRef.current.children.forEach((children: any) => {
                     children.material.opacity = 0.2;
                 });
             }
@@ -114,7 +114,7 @@ const InputGazOverlay = ({ sampleRef }: InputOverlayItemProps) => {
 
     return (
         <mesh
-            ref={gazMeshRef}
+            ref={gasMeshRef}
         >
             {
                 accelInputFloats.map((vertices) => (
@@ -310,7 +310,7 @@ const InputOverlay = ({ sampleRef, camera }: InputOverlayProps) => {
         >
             <SteerRightOverlay sampleRef={sampleRef} />
             <SteerLeftOverlay sampleRef={sampleRef} />
-            <InputGazOverlay sampleRef={sampleRef} />
+            <InputGasOverlay sampleRef={sampleRef} />
             <InputBrakeOverlay sampleRef={sampleRef} />
         </mesh>
     );
