@@ -5,64 +5,37 @@ import * as THREE from 'three';
 import { ReplayDataPoint } from '../../lib/replays/replayData';
 
 interface InputOverlayProps {
-    sampleRef: ReplayDataPoint,
+    sampleRef: React.MutableRefObject<ReplayDataPoint>,
     camera: any
 }
 
 interface InputOverlayItemProps {
-    sampleRef: ReplayDataPoint,
+    sampleRef: React.MutableRefObject<ReplayDataPoint>,
 }
 
 const InputBrakeOverlay = ({ sampleRef }: InputOverlayItemProps) => {
     const brakeMeshRef = useRef<THREE.Mesh>(null!);
-
-    const brakeInputVecs1: THREE.Vector3[] = [
-        new THREE.Vector3(-1.8, -0.1, 0),
-        new THREE.Vector3(1.8, -0.1, 0),
-        new THREE.Vector3(1.8, -10, 0),
+    const brakeInputFloats: Float32Array[] = [
+        new Float32Array([
+            -1.8, -0.1, 0,
+            1.8, -0.1, 0,
+            1.8, -10, 0,
+        ]),
+        new Float32Array([
+            -1.8, -0.1, 0,
+            -1.8, -10, 0,
+            1.8, -10, 0,
+        ]),
+        new Float32Array([
+            -1.8, -10, 0,
+            1.8, -10, 0,
+            0, -12, 0,
+        ]),
     ];
 
-    const brakeInputVecs2: THREE.Vector3[] = [
-        new THREE.Vector3(-1.8, -0.1, 0),
-        new THREE.Vector3(-1.8, -10, 0),
-        new THREE.Vector3(1.8, -10, 0),
-    ];
-
-    const brakeInputVecs3: THREE.Vector3[] = [
-        new THREE.Vector3(-1.8, -10, 0),
-        new THREE.Vector3(1.8, -10, 0),
-        new THREE.Vector3(0, -12, 0),
-    ];
-
-    const f32arrayBrake1 = useMemo(
-        () => Float32Array.from(
-            new Array(brakeInputVecs1.length)
-                .fill(0)
-                .flatMap((item, index) => brakeInputVecs1[index].toArray()),
-        ),
-        [brakeInputVecs1],
-    );
-
-    const f32arrayBrake2 = useMemo(
-        () => Float32Array.from(
-            new Array(brakeInputVecs2.length)
-                .fill(0)
-                .flatMap((item, index) => brakeInputVecs2[index].toArray()),
-        ),
-        [brakeInputVecs2],
-    );
-
-    const f32arrayBrake3 = useMemo(
-        () => Float32Array.from(
-            new Array(brakeInputVecs3.length)
-                .fill(0)
-                .flatMap((item, index) => brakeInputVecs3[index].toArray()),
-        ),
-        [brakeInputVecs3],
-    );
     useFrame(() => {
-        if (sampleRef && brakeMeshRef && brakeMeshRef.current) {
-            if (sampleRef.inputIsBraking) {
+        if (sampleRef.current && brakeMeshRef && brakeMeshRef.current) {
+            if (sampleRef.current.inputIsBraking) {
                 brakeMeshRef.current.children.forEach((children: any) => {
                     children.material.opacity = 0.6;
                 });
@@ -78,118 +51,56 @@ const InputBrakeOverlay = ({ sampleRef }: InputOverlayItemProps) => {
         <mesh
             ref={brakeMeshRef}
         >
-            <mesh>
-                <bufferGeometry attach="geometry">
-                    <bufferAttribute
-                        needsUpdate
-                        attachObject={['attributes', 'position']}
-                        count={f32arrayBrake1.length / 3}
-                        itemSize={brakeInputVecs1.length}
-                        array={f32arrayBrake1}
-                    />
-                </bufferGeometry>
-                <meshBasicMaterial
-                    attach="material"
-                    color="#db441a"
-                    transparent
-                    opacity={0.2}
-                    wireframe={false}
-                    side={THREE.DoubleSide}
-                />
-            </mesh>
-            <mesh>
-                <bufferGeometry attach="geometry">
-                    <bufferAttribute
-                        needsUpdate
-                        attachObject={['attributes', 'position']}
-                        count={f32arrayBrake2.length / 3}
-                        itemSize={brakeInputVecs1.length}
-                        array={f32arrayBrake2}
-                    />
-                </bufferGeometry>
-                <meshBasicMaterial
-                    attach="material"
-                    color="#db441a"
-                    transparent
-                    opacity={0.2}
-                    wireframe={false}
-                    side={THREE.DoubleSide}
-                />
-            </mesh>
-            <mesh>
-                <bufferGeometry attach="geometry">
-                    <bufferAttribute
-                        needsUpdate
-                        attachObject={['attributes', 'position']}
-                        count={f32arrayBrake3.length / 3}
-                        itemSize={brakeInputVecs1.length}
-                        array={f32arrayBrake3}
-                    />
-                </bufferGeometry>
-                <meshBasicMaterial
-                    attach="material"
-                    color="#db441a"
-                    transparent
-                    opacity={0.2}
-                    wireframe={false}
-                    side={THREE.DoubleSide}
-                />
-            </mesh>
+            {
+                brakeInputFloats.map((vertices) => (
+                    <mesh>
+                        <bufferGeometry attach="geometry">
+                            <bufferAttribute
+                                needsUpdate
+                                attachObject={['attributes', 'position']}
+                                count={vertices.length / 3}
+                                itemSize={3}
+                                array={vertices}
+                            />
+                        </bufferGeometry>
+                        <meshBasicMaterial
+                            attach="material"
+                            color="#db441a"
+                            transparent
+                            opacity={0.2}
+                            wireframe={false}
+                            side={THREE.DoubleSide}
+                        />
+                    </mesh>
+                ))
+            }
         </mesh>
     );
 };
 
 const InputGazOverlay = ({ sampleRef }: InputOverlayItemProps) => {
     const gazMeshRef = useRef<THREE.Mesh>(null!);
-
-    const accelInputVecs1: THREE.Vector3[] = [
-        new THREE.Vector3(-1.8, 0.1, 0),
-        new THREE.Vector3(1.8, 0.1, 0),
-        new THREE.Vector3(1.8, 10, 0),
+    const accelInputFloats: Float32Array[] = [
+        new Float32Array([
+            -1.8, 0.1, 0,
+            1.8, 0.1, 0,
+            1.8, 10, 0,
+        ]),
+        new Float32Array([
+            -1.8, 0.1, 0,
+            -1.8, 10, 0,
+            1.8, 10, 0,
+        ]),
+        new Float32Array([
+            -1.8, 10, 0,
+            1.8, 10, 0,
+            0, 12, 0,
+        ]),
     ];
-
-    const accelInputVecs2: THREE.Vector3[] = [
-        new THREE.Vector3(-1.8, 0.1, 0),
-        new THREE.Vector3(-1.8, 10, 0),
-        new THREE.Vector3(1.8, 10, 0),
-    ];
-
-    const accelInputVecs3: THREE.Vector3[] = [
-        new THREE.Vector3(-1.8, 10, 0),
-        new THREE.Vector3(1.8, 10, 0),
-        new THREE.Vector3(0, 12, 0),
-    ];
-
-    const f32arrayAccel1 = useMemo(
-        () => Float32Array.from(
-            new Array(accelInputVecs1.length)
-                .fill(0)
-                .flatMap((item, index) => accelInputVecs1[index].toArray()),
-        ),
-        [accelInputVecs1],
-    );
-
-    const f32arrayAccel2 = useMemo(
-        () => Float32Array.from(
-            new Array(accelInputVecs2.length)
-                .fill(0)
-                .flatMap((item, index) => accelInputVecs2[index].toArray()),
-        ),
-        [accelInputVecs2],
-    );
-
-    const f32arrayAccel3 = useMemo(
-        () => Float32Array.from(
-            new Array(accelInputVecs3.length)
-                .fill(0)
-                .flatMap((item, index) => accelInputVecs3[index].toArray()),
-        ),
-        [accelInputVecs3],
-    );
 
     useFrame(() => {
-        if (sampleRef && gazMeshRef && gazMeshRef.current) {
-            if (sampleRef.inputGasPedal) {
+        if (sampleRef.current && gazMeshRef && gazMeshRef.current) {
+            if (sampleRef.current.inputGasPedal) {
                 gazMeshRef.current.children.forEach((children: any) => {
                     children.material.opacity = 0.6;
                 });
@@ -205,63 +116,29 @@ const InputGazOverlay = ({ sampleRef }: InputOverlayItemProps) => {
         <mesh
             ref={gazMeshRef}
         >
-            <mesh>
-                <bufferGeometry attach="geometry">
-                    <bufferAttribute
-                        needsUpdate
-                        attachObject={['attributes', 'position']}
-                        count={f32arrayAccel1.length / 3}
-                        itemSize={accelInputVecs1.length}
-                        array={f32arrayAccel1}
-                    />
-                </bufferGeometry>
-                <meshBasicMaterial
-                    attach="material"
-                    color="lime"
-                    transparent
-                    opacity={0.2}
-                    wireframe={false}
-                    side={THREE.DoubleSide}
-                />
-            </mesh>
-            <mesh>
-                <bufferGeometry attach="geometry">
-                    <bufferAttribute
-                        needsUpdate
-                        attachObject={['attributes', 'position']}
-                        count={f32arrayAccel2.length / 3}
-                        itemSize={accelInputVecs1.length}
-                        array={f32arrayAccel2}
-                    />
-                </bufferGeometry>
-                <meshBasicMaterial
-                    attach="material"
-                    color="lime"
-                    transparent
-                    opacity={0.2}
-                    wireframe={false}
-                    side={THREE.DoubleSide}
-                />
-            </mesh>
-            <mesh>
-                <bufferGeometry attach="geometry">
-                    <bufferAttribute
-                        needsUpdate
-                        attachObject={['attributes', 'position']}
-                        count={f32arrayAccel3.length / 3}
-                        itemSize={accelInputVecs1.length}
-                        array={f32arrayAccel3}
-                    />
-                </bufferGeometry>
-                <meshBasicMaterial
-                    attach="material"
-                    color="lime"
-                    transparent
-                    opacity={0.2}
-                    wireframe={false}
-                    side={THREE.DoubleSide}
-                />
-            </mesh>
+            {
+                accelInputFloats.map((vertices) => (
+                    <mesh>
+                        <bufferGeometry attach="geometry">
+                            <bufferAttribute
+                                needsUpdate
+                                attachObject={['attributes', 'position']}
+                                count={vertices.length / 3}
+                                itemSize={3}
+                                array={vertices}
+                            />
+                        </bufferGeometry>
+                        <meshBasicMaterial
+                            attach="material"
+                            color="lime"
+                            transparent
+                            opacity={0.2}
+                            wireframe={false}
+                            side={THREE.DoubleSide}
+                        />
+                    </mesh>
+                ))
+            }
         </mesh>
     );
 };
@@ -282,9 +159,9 @@ const SteerLeftOverlay = ({ sampleRef }: InputOverlayItemProps) => {
         [steerLeftVecs],
     );
     useFrame(() => {
-        if (sampleRef && leftMeshRef && leftMeshRef.current) {
-            if (sampleRef.inputSteer < 0) {
-                steerLeftVecs[2].setX(10 * sampleRef.inputSteer - 2);
+        if (sampleRef.current && leftMeshRef && leftMeshRef.current) {
+            if (sampleRef.current.inputSteer < 0) {
+                steerLeftVecs[2].setX(10 * sampleRef.current.inputSteer - 2);
                 leftMeshRef.current.geometry.setFromPoints(steerLeftVecs);
                 leftMeshRef.current.geometry.attributes.position.needsUpdate = true;
             } else {
@@ -356,9 +233,9 @@ const SteerRightOverlay = ({ sampleRef }: InputOverlayItemProps) => {
         [steerRightVecs],
     );
     useFrame(() => {
-        if (sampleRef && rightMeshRef && rightMeshRef.current) {
-            if (sampleRef.inputSteer > 0) {
-                steerRightVecs[2].setX((10 * Math.abs(sampleRef.inputSteer) + 2));
+        if (sampleRef.current && rightMeshRef && rightMeshRef.current) {
+            if (sampleRef.current.inputSteer > 0) {
+                steerRightVecs[2].setX((10 * Math.abs(sampleRef.current.inputSteer) + 2));
                 rightMeshRef.current.geometry.setFromPoints(steerRightVecs);
                 rightMeshRef.current.geometry.attributes.position.needsUpdate = true;
             } else {
@@ -414,7 +291,8 @@ const SteerRightOverlay = ({ sampleRef }: InputOverlayItemProps) => {
     );
 };
 
-const InputOverlay = ({ sampleRef, camera }: InputOverlayProps) => {
+// eslint-disable-next-line import/prefer-default-export
+export const InputOverlay = ({ sampleRef, camera }: InputOverlayProps) => {
     const inputMeshRef = useRef<THREE.Mesh>(null!);
     useFrame(() => {
         if (inputMeshRef && inputMeshRef.current && camera) {
@@ -438,5 +316,3 @@ const InputOverlay = ({ sampleRef, camera }: InputOverlayProps) => {
         </mesh>
     );
 };
-
-export default InputOverlay;
