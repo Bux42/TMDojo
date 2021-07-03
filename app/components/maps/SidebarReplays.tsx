@@ -38,6 +38,8 @@ const SidebarReplays = ({
 }: Props): JSX.Element => {
     const defaultPageSize = 14;
 
+    const tmioURL = 'https://trackmania.io/#/player/';
+
     const [visible, setVisible] = useState(false);
     const [visibleReplays, setVisibleReplays] = useState<FileResponse[]>([]);
 
@@ -67,8 +69,8 @@ const SidebarReplays = ({
             filters: getUniqueFilters((replay) => replay.playerName),
             onFilter: (value, record) => record.playerName === value,
             render: (text, replay) => (
-                <Link href={`https://trackmania.io/#/player/${replay.webId}`}>
-                    <a target="_blank" rel="noreferrer" href={`https://trackmania.io/#/player/${replay.webId}`}>
+                <Link href={`${tmioURL}${replay.webId}`}>
+                    <a target="_blank" rel="noreferrer" href={`${tmioURL}${replay.webId}`}>
                         {replay.playerName}
                     </a>
                 </Link>
