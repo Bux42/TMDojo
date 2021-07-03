@@ -195,9 +195,7 @@ const ReplayCar = ({
                         position-z={200}
                         {...opts}
                     >
-                        {opts.materialType === 'MeshPhongMaterial' ? (
-                            <meshPhongMaterial attach="material" side={DoubleSide} color={opts.color} />
-                        ) : null}
+                        <meshPhongMaterial attach="material" side={DoubleSide} color={opts.color} />
                     </text>
                 </mesh>
                 <mesh
