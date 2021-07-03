@@ -67,13 +67,11 @@ const SidebarReplays = ({
             filters: getUniqueFilters((replay) => replay.playerName),
             onFilter: (value, record) => record.playerName === value,
             render: (text, replay) => (
-                <>
-                    <Link href={`https://trackmania.io/#/player/${replay.webId}`}>
-                        <a target="_blank" rel="noreferrer" href={`https://trackmania.io/#/player/${replay.webId}`}>
-                            {replay.playerName}
-                        </a>
-                    </Link>
-                </>
+                <Link href={`https://trackmania.io/#/player/${replay.webId}`}>
+                    <a target="_blank" rel="noreferrer" href={`https://trackmania.io/#/player/${replay.webId}`}>
+                        {replay.playerName}
+                    </a>
+                </Link>
             ),
         },
         {
