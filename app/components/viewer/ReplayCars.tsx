@@ -69,7 +69,7 @@ const ReplayCar = ({
             return;
         }
 
-        if (mesh && mesh.current && mesh.current) {
+        if (mesh && mesh.current) {
             // Get closest sample to TimeLine.currentRaceTime
             sampleIndex = 0;
             while (sampleIndex + 1 < replay.samples.length
