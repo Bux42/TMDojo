@@ -38,12 +38,12 @@ interface ReplayCarProps {
 const ReplayCar = ({
     replay, timeLineGlobal, camera, orbitControlsRef, showInputOverlay, fbx, replayCarOpacity, cameraMode,
 }: ReplayCarProps) => {
-    const mesh = useRef<THREE.Mesh>(null!);
-    const meshTxt = useRef<THREE.Mesh>(null!);
-    const stadiumCarMesh = useRef<THREE.Mesh>(null!);
-    const camPosRef = useRef<THREE.Mesh>(null!);
+    const mesh = useRef<THREE.Mesh>();
+    const meshTxt = useRef<THREE.Mesh>();
+    const stadiumCarMesh = useRef<THREE.Mesh>();
+    const camPosRef = useRef<THREE.Mesh>();
 
-    const CurrentSampleRef = useRef<ReplayDataPoint>(null!);
+    const CurrentSampleRef = useRef<ReplayDataPoint>(replay.samples[0]);
 
     let sampleIndex = 0;
     let hovered: boolean = false;
@@ -65,11 +65,10 @@ const ReplayCar = ({
     });
 
     useFrame((state, delta) => {
-        if (!mesh || !mesh.current) {
-            return;
-        }
-
-        if (mesh && mesh.current) {
+        if (mesh.current
+            && stadiumCarMesh.current
+            && meshTxt.current
+            && camPosRef.current) {
             // Get closest sample to TimeLine.currentRaceTime
             sampleIndex = 0;
             while (sampleIndex + 1 < replay.samples.length
