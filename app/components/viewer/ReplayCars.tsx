@@ -20,6 +20,7 @@ import { ReplayDataPoint } from '../../lib/replays/replayData';
 import { InputOverlay } from './InputOverlay';
 import { getRaceTimeStr } from '../../lib/utils/time';
 import vecToQuat from '../../lib/utils/math';
+import { CameraMode } from '../../lib/contexts/SettingsContext';
 
 extend({ Text });
 
@@ -31,7 +32,7 @@ interface ReplayCarProps {
     showInputOverlay: boolean;
     fbx: THREE.Object3D;
     replayCarOpacity: number;
-    cameraMode: string;
+    cameraMode: CameraMode;
 }
 
 const ReplayCar = ({
@@ -116,7 +117,7 @@ const ReplayCar = ({
             if (timeLineGlobal.followedReplay != null && timeLineGlobal.followedReplay._id === replay._id) {
                 if (orbitControlsRef && orbitControlsRef.current) {
                     orbitControlsRef.current.target.lerp(replay.samples[sampleIndex].position, 0.4);
-                    if (cameraMode === '1') {
+                    if (cameraMode === CameraMode.Cam1) {
                         const camWorldPos: THREE.Vector3 = new THREE.Vector3();
                         velocityRef.current.getWorldPosition(camWorldPos);
                         camera.position.lerp(camWorldPos, 0.3);
@@ -216,7 +217,7 @@ interface ReplayCarsProps {
     orbitControlsRef: any;
     showInputOverlay: boolean;
     replayCarOpacity: number;
-    cameraMode: string;
+    cameraMode: CameraMode;
 }
 
 export const ReplayCars = ({

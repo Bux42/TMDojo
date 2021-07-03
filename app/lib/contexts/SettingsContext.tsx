@@ -1,6 +1,12 @@
 import React, { createContext, useState } from 'react';
 import { LineType, LineTypes } from '../../components/viewer/ReplayLines';
 
+// eslint-disable-next-line no-shadow
+export enum CameraMode {
+    Target = 0,
+    Cam1 = 1,
+}
+
 export interface SettingsContextProps {
     lineType: LineType;
     changeLineType: (lineType: LineType) => void;
@@ -14,8 +20,8 @@ export interface SettingsContextProps {
     setReplayLineOpacity: (setLineOpacity: number) => void;
     replayCarOpacity: number;
     setReplayCarOpacity: (setCameraMode: number) => void;
-    cameraMode: string;
-    setCameraMode: (setCameraMode: string) => void;
+    cameraMode: CameraMode;
+    setCameraMode: (setCameraMode: CameraMode) => void;
 }
 
 export const SettingsContext = createContext<SettingsContextProps>({
@@ -31,7 +37,7 @@ export const SettingsContext = createContext<SettingsContextProps>({
     setReplayLineOpacity: () => {},
     replayCarOpacity: 0.5,
     setReplayCarOpacity: () => {},
-    cameraMode: '1',
+    cameraMode: CameraMode.Cam1,
     setCameraMode: () => {},
 });
 
@@ -42,7 +48,7 @@ export const SettingsProvider = ({ children }: any): JSX.Element => {
     const [showInputOverlay, setShowInputOverlay] = useState(true);
     const [replayLineOpacity, setReplayLineOpacity] = useState(0.5);
     const [replayCarOpacity, setReplayCarOpacity] = useState(0.5);
-    const [cameraMode, setCameraMode] = useState('1');
+    const [cameraMode, setCameraMode] = useState(CameraMode.Cam1);
 
     const changeLineType = (type: LineType) => {
         setLineType(type);
