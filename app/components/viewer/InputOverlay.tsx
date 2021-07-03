@@ -62,7 +62,6 @@ const InputBrakeOverlay = ({ sampleRef }: InputOverlayItemProps) => {
     );
     useFrame(() => {
         if (sampleRef && brakeMeshRef && brakeMeshRef.current) {
-            console.log(typeof (brakeMeshRef));
             if (sampleRef.inputIsBraking) {
                 brakeMeshRef.current.children.forEach((children: any) => {
                     children.material.opacity = 0.6;
@@ -415,8 +414,7 @@ const SteerRightOverlay = ({ sampleRef }: InputOverlayItemProps) => {
     );
 };
 
-// eslint-disable-next-line import/prefer-default-export
-export const InputOverlay = ({ sampleRef, camera }: InputOverlayProps) => {
+const InputOverlay = ({ sampleRef, camera }: InputOverlayProps) => {
     const inputMeshRef = useRef<THREE.Mesh>(null!);
     useFrame(() => {
         if (inputMeshRef && inputMeshRef.current && camera) {
@@ -440,3 +438,5 @@ export const InputOverlay = ({ sampleRef, camera }: InputOverlayProps) => {
         </mesh>
     );
 };
+
+export default InputOverlay;
