@@ -21,12 +21,13 @@ import { getRaceTimeStr } from '../../lib/utils/time';
 import vecToQuat from '../../lib/utils/math';
 import { CameraMode } from '../../lib/contexts/SettingsContext';
 import InputOverlay from './InputOverlay';
+import { TimeLineInfos } from './TimeLine';
 
 extend({ Text });
 
 interface ReplayCarProps {
     replay: ReplayData;
-    timeLineGlobal: any;
+    timeLineGlobal: TimeLineInfos;
     camera: any;
     orbitControlsRef: any;
     showInputOverlay: boolean;
