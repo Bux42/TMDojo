@@ -53,7 +53,7 @@ const InputBrakeOverlay = ({ sampleRef }: InputOverlayItemProps) => {
         >
             {
                 brakeInputFloats.map((vertices) => (
-                    <mesh>
+                    <mesh key={vertices.join()}>
                         <bufferGeometry attach="geometry">
                             <bufferAttribute
                                 needsUpdate
@@ -118,7 +118,7 @@ const InputGazOverlay = ({ sampleRef }: InputOverlayItemProps) => {
         >
             {
                 accelInputFloats.map((vertices) => (
-                    <mesh>
+                    <mesh key={vertices.join()}>
                         <bufferGeometry attach="geometry">
                             <bufferAttribute
                                 needsUpdate
@@ -291,8 +291,7 @@ const SteerRightOverlay = ({ sampleRef }: InputOverlayItemProps) => {
     );
 };
 
-// eslint-disable-next-line import/prefer-default-export
-export const InputOverlay = ({ sampleRef, camera }: InputOverlayProps) => {
+const InputOverlay = ({ sampleRef, camera }: InputOverlayProps) => {
     const inputMeshRef = useRef<THREE.Mesh>(null!);
     useFrame(() => {
         if (inputMeshRef && inputMeshRef.current && camera) {
@@ -316,3 +315,5 @@ export const InputOverlay = ({ sampleRef, camera }: InputOverlayProps) => {
         </mesh>
     );
 };
+
+export default InputOverlay;

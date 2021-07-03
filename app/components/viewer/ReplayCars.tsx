@@ -17,10 +17,10 @@ import { useFBX, useGLTF } from '@react-three/drei';
 import { ReplayData } from '../../lib/api/apiRequests';
 import fonts from '../../assets/fonts';
 import { ReplayDataPoint } from '../../lib/replays/replayData';
-import { InputOverlay } from './InputOverlay';
 import { getRaceTimeStr } from '../../lib/utils/time';
 import vecToQuat from '../../lib/utils/math';
 import { CameraMode } from '../../lib/contexts/SettingsContext';
+import InputOverlay from './InputOverlay';
 
 extend({ Text });
 
