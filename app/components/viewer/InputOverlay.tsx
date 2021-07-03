@@ -14,60 +14,61 @@ interface InputOverlayItemProps {
 }
 
 const InputBrakeOverlay = ({ sampleRef }: InputOverlayItemProps) => {
-    const breakMeshRef = useRef<THREE.Mesh>(null!);
+    const brakeMeshRef = useRef<THREE.Mesh>(null!);
 
-    const breakInputVecs1: THREE.Vector3[] = [
+    const brakeInputVecs1: THREE.Vector3[] = [
         new THREE.Vector3(-1.8, -0.1, 0),
         new THREE.Vector3(1.8, -0.1, 0),
         new THREE.Vector3(1.8, -10, 0),
     ];
 
-    const breakInputVecs2: THREE.Vector3[] = [
+    const brakeInputVecs2: THREE.Vector3[] = [
         new THREE.Vector3(-1.8, -0.1, 0),
         new THREE.Vector3(-1.8, -10, 0),
         new THREE.Vector3(1.8, -10, 0),
     ];
 
-    const breakInputVecs3: THREE.Vector3[] = [
+    const brakeInputVecs3: THREE.Vector3[] = [
         new THREE.Vector3(-1.8, -10, 0),
         new THREE.Vector3(1.8, -10, 0),
         new THREE.Vector3(0, -12, 0),
     ];
 
-    const f32arrayBreak1 = useMemo(
+    const f32arrayBrake1 = useMemo(
         () => Float32Array.from(
-            new Array(breakInputVecs1.length)
+            new Array(brakeInputVecs1.length)
                 .fill(0)
-                .flatMap((item, index) => breakInputVecs1[index].toArray()),
+                .flatMap((item, index) => brakeInputVecs1[index].toArray()),
         ),
-        [breakInputVecs1],
+        [brakeInputVecs1],
     );
 
-    const f32arrayBreak2 = useMemo(
+    const f32arrayBrake2 = useMemo(
         () => Float32Array.from(
-            new Array(breakInputVecs2.length)
+            new Array(brakeInputVecs2.length)
                 .fill(0)
-                .flatMap((item, index) => breakInputVecs2[index].toArray()),
+                .flatMap((item, index) => brakeInputVecs2[index].toArray()),
         ),
-        [breakInputVecs2],
+        [brakeInputVecs2],
     );
 
-    const f32arrayBreak3 = useMemo(
+    const f32arrayBrake3 = useMemo(
         () => Float32Array.from(
-            new Array(breakInputVecs3.length)
+            new Array(brakeInputVecs3.length)
                 .fill(0)
-                .flatMap((item, index) => breakInputVecs3[index].toArray()),
+                .flatMap((item, index) => brakeInputVecs3[index].toArray()),
         ),
-        [breakInputVecs3],
+        [brakeInputVecs3],
     );
     useFrame(() => {
-        if (sampleRef && breakMeshRef && breakMeshRef.current) {
+        if (sampleRef && brakeMeshRef && brakeMeshRef.current) {
+            console.log(typeof (brakeMeshRef));
             if (sampleRef.inputIsBraking) {
-                breakMeshRef.current.children.forEach((children: any) => {
+                brakeMeshRef.current.children.forEach((children: any) => {
                     children.material.opacity = 0.6;
                 });
             } else {
-                breakMeshRef.current.children.forEach((children: any) => {
+                brakeMeshRef.current.children.forEach((children: any) => {
                     children.material.opacity = 0.2;
                 });
             }
@@ -76,16 +77,16 @@ const InputBrakeOverlay = ({ sampleRef }: InputOverlayItemProps) => {
 
     return (
         <mesh
-            ref={breakMeshRef}
+            ref={brakeMeshRef}
         >
             <mesh>
                 <bufferGeometry attach="geometry">
                     <bufferAttribute
                         needsUpdate
                         attachObject={['attributes', 'position']}
-                        count={f32arrayBreak1.length / 3}
-                        itemSize={breakInputVecs1.length}
-                        array={f32arrayBreak1}
+                        count={f32arrayBrake1.length / 3}
+                        itemSize={brakeInputVecs1.length}
+                        array={f32arrayBrake1}
                     />
                 </bufferGeometry>
                 <meshBasicMaterial
@@ -102,9 +103,9 @@ const InputBrakeOverlay = ({ sampleRef }: InputOverlayItemProps) => {
                     <bufferAttribute
                         needsUpdate
                         attachObject={['attributes', 'position']}
-                        count={f32arrayBreak2.length / 3}
-                        itemSize={breakInputVecs1.length}
-                        array={f32arrayBreak2}
+                        count={f32arrayBrake2.length / 3}
+                        itemSize={brakeInputVecs1.length}
+                        array={f32arrayBrake2}
                     />
                 </bufferGeometry>
                 <meshBasicMaterial
@@ -121,9 +122,9 @@ const InputBrakeOverlay = ({ sampleRef }: InputOverlayItemProps) => {
                     <bufferAttribute
                         needsUpdate
                         attachObject={['attributes', 'position']}
-                        count={f32arrayBreak3.length / 3}
-                        itemSize={breakInputVecs1.length}
-                        array={f32arrayBreak3}
+                        count={f32arrayBrake3.length / 3}
+                        itemSize={brakeInputVecs1.length}
+                        array={f32arrayBrake3}
                     />
                 </bufferGeometry>
                 <meshBasicMaterial
