@@ -2,19 +2,18 @@
 import { useFrame } from '@react-three/fiber';
 import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
+import { ReplayDataPoint } from '../../lib/replays/replayData';
 
 interface InputOverlayProps {
-    parentRef: any,
-    sampleRef: any,
+    sampleRef: ReplayDataPoint,
     camera: any
 }
 
 interface InputOverlayItemProps {
-    parentRef: any,
-    sampleRef: any,
+    sampleRef: ReplayDataPoint,
 }
 
-const InputBrakeOverlay = ({ parentRef, sampleRef }: InputOverlayItemProps) => {
+const InputBrakeOverlay = ({ sampleRef }: InputOverlayItemProps) => {
     const breakMeshRef = useRef<THREE.Mesh>(null!);
 
     const breakInputVecs1: THREE.Vector3[] = [
@@ -62,8 +61,8 @@ const InputBrakeOverlay = ({ parentRef, sampleRef }: InputOverlayItemProps) => {
         [breakInputVecs3],
     );
     useFrame(() => {
-        if (sampleRef && sampleRef.current && breakMeshRef && breakMeshRef.current) {
-            if (sampleRef.current.inputIsBraking) {
+        if (sampleRef && breakMeshRef && breakMeshRef.current) {
+            if (sampleRef.inputIsBraking) {
                 breakMeshRef.current.children.forEach((children: any) => {
                     children.material.opacity = 0.6;
                 });
@@ -140,7 +139,7 @@ const InputBrakeOverlay = ({ parentRef, sampleRef }: InputOverlayItemProps) => {
     );
 };
 
-const InputGazOverlay = ({ parentRef, sampleRef }: InputOverlayItemProps) => {
+const InputGazOverlay = ({ sampleRef }: InputOverlayItemProps) => {
     const gazMeshRef = useRef<THREE.Mesh>(null!);
 
     const accelInputVecs1: THREE.Vector3[] = [
@@ -189,8 +188,8 @@ const InputGazOverlay = ({ parentRef, sampleRef }: InputOverlayItemProps) => {
     );
 
     useFrame(() => {
-        if (sampleRef && sampleRef.current && gazMeshRef && gazMeshRef.current) {
-            if (sampleRef.current.inputGasPedal) {
+        if (sampleRef && gazMeshRef && gazMeshRef.current) {
+            if (sampleRef.inputGasPedal) {
                 gazMeshRef.current.children.forEach((children: any) => {
                     children.material.opacity = 0.6;
                 });
@@ -267,7 +266,7 @@ const InputGazOverlay = ({ parentRef, sampleRef }: InputOverlayItemProps) => {
     );
 };
 
-const SteerLeftOverlay = ({ parentRef, sampleRef }: InputOverlayItemProps) => {
+const SteerLeftOverlay = ({ sampleRef }: InputOverlayItemProps) => {
     const leftMeshRef = useRef<THREE.Mesh>(null!);
     const steerLeftVecs: THREE.Vector3[] = [
         new THREE.Vector3(-2, 10, 0),
@@ -283,9 +282,9 @@ const SteerLeftOverlay = ({ parentRef, sampleRef }: InputOverlayItemProps) => {
         [steerLeftVecs],
     );
     useFrame(() => {
-        if (sampleRef && sampleRef.current && leftMeshRef && leftMeshRef.current) {
-            if (sampleRef.current.inputSteer < 0) {
-                steerLeftVecs[2].setX(10 * sampleRef.current.inputSteer - 2);
+        if (sampleRef && leftMeshRef && leftMeshRef.current) {
+            if (sampleRef.inputSteer < 0) {
+                steerLeftVecs[2].setX(10 * sampleRef.inputSteer - 2);
                 leftMeshRef.current.geometry.setFromPoints(steerLeftVecs);
                 leftMeshRef.current.geometry.attributes.position.needsUpdate = true;
             } else {
@@ -341,7 +340,7 @@ const SteerLeftOverlay = ({ parentRef, sampleRef }: InputOverlayItemProps) => {
     );
 };
 
-const SteerRightOverlay = ({ parentRef, sampleRef }: InputOverlayItemProps) => {
+const SteerRightOverlay = ({ sampleRef }: InputOverlayItemProps) => {
     const rightMeshRef = useRef<THREE.Mesh>(null!);
     const steerRightVecs: THREE.Vector3[] = [
         new THREE.Vector3(2, 10, 0),
@@ -357,9 +356,9 @@ const SteerRightOverlay = ({ parentRef, sampleRef }: InputOverlayItemProps) => {
         [steerRightVecs],
     );
     useFrame(() => {
-        if (sampleRef && sampleRef.current && rightMeshRef && rightMeshRef.current) {
-            if (sampleRef.current.inputSteer > 0) {
-                steerRightVecs[2].setX((10 * Math.abs(sampleRef.current.inputSteer) + 2));
+        if (sampleRef && rightMeshRef && rightMeshRef.current) {
+            if (sampleRef.inputSteer > 0) {
+                steerRightVecs[2].setX((10 * Math.abs(sampleRef.inputSteer) + 2));
                 rightMeshRef.current.geometry.setFromPoints(steerRightVecs);
                 rightMeshRef.current.geometry.attributes.position.needsUpdate = true;
             } else {
@@ -416,7 +415,7 @@ const SteerRightOverlay = ({ parentRef, sampleRef }: InputOverlayItemProps) => {
 };
 
 // eslint-disable-next-line import/prefer-default-export
-export const InputOverlay = ({ parentRef, sampleRef, camera }: InputOverlayProps) => {
+export const InputOverlay = ({ sampleRef, camera }: InputOverlayProps) => {
     const inputMeshRef = useRef<THREE.Mesh>(null!);
     useFrame(() => {
         if (inputMeshRef && inputMeshRef.current && camera) {
@@ -433,10 +432,10 @@ export const InputOverlay = ({ parentRef, sampleRef, camera }: InputOverlayProps
             position={[0, 2, 0]}
             scale={0.1}
         >
-            <SteerRightOverlay parentRef={parentRef} sampleRef={sampleRef} />
-            <SteerLeftOverlay parentRef={parentRef} sampleRef={sampleRef} />
-            <InputGazOverlay parentRef={parentRef} sampleRef={sampleRef} />
-            <InputBrakeOverlay parentRef={parentRef} sampleRef={sampleRef} />
+            <SteerRightOverlay sampleRef={sampleRef} />
+            <SteerLeftOverlay sampleRef={sampleRef} />
+            <InputGazOverlay sampleRef={sampleRef} />
+            <InputBrakeOverlay sampleRef={sampleRef} />
         </mesh>
     );
 };

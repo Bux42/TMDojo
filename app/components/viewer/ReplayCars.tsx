@@ -186,7 +186,7 @@ const ReplayCar = ({
                 />
 
                 {showInputOverlay
-                    && <InputOverlay parentRef={mesh} sampleRef={CurrentSampleRef} camera={camera} />}
+                    && <InputOverlay sampleRef={CurrentSampleRef.current} camera={camera} />}
 
                 <mesh
                     ref={meshTxt}
