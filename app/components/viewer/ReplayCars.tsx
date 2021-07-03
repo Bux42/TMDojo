@@ -51,8 +51,8 @@ const ReplayCar = ({
 
     const pressedKeys: any = {};
 
-    const childrend: THREE.Mesh = fbx.children[0] as THREE.Mesh;
-    const material: THREE.MeshPhongMaterial = childrend.material as THREE.MeshPhongMaterial;
+    const carMesh: THREE.Mesh = fbx.children[0] as THREE.Mesh;
+    const material: THREE.MeshPhongMaterial = carMesh.material as THREE.MeshPhongMaterial;
     const matClone = material.clone();
     matClone.opacity = replayCarOpacity;
     matClone.color = new THREE.Color(
