@@ -1,4 +1,3 @@
-/* eslint-disable import/prefer-default-export */
 import { Stats } from '@react-three/drei';
 import {
     addTail, useFrame, useThree,
@@ -6,6 +5,8 @@ import {
 
 import React, { useEffect, useMemo, useRef } from 'react';
 
-export const FrameRate = (): JSX.Element => (
+const FrameRate = (): JSX.Element => (
     <Stats className="ml-40" />
 );
+
+export default FrameRate;

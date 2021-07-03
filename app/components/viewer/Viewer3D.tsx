@@ -6,9 +6,9 @@ import { ReplayData } from '../../lib/api/apiRequests';
 import { ReplayLines } from './ReplayLines';
 import { ReplayCars } from './ReplayCars';
 import { TimeLine, TimeLineInfos } from './TimeLine';
-import { FrameRate } from './FrameRate';
 import { Grid, DEFAULT_GRID_POS } from './Grid';
 import { SettingsContext } from '../../lib/contexts/SettingsContext';
+import FrameRate from './FrameRate';
 
 const BACKGROUND_COLOR = new THREE.Color(0.05, 0.05, 0.05);
 
