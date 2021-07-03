@@ -13,6 +13,7 @@ import React, {
 import { Text } from 'troika-three-text';
 import { GLTFLoader } from 'three-stdlib';
 import { useFBX, useGLTF } from '@react-three/drei';
+import { RedditCircleFilled } from '@ant-design/icons';
 import { ReplayData } from '../../lib/api/apiRequests';
 import fonts from '../../assets/fonts';
 import { ReplayDataPoint } from '../../lib/replays/replayData';
@@ -40,7 +41,7 @@ const ReplayCar = ({
     const mesh = useRef<THREE.Mesh>(null!);
     const meshTxt = useRef<THREE.Mesh>(null!);
     const stadiumCarMesh = useRef<THREE.Mesh>(null!);
-    const velocityRef = useRef<THREE.Mesh>(null!);
+    const camPosRef = useRef<THREE.Mesh>(null!);
 
     const CurrentSampleRef = useRef<ReplayDataPoint>(null!);
 
@@ -48,8 +49,7 @@ const ReplayCar = ({
     let hovered: boolean = false;
     let prevOnClick : number = Date.now();
 
-    const pressedKeys: any = {};
-
+    // Get own material from loaded car model
     const carMesh: THREE.Mesh = fbx.children[0] as THREE.Mesh;
     const material: THREE.MeshPhongMaterial = carMesh.material as THREE.MeshPhongMaterial;
     const matClone = material.clone();
@@ -70,14 +70,13 @@ const ReplayCar = ({
         }
 
         if (mesh && mesh.current && mesh.current) {
+            // Get closest sample to TimeLine.currentRaceTime
             sampleIndex = 0;
             while (sampleIndex + 1 < replay.samples.length
                     && replay.samples[sampleIndex].currentRaceTime < timeLineGlobal.currentRaceTime) {
                 sampleIndex++;
             }
             CurrentSampleRef.current = replay.samples[sampleIndex];
-
-            const distToCamera = replay.samples[sampleIndex].position.distanceTo(camera.position);
 
             if (hovered) {
                 (meshTxt.current.children[0] as any).text = `
@@ -89,6 +88,9 @@ const ReplayCar = ({
                 (meshTxt.current.children[0] as any).text = '';
             }
 
+            // Set hover 3D text facing camera with correct size
+            const distToCamera = replay.samples[sampleIndex].position.distanceTo(camera.position);
+
             meshTxt.current.scale.set(distToCamera / 400, distToCamera / 400, distToCamera / 400);
             meshTxt.current.rotation.set(
                 camera.rotation.x,
@@ -96,29 +98,34 @@ const ReplayCar = ({
                 camera.rotation.z,
             );
 
+            // Move & rotate 3D car from current sample rot & pos
             mesh.current.position.lerp(replay.samples[sampleIndex].position, 0.4);
             stadiumCarMesh.current.rotation.setFromQuaternion(
                 vecToQuat(replay.samples[sampleIndex].dir, replay.samples[sampleIndex].up),
             );
 
+            // Set front wheels rotation
             stadiumCarMesh.current.children[2].rotation.y = replay.samples[sampleIndex].wheelAngle;
             stadiumCarMesh.current.children[4].rotation.y = replay.samples[sampleIndex].wheelAngle;
 
-            velocityRef.current.rotation.setFromQuaternion(
+            // Rotate camPosRef with car
+            camPosRef.current.rotation.setFromQuaternion(
                 vecToQuat(replay.samples[sampleIndex].dir, replay.samples[sampleIndex].up),
             );
 
+            // Set camPos to inverse velocity to smoothly zoom out when car accelerates
             const camPos = replay.samples[sampleIndex].velocity.clone().negate().divideScalar(3);
             camPos.x += 4;
             camPos.y += 5;
-            velocityRef.current.position.lerp(camPos, 0.4);
+            camPosRef.current.position.lerp(camPos, 0.4);
 
+            // Camera target replay if selected
             if (timeLineGlobal.followedReplay != null && timeLineGlobal.followedReplay._id === replay._id) {
                 if (orbitControlsRef && orbitControlsRef.current) {
                     orbitControlsRef.current.target.lerp(replay.samples[sampleIndex].position, 0.4);
                     if (cameraMode === CameraMode.Cam1) {
                         const camWorldPos: THREE.Vector3 = new THREE.Vector3();
-                        velocityRef.current.getWorldPosition(camWorldPos);
+                        camPosRef.current.getWorldPosition(camWorldPos);
                         camera.position.lerp(camWorldPos, 0.3);
                     }
                 }
@@ -199,7 +206,7 @@ const ReplayCar = ({
                     </text>
                 </mesh>
                 <mesh
-                    ref={velocityRef}
+                    ref={camPosRef}
                 >
                     <sphereBufferGeometry args={[0.1, 30, 30]} attach="geometry" />
                     <meshBasicMaterial color={replay.color} transparent opacity={0} attach="material" />
