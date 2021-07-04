@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 import {
-    extend, useFrame, Canvas, useThree, useLoader,
+    extend, useFrame, Canvas, useThree, useLoader, Camera,
 } from '@react-three/fiber';
 import * as THREE from 'three';
 import React, {
@@ -21,7 +21,7 @@ extend({ Text });
 interface ReplayCarProps {
     replay: ReplayData;
     timeLineGlobal: TimeLineInfos;
-    camera: any;
+    camera: Camera;
     orbitControlsRef: any;
     showInputOverlay: boolean;
     fbx: THREE.Object3D;
