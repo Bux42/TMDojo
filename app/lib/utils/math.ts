@@ -4,7 +4,7 @@ const vec = new THREE.Vector3();
 const vec2 = new THREE.Vector3();
 const quat = new THREE.Quaternion();
 
-function vecToQuat(forward: THREE.Vector3, up: THREE.Vector3) {
+export default function vecToQuat(forward: THREE.Vector3, up: THREE.Vector3): THREE.Quaternion {
     const vector = forward.normalize();
     const vector2 = vec.copy(new THREE.Vector3(0, 0, 0)).crossVectors(up, vector).normalize();
     const vector3 = vec2.copy(new THREE.Vector3(0, 0, 0)).crossVectors(vector, vector2);
@@ -55,5 +55,3 @@ function vecToQuat(forward: THREE.Vector3, up: THREE.Vector3) {
     quaternion.w = (m01 - m10) * num2;
     return quaternion;
 }
-
-export default vecToQuat;
