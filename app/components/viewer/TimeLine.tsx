@@ -25,42 +25,34 @@ interface TimeLineViewProps {
     timeLineGlobal: TimeLineInfos;
 }
 
+// declare setInterval return variable outside to keep persistent reference for clearInterval after render
 let playInterval: any;
-let playing = false;
-let prevReplayCount: number = 0;
-let prevFollowedReplay: any = null;
 
 const TimeLineView = ({ replaysData, timeLineGlobal }: TimeLineViewProps) => {
-    const [value, setValue] = useState<number>(0);
+    const [timeLineTime, setTimeLineTime] = useState<number>(0);
     const [sampleInterval, setSampleInterval] = useState<number>(7);
+    const [playing, setPlaying] = useState<boolean>(false);
 
     const min = 0;
     let max = 0;
 
     if (timeLineGlobal.followedReplay !== null) {
-        prevFollowedReplay = timeLineGlobal.followedReplay;
-    } else if (prevFollowedReplay !== null && prevReplayCount !== replaysData.length) {
-        if (replaysData.some((replay: ReplayData) => replay._id === prevFollowedReplay._id)) {
-            timeLineGlobal.followedReplay = prevFollowedReplay;
-        } else {
-            prevFollowedReplay = null;
+        if (!replaysData.some((replay: ReplayData) => replay._id === timeLineGlobal.followedReplay._id)) {
+            timeLineGlobal.followedReplay = null;
         }
     }
 
     if (replaysData.length === 0) {
-        playing = false;
-        clearInterval(playInterval);
+        if (timeLineTime !== 0) {
+            timeLineGlobal.currentRaceTime = 0;
+            setTimeLineTime(0);
+        }
+        if (playing) {
+            setPlaying(false);
+        }
     }
 
-    if ((replaysData.length === 0 && prevReplayCount !== replaysData.length)) {
-        prevReplayCount = replaysData.length;
-        timeLineGlobal.currentRaceTime = 0;
-        setValue(0);
-    }
-
-    timeLineGlobal.currentRaceTime = value;
-
-    prevReplayCount = replaysData.length;
+    timeLineGlobal.currentRaceTime = timeLineTime;
 
     replaysData.forEach((replay) => {
         if (replay.samples[replay.samples.length - 1].currentRaceTime > max) {
@@ -69,13 +61,13 @@ const TimeLineView = ({ replaysData, timeLineGlobal }: TimeLineViewProps) => {
     });
 
     const onChange = (e: any) => {
-        setValue(Math.round(e));
+        setTimeLineTime(Math.round(e));
         timeLineGlobal.currentRaceTime = Math.round(e);
     };
 
     const onClick = () => {
-        playing = !playing;
-        if (!playing) {
+        setPlaying(!playing);
+        if (playing) {
             onChange(timeLineGlobal.currentRaceTime - 1);
             clearInterval(playInterval);
         } else {
@@ -115,7 +107,7 @@ const TimeLineView = ({ replaysData, timeLineGlobal }: TimeLineViewProps) => {
                         min={min}
                         max={max}
                         onChange={onChange}
-                        value={typeof value === 'number' ? value : 0}
+                        value={typeof timeLineTime === 'number' ? timeLineTime : 0}
                         step={0.01}
                         tipFormatter={timeFormat}
                     />
@@ -126,7 +118,7 @@ const TimeLineView = ({ replaysData, timeLineGlobal }: TimeLineViewProps) => {
                         max={max}
                         style={{ margin: '0 16px' }}
                         step={0.01}
-                        value={value}
+                        value={timeLineTime}
                         readOnly
                         formatter={timeFormat}
                     />
