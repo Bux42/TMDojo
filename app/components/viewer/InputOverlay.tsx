@@ -36,8 +36,8 @@ const InputBrakeOverlay = ({ sampleRef }: InputOverlayItemProps) => {
     useFrame(() => {
         if (sampleRef.current && brakeMeshRef.current) {
             const isBraking = sampleRef.current.inputIsBraking;
-            brakeMeshRef.current.children.forEach((children: any) => {
-                children.material.opacity = isBraking ? 0.6 : 0.2;
+            brakeMeshRef.current.children.forEach((child: any) => {
+                child.material.opacity = isBraking ? 0.6 : 0.2;
             });
         }
     });
@@ -96,8 +96,8 @@ const InputGasOverlay = ({ sampleRef }: InputOverlayItemProps) => {
     useFrame(() => {
         if (sampleRef.current && gasMeshRef.current) {
             const isAccelerating = sampleRef.current.inputGasPedal;
-            gasMeshRef.current.children.forEach((children: any) => {
-                children.material.opacity = isAccelerating ? 0.6 : 0.2;
+            gasMeshRef.current.children.forEach((child: any) => {
+                child.material.opacity = isAccelerating ? 0.6 : 0.2;
             });
         }
     });
