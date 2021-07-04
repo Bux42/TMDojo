@@ -1,5 +1,4 @@
 /* eslint-disable no-param-reassign */
-/* eslint-disable react/jsx-props-no-spreading */
 import {
     extend, useFrame, Canvas, useThree, useLoader,
 } from '@react-three/fiber';
@@ -200,6 +199,7 @@ const ReplayCar = ({
                 >
                     <text
                         position-z={200}
+                        /* eslint-disable react/jsx-props-no-spreading */
                         {...opts}
                     >
                         <meshPhongMaterial attach="material" side={DoubleSide} color={opts.color} />
