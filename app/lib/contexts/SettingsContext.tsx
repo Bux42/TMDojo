@@ -1,7 +1,7 @@
 import React, { createContext, useState } from 'react';
 import { LineType, LineTypes } from '../../components/viewer/ReplayLines';
 
-// eslint false positive
+// eslint false positive https://stackoverflow.com/questions/63961803/
 // eslint-disable-next-line no-shadow
 export enum CameraMode {
     Target = 0,
