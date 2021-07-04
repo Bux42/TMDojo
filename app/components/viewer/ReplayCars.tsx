@@ -9,7 +9,6 @@ import React, {
 import { Text } from 'troika-three-text';
 import { useFBX, useGLTF } from '@react-three/drei';
 import { ReplayData } from '../../lib/api/apiRequests';
-import fonts from '../../assets/fonts';
 import { ReplayDataPoint } from '../../lib/replays/replayData';
 import { getRaceTimeStr } from '../../lib/utils/time';
 import vecToQuat from '../../lib/utils/math';
@@ -163,7 +162,6 @@ const ReplayCar = ({
         letterSpacing: 0,
         textAlign: 'left',
         materialType: 'MeshPhongMaterial',
-        font: fonts.Comfortaa,
         anchorX: 'center',
         anchorY: 'middle',
         outlineWidth: 0.5,
