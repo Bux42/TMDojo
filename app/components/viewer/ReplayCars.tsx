@@ -3,16 +3,11 @@ import {
     extend, useFrame, Canvas, useThree, useLoader,
 } from '@react-three/fiber';
 import * as THREE from 'three';
-import {
-    BufferAttribute, BufferGeometry, DoubleSide, MeshPhongMaterial, Triangle,
-} from 'three';
 import React, {
-    useRef, useState, useEffect, useMemo, Suspense,
+    useRef, useState,
 } from 'react';
 import { Text } from 'troika-three-text';
-import { GLTFLoader } from 'three-stdlib';
 import { useFBX, useGLTF } from '@react-three/drei';
-import { RedditCircleFilled } from '@ant-design/icons';
 import { ReplayData } from '../../lib/api/apiRequests';
 import fonts from '../../assets/fonts';
 import { ReplayDataPoint } from '../../lib/replays/replayData';
@@ -90,7 +85,14 @@ const ReplayCar = ({
             // Set hover 3D text facing camera with correct size
             const distToCamera = replay.samples[sampleIndex].position.distanceTo(camera.position);
 
-            meshTxt.current.scale.set(distToCamera / 400, distToCamera / 400, distToCamera / 400);
+            meshTxt.current.scale.lerp(
+                new THREE.Vector3(
+                    distToCamera / 400,
+                    distToCamera / 400,
+                    distToCamera / 400,
+                ),
+                0.1,
+            );
             meshTxt.current.rotation.set(
                 camera.rotation.x,
                 camera.rotation.y,
@@ -121,7 +123,7 @@ const ReplayCar = ({
             // Camera target replay if selected
             if (timeLineGlobal.followedReplay != null && timeLineGlobal.followedReplay._id === replay._id) {
                 if (orbitControlsRef && orbitControlsRef.current) {
-                    orbitControlsRef.current.target.lerp(replay.samples[sampleIndex].position, 0.4);
+                    orbitControlsRef.current.target.lerp(replay.samples[sampleIndex].position, 0.2);
                     if (cameraMode === CameraMode.Cam1) {
                         const camWorldPos: THREE.Vector3 = new THREE.Vector3();
                         camPosRef.current.getWorldPosition(camWorldPos);
@@ -202,7 +204,7 @@ const ReplayCar = ({
                         /* eslint-disable react/jsx-props-no-spreading */
                         {...opts}
                     >
-                        <meshPhongMaterial attach="material" side={DoubleSide} color={opts.color} />
+                        <meshPhongMaterial attach="material" color={opts.color} />
                     </text>
                 </mesh>
                 <mesh
