@@ -1,4 +1,3 @@
-/* eslint-disable no-param-reassign */
 import { useFrame } from '@react-three/fiber';
 import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
@@ -37,6 +36,7 @@ const InputBrakeOverlay = ({ sampleRef }: InputOverlayItemProps) => {
         if (sampleRef.current && brakeMeshRef.current) {
             const isBraking = sampleRef.current.inputIsBraking;
             brakeMeshRef.current.children.forEach((child: any) => {
+                // eslint-disable-next-line no-param-reassign
                 child.material.opacity = isBraking ? 0.6 : 0.2;
             });
         }
@@ -97,6 +97,7 @@ const InputGasOverlay = ({ sampleRef }: InputOverlayItemProps) => {
         if (sampleRef.current && gasMeshRef.current) {
             const isAccelerating = sampleRef.current.inputGasPedal;
             gasMeshRef.current.children.forEach((child: any) => {
+                // eslint-disable-next-line no-param-reassign
                 child.material.opacity = isAccelerating ? 0.6 : 0.2;
             });
         }
