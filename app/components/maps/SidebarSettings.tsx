@@ -110,6 +110,7 @@ const SidebarSettings = (): JSX.Element => {
                 />
                 Camera Mode
                 <Radio.Group
+                    className="ml-2"
                     defaultValue={cameraMode}
                     buttonStyle="solid"
                     onChange={(e: RadioChangeEvent) => setCameraMode(e.target.value)}
