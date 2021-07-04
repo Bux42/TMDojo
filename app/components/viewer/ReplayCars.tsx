@@ -64,6 +64,8 @@ const ReplayCar = ({
             && stadiumCarMesh.current
             && meshTxt.current
             && camPosRef.current) {
+            const followed = timeLineGlobal.followedReplay != null && timeLineGlobal.followedReplay._id === replay._id;
+
             // Get closest sample to TimeLine.currentRaceTime
             sampleIndex = 0;
             while (sampleIndex + 1 < replay.samples.length
@@ -76,8 +78,7 @@ const ReplayCar = ({
                 (meshTxt.current.children[0] as any).text = `
                 ${replay.playerName}\n
                 ${getRaceTimeStr(replay.endRaceTime)}\n
-                cameraMode: ${cameraMode}\n
-                (click to focus/unfocus)`;
+                (click to ${followed ? 'unfollow' : 'follow'})`;
             } else {
                 (meshTxt.current.children[0] as any).text = '';
             }
@@ -121,7 +122,7 @@ const ReplayCar = ({
             camPosRef.current.position.lerp(camPos, 0.4);
 
             // Camera target replay if selected
-            if (timeLineGlobal.followedReplay != null && timeLineGlobal.followedReplay._id === replay._id) {
+            if (followed) {
                 if (orbitControlsRef && orbitControlsRef.current) {
                     orbitControlsRef.current.target.lerp(replay.samples[sampleIndex].position, 0.2);
                     if (cameraMode === CameraMode.Cam1) {
