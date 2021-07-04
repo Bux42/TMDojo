@@ -4,7 +4,7 @@ import {
     Button, Checkbox, Drawer, Select, Row, Col, Slider, Radio, RadioChangeEvent,
 } from 'antd';
 import { CheckboxChangeEvent } from 'antd/lib/checkbox';
-import { SettingsContext } from '../../lib/contexts/SettingsContext';
+import { CameraMode, SettingsContext } from '../../lib/contexts/SettingsContext';
 import { LineTypes } from '../viewer/ReplayLines';
 
 const SidebarSettings = (): JSX.Element => {
@@ -114,8 +114,8 @@ const SidebarSettings = (): JSX.Element => {
                     buttonStyle="solid"
                     onChange={(e: RadioChangeEvent) => setCameraMode(e.target.value)}
                 >
-                    <Radio.Button value="0">Target</Radio.Button>
-                    <Radio.Button value="1">Cam 1</Radio.Button>
+                    <Radio.Button value={CameraMode.Target}>Target</Radio.Button>
+                    <Radio.Button value={CameraMode.Cam1}>Cam 1</Radio.Button>
                 </Radio.Group>
             </Drawer>
         </div>
