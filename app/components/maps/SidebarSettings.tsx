@@ -65,84 +65,58 @@ const SidebarSettings = (): JSX.Element => {
                         );
                     })}
                 </Select>
-                <Row className="w-full">
-                    <Col>
-                        <Checkbox
-                            className="w-full py-6 select-none"
-                            onChange={(e: CheckboxChangeEvent) => setShowGearChanges(e.target.checked)}
-                            checked={showGearChanges}
-                        >
-                            Show Gear Changes
-                        </Checkbox>
-                    </Col>
-                </Row>
-                <Row className="w-full">
-                    <Col>
-                        <Checkbox
-                            className="w-full py-6 select-none"
-                            onChange={(e: CheckboxChangeEvent) => setShowFPS(e.target.checked)}
-                            checked={showFPS}
-                        >
-                            Show FPS
-                        </Checkbox>
-                    </Col>
-                </Row>
-                <Row className="w-full">
-                    <Col>
-                        <Checkbox
-                            className="w-full py-6 select-none"
-                            onChange={(e: CheckboxChangeEvent) => setShowInputOverlay(e.target.checked)}
-                            checked={showInputOverlay}
-                        >
-                            Show Input Overlay
-                        </Checkbox>
-                    </Col>
-                </Row>
-                <Row className="w-full">
-                    <Col span={7}>
-                        Line Opacity
-                    </Col>
-                    <Col span={10}>
-
-                        <Slider
-                            min={0}
-                            max={1}
-                            onChange={(e: number) => setReplayLineOpacity(e)}
-                            value={typeof replayLineOpacity === 'number' ? replayLineOpacity : 0}
-                            step={0.1}
-                        />
-                    </Col>
-                </Row>
-                <Row className="w-full">
-                    <Col span={7}>
-                        Car Opacity
-                    </Col>
-                    <Col span={10}>
-
-                        <Slider
-                            min={0}
-                            max={1}
-                            onChange={(e: number) => setReplayCarOpacity(e)}
-                            value={typeof replayCarOpacity === 'number' ? replayCarOpacity : 0}
-                            step={0.1}
-                        />
-                    </Col>
-                </Row>
-                <Row>
-                    <Col span={7}>
-                        Camera Mode
-                    </Col>
-                    <Col span={14}>
-                        <Radio.Group
-                            defaultValue={cameraMode}
-                            buttonStyle="solid"
-                            onChange={(e: RadioChangeEvent) => setCameraMode(e.target.value)}
-                        >
-                            <Radio.Button value="0">Target</Radio.Button>
-                            <Radio.Button value="1">Cam 1</Radio.Button>
-                        </Radio.Group>
-                    </Col>
-                </Row>
+                <Col>
+                    <Checkbox
+                        className="w-full py-6 select-none"
+                        onChange={(e: CheckboxChangeEvent) => setShowGearChanges(e.target.checked)}
+                        checked={showGearChanges}
+                    >
+                        Show Gear Changes
+                    </Checkbox>
+                </Col>
+                <Col>
+                    <Checkbox
+                        className="w-full py-6 select-none"
+                        onChange={(e: CheckboxChangeEvent) => setShowFPS(e.target.checked)}
+                        checked={showFPS}
+                    >
+                        Show FPS
+                    </Checkbox>
+                </Col>
+                <Col>
+                    <Checkbox
+                        className="w-full py-6 select-none"
+                        onChange={(e: CheckboxChangeEvent) => setShowInputOverlay(e.target.checked)}
+                        checked={showInputOverlay}
+                    >
+                        Show Input Overlay
+                    </Checkbox>
+                </Col>
+                Line Opacity
+                <Slider
+                    min={0}
+                    max={1}
+                    onChange={(e: number) => setReplayLineOpacity(e)}
+                    value={typeof replayLineOpacity === 'number' ? replayLineOpacity : 0}
+                    step={0.1}
+                />
+                Car Opacity
+                <Slider
+                    min={0}
+                    max={1}
+                    onChange={(e: number) => setReplayCarOpacity(e)}
+                    value={typeof replayCarOpacity === 'number' ? replayCarOpacity : 0}
+                    step={0.1}
+                />
+                Camera Mode
+                <Radio.Group
+                    defaultValue={cameraMode}
+                    buttonStyle="solid"
+                    onChange={(e: RadioChangeEvent) => setCameraMode(e.target.value)}
+                >
+                    <Radio.Button value="0">Target</Radio.Button>
+                    <Radio.Button value="1">Cam 1</Radio.Button>
+                </Radio.Group>
             </Drawer>
         </div>
     );
