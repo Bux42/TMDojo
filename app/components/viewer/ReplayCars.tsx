@@ -99,20 +99,19 @@ const ReplayCar = ({
                 camera.rotation.z,
             );
 
+            // Get car rotation
+            const carRotation: THREE.Quaternion = vecToQuat(
+                replay.samples[sampleIndex].dir,
+                replay.samples[sampleIndex].up,
+            );
+
             // Move & rotate 3D car from current sample rot & pos
             mesh.current.position.lerp(replay.samples[sampleIndex].position, 0.4);
-            stadiumCarMesh.current.rotation.setFromQuaternion(
-                vecToQuat(replay.samples[sampleIndex].dir, replay.samples[sampleIndex].up),
-            );
+            stadiumCarMesh.current.rotation.setFromQuaternion(carRotation);
 
             // Set front wheels rotation
             stadiumCarMesh.current.children[2].rotation.y = replay.samples[sampleIndex].wheelAngle;
             stadiumCarMesh.current.children[4].rotation.y = replay.samples[sampleIndex].wheelAngle;
-
-            // Rotate camPosRef with car
-            camPosRef.current.rotation.setFromQuaternion(
-                vecToQuat(replay.samples[sampleIndex].dir, replay.samples[sampleIndex].up),
-            );
 
             // Set camPos to inverse velocity to smoothly zoom out when car accelerates
             const camPos = replay.samples[sampleIndex].velocity.clone().negate().divideScalar(3);
