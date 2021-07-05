@@ -156,7 +156,7 @@ const TimeLineView = ({ replaysData, timeLineGlobal }: TimeLineViewProps) => {
 
 interface TimeLineProps {
     replaysData: ReplayData[];
-    timeLineGlobal: any;
+    timeLineGlobal: TimeLineInfos;
 }
 
 export const TimeLine = ({
