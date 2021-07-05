@@ -1,4 +1,3 @@
-/* eslint-disable no-param-reassign */
 import {
     extend, useFrame, Canvas, useThree, useLoader, Camera,
 } from '@react-three/fiber';
@@ -55,6 +54,7 @@ const ReplayCar = ({
     );
 
     fbx.children.forEach((child: any) => {
+        // eslint-disable-next-line no-param-reassign
         child.material = matClone;
     });
 
@@ -146,8 +146,10 @@ const ReplayCar = ({
         if (Date.now() - prevOnClick > 100) {
             if (timeLineGlobal.followedReplay === null
                 || timeLineGlobal.followedReplay._id !== replay._id) {
+                // eslint-disable-next-line no-param-reassign
                 timeLineGlobal.followedReplay = replay;
             } else {
+                // eslint-disable-next-line no-param-reassign
                 timeLineGlobal.followedReplay = null;
             }
             prevOnClick = Date.now();
