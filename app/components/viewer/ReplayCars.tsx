@@ -36,7 +36,7 @@ const ReplayCar = ({
     const stadiumCarMesh = useRef<THREE.Mesh>();
     const camPosRef = useRef<THREE.Mesh>();
 
-    const CurrentSampleRef = useRef<ReplayDataPoint>(replay.samples[0]);
+    const currentSampleRef = useRef<ReplayDataPoint>(replay.samples[0]);
 
     let sampleIndex = 0;
     let hovered: boolean = false;
@@ -71,7 +71,7 @@ const ReplayCar = ({
                     && replay.samples[sampleIndex].currentRaceTime < timeLineGlobal.currentRaceTime) {
                 sampleIndex++;
             }
-            CurrentSampleRef.current = replay.samples[sampleIndex];
+            currentSampleRef.current = replay.samples[sampleIndex];
 
             if (hovered) {
                 (meshTxt.current.children[0] as any).text = `
@@ -195,7 +195,7 @@ const ReplayCar = ({
                 />
 
                 {showInputOverlay
-                    && <InputOverlay sampleRef={CurrentSampleRef} camera={camera} />}
+                    && <InputOverlay sampleRef={currentSampleRef} camera={camera} />}
 
                 <mesh
                     ref={meshTxt}
