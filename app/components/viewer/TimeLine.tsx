@@ -110,7 +110,7 @@ const TimeLineView = ({ replaysData, timeLineGlobal }: TimeLineViewProps) => {
                         min={min}
                         max={max}
                         onChange={onChange}
-                        value={typeof timeLineTime === 'number' ? timeLineTime : 0}
+                        value={timeLineTime}
                         step={0.01}
                         tipFormatter={timeFormat}
                     />
