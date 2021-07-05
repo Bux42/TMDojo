@@ -68,19 +68,23 @@ const TimeLineView = ({ replaysData, timeLineGlobal }: TimeLineViewProps) => {
         timeLineGlobal.currentRaceTime = Math.round(e);
     };
 
+    const initInterval = () => {
+        playInterval = setInterval(() => {
+            if (timeLineGlobal.currentRaceTime + sampleInterval > max) {
+                onChange(min);
+            } else {
+                onChange(timeLineGlobal.currentRaceTime + sampleInterval);
+            }
+        }, 0);
+    };
+
     const onClick = () => {
         setPlaying(!playing);
         if (playing) {
             onChange(timeLineGlobal.currentRaceTime - 1);
             clearInterval(playInterval);
         } else {
-            playInterval = setInterval(() => {
-                if (timeLineGlobal.currentRaceTime + sampleInterval > max) {
-                    onChange(min);
-                } else {
-                    onChange(timeLineGlobal.currentRaceTime + sampleInterval);
-                }
-            }, 0);
+            initInterval();
         }
     };
 
@@ -88,13 +92,7 @@ const TimeLineView = ({ replaysData, timeLineGlobal }: TimeLineViewProps) => {
         setSampleInterval(e);
         if (playing) {
             clearInterval(playInterval);
-            playInterval = setInterval(() => {
-                if (timeLineGlobal.currentRaceTime + sampleInterval > max) {
-                    onChange(min);
-                } else {
-                    onChange(timeLineGlobal.currentRaceTime + sampleInterval);
-                }
-            }, 0);
+            initInterval();
         }
     };
 

@@ -153,13 +153,11 @@ const SteerLeftOverlay = ({ sampleRef }: InputOverlayItemProps) => {
         if (sampleRef.current && leftMeshRef.current) {
             if (sampleRef.current.inputSteer < 0) {
                 steerLeftVecs[2].setX(10 * sampleRef.current.inputSteer - 2);
-                leftMeshRef.current.geometry.setFromPoints(steerLeftVecs);
-                leftMeshRef.current.geometry.attributes.position.needsUpdate = true;
             } else {
                 steerLeftVecs[2].setX(-2);
-                leftMeshRef.current.geometry.setFromPoints(steerLeftVecs);
-                leftMeshRef.current.geometry.attributes.position.needsUpdate = true;
             }
+            leftMeshRef.current.geometry.setFromPoints(steerLeftVecs);
+            leftMeshRef.current.geometry.attributes.position.needsUpdate = true;
         }
     });
     return (
@@ -227,13 +225,11 @@ const SteerRightOverlay = ({ sampleRef }: InputOverlayItemProps) => {
         if (sampleRef.current && rightMeshRef.current) {
             if (sampleRef.current.inputSteer > 0) {
                 steerRightVecs[2].setX((10 * Math.abs(sampleRef.current.inputSteer) + 2));
-                rightMeshRef.current.geometry.setFromPoints(steerRightVecs);
-                rightMeshRef.current.geometry.attributes.position.needsUpdate = true;
             } else {
                 steerRightVecs[2].setX(2);
-                rightMeshRef.current.geometry.setFromPoints(steerRightVecs);
-                rightMeshRef.current.geometry.attributes.position.needsUpdate = true;
             }
+            rightMeshRef.current.geometry.setFromPoints(steerRightVecs);
+            rightMeshRef.current.geometry.attributes.position.needsUpdate = true;
         }
     });
     return (
