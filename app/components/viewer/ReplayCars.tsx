@@ -222,7 +222,7 @@ const ReplayCar = ({
 
 interface ReplayCarsProps {
     replaysData: ReplayData[];
-    timeLineGlobal: any;
+    timeLineGlobal: TimeLineInfos;
     orbitControlsRef: any;
     showInputOverlay: boolean;
     replayCarOpacity: number;
