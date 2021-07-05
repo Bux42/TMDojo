@@ -98,7 +98,7 @@ const TimeLineView = ({ replaysData, timeLineGlobal }: TimeLineViewProps) => {
         }
     };
 
-    const timeFormat = (v: any) => `${getRaceTimeStr(Math.round(v))}`;
+    const timeFormat = (v: number | undefined) => (v !== undefined ? `${getRaceTimeStr(v)}` : '');
 
     return (
         <>
