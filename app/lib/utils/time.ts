@@ -1,7 +1,7 @@
-export const getRaceTimeStr = (endRaceTime: number): string => {
-    const milliseconds = endRaceTime % 1000;
-    const seconds = Math.floor((endRaceTime / 1000) % 60);
-    const minutes = Math.floor((endRaceTime / (60 * 1000)) % 60);
+export const getRaceTimeStr = (raceTime: number): string => {
+    const milliseconds = raceTime % 1000;
+    const seconds = Math.floor((raceTime / 1000) % 60);
+    const minutes = Math.floor((raceTime / (60 * 1000)) % 60);
 
     return (
         `${`${minutes > 0 ? `${minutes}:` : ''}`
