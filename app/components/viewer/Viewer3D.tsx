@@ -32,7 +32,9 @@ const Viewer3D = ({ replaysData }: Props): JSX.Element => {
 
     let orbitDefaultTarget = DEFAULT_GRID_POS;
     if (timeLineGlobal.currentRaceTime === 0 && replaysData.length > 0) {
-        orbitDefaultTarget = replaysData[0].samples[0].position;
+        if (replaysData[0].samples.length) {
+            orbitDefaultTarget = replaysData[0].samples[0].position;
+        }
     }
 
     return (
