@@ -25,7 +25,7 @@ interface TimeLineViewProps {
 }
 
 // declare setInterval return variable outside to keep persistent reference for clearInterval after render
-let playInterval: any;
+let playInterval: ReturnType<typeof setTimeout>;
 
 const TimeLineView = ({ replaysData, timeLineGlobal }: TimeLineViewProps) => {
     const [timeLineTime, setTimeLineTime] = useState<number>(0);
