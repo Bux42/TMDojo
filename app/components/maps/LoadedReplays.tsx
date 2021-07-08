@@ -59,10 +59,7 @@ const LoadedReplay = ({ replay, followed, setFollowed }: LoadedReplayProps): JSX
     };
 
     return (
-        <Row style={{ width: 200 }}>
-            <Col span="8">
-                {getRaceTimeStr(replay.endRaceTime)}
-            </Col>
+        <Row style={{ width: 210 }}>
             <Col span="8">
                 <div
                     style={{
@@ -100,7 +97,6 @@ const LoadedReplay = ({ replay, followed, setFollowed }: LoadedReplayProps): JSX
                             onClick={handleClose}
                         />
                         <ReactColor.ChromePicker
-                            width={120}
                             disableAlpha
                             color={color}
                             onChange={handleChange}
@@ -108,6 +104,9 @@ const LoadedReplay = ({ replay, followed, setFollowed }: LoadedReplayProps): JSX
                     </div>
                 ) : null }
 
+            </Col>
+            <Col span="8">
+                {getRaceTimeStr(replay.endRaceTime)}
             </Col>
             <Col span="2">
                 <EyeOutlined
@@ -151,7 +150,7 @@ const LoadedReplays = ({
                 closeIcon={<CaretRightOutlined />}
                 title={`${replays.length} Loaded Replays`}
                 placement="right"
-                width={350}
+                width={360}
                 onClose={onClose}
                 visible={visible}
             >
