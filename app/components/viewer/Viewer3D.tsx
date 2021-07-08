@@ -27,6 +27,7 @@ const Viewer3D = ({ replaysData }: Props): JSX.Element => {
         replayLineOpacity,
         replayCarOpacity,
         cameraMode,
+        numColorChange,
     } = useContext(SettingsContext);
     const orbitControlsRef = useRef<any>();
 

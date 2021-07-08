@@ -15,7 +15,6 @@ export class TimeLineInfos {
     followedReplay: any;
     constructor() {
         this.currentRaceTime = 0;
-        this.followedReplay = null;
     }
 }
 
@@ -37,14 +36,12 @@ const TimeLineView = ({ replaysData, timeLineGlobal }: TimeLineViewProps) => {
 
     if (timeLineGlobal.followedReplay !== null) {
         if (!replaysData.some((replay: ReplayData) => replay._id === timeLineGlobal.followedReplay._id)) {
-            // eslint-disable-next-line no-param-reassign
             timeLineGlobal.followedReplay = null;
         }
     }
 
     if (replaysData.length === 0) {
         if (timeLineTime !== 0) {
-            // eslint-disable-next-line no-param-reassign
             timeLineGlobal.currentRaceTime = 0;
             setTimeLineTime(0);
         }
@@ -53,7 +50,6 @@ const TimeLineView = ({ replaysData, timeLineGlobal }: TimeLineViewProps) => {
         }
     }
 
-    // eslint-disable-next-line no-param-reassign
     timeLineGlobal.currentRaceTime = timeLineTime;
 
     replaysData.forEach((replay) => {
@@ -64,7 +60,6 @@ const TimeLineView = ({ replaysData, timeLineGlobal }: TimeLineViewProps) => {
 
     const onChange = (e: any) => {
         setTimeLineTime(Math.round(e));
-        // eslint-disable-next-line no-param-reassign
         timeLineGlobal.currentRaceTime = Math.round(e);
     };
 

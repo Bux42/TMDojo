@@ -23,6 +23,8 @@ export interface SettingsContextProps {
     setReplayCarOpacity: (setCameraMode: number) => void;
     cameraMode: CameraMode;
     setCameraMode: (setCameraMode: CameraMode) => void;
+    numColorChange: number;
+    setNumColorChange: (numColorChange: number) => void;
 }
 
 export const SettingsContext = createContext<SettingsContextProps>({
@@ -40,6 +42,8 @@ export const SettingsContext = createContext<SettingsContextProps>({
     setReplayCarOpacity: () => {},
     cameraMode: CameraMode.Cam1,
     setCameraMode: () => {},
+    numColorChange: 0,
+    setNumColorChange: () => {},
 });
 
 export const SettingsProvider = ({ children }: any): JSX.Element => {
@@ -50,6 +54,7 @@ export const SettingsProvider = ({ children }: any): JSX.Element => {
     const [replayLineOpacity, setReplayLineOpacity] = useState(0.5);
     const [replayCarOpacity, setReplayCarOpacity] = useState(0.5);
     const [cameraMode, setCameraMode] = useState(CameraMode.Cam1);
+    const [numColorChange, setNumColorChange] = useState(0);
 
     const changeLineType = (type: LineType) => {
         setLineType(type);
@@ -72,6 +77,8 @@ export const SettingsProvider = ({ children }: any): JSX.Element => {
                 setReplayCarOpacity,
                 cameraMode,
                 setCameraMode,
+                numColorChange,
+                setNumColorChange,
             }}
         >
             {children}

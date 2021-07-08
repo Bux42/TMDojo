@@ -16,6 +16,7 @@ import {
 } from '../../lib/api/apiRequests';
 import HeadTitle from '../../components/common/HeadTitle';
 import { cleanTMFormatting } from '../../lib/utils/formatting';
+import LoadedReplays from '../../components/maps/LoadedReplays';
 
 const Home = (): JSX.Element => {
     const [replays, setReplays] = useState<FileResponse[]>([]);
@@ -93,6 +94,7 @@ const Home = (): JSX.Element => {
                         onRefreshReplays={fetchAndSetReplays}
                     />
                     <SidebarSettings />
+                    {selectedReplayData.length > 0 && <LoadedReplays replays={selectedReplayData} />}
                     <Viewer3D replaysData={selectedReplayData} />
                 </Layout.Content>
             </Layout>
