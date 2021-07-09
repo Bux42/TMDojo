@@ -4,7 +4,7 @@ import {
     CaretLeftOutlined, CaretRightOutlined, EyeOutlined, LeftCircleFilled,
 } from '@ant-design/icons';
 import {
-    Button, Checkbox, Drawer, Select, Row, Col, Slider, Radio, RadioChangeEvent, List,
+    Button, Checkbox, Drawer, Select, Row, Col, Slider, Radio, RadioChangeEvent, List, Divider,
 } from 'antd';
 import React, {
     Dispatch, SetStateAction, useContext, useState,
@@ -12,7 +12,7 @@ import React, {
 import * as ReactColor from 'react-color';
 import * as THREE from 'three';
 import { FileResponse, ReplayData } from '../../lib/api/apiRequests';
-import { SettingsContext } from '../../lib/contexts/SettingsContext';
+import { CameraMode, SettingsContext } from '../../lib/contexts/SettingsContext';
 import { getRaceTimeStr } from '../../lib/utils/time';
 
 interface LoadedReplayProps {
@@ -129,7 +129,7 @@ const LoadedReplays = ({
 }: LoadedReplaysProps): JSX.Element => {
     const [visible, setVisible] = useState(false);
     const [followed, setFollowed] = useState<ReplayData>();
-    const { numColorChange } = useContext(SettingsContext);
+    const { numColorChange, cameraMode, setCameraMode } = useContext(SettingsContext);
 
     const toggleSidebar = () => {
         setVisible(!visible);
@@ -155,6 +155,17 @@ const LoadedReplays = ({
                 onClose={onClose}
                 visible={visible}
             >
+                Camera Mode
+                <Radio.Group
+                    className="ml-2"
+                    defaultValue={cameraMode}
+                    buttonStyle="solid"
+                    onChange={(e: RadioChangeEvent) => setCameraMode(e.target.value)}
+                >
+                    <Radio.Button value={CameraMode.Target}>Target</Radio.Button>
+                    <Radio.Button value={CameraMode.Cam1}>Cam 1</Radio.Button>
+                </Radio.Group>
+                <Divider />
                 <List
                     dataSource={replays}
                     renderItem={(item) => (

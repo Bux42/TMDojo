@@ -16,8 +16,6 @@ const SidebarSettings = (): JSX.Element => {
         showInputOverlay, setShowInputOverlay,
         replayLineOpacity, setReplayLineOpacity,
         replayCarOpacity, setReplayCarOpacity,
-        cameraMode, setCameraMode,
-
     } = useContext(
         SettingsContext,
     );
@@ -108,16 +106,6 @@ const SidebarSettings = (): JSX.Element => {
                     value={typeof replayCarOpacity === 'number' ? replayCarOpacity : 0}
                     step={0.1}
                 />
-                Camera Mode
-                <Radio.Group
-                    className="ml-2"
-                    defaultValue={cameraMode}
-                    buttonStyle="solid"
-                    onChange={(e: RadioChangeEvent) => setCameraMode(e.target.value)}
-                >
-                    <Radio.Button value={CameraMode.Target}>Target</Radio.Button>
-                    <Radio.Button value={CameraMode.Cam1}>Cam 1</Radio.Button>
-                </Radio.Group>
             </Drawer>
         </div>
     );
