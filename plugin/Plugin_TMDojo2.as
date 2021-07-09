@@ -509,7 +509,6 @@ void PostRecordedData(ref @handle) {
         if (!req.Finished()) {
             yield();
         }
-        print("" + req.Headers);
         UI::ShowNotification("TMDojo", "Uploaded replay successfully!");
     }
     recording = false;
@@ -555,6 +554,13 @@ void RenderMenu()
         if (UI::MenuItem(OnlySaveFinished ? "[X]  Save finished runs only" : "[  ]  Save finished runs only", "", false, true)) {
             OnlySaveFinished = !OnlySaveFinished;
 		}
+
+        if (!g_dojo.serverAvailable && !g_dojo.checkingServer) {
+            if (UI::MenuItem("Check server", "", false, true)) {
+                startnew(checkServer);
+            }
+        }
+
 		UI::EndMenu();
 	}
 }
