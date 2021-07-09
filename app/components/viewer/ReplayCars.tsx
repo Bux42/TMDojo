@@ -35,7 +35,6 @@ const ReplayCar = ({
     const currentSampleRef = useRef<ReplayDataPoint>(replay.samples[0]);
 
     let sampleIndex = 0;
-    let prevOnClick : number = Date.now();
 
     // Get own material from loaded car model
     const carMesh: THREE.Mesh = fbx.children[0] as THREE.Mesh;
@@ -100,18 +99,6 @@ const ReplayCar = ({
         }
     });
 
-    const onClick = () => {
-        if (Date.now() - prevOnClick > 100) {
-            if (timeLineGlobal.followedReplay === null
-                || timeLineGlobal.followedReplay._id !== replay._id) {
-                timeLineGlobal.followedReplay = replay;
-            } else {
-                timeLineGlobal.followedReplay = null;
-            }
-            prevOnClick = Date.now();
-        }
-    };
-
     const [opts, setOpts] = useState({
         fontSize: 6,
         color: '#99ccff',
@@ -143,7 +130,6 @@ const ReplayCar = ({
                     dispose={null}
                     ref={stadiumCarMesh}
                     scale={0.01}
-                    onClick={onClick}
                     receiveShadow
                     castShadow
                 />
