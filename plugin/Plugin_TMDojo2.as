@@ -404,6 +404,10 @@ class TMDojo
 			return;
 		}
 
+        if (this.checkingServer || !this.serverAvailable) {
+            return;
+        }
+
         if (Enabled && OverlayEnabled) {
             this.drawOverlay();
         }
@@ -505,6 +509,7 @@ void PostRecordedData(ref @handle) {
         if (!req.Finished()) {
             yield();
         }
+        print("" + req.Headers);
         UI::ShowNotification("TMDojo", "Uploaded replay successfully!");
     }
     recording = false;
