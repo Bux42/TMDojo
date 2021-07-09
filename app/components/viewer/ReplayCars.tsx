@@ -86,7 +86,7 @@ const ReplayCar = ({
             camPosRef.current.position.lerp(camPos, 0.4);
 
             // Camera target replay if selected
-            if (replay.followed) {
+            if (followed) {
                 if (orbitControlsRef && orbitControlsRef.current) {
                     orbitControlsRef.current.target.lerp(replay.samples[sampleIndex].position, 0.2);
                     if (cameraMode === CameraMode.Cam1) {

@@ -97,12 +97,10 @@ export interface DataViewResult {
     maxPos: THREE.Vector3;
     dnfPos: THREE.Vector3;
     color: THREE.Color;
-    followed: boolean;
 }
 
 export const readDataView = (dataView: DataView): DataViewResult => {
     const samples = [];
-    const followed = false;
     let lastPos: THREE.Vector3 = new THREE.Vector3(0, 0, 0);
     let dnfPos: THREE.Vector3 = new THREE.Vector3(0, 0, 0);
 
@@ -124,6 +122,6 @@ export const readDataView = (dataView: DataView): DataViewResult => {
         lastPos = s.position;
     }
     return {
-        samples, minPos, maxPos, dnfPos, color, followed,
+        samples, minPos, maxPos, dnfPos, color,
     };
 };

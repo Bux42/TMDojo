@@ -14,30 +14,29 @@ import * as THREE from 'three';
 import { FileResponse, ReplayData } from '../../lib/api/apiRequests';
 import { CameraMode, SettingsContext } from '../../lib/contexts/SettingsContext';
 import { getRaceTimeStr } from '../../lib/utils/time';
+import { TimeLineInfos } from '../viewer/TimeLine';
 
 interface LoadedReplayProps {
     replay: ReplayData;
     followed: ReplayData | undefined;
     setFollowed: Dispatch<SetStateAction<ReplayData | undefined>>;
+    timeLineGlobal: TimeLineInfos;
 }
 
 interface LoadedReplaysProps {
     replays: ReplayData[];
+    timeLineGlobal: TimeLineInfos;
 }
 
-const LoadedReplay = ({ replay, followed, setFollowed }: LoadedReplayProps): JSX.Element => {
+const LoadedReplay = ({
+    replay, followed, setFollowed, timeLineGlobal,
+}: LoadedReplayProps): JSX.Element => {
     const [color, setColor] = useState(`#${replay.color.getHexString()}`);
     const [showColorPicker, setShowColorPicker] = useState(false);
     const { numColorChange, setNumColorChange } = useContext(SettingsContext);
 
-    if (followed?._id === replay._id) {
-        replay.followed = true;
-    } else {
-        replay.followed = false;
-    }
-
     const onClick = () => {
-        if (replay.followed) {
+        if (followed && followed._id === replay._id) {
             setFollowed(undefined);
         } else {
             setFollowed(replay);
@@ -125,7 +124,7 @@ const LoadedReplay = ({ replay, followed, setFollowed }: LoadedReplayProps): JSX
 };
 
 const LoadedReplays = ({
-    replays,
+    replays, timeLineGlobal,
 }: LoadedReplaysProps): JSX.Element => {
     const [visible, setVisible] = useState(false);
     const [followed, setFollowed] = useState<ReplayData>();
@@ -138,6 +137,8 @@ const LoadedReplays = ({
     const onClose = () => {
         setVisible(false);
     };
+
+    timeLineGlobal.followedReplay = followed;
 
     return (
         <div className="absolute right-0 m-6 z-10">
@@ -180,7 +181,12 @@ const LoadedReplays = ({
                                     </div>
                                 )}
                             />
-                            <LoadedReplay replay={item} followed={followed} setFollowed={setFollowed} />
+                            <LoadedReplay
+                                replay={item}
+                                followed={followed}
+                                setFollowed={setFollowed}
+                                timeLineGlobal={timeLineGlobal}
+                            />
                         </List.Item>
                     )}
                 />

@@ -14,11 +14,10 @@ const BACKGROUND_COLOR = new THREE.Color(0.05, 0.05, 0.05);
 
 interface Props {
     replaysData: ReplayData[];
+    timeLineGlobal: TimeLineInfos;
 }
 
-const timeLineGlobal = new TimeLineInfos();
-
-const Viewer3D = ({ replaysData }: Props): JSX.Element => {
+const Viewer3D = ({ replaysData, timeLineGlobal }: Props): JSX.Element => {
     const {
         lineType,
         showGearChanges,

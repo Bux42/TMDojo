@@ -12,7 +12,7 @@ import { getRaceTimeStr, timeDifference } from '../../lib/utils/time';
 
 export class TimeLineInfos {
     currentRaceTime: number;
-    followedReplay: any;
+    followedReplay: ReplayData | undefined;
     constructor() {
         this.currentRaceTime = 0;
     }
@@ -35,8 +35,8 @@ const TimeLineView = ({ replaysData, timeLineGlobal }: TimeLineViewProps) => {
     let max = 0;
 
     if (timeLineGlobal.followedReplay !== null) {
-        if (!replaysData.some((replay: ReplayData) => replay._id === timeLineGlobal.followedReplay._id)) {
-            timeLineGlobal.followedReplay = null;
+        if (!replaysData.some((replay: ReplayData) => replay._id === timeLineGlobal.followedReplay?._id)) {
+            timeLineGlobal.followedReplay = undefined;
         }
     }
 
