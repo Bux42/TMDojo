@@ -114,6 +114,7 @@ const LoadedReplay = ({ replay, followed, setFollowed }: LoadedReplayProps): JSX
                     style={
                         {
                             opacity: followed?._id === replay._id ? 1 : 0.5,
+                            color: followed?._id === replay._id ? '#0084ff' : 'white',
                         }
                     }
                 />
