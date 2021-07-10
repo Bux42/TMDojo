@@ -41,6 +41,7 @@ const TimeLineView = ({ replaysData, timeLineGlobal }: TimeLineViewProps) => {
     }
 
     if (replaysData.length === 0) {
+        clearInterval(playInterval);
         if (timeLineTime !== 0) {
             timeLineGlobal.currentRaceTime = 0;
             setTimeLineTime(0);
