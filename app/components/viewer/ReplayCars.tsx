@@ -87,7 +87,7 @@ const ReplayCar = ({
                         // move camPosMesh to cam1 position
                         camPosRef.current.rotation.setFromQuaternion(carRotation);
                         camPosRef.current.position.set(0, 0, 0);
-                        camPosRef.current.translateZ(-7 - (replay.samples[sampleIndex].speed / 50));
+                        camPosRef.current.translateZ(-7 - (replay.samples[sampleIndex].speed / 30));
                         camPosRef.current.translateY(2 + (replay.samples[sampleIndex].speed / 200));
                         // move camera to camPosMesh world position
                         const camWorldPos: THREE.Vector3 = new THREE.Vector3();
