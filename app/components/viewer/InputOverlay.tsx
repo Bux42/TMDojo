@@ -12,6 +12,105 @@ interface InputOverlayItemProps {
     sampleRef: React.MutableRefObject<ReplayDataPoint>,
 }
 
+interface SteerDirectionOverlayProps
+{
+    sampleRef: React.MutableRefObject<ReplayDataPoint>,
+    dir: string,
+    getOffsetFunc: (inputSteer: number) => number;
+}
+
+const getOffsetXLeft = (inputSteer: number) => {
+    if (inputSteer < 0) {
+        return (10 * inputSteer - 2);
+    }
+    return (-2);
+};
+
+const getOffsetXRight = (inputSteer: number) => {
+    if (inputSteer > 0) {
+        return ((10 * Math.abs(inputSteer) + 2));
+    }
+    return (2);
+};
+
+const SteerDirectionOverlay = ({ sampleRef, dir, getOffsetFunc }: SteerDirectionOverlayProps) => {
+    const arrowMeshRef = useRef<THREE.Mesh>();
+    const dirToVecArray: { [dir: string]: THREE.Vector3[]; } = {
+        left: [
+            new THREE.Vector3(-2, 10, 0),
+            new THREE.Vector3(-2, -10, 0),
+            new THREE.Vector3(-12, 0, 0),
+        ],
+        right: [
+            new THREE.Vector3(2, 10, 0),
+            new THREE.Vector3(2, -10, 0),
+            new THREE.Vector3(12, 0, 0),
+        ],
+    };
+    const arrowMeshVecs: THREE.Vector3[] = dirToVecArray[dir];
+
+    const f32array = useMemo(
+        () => Float32Array.from(
+            new Array(arrowMeshVecs.length)
+                .fill(0)
+                .flatMap((item, index) => arrowMeshVecs[index].toArray()),
+        ),
+        [arrowMeshVecs],
+    );
+
+    useFrame(() => {
+        if (sampleRef.current && arrowMeshRef.current) {
+            arrowMeshVecs[2].setX(getOffsetFunc(sampleRef.current.inputSteer));
+            arrowMeshRef.current.geometry.setFromPoints(arrowMeshVecs);
+            arrowMeshRef.current.geometry.attributes.position.needsUpdate = true;
+        }
+    });
+    return (
+        <>
+            <mesh
+                ref={arrowMeshRef}
+            >
+                <bufferGeometry attach="geometry">
+                    <bufferAttribute
+                        needsUpdate
+                        attachObject={['attributes', 'position']}
+                        count={3}
+                        itemSize={3}
+                        array={f32array}
+                    />
+                </bufferGeometry>
+                <meshBasicMaterial
+                    attach="material"
+                    color="white"
+                    transparent
+                    opacity={0.5}
+                    wireframe={false}
+                    side={THREE.DoubleSide}
+                />
+            </mesh>
+            <mesh>
+                <bufferGeometry attach="geometry">
+                    <bufferAttribute
+                        needsUpdate
+                        attachObject={['attributes', 'position']}
+                        count={3}
+                        itemSize={3}
+                        array={f32array}
+                    />
+                </bufferGeometry>
+                <meshBasicMaterial
+                    attach="material"
+                    color="#5243aa"
+                    transparent
+                    opacity={0.5}
+                    wireframe={false}
+                    side={THREE.DoubleSide}
+                />
+            </mesh>
+        </>
+    );
+};
+
 const InputBrakeOverlay = ({ sampleRef }: InputOverlayItemProps) => {
     const brakeMeshRef = useRef<THREE.Mesh>();
     const brakeInputFloats: Float32Array[] = [
@@ -132,150 +231,6 @@ const InputGasOverlay = ({ sampleRef }: InputOverlayItemProps) => {
     );
 };
 
-const SteerLeftOverlay = ({ sampleRef }: InputOverlayItemProps) => {
-    const leftMeshRef = useRef<THREE.Mesh>();
-    const steerLeftVecs: THREE.Vector3[] = [
-        new THREE.Vector3(-2, 10, 0),
-        new THREE.Vector3(-2, -10, 0),
-        new THREE.Vector3(-12, 0, 0),
-    ];
-    const f32arrayRight = useMemo(
-        () => Float32Array.from(
-            new Array(steerLeftVecs.length)
-                .fill(0)
-                .flatMap((item, index) => steerLeftVecs[index].toArray()),
-        ),
-        [steerLeftVecs],
-    );
-    useFrame(() => {
-        if (sampleRef.current && leftMeshRef.current) {
-            if (sampleRef.current.inputSteer < 0) {
-                steerLeftVecs[2].setX(10 * sampleRef.current.inputSteer - 2);
-            } else {
-                steerLeftVecs[2].setX(-2);
-            }
-            leftMeshRef.current.geometry.setFromPoints(steerLeftVecs);
-            leftMeshRef.current.geometry.attributes.position.needsUpdate = true;
-        }
-    });
-    return (
-        <>
-            <mesh
-                ref={leftMeshRef}
-            >
-                <bufferGeometry attach="geometry">
-                    <bufferAttribute
-                        needsUpdate
-                        attachObject={['attributes', 'position']}
-                        count={3}
-                        itemSize={3}
-                        array={f32arrayRight}
-                    />
-                </bufferGeometry>
-                <meshBasicMaterial
-                    attach="material"
-                    color="white"
-                    transparent
-                    opacity={0.5}
-                    wireframe={false}
-                    side={THREE.DoubleSide}
-                />
-            </mesh>
-            <mesh>
-                <bufferGeometry attach="geometry">
-                    <bufferAttribute
-                        needsUpdate
-                        attachObject={['attributes', 'position']}
-                        count={3}
-                        itemSize={3}
-                        array={f32arrayRight}
-                    />
-                </bufferGeometry>
-                <meshBasicMaterial
-                    attach="material"
-                    color="#5243aa"
-                    transparent
-                    opacity={0.5}
-                    wireframe={false}
-                    side={THREE.DoubleSide}
-                />
-            </mesh>
-        </>
-    );
-};
-
-const SteerRightOverlay = ({ sampleRef }: InputOverlayItemProps) => {
-    const rightMeshRef = useRef<THREE.Mesh>();
-    const steerRightVecs: THREE.Vector3[] = [
-        new THREE.Vector3(2, 10, 0),
-        new THREE.Vector3(2, -10, 0),
-        new THREE.Vector3(12, 0, 0),
-    ];
-    const f32arrayRight = useMemo(
-        () => Float32Array.from(
-            new Array(steerRightVecs.length)
-                .fill(0)
-                .flatMap((item, index) => steerRightVecs[index].toArray()),
-        ),
-        [steerRightVecs],
-    );
-    useFrame(() => {
-        if (sampleRef.current && rightMeshRef.current) {
-            if (sampleRef.current.inputSteer > 0) {
-                steerRightVecs[2].setX((10 * Math.abs(sampleRef.current.inputSteer) + 2));
-            } else {
-                steerRightVecs[2].setX(2);
-            }
-            rightMeshRef.current.geometry.setFromPoints(steerRightVecs);
-            rightMeshRef.current.geometry.attributes.position.needsUpdate = true;
-        }
-    });
-    return (
-        <>
-            <mesh
-                ref={rightMeshRef}
-            >
-                <bufferGeometry attach="geometry">
-                    <bufferAttribute
-                        needsUpdate
-                        attachObject={['attributes', 'position']}
-                        count={3}
-                        itemSize={3}
-                        array={f32arrayRight}
-                    />
-                </bufferGeometry>
-                <meshBasicMaterial
-                    attach="material"
-                    color="white"
-                    transparent
-                    opacity={0.5}
-                    wireframe={false}
-                    side={THREE.DoubleSide}
-                />
-            </mesh>
-            <mesh>
-                <bufferGeometry attach="geometry">
-                    <bufferAttribute
-                        needsUpdate
-                        attachObject={['attributes', 'position']}
-                        count={3}
-                        itemSize={3}
-                        array={f32arrayRight}
-                    />
-                </bufferGeometry>
-                <meshBasicMaterial
-                    attach="material"
-                    color="#5243aa"
-                    transparent
-                    opacity={0.5}
-                    wireframe={false}
-                    side={THREE.DoubleSide}
-                />
-            </mesh>
-        </>
-    );
-};
-
 const InputOverlay = ({ sampleRef, camera }: InputOverlayProps) => {
     const inputMeshRef = useRef<THREE.Mesh>();
     useFrame(() => {
@@ -293,8 +248,8 @@ const InputOverlay = ({ sampleRef, camera }: InputOverlayProps) => {
             position={[0, 2, 0]}
             scale={0.1}
         >
-            <SteerRightOverlay sampleRef={sampleRef} />
-            <SteerLeftOverlay sampleRef={sampleRef} />
+            <SteerDirectionOverlay sampleRef={sampleRef} dir="left" getOffsetFunc={getOffsetXLeft} />
+            <SteerDirectionOverlay sampleRef={sampleRef} dir="right" getOffsetFunc={getOffsetXRight} />
             <InputGasOverlay sampleRef={sampleRef} />
             <InputBrakeOverlay sampleRef={sampleRef} />
         </mesh>
