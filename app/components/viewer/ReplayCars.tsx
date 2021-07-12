@@ -79,17 +79,17 @@ const ReplayCar = ({
             stadiumCarMesh.current.children[2].rotation.y = replay.samples[sampleIndex].wheelAngle;
             stadiumCarMesh.current.children[4].rotation.y = replay.samples[sampleIndex].wheelAngle;
 
-            // Set camPos to inverse velocity to smoothly zoom out when car accelerates
-            const camPos = replay.samples[sampleIndex].velocity.clone().negate().divideScalar(3);
-            camPos.x += 4;
-            camPos.y += 5;
-            camPosRef.current.position.lerp(camPos, 0.4);
-
             // Camera target replay if selected
             if (followed) {
                 if (orbitControlsRef && orbitControlsRef.current) {
                     orbitControlsRef.current.target.lerp(replay.samples[sampleIndex].position, 0.2);
                     if (cameraMode === CameraMode.Cam1) {
+                        // move camPosMesh to cam1 position
+                        camPosRef.current.rotation.setFromQuaternion(carRotation);
+                        camPosRef.current.position.set(0, 0, 0);
+                        camPosRef.current.translateZ(-7 - (replay.samples[sampleIndex].speed / 50));
+                        camPosRef.current.translateY(2 + (replay.samples[sampleIndex].speed / 200));
+                        // move camera to camPosMesh world position
                         const camWorldPos: THREE.Vector3 = new THREE.Vector3();
                         camPosRef.current.getWorldPosition(camWorldPos);
                         camera.position.lerp(camWorldPos, 0.3);
