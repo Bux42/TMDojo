@@ -15,7 +15,7 @@ interface InputOverlayItemProps {
 interface SteerDirectionOverlayProps
 {
     sampleRef: React.MutableRefObject<ReplayDataPoint>,
-    dir: string,
+    dir: 'right' | 'left',
     getOffsetFunc: (inputSteer: number) => number;
 }
 
