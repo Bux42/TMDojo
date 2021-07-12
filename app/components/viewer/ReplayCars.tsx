@@ -63,32 +63,33 @@ const ReplayCar = ({
                     && replay.samples[sampleIndex].currentRaceTime < timeLineGlobal.currentRaceTime) {
                 sampleIndex++;
             }
-            currentSampleRef.current = replay.samples[sampleIndex];
+            const curSample = replay.samples[sampleIndex];
+            currentSampleRef.current = curSample;
 
             // Get car rotation
             const carRotation: THREE.Quaternion = vecToQuat(
-                replay.samples[sampleIndex].dir,
-                replay.samples[sampleIndex].up,
+                curSample.dir,
+                curSample.up,
             );
 
             // Move & rotate 3D car from current sample rot & pos
-            mesh.current.position.lerp(replay.samples[sampleIndex].position, 0.4);
+            mesh.current.position.lerp(curSample.position, 0.4);
             stadiumCarMesh.current.rotation.setFromQuaternion(carRotation);
 
             // Set front wheels rotation
-            stadiumCarMesh.current.children[2].rotation.y = replay.samples[sampleIndex].wheelAngle;
-            stadiumCarMesh.current.children[4].rotation.y = replay.samples[sampleIndex].wheelAngle;
+            stadiumCarMesh.current.children[2].rotation.y = curSample.wheelAngle;
+            stadiumCarMesh.current.children[4].rotation.y = curSample.wheelAngle;
 
             // Camera target replay if selected
             if (followed) {
                 if (orbitControlsRef && orbitControlsRef.current) {
-                    orbitControlsRef.current.target.lerp(replay.samples[sampleIndex].position, 0.2);
+                    orbitControlsRef.current.target.lerp(curSample.position, 0.2);
                     if (cameraMode === CameraMode.Cam1) {
                         // move camPosMesh to cam1 position
                         camPosRef.current.rotation.setFromQuaternion(carRotation);
                         camPosRef.current.position.set(0, 0, 0);
-                        camPosRef.current.translateZ(-7 - (replay.samples[sampleIndex].speed / 30));
-                        camPosRef.current.translateY(2 + (replay.samples[sampleIndex].speed / 200));
+                        camPosRef.current.translateZ(-7 - (curSample.speed / 30));
+                        camPosRef.current.translateY(2 + (curSample.speed / 200));
                         // move camera to camPosMesh world position
                         const camWorldPos: THREE.Vector3 = new THREE.Vector3();
                         camPosRef.current.getWorldPosition(camWorldPos);
