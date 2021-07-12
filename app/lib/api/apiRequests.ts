@@ -60,11 +60,11 @@ export const fetchReplayData = async (file: FileResponse): Promise<ReplayData> =
 
     const dataView = new DataView(res.data);
     const {
-        samples, minPos, maxPos, dnfPos, color,
+        samples, minPos, maxPos, dnfPos, color, intervalMedian,
     } = readDataView(dataView);
 
     return {
-        ...file, samples, minPos, maxPos, dnfPos, color,
+        ...file, samples, minPos, maxPos, dnfPos, color, intervalMedian,
     };
 };
 

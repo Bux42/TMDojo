@@ -58,11 +58,20 @@ const ReplayCar = ({
             const followed = timeLineGlobal.followedReplay != null && timeLineGlobal.followedReplay._id === replay._id;
 
             // Get closest sample to TimeLine.currentRaceTime
-            sampleIndex = 0;
-            while (sampleIndex + 1 < replay.samples.length
+            sampleIndex = Math.round(timeLineGlobal.currentRaceTime / replay.intervalMedian);
+            if (sampleIndex > replay.samples.length - 1) {
+                sampleIndex = replay.samples.length - 1;
+            } else {
+                while (sampleIndex > 0
+                    && replay.samples[sampleIndex].currentRaceTime > timeLineGlobal.currentRaceTime) {
+                    sampleIndex--;
+                }
+                while (sampleIndex + 1 < replay.samples.length
                     && replay.samples[sampleIndex].currentRaceTime < timeLineGlobal.currentRaceTime) {
-                sampleIndex++;
+                    sampleIndex++;
+                }
             }
+
             const curSample = replay.samples[sampleIndex];
             currentSampleRef.current = curSample;
 
