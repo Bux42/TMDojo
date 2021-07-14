@@ -154,10 +154,18 @@ const LoadedReplays = ({
     timeLineGlobal.followedReplay = followed;
 
     return (
-        <div className="absolute right-0 m-6 z-10">
+        <div className="absolute right-0 z-10">
             {!visible
             && (
-                <CaretLeftOutlined style={{ marginTop: 226 }} onClick={toggleSidebar} />
+                <Button
+                    style={{
+                        marginTop: 226,
+                        height: 56,
+                        width: 56,
+                    }}
+                    onClick={toggleSidebar}
+                    icon={<CaretLeftOutlined />}
+                />
             )}
             <Drawer
                 style={{ height: 400, opacity: 0.9, marginTop: 300 }}
