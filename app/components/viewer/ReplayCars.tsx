@@ -96,7 +96,12 @@ const ReplayCar = ({
                     if (cameraMode === CameraMode.Cam1) {
                         // move camPosMesh to cam1 position
                         camPosRef.current.rotation.setFromQuaternion(carRotation);
-                        camPosRef.current.position.set(0, 0, 0);
+                        // move toward where the car is heading
+                        camPosRef.current.position.set(
+                            -curSample.velocity.x / 5,
+                            -curSample.velocity.y / 5,
+                            -curSample.velocity.z / 5,
+                        );
                         camPosRef.current.translateZ(-7 - (curSample.speed / 30));
                         camPosRef.current.translateY(2 + (curSample.speed / 200));
                         // move camera to camPosMesh world position
