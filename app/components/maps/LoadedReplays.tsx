@@ -125,6 +125,7 @@ const LoadedReplay = ({
                     onClick={onClick}
                     style={
                         {
+                            verticalAlign: '',
                             opacity: followed?._id === replay._id ? 1 : 0.5,
                             color: followed?._id === replay._id ? '#0084ff' : 'white',
                         }
