@@ -164,7 +164,7 @@ const LoadedReplays = ({
                     onChange={(e: RadioChangeEvent) => setCameraMode(e.target.value)}
                 >
                     <Radio.Button value={CameraMode.Target}>Target</Radio.Button>
-                    <Radio.Button value={CameraMode.Cam1}>Cam 1</Radio.Button>
+                    <Radio.Button value={CameraMode.Follow}>Follow</Radio.Button>
                 </Radio.Group>
                 <Divider />
                 <List

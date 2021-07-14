@@ -93,8 +93,8 @@ const ReplayCar = ({
             if (followed) {
                 if (orbitControlsRef && orbitControlsRef.current) {
                     orbitControlsRef.current.target.lerp(curSample.position, 0.2);
-                    if (cameraMode === CameraMode.Cam1) {
-                        // move camPosMesh to cam1 position
+                    if (cameraMode === CameraMode.Follow) {
+                        // move camPosMesh to Follow position
                         camPosRef.current.rotation.setFromQuaternion(carRotation);
                         // move toward where the car is heading
                         camPosRef.current.position.set(
