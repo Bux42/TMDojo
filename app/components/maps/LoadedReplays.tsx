@@ -57,9 +57,21 @@ const LoadedReplay = ({
         setShowColorPicker(!showColorPicker);
     };
 
+    const chromePickerStyle = {
+        position: 'fixed',
+    };
+
     return (
-        <Row style={{ width: 210 }}>
-            <Col span="8">
+        <Row style={{ width: 312 }}>
+            <Col span="10">
+                <div style={{
+                    color: `#${replay.color.getHexString()}`,
+                }}
+                >
+                    {replay.playerName}
+                </div>
+            </Col>
+            <Col span="5">
                 <div
                     style={{
                         padding: '5px',
@@ -94,17 +106,18 @@ const LoadedReplay = ({
                                 left: '0px',
                             }}
                             onClick={handleClose}
-                        />
-                        <ReactColor.ChromePicker
-                            disableAlpha
-                            color={color}
-                            onChange={handleChange}
-                        />
+                        >
+                            <ReactColor.ChromePicker
+                                disableAlpha
+                                color={color}
+                                onChange={handleChange}
+                            />
+                        </div>
                     </div>
                 ) : null }
 
             </Col>
-            <Col span="8">
+            <Col span="6">
                 {getRaceTimeStr(replay.endRaceTime)}
             </Col>
             <Col span="2">
@@ -118,7 +131,6 @@ const LoadedReplay = ({
                     }
                 />
             </Col>
-
         </Row>
     );
 };
@@ -171,16 +183,6 @@ const LoadedReplays = ({
                     dataSource={replays}
                     renderItem={(item) => (
                         <List.Item key={item._id}>
-                            <List.Item.Meta
-                                title={(
-                                    <div style={{
-                                        color: `#${item.color.getHexString()}`,
-                                    }}
-                                    >
-                                        {item.playerName}
-                                    </div>
-                                )}
-                            />
                             <LoadedReplay
                                 replay={item}
                                 followed={followed}
