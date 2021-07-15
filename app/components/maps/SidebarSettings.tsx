@@ -1,15 +1,21 @@
 import React, { useContext, useState } from 'react';
 import Title from 'antd/lib/typography/Title';
 import {
-    Button, Checkbox, Drawer, Select,
+    Button, Checkbox, Drawer, Select, Row, Col, Slider, Radio, RadioChangeEvent,
 } from 'antd';
-import { SettingsContext } from '../../lib/contexts/SettingsContext';
+import { CheckboxChangeEvent } from 'antd/lib/checkbox';
+import { CameraMode, SettingsContext } from '../../lib/contexts/SettingsContext';
 import { LineTypes } from '../viewer/ReplayLines';
 
 const SidebarSettings = (): JSX.Element => {
     const [visible, setVisible] = useState(false);
     const {
-        lineType, changeLineType, showGearChanges, setShowGearChanges,
+        lineType, changeLineType,
+        showGearChanges, setShowGearChanges,
+        showFPS, setShowFPS,
+        showInputOverlay, setShowInputOverlay,
+        replayLineOpacity, setReplayLineOpacity,
+        replayCarOpacity, setReplayCarOpacity,
     } = useContext(
         SettingsContext,
     );
@@ -57,14 +63,49 @@ const SidebarSettings = (): JSX.Element => {
                         );
                     })}
                 </Select>
-
-                <Checkbox
-                    className="w-full py-6 select-none"
-                    onChange={(e) => setShowGearChanges(e.target.checked)}
-                    checked={showGearChanges}
-                >
-                    Show Gear Changes
-                </Checkbox>
+                <Col>
+                    <Checkbox
+                        className="w-full py-6 select-none"
+                        onChange={(e: CheckboxChangeEvent) => setShowGearChanges(e.target.checked)}
+                        checked={showGearChanges}
+                    >
+                        Show Gear Changes
+                    </Checkbox>
+                </Col>
+                <Col>
+                    <Checkbox
+                        className="w-full py-6 select-none"
+                        onChange={(e: CheckboxChangeEvent) => setShowFPS(e.target.checked)}
+                        checked={showFPS}
+                    >
+                        Show FPS
+                    </Checkbox>
+                </Col>
+                <Col>
+                    <Checkbox
+                        className="w-full py-6 select-none"
+                        onChange={(e: CheckboxChangeEvent) => setShowInputOverlay(e.target.checked)}
+                        checked={showInputOverlay}
+                    >
+                        Show Input Overlay
+                    </Checkbox>
+                </Col>
+                Line Opacity
+                <Slider
+                    min={0}
+                    max={1}
+                    onChange={(e: number) => setReplayLineOpacity(e)}
+                    value={typeof replayLineOpacity === 'number' ? replayLineOpacity : 0}
+                    step={0.1}
+                />
+                Car Opacity
+                <Slider
+                    min={0}
+                    max={1}
+                    onChange={(e: number) => setReplayCarOpacity(e)}
+                    value={typeof replayCarOpacity === 'number' ? replayCarOpacity : 0}
+                    step={0.1}
+                />
             </Drawer>
         </div>
     );

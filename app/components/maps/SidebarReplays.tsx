@@ -5,8 +5,9 @@ import {
 import { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
 import { TableCurrentDataSource } from 'antd/lib/table/interface';
 import { ReloadOutlined } from '@ant-design/icons';
+import Link from 'next/link';
 import { FileResponse } from '../../lib/api/apiRequests';
-import { getEndRaceTimeStr, timeDifference } from '../../lib/utils/time';
+import { getRaceTimeStr, timeDifference } from '../../lib/utils/time';
 
 interface ExtendedFileResponse extends FileResponse {
     readableTime: string;
@@ -37,6 +38,8 @@ const SidebarReplays = ({
 }: Props): JSX.Element => {
     const defaultPageSize = 14;
 
+    const tmioURL = 'https://trackmania.io/#/player/';
+
     const [visible, setVisible] = useState(false);
     const [visibleReplays, setVisibleReplays] = useState<FileResponse[]>([]);
 
@@ -65,6 +68,13 @@ const SidebarReplays = ({
             dataIndex: 'playerName',
             filters: getUniqueFilters((replay) => replay.playerName),
             onFilter: (value, record) => record.playerName === value,
+            render: (text, replay) => (
+                <Link href={`${tmioURL}${replay.webId}`}>
+                    <a target="_blank" rel="noreferrer" href={`${tmioURL}${replay.webId}`}>
+                        {replay.playerName}
+                    </a>
+                </Link>
+            ),
         },
         {
             title: 'Time',
@@ -138,7 +148,7 @@ const SidebarReplays = ({
         return replayList.map((replay) => ({
             ...replay,
             key: replay._id,
-            readableTime: getEndRaceTimeStr(replay.endRaceTime),
+            readableTime: getRaceTimeStr(replay.endRaceTime),
             relativeDate: timeDifference(now, replay.date),
             finished: replay.raceFinished === 1,
         }));

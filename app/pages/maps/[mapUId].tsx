@@ -16,6 +16,10 @@ import {
 } from '../../lib/api/apiRequests';
 import HeadTitle from '../../components/common/HeadTitle';
 import { cleanTMFormatting } from '../../lib/utils/formatting';
+import LoadedReplays from '../../components/maps/LoadedReplays';
+import { TimeLineInfos } from '../../components/viewer/TimeLine';
+
+const timeLineGlobal = new TimeLineInfos();
 
 const Home = (): JSX.Element => {
     const [replays, setReplays] = useState<FileResponse[]>([]);
@@ -93,7 +97,11 @@ const Home = (): JSX.Element => {
                         onRefreshReplays={fetchAndSetReplays}
                     />
                     <SidebarSettings />
-                    <Viewer3D replaysData={selectedReplayData} />
+                    {
+                        selectedReplayData.length > 0
+                    && <LoadedReplays replays={selectedReplayData} timeLineGlobal={timeLineGlobal} />
+                    }
+                    <Viewer3D replaysData={selectedReplayData} timeLineGlobal={timeLineGlobal} />
                 </Layout.Content>
             </Layout>
         </>
