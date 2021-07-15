@@ -496,8 +496,9 @@ void PostRecordedData(ref @handle) {
     if (!OnlySaveFinished || finished) {
         print("[TMDojo2]: Saving game data (size: " + membuff.GetSize() / 1024 + " kB)");
         membuff.Seek(0);
-        string reqUrl = ApiUrl + "/replays" +    
-                            "?mapName=" + Net::UrlEncode(rootMap.MapInfo.NameForUi) +
+        string mapNameClean = Regex::Replace(rootMap.MapInfo.NameForUi, "\\$([0-9a-fA-F]{1,3}|[iIoOnNmMwWsSzZtTgG<>]|[lLhHpP](\\[[^\\]]+\\])?)", "").Replace(" ", "%20");
+        string reqUrl = ApiUrl + "/replays" +
+                            "?mapName=" + Net::UrlEncode(mapNameClean) +
                             "&mapUId=" + rootMap.MapInfo.MapUid +
                             "&authorName=" + rootMap.MapInfo.AuthorNickName +
                             "&playerName=" + network.PlayerInfo.Name +
