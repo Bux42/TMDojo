@@ -41,7 +41,7 @@ export const colorsToBuffer = (colors: THREE.Color[]): THREE.Float32BufferAttrib
 
 export const defaultReplayColors = (replay: ReplayData): THREE.Float32BufferAttribute => {
     const colorBuffer = [];
-    const color = new THREE.Color(Math.random(), Math.random(), Math.random());
+    const { color } = replay;
     for (let i = 0; i < replay.samples.length; i++) {
         colorBuffer.push(color.r, color.g, color.b);
     }
