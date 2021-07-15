@@ -310,7 +310,7 @@ void PostRecordedData(ref @handle) {
         print("[TMDojo]: Saving game data (size: " + membuff.GetSize() / 1024 + " kB)");
         membuff.Seek(0);
         string reqUrl = ApiUrl + "/replays" +    
-                            "?mapName=" + dojo.mapName +
+                            "?mapName=" + Net::UrlEncode(dojo.mapName) +
                             "&mapUId=" + dojo.mapUId +
                             "&authorName=" + dojo.authorName +
                             "&playerName=" + dojo.playerName +

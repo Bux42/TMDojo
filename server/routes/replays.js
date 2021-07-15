@@ -1,3 +1,13 @@
+/** Replay data model
+ * - _id
+ * - userRef
+ * - mapRef
+ * - endRaceTime
+ * - raceFinished
+ * - filePath
+ * - date
+ */
+
 const express = require('express');
 
 const router = express.Router();
@@ -48,7 +58,7 @@ router.get('/', async (req, res, next) => {
 router.get('/:replayId', async (req, res, next) => {
     try {
         const replay = await db.getReplayById(req.params.replayId);
-        const filePath = path.resolve(`${__dirname}/../${replay.file_path}`);
+        const filePath = path.resolve(`${__dirname}/../${replay.filePath}`);
         if (fs.existsSync(filePath)) {
             if (req.query.download === 'true') {
                 res.download(filePath, req.query.fileName || req.params.replayId);
@@ -68,19 +78,18 @@ router.get('/:replayId', async (req, res, next) => {
 /**
  * GET /replays/:replayId/export
  * Exports a replay file including its metadata
- * Query params:
  */
 router.get('/:replayId/export', async (req, res, next) => {
     try {
-        const replay = await db.getReplayById(req.params.replayId);
-        const filePath = path.resolve(`${__dirname}/../${replay.file_path}`);
+        const replay = await db.getReplayById(req.params.replayId, true);
+        const filePath = path.resolve(`${__dirname}/../${replay.filePath}`);
         if (fs.existsSync(filePath)) {
             const contents = fs.readFileSync(filePath, {
                 encoding: 'base64',
             });
             replay.base64 = contents;
             delete replay._id; // remove id so importing can't lead to conflicts
-            delete replay.file_path; // remove file_path because it's just internal structure
+            delete replay.filePath; // remove filePath because it's just internal structure
 
             const fileData = JSON.stringify(replay);
             const fileName = `${req.params.replayId}.json`;
@@ -115,13 +124,31 @@ router.get('/:replayId/export', async (req, res, next) => {
  * - playerLogin
  * - webId
  */
+// eslint-disable-next-line consistent-return
 router.post('/', (req, res, next) => {
+    const paramNames = [
+        'authorName', 'mapName', 'mapUId', 'endRaceTime', 'raceFinished', 'playerName', 'playerLogin', 'webId',
+    ];
+
+    // make sure all required parameters are present
+    let requestValid = true;
+    paramNames.forEach((paramName) => {
+        if (!Object.prototype.hasOwnProperty.call(req.query, paramName)) {
+            requestValid = false;
+        }
+    });
+    if (!requestValid) {
+        return res.status(400).send({ message: 'Request is missing one or more parameters' });
+    }
+
+    const secureMapName = decodeURIComponent(req.query.mapName);
+
     // prepare directories
     if (!fs.existsSync(`maps/${req.query.authorName}`)) {
         fs.mkdirSync(`maps/${req.query.authorName}`);
     }
-    if (!fs.existsSync(`maps/${req.query.authorName}/${req.query.mapName}`)) {
-        fs.mkdirSync(`maps/${req.query.authorName}/${req.query.mapName}`);
+    if (!fs.existsSync(`maps/${req.query.authorName}/${secureMapName}`)) {
+        fs.mkdirSync(`maps/${req.query.authorName}/${secureMapName}`);
     }
 
     let completeData = '';
@@ -142,9 +169,31 @@ router.post('/', (req, res, next) => {
             console.log('POST /replays: The file was saved at', filePath);
 
             try {
+                // check if map already exists
+                let map = await db.getMapByUId(req.query.mapUId);
+                if (!map) {
+                    map = await db.saveMap({
+                        mapName: secureMapName,
+                        mapUId: req.query.mapUId,
+                        authorName: req.query.authorName,
+                    });
+                }
+
+                // check if user already exists
+                let user = await db.getUserByWebId(req.query.webId);
+                if (!user) {
+                    user = await db.saveUser({
+                        playerName: req.query.playerName,
+                        playerLogin: req.query.playerLogin,
+                        webId: req.query.webId,
+                    });
+                }
+
                 const metadata = {
-                    ...req.query,
-                    file_path: filePath,
+                    // reference map and user docs
+                    mapRef: map._id,
+                    userRef: user._id,
+                    filePath,
                     date: Date.now(),
                     raceFinished: parseInt(req.query.raceFinished, 10),
                     endRaceTime: parseInt(req.query.endRaceTime, 10),
@@ -157,9 +206,7 @@ router.post('/', (req, res, next) => {
         });
     });
 
-    req.on('error', (err) => {
-        next(err);
-    });
+    req.on('error', (err) => next(err));
 });
 
 /**
@@ -193,27 +240,47 @@ router.post('/import', (req, res, next) => {
         // check if exact filepath is already in db (this assume db is synced with file system)
         const replay = await db.getReplayByFilePath(filePath);
         if (!replay) {
-            const replayMetadata = {
-                mapName: importData.mapName,
-                mapUId: importData.mapUId,
-                authorName: importData.authorName,
-                playerName: importData.playerName,
-                playerLogin: importData.playerLogin,
-                webId: importData.webId,
-                endRaceTime: importData.endRaceTime,
-                raceFinished: importData.raceFinished,
-                file_path: filePath,
-                date: importData.date,
-            };
-            await db.saveReplayMetadata(replayMetadata);
-
             const buffer = Buffer.from(importData.base64, 'base64');
-            fs.writeFile(filePath, buffer, (err) => {
+            fs.writeFile(filePath, buffer, async (err) => {
                 if (err) {
-                    next(err);
-                } else {
-                    console.log('POST /replays/import: The file was saved at', filePath);
-                    res.send();
+                    return next(err);
+                }
+                console.log('POST /replays/import: The file was saved at', filePath);
+
+                // TODO: clean this up since it's basically the same as for POST /replays
+                try {
+                    // check if map already exists
+                    let map = await db.getMapByUId(importData.mapUId);
+                    if (!map) {
+                        map = await db.saveMap({
+                            mapName: importData.mapName,
+                            mapUId: importData.mapUId,
+                            authorName: importData.authorName,
+                        });
+                    }
+
+                    // check if user already exists
+                    let user = await db.getUserByWebId(importData.webId);
+                    if (!user) {
+                        user = await db.saveUser({
+                            playerName: importData.playerName,
+                            playerLogin: importData.playerLogin,
+                            webId: req.query.webId,
+                        });
+                    }
+
+                    const metadata = {
+                        mapRef: map._id,
+                        userRef: user._id,
+                        filePath,
+                        date: Date.now(),
+                        raceFinished: parseInt(importData.raceFinished, 10),
+                        endRaceTime: parseInt(importData.endRaceTime, 10),
+                    };
+                    await db.saveReplayMetadata(metadata);
+                    return res.send();
+                } catch (dbErr) {
+                    return next(dbErr);
                 }
             });
         } else {

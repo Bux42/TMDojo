@@ -1,3 +1,10 @@
+/** User data model
+ * - _id
+ * - webId
+ * - playerLogin
+ * - playerName
+ */
+
 const express = require('express');
 
 const router = express.Router();
