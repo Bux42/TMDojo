@@ -159,7 +159,7 @@ router.post('/', (req, res, next) => {
     req.on('end', () => {
         const buff = Buffer.from(completeData, 'base64');
         const fileName = `${req.query.endRaceTime}_${req.query.playerName}_${Date.now()}`;
-        const filePath = `maps/${req.query.authorName}/${req.query.mapName}/${fileName}.gz`;
+        const filePath = `maps/${req.query.authorName}/${secureMapName}/${fileName}.gz`;
 
         fs.writeFile(filePath, zlib.gzipSync(buff), async (writeErr) => {
             if (writeErr) {
