@@ -13,7 +13,8 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "allowJs": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "typeRoots": [ "./types", "./node_modules/@types"]
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "next.config.js"],
   "exclude": ["node_modules", ".next", "out"]

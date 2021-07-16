@@ -46,3 +46,26 @@
 .dojo-discord-button {
   line-height: 1rem !important;
 }
+
+::-webkit-scrollbar {
+    background-color: #202324;
+    color: #aba499;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #454a4d;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #575e62;
+}
+
+::-webkit-scrollbar-thumb:active {
+    background-color: #484e51;
+}
+
+::-webkit-scrollbar-corner {
+    background-color: #181a1b;
+}
+
+svg { vertical-align: baseline; }
