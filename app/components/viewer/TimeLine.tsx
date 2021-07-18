@@ -25,10 +25,12 @@ interface TimeLineViewProps {
 
 // declare setInterval return variable outside to keep persistent reference for clearInterval after render
 let playInterval: ReturnType<typeof setTimeout>;
+let expectedTime = Date.now();
+const TICK_TIME = 1000 / 60;
 
 const TimeLineView = ({ replaysData, timeLineGlobal }: TimeLineViewProps) => {
     const [timeLineTime, setTimeLineTime] = useState<number>(0);
-    const [sampleInterval, setSampleInterval] = useState<number>(7);
+    const [timelineSpeed, setTimelineSpeed] = useState<number>(1);
     const [playing, setPlaying] = useState<boolean>(false);
 
     const min = 0;
@@ -59,36 +61,63 @@ const TimeLineView = ({ replaysData, timeLineGlobal }: TimeLineViewProps) => {
         }
     });
 
-    const onChange = (e: any) => {
+    const onChange = (e: number) => {
         setTimeLineTime(Math.round(e));
         timeLineGlobal.currentRaceTime = Math.round(e);
     };
 
-    const initInterval = () => {
-        playInterval = setInterval(() => {
-            if (timeLineGlobal.currentRaceTime + sampleInterval > max) {
-                onChange(min);
-            } else {
-                onChange(timeLineGlobal.currentRaceTime + sampleInterval);
-            }
-        }, 0);
+    // from: https://stackoverflow.com/a/29972322
+    const startSteadyLoop = (callback: () => any) => {
+        const dt = Date.now() - expectedTime; // the drift (positive for overshooting)
+
+        if (dt > TICK_TIME) {
+            // something really bad happened. Maybe the browser (tab) was inactive?
+            // possibly special handling to avoid futile "catch up" run
+        }
+
+        // Perform actual code callback
+        callback();
+
+        expectedTime += TICK_TIME;
+
+        // Stop timeout loop if you stop playing
+        const timeToWait = Math.max(0, TICK_TIME - dt);
+        playInterval = setTimeout(() => startSteadyLoop(callback), timeToWait); // take into account drift
     };
 
-    const onClick = () => {
+    const initInterval = (speed: number) => {
+        expectedTime = Date.now() + TICK_TIME;
+
+        const intervalCallback = () => {
+            const raceTimeIncrement = TICK_TIME * speed;
+            const nextRaceTime = timeLineGlobal.currentRaceTime + raceTimeIncrement;
+            if (nextRaceTime > max) {
+                onChange(min);
+            } else {
+                onChange(nextRaceTime);
+            }
+        };
+
+        playInterval = setTimeout(() => startSteadyLoop(intervalCallback), TICK_TIME);
+    };
+
+    const onTogglePlay = () => {
         setPlaying(!playing);
         if (playing) {
+            // was playing, pause interval
             onChange(timeLineGlobal.currentRaceTime - 1);
             clearInterval(playInterval);
         } else {
-            initInterval();
+            // was not playing, start playing
+            initInterval(timelineSpeed);
         }
     };
 
-    const onChangeInterval = (e: number) => {
-        setSampleInterval(e);
+    const onChangeSpeed = (speed: number) => {
+        setTimelineSpeed(speed);
         if (playing) {
             clearInterval(playInterval);
-            initInterval();
+            initInterval(speed);
         }
     };
 
@@ -123,23 +152,22 @@ const TimeLineView = ({ replaysData, timeLineGlobal }: TimeLineViewProps) => {
                 <Col span={3}>
                     <Button
                         type="primary"
-                        onClick={onClick}
+                        onClick={onTogglePlay}
                     >
                         {playing ? 'Pause' : 'Play'}
                     </Button>
                 </Col>
                 <Col span={2} className="m-1">
-                    Speed
-                    {' '}
-                    {sampleInterval}
+                    {`Speed: ${timelineSpeed}x`}
                 </Col>
                 <Col span={3}>
                     <Slider
-                        min={1}
-                        max={20}
-                        onChange={onChangeInterval}
-                        value={sampleInterval}
-                        step={1}
+                        min={0.25}
+                        max={2}
+                        onChange={onChangeSpeed}
+                        value={timelineSpeed}
+                        step={0.25}
+                        tipFormatter={(value) => `${value}x`}
                     />
                 </Col>
             </Row>
