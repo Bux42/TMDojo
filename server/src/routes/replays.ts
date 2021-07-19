@@ -8,16 +8,16 @@
  * - date
  */
 
-const express = require('express');
+import { Request, Response } from 'express'
+import * as express from 'express';
+
+import * as fs from 'fs';
+import * as zlib from 'zlib';
+import * as path from 'path';
+
+import * as db from '../lib/db';
 
 const router = express.Router();
-
-const fs = require('fs');
-const zlib = require('zlib');
-const path = require('path');
-
-const db = require('../lib/db');
-
 /**
  * GET /replays
  * Retrieves filtered replay metadata
@@ -32,15 +32,15 @@ const db = require('../lib/db');
  * - endRaceTimeMax (optional) - currently unused
  * - dateMin (optional) - currently unused
  */
-router.get('/', async (req, res, next) => {
+router.get('/', async (req : Request, res : Response, next : Function) => {
     try {
         const replays = await db.getReplays(
-            req.query.mapName,
-            req.query.playerName,
-            req.query.mapUId,
-            req.query.raceFinished,
-            req.query.orderBy,
-            req.query.maxResults,
+            req.query.mapName as string,
+            req.query.playerName as string,
+            req.query.mapUId as string,
+            req.query.raceFinished as string,
+            req.query.orderBy as string,
+            req.query.maxResults as string,
         );
         res.send(replays);
     } catch (err) {
@@ -55,13 +55,13 @@ router.get('/', async (req, res, next) => {
  * - download (optional)
  * - fileName (optional)
  */
-router.get('/:replayId', async (req, res, next) => {
+router.get('/:replayId', async (req : Request, res : Response, next : Function) => {
     try {
-        const replay = await db.getReplayById(req.params.replayId);
+        const replay = await db.getReplayById(req.params.replayId as string);
         const filePath = path.resolve(`${__dirname}/../${replay.filePath}`);
         if (fs.existsSync(filePath)) {
             if (req.query.download === 'true') {
-                res.download(filePath, req.query.fileName || req.params.replayId);
+                res.download(filePath, req.query.fileName as string || req.params.replayId as string);
             } else {
                 const file = fs.readFileSync(filePath);
                 const unzipped = zlib.unzipSync(file);
@@ -89,7 +89,7 @@ router.get('/:replayId', async (req, res, next) => {
  * - webId
  */
 // eslint-disable-next-line consistent-return
-router.post('/', (req, res, next) => {
+router.post('/', (req : Request, res : Response, next : Function) : any => {
     const paramNames = [
         'authorName', 'mapName', 'mapUId', 'endRaceTime', 'raceFinished', 'playerName', 'playerLogin', 'webId',
     ];
@@ -105,7 +105,7 @@ router.post('/', (req, res, next) => {
         return res.status(400).send({ message: 'Request is missing one or more parameters' });
     }
 
-    const secureMapName = decodeURIComponent(req.query.mapName);
+    const secureMapName = decodeURIComponent(req.query.mapName as string);
 
     // prepare directories
     if (!fs.existsSync(`maps/${req.query.authorName}`)) {
@@ -116,7 +116,7 @@ router.post('/', (req, res, next) => {
     }
 
     let completeData = '';
-    req.on('data', (data) => {
+    req.on('data', (data : string | Buffer) => {
         completeData += data;
     });
 
@@ -125,7 +125,7 @@ router.post('/', (req, res, next) => {
         const fileName = `${req.query.endRaceTime}_${req.query.playerName}_${Date.now()}`;
         const filePath = `maps/${req.query.authorName}/${secureMapName}/${fileName}.gz`;
 
-        fs.writeFile(filePath, zlib.gzipSync(buff), async (writeErr) => {
+        fs.writeFile(filePath, zlib.gzipSync(buff), async (writeErr : Error) => {
             if (writeErr) {
                 return next(writeErr);
             }
@@ -134,7 +134,7 @@ router.post('/', (req, res, next) => {
 
             try {
                 // check if map already exists
-                let map = await db.getMapByUId(req.query.mapUId);
+                let map = await db.getMapByUId(req.query.mapUId as string);
                 if (!map) {
                     map = await db.saveMap({
                         mapName: secureMapName,
@@ -144,7 +144,7 @@ router.post('/', (req, res, next) => {
                 }
 
                 // check if user already exists
-                let user = await db.getUserByWebId(req.query.webId);
+                let user = await db.getUserByWebId(req.query.webId as string);
                 if (!user) {
                     user = await db.saveUser({
                         playerName: req.query.playerName,
@@ -159,8 +159,8 @@ router.post('/', (req, res, next) => {
                     userRef: user._id,
                     filePath,
                     date: Date.now(),
-                    raceFinished: parseInt(req.query.raceFinished, 10),
-                    endRaceTime: parseInt(req.query.endRaceTime, 10),
+                    raceFinished: parseInt(req.query.raceFinished as string, 10),
+                    endRaceTime: parseInt(req.query.endRaceTime as string, 10),
                 };
                 await db.saveReplayMetadata(metadata);
                 return res.send();
@@ -173,4 +173,4 @@ router.post('/', (req, res, next) => {
     req.on('error', (err) => next(err));
 });
 
-module.exports = router;
+export default router;

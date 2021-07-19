@@ -5,11 +5,13 @@
  * - playerName
  */
 
-const express = require('express');
+import { Request, Response } from 'express'
+import * as express from 'express';
+
+import * as db from '../lib/db';
 
 const router = express.Router();
 
-const db = require('../lib/db');
 
 /**
  * GET /auth
@@ -19,7 +21,7 @@ const db = require('../lib/db');
  * - login
  * - name
  */
-router.get('/', async (req, res, next) => {
+router.get('/', async (req : Request, res : Response, next : Function) => {
     try {
         await db.authenticateUser(req.query.webid, req.query.login, req.query.name);
         res.send('auth done'); // TODO: the plugin expects text for some reason - it should just check the return code
@@ -28,4 +30,4 @@ router.get('/', async (req, res, next) => {
     }
 });
 
-module.exports = router;
+export default router;

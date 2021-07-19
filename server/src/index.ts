@@ -1,15 +1,18 @@
 require('dotenv').config();
 
-const express = require('express');
-const https = require('https');
-const fs = require('fs');
-const cors = require('cors');
+import { Request, Response } from 'express'
+import * as express from 'express';
 
-const db = require('./lib/db');
 
-const authRouter = require('./routes/auth');
-const mapRouter = require('./routes/maps');
-const replayRouter = require('./routes/replays');
+import * as https from 'https';
+import * as fs from 'fs';
+import * as cors from 'cors';
+
+import * as db from './lib/db';
+
+import authRouter from './routes/auth';
+import mapRouter from './routes/maps';
+import replayRouter from './routes/replays';
 
 // ensure storage directories exist
 if (!fs.existsSync('maps')) {
@@ -43,7 +46,7 @@ if (process.env.USE_CERTIFICATES === 'true') {
         .listen(443);
 }
 
-const defaultPort = 80;
+const defaultPort = 1991;
 app.listen(defaultPort, () => {
     console.log(`App listening on port ${defaultPort}`);
 });
@@ -52,12 +55,12 @@ app.listen(defaultPort, () => {
 db.initDB();
 
 // request and response logger
-app.use((req, res, next) => {
+app.use((req : Request, res : Response, next : Function) => {
     console.log(`REQ: ${req.method} ${req.originalUrl}`);
 
     // override end() for logging
     const oldEnd = res.end;
-    res.end = (data) => {
+    res.end = (data : any) => {
     // data contains the response body
         console.log(`RES: ${req.method} ${req.originalUrl} - ${res.statusCode}`);
         oldEnd.apply(res, [data]);
@@ -68,7 +71,7 @@ app.use((req, res, next) => {
 
 // global error handler (requires 'next' even if it's not used)
 // eslint-disable-next-line no-unused-vars
-app.use((err, req, res, next) => {
+app.use((err : Error, req : Request, res : Response, next : Function) => {
     console.error(err.stack);
     res.status(500).send('Internal server error');
 });

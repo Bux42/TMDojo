@@ -1,21 +1,46 @@
 {
-  "name": "tmdojo-server",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "start": "node app.js",
-    "lint": "eslint . --ext js"
-  },
-  "dependencies": {
-    "axios": "^0.21.1",
-    "cors": "^2.8.5",
-    "dotenv": "^8.2.0",
-    "express": "^4.17.1",
-    "mongodb": "^3.6.6"
-  },
-  "devDependencies": {
-    "eslint": "^7.27.0",
-    "eslint-config-airbnb-base": "^14.2.1",
-    "eslint-plugin-import": "^2.23.3"
-  }
+	"name": "tmdojo-server",
+	"version": "0.1.0",
+	"private": true,
+	"scripts": {
+		"start": "MODE=prod node dist/index.js",
+		"dev": "MODE=dev nodemon",
+		"test": "mocha -r ts-node/register test/**/*.ts",
+		"build": "tsc",
+		"clean": "rimraf ./build && rimraf ./dist",
+		"docker": "./scripts/createDocker.sh $npm_package_name:$npm_package_version",
+		"docker:build": "./scripts/createDocker.sh $npm_package_name:$npm_package_version",
+		"docker:start": "./scripts/runDocker.sh $npm_package_name:$npm_package_version",
+		"docker:test": "./scripts/testDocker.sh $npm_package_name-test:$npm_package_version && ./scripts/runTestDocker.sh $npm_package_name-test:$npm_package_version",
+		"doc": "typedoc -plugin typedoc-plugin-param-names --excludePrivate --excludeInternal ./src/* --out doc",
+		"doc:internal": "typedoc -plugin typedoc-plugin-param-names --excludeInternal false ./src/* --out internal"
+	},
+	"dependencies": {
+		"axios": "^0.21.1",
+		"cors": "^2.8.5",
+		"dotenv": "^8.2.0",
+		"express": "^4.17.1",
+		"mongodb": "^3.6.6"
+	},
+	"devDependencies": {
+		"@types/axios": "^0.14.0",
+		"@types/chai": "^4.2.16",
+		"@types/cors": "^2.8.10",
+		"@types/express": "^4.17.13",
+		"@types/mocha": "^8.2.2",
+		"@types/morgan": "^1.9.2",
+		"@types/node": "^14.14.41",
+		"chai": "^4.3.4",
+		"chai-as-promised": "^7.1.1",
+		"concurrently": "^6.0.2",
+		"eslint": "^7.27.0",
+		"eslint-config-airbnb-base": "^14.2.1",
+		"eslint-plugin-import": "^2.23.3",
+		"mocha": "^8.3.2",
+		"nodemon": "^2.0.7",
+		"rimraf": "^3.0.2",
+		"ts-node": "^9.1.1",
+		"typedoc": "^0.20.35",
+		"typescript": "^4.2.4"
+	}
 }

@@ -6,25 +6,27 @@
  * - thumbnailURL (not implemented yet)
  */
 
-const express = require('express');
+import { Request, Response } from 'express'
+import * as express from 'express';
+
+
+import axios from 'axios';
+
+import * as fs from 'fs';
+import * as path from 'path';
+
+import * as db from '../lib/db';
 
 const router = express.Router();
-const axios = require('axios');
-
-const fs = require('fs');
-const path = require('path');
-
-const db = require('../lib/db');
-
 /**
  * GET /maps
  * Retrieves all unique map names we have replays of
  * Query params:
  * - mapName (optional)
  */
-router.get('/', async (req, res, next) => {
+router.get('/', async (req : Request, res : Response, next : Function) => {
     try {
-        const mapNames = await db.getUniqueMapNames(req.query.mapName);
+        const mapNames = await db.getUniqueMapNames(req.query.mapName as string);
         res.send(mapNames);
     } catch (err) {
         next(err);
@@ -35,7 +37,7 @@ router.get('/', async (req, res, next) => {
  * GET /maps/:mapUID
  * Retrieves map (block) data by mapUID
  */
-router.get('/:mapUID', async (req, res, next) => {
+router.get('/:mapUID', async (req : Request, res : Response, next : Function) => {
     try {
         if (fs.existsSync(`mapBlocks/${req.params.mapUID}`)) {
             res.sendFile(path.resolve(`${__dirname}/../mapBlocks/${req.params.mapUID}`));
@@ -74,7 +76,7 @@ router.get('/:mapUID/info', async (req, res) => {
  * POST /maps/:mapUID
  * Stores map (block) data (from the request body)
  */
-router.post('/:mapUID', (req, res, next) => {
+router.post('/:mapUID', (req : Request, res : Response, next : Function) => {
     let completeData = '';
 
     req.on('data', (data) => {
@@ -98,4 +100,4 @@ router.post('/:mapUID', (req, res, next) => {
     });
 });
 
-module.exports = router;
+export default router;

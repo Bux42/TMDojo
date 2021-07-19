@@ -5,3 +5,4 @@ exports
 mapBlocks
 cert.pem
 key.pem
+dist
