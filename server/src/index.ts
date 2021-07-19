@@ -44,10 +44,10 @@ if (process.env.USE_CERTIFICATES === 'true') {
             },
             app,
         )
-        .listen(443);
+        .listen(Number(process.env.HTTPS_PORT) || 443);
 }
 
-const defaultPort = 1991;
+const defaultPort = Number(process.env.HTTP_PORT) || 80;
 app.listen(defaultPort, () => {
     console.log(`App listening on port ${defaultPort}`);
 });
