@@ -1,5 +1,6 @@
-const { MongoClient, ObjectID } = require('mongodb');
-require('dotenv').config();
+import { MongoClient, ObjectId } from 'mongodb';
+import { config } from 'dotenv';
+config();
 
 const DB_NAME = 'dojo';
 
@@ -10,7 +11,7 @@ export type Rejector = (_1 : Error) => void;
 export const initDB = () => {
     const mongoClient = new MongoClient(process.env.MONGO_URL, {
         useUnifiedTopology: true,
-    });
+    } as any);
 
     mongoClient.connect((err : Error) => {
         if (err) {
@@ -251,7 +252,7 @@ export const getReplayById = (replayId ?: string, populate ?: boolean) : Promise
 
     let pipeline = [
         {
-            $match: { _id: ObjectID(replayId) },
+            $match: { _id: new ObjectId(replayId) },
         },
     ];
 
