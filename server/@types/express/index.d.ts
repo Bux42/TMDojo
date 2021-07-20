@@ -1,5 +1,4 @@
 import { Express } from "express-serve-static-core";
-import { TResponder } from '../../src/Types/responseTypes'
 
 declare module 'express-serve-static-core' {
 	interface Request {
@@ -12,6 +11,5 @@ declare module 'express-serve-static-core' {
 	}
 
 	interface Response {
-		backResponse: TResponder
 	}
 }
