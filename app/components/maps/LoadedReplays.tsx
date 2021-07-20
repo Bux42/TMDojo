@@ -19,9 +19,8 @@ import { TimeLineInfos } from '../viewer/TimeLine';
 interface LoadedReplayProps {
     replay: ReplayData;
     followed: ReplayData | undefined;
-    setFollowed: Dispatch<SetStateAction<ReplayData | undefined>>;
-    setHovered: Dispatch<SetStateAction<ReplayData | undefined>>;
-    timeLineGlobal: TimeLineInfos;
+    followedReplayChanged: (replay: ReplayData | undefined) => void;
+    hoveredReplayChanged: (replay: ReplayData | undefined) => void;
 }
 
 interface LoadedReplaysProps {
@@ -30,7 +29,7 @@ interface LoadedReplaysProps {
 }
 
 const LoadedReplay = ({
-    replay, followed, setFollowed, setHovered, timeLineGlobal,
+    replay, followed, followedReplayChanged, hoveredReplayChanged,
 }: LoadedReplayProps): JSX.Element => {
     const [color, setColor] = useState(`#${replay.color.getHexString()}`);
     const [showColorPicker, setShowColorPicker] = useState(false);
@@ -38,9 +37,9 @@ const LoadedReplay = ({
 
     const onClick = () => {
         if (followed && followed._id === replay._id) {
-            setFollowed(undefined);
+            followedReplayChanged(undefined);
         } else {
-            setFollowed(replay);
+            followedReplayChanged(replay);
         }
     };
 
@@ -58,18 +57,6 @@ const LoadedReplay = ({
         setShowColorPicker(!showColorPicker);
     };
 
-    const playerNamePointerEnter = () => {
-        setHovered(replay);
-    };
-
-    const playerNamePointerLeave = () => {
-        setHovered(undefined);
-    };
-
-    const chromePickerStyle = {
-        position: 'fixed',
-    };
-
     return (
         <Row style={{ width: 312 }}>
             <Col span="10">
@@ -78,8 +65,8 @@ const LoadedReplay = ({
                         color: `#${replay.color.getHexString()}`,
                         cursor: 'pointer',
                     }}
-                    onPointerEnter={playerNamePointerEnter}
-                    onPointerLeave={playerNamePointerLeave}
+                    onPointerEnter={() => hoveredReplayChanged(replay)}
+                    onPointerLeave={() => hoveredReplayChanged(undefined)}
                 >
                     {replay.playerName}
                 </div>
@@ -165,6 +152,13 @@ const LoadedReplays = ({
         setVisible(false);
     };
 
+    const followedReplayChanged = (replay: ReplayData | undefined) => {
+        setFollowed(replay);
+    };
+    const hoveredReplayChanged = (replay: ReplayData | undefined) => {
+        setHovered(replay);
+    };
+
     timeLineGlobal.followedReplay = followed;
     timeLineGlobal.hoveredReplay = hovered;
 
@@ -210,9 +204,8 @@ const LoadedReplays = ({
                             <LoadedReplay
                                 replay={item}
                                 followed={followed}
-                                setFollowed={setFollowed}
-                                setHovered={setHovered}
-                                timeLineGlobal={timeLineGlobal}
+                                followedReplayChanged={followedReplayChanged}
+                                hoveredReplayChanged={hoveredReplayChanged}
                             />
                         </List.Item>
                     )}
