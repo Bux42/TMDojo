@@ -20,6 +20,7 @@ interface LoadedReplayProps {
     replay: ReplayData;
     followed: ReplayData | undefined;
     setFollowed: Dispatch<SetStateAction<ReplayData | undefined>>;
+    setHovered: Dispatch<SetStateAction<ReplayData | undefined>>;
     timeLineGlobal: TimeLineInfos;
 }
 
@@ -29,7 +30,7 @@ interface LoadedReplaysProps {
 }
 
 const LoadedReplay = ({
-    replay, followed, setFollowed, timeLineGlobal,
+    replay, followed, setFollowed, setHovered, timeLineGlobal,
 }: LoadedReplayProps): JSX.Element => {
     const [color, setColor] = useState(`#${replay.color.getHexString()}`);
     const [showColorPicker, setShowColorPicker] = useState(false);
@@ -57,6 +58,14 @@ const LoadedReplay = ({
         setShowColorPicker(!showColorPicker);
     };
 
+    const playerNamePointerEnter = () => {
+        setHovered(replay);
+    };
+
+    const playerNamePointerLeave = () => {
+        setHovered(undefined);
+    };
+
     const chromePickerStyle = {
         position: 'fixed',
     };
@@ -64,9 +73,13 @@ const LoadedReplay = ({
     return (
         <Row style={{ width: 312 }}>
             <Col span="10">
-                <div style={{
-                    color: `#${replay.color.getHexString()}`,
-                }}
+                <div
+                    style={{
+                        color: `#${replay.color.getHexString()}`,
+                        cursor: 'pointer',
+                    }}
+                    onPointerEnter={playerNamePointerEnter}
+                    onPointerLeave={playerNamePointerLeave}
                 >
                     {replay.playerName}
                 </div>
@@ -141,6 +154,7 @@ const LoadedReplays = ({
 }: LoadedReplaysProps): JSX.Element => {
     const [visible, setVisible] = useState(false);
     const [followed, setFollowed] = useState<ReplayData>();
+    const [hovered, setHovered] = useState<ReplayData>();
     const { numColorChange, cameraMode, setCameraMode } = useContext(SettingsContext);
 
     const toggleSidebar = () => {
@@ -152,6 +166,7 @@ const LoadedReplays = ({
     };
 
     timeLineGlobal.followedReplay = followed;
+    timeLineGlobal.hoveredReplay = hovered;
 
     return (
         <div className="absolute right-0 z-10">
@@ -196,6 +211,7 @@ const LoadedReplays = ({
                                 replay={item}
                                 followed={followed}
                                 setFollowed={setFollowed}
+                                setHovered={setHovered}
                                 timeLineGlobal={timeLineGlobal}
                             />
                         </List.Item>
