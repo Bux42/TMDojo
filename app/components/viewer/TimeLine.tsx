@@ -13,6 +13,7 @@ import { getRaceTimeStr, timeDifference } from '../../lib/utils/time';
 export class TimeLineInfos {
     currentRaceTime: number;
     followedReplay: ReplayData | undefined;
+    hoveredReplay: ReplayData | undefined;
     constructor() {
         this.currentRaceTime = 0;
     }
