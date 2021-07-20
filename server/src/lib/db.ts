@@ -2,6 +2,10 @@ import { MongoClient, ObjectId } from 'mongodb';
 import { config } from 'dotenv';
 config();
 
+// import { MapModel, IMap } from '../Schema/map.schema';
+// import { ReplayModel, IReplay } from '../Schema/replay.schema';
+import { UserModel, IUser } from '../Schema/user.schema';
+
 const DB_NAME = 'dojo';
 
 let db : any = null;
@@ -58,6 +62,17 @@ export const authenticateUser = (webId : any, login : any, name : any) : Promise
             }
         });
 });
+
+export const authenticateUser_m = async (webId : string, playerLogin : string, playerName : string) : Promise<void> => {
+	const user : IUser | null = await UserModel.findOne({webId}).exec();
+	const last_active = Date.now();
+
+	if (user) {
+		await ({...user, playerLogin, playerName, last_active} as IUser).save();
+	} else {
+		await UserModel.create({webId, playerLogin, playerName, last_active});
+	}
+};
 
 export const getUniqueMapNames = (mapName ?: string) : Promise<any> => new Promise((resolve : Function, reject : Rejector) => {
     const replays = db.collection('replays');
@@ -234,12 +249,14 @@ export const getReplays = (
         },
     } as any);
 
-    replays.aggregate(pipeline, async (aggregateErr : Error, cursor : any) => {
+    console.log(pipeline);
+    const agr = replays.aggregate(pipeline);
+    console.log(agr.toArray);
+    agr.toArray(async (aggregateErr : Error, data : any) => {
         if (aggregateErr) {
             return reject(aggregateErr);
         }
         try {
-            const data = await cursor.toArray();
             return resolve({ files: data, totalResults: data.length });
         } catch (arrayErr) {
             return reject(arrayErr);

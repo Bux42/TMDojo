@@ -15,6 +15,8 @@ import authRouter from './routes/auth';
 import mapRouter from './routes/maps';
 import replayRouter from './routes/replays';
 
+import * as mongo from './Helpers/Mongo.connection';
+
 // ensure storage directories exist
 if (!fs.existsSync('maps')) {
     fs.mkdirSync('maps');
@@ -54,6 +56,7 @@ app.listen(defaultPort, () => {
 
 // initialize DB connection
 db.initDB();
+mongo.connect();
 
 // request and response logger
 app.use((req : Request, res : Response, next : Function) => {

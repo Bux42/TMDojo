@@ -20,12 +20,11 @@
 		"experimentalDecorators": true,
 		"typeRoots": [
 			"@types",
-			"src/types/*.ts",
+			"src/Types/*.ts",
 			"node_modules/@types"
 		],
 	},
 	"include": [
 		"src/",
-		"bindings"
 	]
 }
