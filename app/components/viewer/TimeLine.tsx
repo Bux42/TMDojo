@@ -12,10 +12,12 @@ import { getRaceTimeStr, timeDifference } from '../../lib/utils/time';
 
 export class TimeLineInfos {
     currentRaceTime: number;
+    maxRaceTime: number;
     followedReplay: ReplayData | undefined;
     hoveredReplay: ReplayData | undefined;
     constructor() {
         this.currentRaceTime = 0;
+        this.maxRaceTime = 0;
     }
 }
 
@@ -35,7 +37,7 @@ const TimeLineView = ({ replaysData, timeLineGlobal }: TimeLineViewProps) => {
     const [playing, setPlaying] = useState<boolean>(false);
 
     const min = 0;
-    let max = 0;
+    timeLineGlobal.maxRaceTime = 0;
 
     if (timeLineGlobal.followedReplay !== null) {
         if (!replaysData.some((replay: ReplayData) => replay._id === timeLineGlobal.followedReplay?._id)) {
@@ -57,8 +59,8 @@ const TimeLineView = ({ replaysData, timeLineGlobal }: TimeLineViewProps) => {
     timeLineGlobal.currentRaceTime = timeLineTime;
 
     replaysData.forEach((replay) => {
-        if (replay.samples[replay.samples.length - 1].currentRaceTime > max) {
-            max = replay.samples[replay.samples.length - 1].currentRaceTime;
+        if (replay.samples[replay.samples.length - 1].currentRaceTime > timeLineGlobal.maxRaceTime) {
+            timeLineGlobal.maxRaceTime = replay.samples[replay.samples.length - 1].currentRaceTime;
         }
     });
 
@@ -92,7 +94,7 @@ const TimeLineView = ({ replaysData, timeLineGlobal }: TimeLineViewProps) => {
         const intervalCallback = () => {
             const raceTimeIncrement = TICK_TIME * speed;
             const nextRaceTime = timeLineGlobal.currentRaceTime + raceTimeIncrement;
-            if (nextRaceTime > max) {
+            if (nextRaceTime > timeLineGlobal.maxRaceTime) {
                 onChange(min);
             } else {
                 onChange(nextRaceTime);
@@ -132,7 +134,7 @@ const TimeLineView = ({ replaysData, timeLineGlobal }: TimeLineViewProps) => {
                 <Col span={12}>
                     <Slider
                         min={min}
-                        max={max}
+                        max={timeLineGlobal.maxRaceTime}
                         onChange={onChange}
                         value={timeLineTime}
                         step={0.01}
@@ -142,7 +144,7 @@ const TimeLineView = ({ replaysData, timeLineGlobal }: TimeLineViewProps) => {
                 <Col span={3}>
                     <InputNumber
                         min={min}
-                        max={max}
+                        max={timeLineGlobal.maxRaceTime}
                         style={{ margin: '0 16px' }}
                         step={0.01}
                         value={timeLineTime}
