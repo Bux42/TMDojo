@@ -2,15 +2,22 @@
 /* eslint-disable max-len */
 import React, { useState } from 'react';
 import {
+    Button,
     Card,
 } from 'antd';
+import Link from 'next/link';
 import DiscordButton from '../common/DiscordButton';
+import generateAuthUrl from '../../lib/api/auth';
 
 type InfoTab = 'welcome'|'howDoesThisWork'|'getInvolved';
 
 const InfoCard = (): JSX.Element => {
     const [infoTab, setInfoTab] = useState<InfoTab>('welcome');
     const tabList = [
+        {
+            key: 'login',
+            tab: 'Login',
+        },
         {
             key: 'welcome',
             tab: 'What\'s this?',
@@ -29,6 +36,19 @@ const InfoCard = (): JSX.Element => {
         },
     ];
 
+    const LoginButton = () => (
+        <Link href={generateAuthUrl('tmdojo')}>
+            <Button key="tm.io" type="primary">
+                Login with Ubisoft
+            </Button>
+        </Link>
+    );
+
+    const loginText = [
+        'In order to have manage your replays, authenticate with your Ubisoft account.',
+        '',
+        <LoginButton />,
+    ];
     const welcomeText = [
         'This is TMDojo - our platform to analyze Trackmania runs!',
         '',
@@ -71,6 +91,9 @@ const InfoCard = (): JSX.Element => {
     );
 
     const tabContent = {
+        login: (
+            <div>{transformTextToDOM(loginText)}</div>
+        ),
         welcome: (
             <div>{transformTextToDOM(welcomeText)}</div>
         ),
