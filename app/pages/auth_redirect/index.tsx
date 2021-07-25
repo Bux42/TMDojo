@@ -1,20 +1,28 @@
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { Card, Layout, Spin } from 'antd';
+import { authorizeWithAccessCode } from '../../lib/api/auth';
 
 const Home = (): JSX.Element => {
     const router = useRouter();
     const { code, state } = router.query;
 
     useEffect(() => {
-        if (code !== undefined) {
+        if (code !== undefined && typeof code === 'string') {
             // TODO:
             // - Check state
-            // - Get access token
-            // - Store access token
-            console.log(code, state);
+            // - Store secret using http only cookies (no localstorage usage)
 
-            router.replace('/');
+            const auth = async () => {
+                const userInfo = await authorizeWithAccessCode(code);
+
+                localStorage.setItem('displayName', userInfo.displayName);
+                localStorage.setItem('accountId', userInfo.accountId);
+
+                router.replace('/');
+            };
+
+            auth();
         }
     });
 

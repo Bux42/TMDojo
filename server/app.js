@@ -4,10 +4,12 @@ const express = require('express');
 const https = require('https');
 const fs = require('fs');
 const cors = require('cors');
+const bodyParser = require('body-parser');
 
 const db = require('./lib/db');
 
 const authRouter = require('./routes/auth');
+const authorizeRouter = require('./routes/authorize');
 const mapRouter = require('./routes/maps');
 const replayRouter = require('./routes/replays');
 
@@ -24,6 +26,7 @@ app.use(
     cors({
         origin: [
             'http://localhost:4200', // local UI dev environment
+            'http://localhost:3000', // local UI dev environment
             'https://tmdojo.com', // live UI
             /https:\/\/tm-dojo-.*\.vercel\.app/, // Vercel preview environments
         ],
@@ -42,6 +45,10 @@ if (process.env.USE_CERTIFICATES === 'true') {
         )
         .listen(443);
 }
+
+// body-parser middleware
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 const defaultPort = 80;
 app.listen(defaultPort, () => {
@@ -75,5 +82,6 @@ app.use((err, req, res, next) => {
 
 // set up routes
 app.use('/auth', authRouter);
+app.use('/authorize', authorizeRouter);
 app.use('/maps', mapRouter);
 app.use('/replays', replayRouter);
