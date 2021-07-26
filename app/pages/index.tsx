@@ -54,13 +54,13 @@ const Home = (): JSX.Element => {
                 return <span title={new Date(timestamp).toLocaleString()}>{timeDifference(today, timestamp)}</span>;
             },
             sorter: (a, b) => a.lastUpdate - b.lastUpdate,
+            defaultSortOrder: 'descend',
             width: '20%',
         },
         {
             title: 'Replays',
             dataIndex: 'count',
             sorter: (a, b) => a.count - b.count,
-            defaultSortOrder: 'descend',
             width: '15%',
         },
     ];
