@@ -63,3 +63,23 @@ export const fetchMe = async (): Promise<MeResponse | undefined> => {
         return undefined;
     }
 };
+
+export const logout = async (): Promise<void> => {
+    const url = `${process.env.NEXT_PUBLIC_API_URL}/logout`;
+
+    // TODO: remove this and use HttpOnly cookie instead
+    const sessionSecret = localStorage.getItem('sessionSecret');
+
+    const params = {
+        sessionSecret,
+    };
+
+    await axios.post(url, params);
+
+    // TODO: move to AuthContext
+    localStorage.removeItem('displayName');
+    localStorage.removeItem('accountId');
+
+    // TODO: remove HttpOnly cookie here once HttpOnly is working
+    localStorage.removeItem('sessionSecret');
+};

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Button } from 'antd';
-import { generateAuthUrl } from '../../lib/api/auth';
+import { Button, message } from 'antd';
+import { generateAuthUrl, logout } from '../../lib/api/auth';
 
 const LoginButton = () => (
     <Link href={generateAuthUrl('tmdojo')}>
@@ -38,12 +38,14 @@ const LoginDisplay = () => {
             <div>
                 {`Welcome, ${displayName}!`}
                 <LogoutButton
-                    onClick={() => {
+                    onClick={async () => {
                         // TODO: send /logout request to API to remove session
-                        localStorage.removeItem('displayName');
-                        localStorage.removeItem('accountId');
-                        localStorage.removeItem('sessionSecret');
-                        setDisplayName(undefined);
+                        try {
+                            await logout();
+                            setDisplayName(undefined);
+                        } catch (e) {
+                            message.error('Something went wrong while logging out.');
+                        }
                     }}
                 />
             </div>

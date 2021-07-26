@@ -10,6 +10,7 @@ const db = require('./lib/db');
 
 const authRouter = require('./routes/auth');
 const authorizeRouter = require('./routes/authorize');
+const logoutRouter = require('./routes/logout');
 const mapRouter = require('./routes/maps');
 const meRouter = require('./routes/me');
 const replayRouter = require('./routes/replays');
@@ -84,6 +85,7 @@ app.use((err, req, res, next) => {
 // set up routes
 app.use('/auth', authRouter);
 app.use('/authorize', authorizeRouter);
+app.use('/logout', logoutRouter);
 app.use('/maps', mapRouter);
 app.use('/me', meRouter);
 app.use('/replays', replayRouter);

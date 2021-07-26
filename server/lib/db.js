@@ -345,6 +345,18 @@ const createSession = async (webId) => {
 };
 
 /**
+ * Deletes session using a session secret.
+ * Returns true if succeeded, false if failed
+ */
+const deleteSession = async (sessionSecret) => {
+    // Delete session
+    const sessions = db.collection('sessions');
+    await sessions.deleteOne({
+        sessionSecret,
+    });
+};
+
+/**
  * If session is valid and can find a user, return user
  * Else, return undefined
  */
@@ -388,4 +400,5 @@ module.exports = {
     getReplayByFilePath,
     createSession,
     getUserBySessionSecret,
+    deleteSession,
 };
