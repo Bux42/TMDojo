@@ -2,10 +2,13 @@
 /* eslint-disable max-len */
 import React, { useState } from 'react';
 import {
+    Button,
     Card,
+    message,
 } from 'antd';
 import DiscordButton from '../common/DiscordButton';
 import LoginDisplay from './LoginDisplay';
+import { fetchMe } from '../../lib/api/auth';
 
 type InfoTab = 'welcome'|'howDoesThisWork'|'getInvolved';
 
@@ -30,6 +33,20 @@ const InfoCard = (): JSX.Element => {
         },
     ];
 
+    const CheckAuth = () => (
+        <Button onClick={async () => {
+            const me = await fetchMe();
+            if (me) {
+                message.success(`Logged in as: ${me.displayName}`);
+            } else {
+                message.error('Not logged in!');
+            }
+        }}
+        >
+            Check Auth
+        </Button>
+    );
+
     const welcomeText = [
         'This is TMDojo - our platform to analyze Trackmania runs!',
         '',
@@ -37,6 +54,7 @@ const InfoCard = (): JSX.Element => {
         'Ever been confused because you just can\'t figure out that one dirt gear?',
         '',
         'We want to give you the tools to really understand your replays - with a 3D view of the map and a ton of data!',
+        <CheckAuth />,
     ];
     const howDoIUseThisText = [
         'Simply pick a map from the table and open it.',

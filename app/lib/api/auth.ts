@@ -23,11 +23,12 @@ export const generateAuthUrl = (state: string): string => {
     return res;
 };
 
-interface UserInfo {
+interface AuthorizationResponse {
     displayName: string;
     accountId: string;
+    sessionSecret: string;
 }
-export const authorizeWithAccessCode = async (accessCode: string): Promise<UserInfo> => {
+export const authorizeWithAccessCode = async (accessCode: string): Promise<AuthorizationResponse> => {
     const url = `${process.env.NEXT_PUBLIC_API_URL}/authorize`;
 
     const params = {
@@ -38,4 +39,27 @@ export const authorizeWithAccessCode = async (accessCode: string): Promise<UserI
     const { data } = await axios.post(url, params);
 
     return data;
+};
+
+interface MeResponse {
+    displayName: string;
+    accountId: string;
+}
+export const fetchMe = async (): Promise<MeResponse | undefined> => {
+    const url = `${process.env.NEXT_PUBLIC_API_URL}/me`;
+
+    // TODO: remove this and use HttpOnly cookie instead
+    const sessionSecret = localStorage.getItem('sessionSecret');
+
+    const params = {
+        sessionSecret,
+    };
+
+    try {
+        const { data } = await axios.post(url, params);
+        return data;
+    } catch (e) {
+        // TODO: cleaner method to
+        return undefined;
+    }
 };

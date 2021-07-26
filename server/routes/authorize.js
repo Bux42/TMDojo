@@ -1,5 +1,6 @@
 const express = require('express');
 const { exchangeCodeForAccessToken, fetchUserInfo } = require('../lib/authorize');
+const { createSession } = require('../lib/db');
 
 const router = express.Router();
 
@@ -42,10 +43,18 @@ router.post('/', async (req, res, next) => {
             return; // TODO: check how to properly end response
         }
 
+        // Create session
+        const sessionSecret = await createSession(userInfo.account_id);
+        if (sessionSecret === undefined) {
+            res.status(500).send({ message: 'Failed to create login session.' });
+            return; // TODO: check how to properly end response
+        }
+
         // Repond with user info
         res.send({
             accountId: userInfo.account_id,
             displayName: userInfo.display_name,
+            sessionSecret,
         });
     } catch (err) {
         next(err);

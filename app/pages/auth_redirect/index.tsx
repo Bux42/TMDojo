@@ -18,6 +18,7 @@ const Home = (): JSX.Element => {
 
                 localStorage.setItem('displayName', userInfo.displayName);
                 localStorage.setItem('accountId', userInfo.accountId);
+                localStorage.setItem('sessionSecret', userInfo.sessionSecret);
 
                 router.replace('/');
             };

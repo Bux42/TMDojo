@@ -11,6 +11,7 @@ const db = require('./lib/db');
 const authRouter = require('./routes/auth');
 const authorizeRouter = require('./routes/authorize');
 const mapRouter = require('./routes/maps');
+const meRouter = require('./routes/me');
 const replayRouter = require('./routes/replays');
 
 // ensure storage directories exist
@@ -84,4 +85,5 @@ app.use((err, req, res, next) => {
 app.use('/auth', authRouter);
 app.use('/authorize', authorizeRouter);
 app.use('/maps', mapRouter);
+app.use('/me', meRouter);
 app.use('/replays', replayRouter);

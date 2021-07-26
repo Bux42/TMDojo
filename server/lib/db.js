@@ -1,4 +1,5 @@
 const { MongoClient, ObjectID } = require('mongodb');
+const { v4: uuid } = require('uuid');
 require('dotenv').config();
 
 const DB_NAME = 'dojo';
@@ -319,6 +320,60 @@ const saveReplayMetadata = (metadata) => new Promise((resolve, reject) => {
         .catch((error) => reject(error));
 });
 
+/**
+ * Creates session using a webId.
+ * Returns session secret or undefined if something went wrong
+ */
+const createSession = async (webId) => {
+    // Find user
+    const user = await getUserByWebId(webId);
+    if (user === undefined || user === null) {
+        // TODO: create user in users collection. Use Ubi API to fill fields
+        console.log(`No user found for id ${webId}`);
+        return undefined;
+    }
+
+    // Create session
+    const sessions = db.collection('sessions');
+    const sessionSecret = uuid();
+    await sessions.insertOne({
+        sessionSecret,
+        userRef: user._id,
+    });
+
+    return sessionSecret;
+};
+
+/**
+ * If session is valid and can find a user, return user
+ * Else, return undefined
+ */
+const getUserBySessionSecret = async (sessionSecret) => {
+    // Find session
+    const sessions = db.collection('sessions');
+    const session = await sessions.findOne({
+        sessionSecret,
+    });
+
+    // Return undefined if session is not valid
+    if (session === undefined || session === null) {
+        return undefined;
+    }
+
+    // Find user
+    const users = db.collection('users');
+    const user = await users.findOne({
+        _id: session.userRef,
+    });
+
+    // Return undefined if user could not be found
+    if (user === undefined || user === null) {
+        return undefined;
+    }
+
+    return user;
+};
+
 module.exports = {
     initDB,
     authenticateUser,
@@ -331,4 +386,6 @@ module.exports = {
     getReplays,
     getReplayById,
     getReplayByFilePath,
+    createSession,
+    getUserBySessionSecret,
 };

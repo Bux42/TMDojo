@@ -23,6 +23,7 @@ const LogoutButton = ({ onClick } :{onClick: () => void}) => (
 );
 
 const LoginDisplay = () => {
+    // TODO: Create AuthContext and store user info there
     const [displayName, setDisplayName] = useState<string>();
 
     useEffect(() => {
@@ -38,8 +39,10 @@ const LoginDisplay = () => {
                 {`Welcome, ${displayName}!`}
                 <LogoutButton
                     onClick={() => {
+                        // TODO: send /logout request to API to remove session
                         localStorage.removeItem('displayName');
                         localStorage.removeItem('accountId');
+                        localStorage.removeItem('sessionSecret');
                         setDisplayName(undefined);
                     }}
                 />
