@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import Link from 'next/link';
 import { Button, message } from 'antd';
 import { generateAuthUrl, logout } from '../../lib/api/auth';
+import { AuthContext } from '../../lib/contexts/AuthContext';
 
 const LoginButton = () => (
     <Link href={generateAuthUrl('tmdojo')}>
@@ -24,25 +25,18 @@ const LogoutButton = ({ onClick } :{onClick: () => void}) => (
 
 const LoginDisplay = () => {
     // TODO: Create AuthContext and store user info there
-    const [displayName, setDisplayName] = useState<string>();
+    const { user, setUser } = useContext(AuthContext);
 
-    useEffect(() => {
-        const name = localStorage.getItem('displayName');
-        if (name !== null) {
-            setDisplayName(name);
-        }
-    });
-
-    return displayName
+    return user
         ? (
             <div>
-                {`Welcome, ${displayName}!`}
+                {`Welcome, ${user.displayName}!`}
                 <LogoutButton
                     onClick={async () => {
                         // TODO: send /logout request to API to remove session
                         try {
                             await logout();
-                            setDisplayName(undefined);
+                            setUser(undefined);
                         } catch (e) {
                             message.error('Something went wrong while logging out.');
                         }

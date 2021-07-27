@@ -63,8 +63,4 @@ export const logout = async (): Promise<void> => {
 
     // TODO: use custom axios instance with default config for withCredentials
     await axios.post(url, {}, { withCredentials: true });
-
-    // TODO: move to AuthContext
-    localStorage.removeItem('displayName');
-    localStorage.removeItem('accountId');
 };
