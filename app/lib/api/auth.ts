@@ -26,7 +26,6 @@ export const generateAuthUrl = (state: string): string => {
 interface AuthorizationResponse {
     displayName: string;
     accountId: string;
-    sessionSecret: string;
 }
 export const authorizeWithAccessCode = async (accessCode: string): Promise<AuthorizationResponse> => {
     const url = `${process.env.NEXT_PUBLIC_API_URL}/authorize`;
@@ -36,7 +35,8 @@ export const authorizeWithAccessCode = async (accessCode: string): Promise<Autho
         redirect_uri: getRedirectUri(),
     };
 
-    const { data } = await axios.post(url, params);
+    // TODO: use custom axios instance with default config for withCredentials
+    const { data } = await axios.post(url, params, { withCredentials: true });
 
     return data;
 };
@@ -48,15 +48,9 @@ interface MeResponse {
 export const fetchMe = async (): Promise<MeResponse | undefined> => {
     const url = `${process.env.NEXT_PUBLIC_API_URL}/me`;
 
-    // TODO: remove this and use HttpOnly cookie instead
-    const sessionSecret = localStorage.getItem('sessionSecret');
-
-    const params = {
-        sessionSecret,
-    };
-
     try {
-        const { data } = await axios.post(url, params);
+        // TODO: use custom axios instance with default config for withCredentials
+        const { data } = await axios.post(url, {}, { withCredentials: true });
         return data;
     } catch (e) {
         // TODO: cleaner method to
@@ -67,19 +61,10 @@ export const fetchMe = async (): Promise<MeResponse | undefined> => {
 export const logout = async (): Promise<void> => {
     const url = `${process.env.NEXT_PUBLIC_API_URL}/logout`;
 
-    // TODO: remove this and use HttpOnly cookie instead
-    const sessionSecret = localStorage.getItem('sessionSecret');
-
-    const params = {
-        sessionSecret,
-    };
-
-    await axios.post(url, params);
+    // TODO: use custom axios instance with default config for withCredentials
+    await axios.post(url, {}, { withCredentials: true });
 
     // TODO: move to AuthContext
     localStorage.removeItem('displayName');
     localStorage.removeItem('accountId');
-
-    // TODO: remove HttpOnly cookie here once HttpOnly is working
-    localStorage.removeItem('sessionSecret');
 };

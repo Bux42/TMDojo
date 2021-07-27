@@ -11,9 +11,7 @@ const router = express.Router();
  */
 router.post('/', async (req, res, next) => {
     try {
-        // Get code and redirect URI from body
-        // TODO: get secret from HttpOnly cookie
-        const { sessionSecret } = req.body;
+        const { sessionSecret } = req.cookies;
 
         // Check for missing parameters
         if (sessionSecret === undefined || typeof sessionSecret !== 'string') {

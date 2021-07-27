@@ -16,9 +16,9 @@ const Home = (): JSX.Element => {
             const auth = async () => {
                 const userInfo = await authorizeWithAccessCode(code);
 
+                // TODO: move to AuthContext
                 localStorage.setItem('displayName', userInfo.displayName);
                 localStorage.setItem('accountId', userInfo.accountId);
-                localStorage.setItem('sessionSecret', userInfo.sessionSecret);
 
                 router.replace('/');
             };

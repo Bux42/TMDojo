@@ -5,6 +5,7 @@ const https = require('https');
 const fs = require('fs');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 
 const db = require('./lib/db');
 
@@ -51,6 +52,9 @@ if (process.env.USE_CERTIFICATES === 'true') {
 // body-parser middleware
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+
+// Cookie Parser middleware
+app.use(cookieParser());
 
 const defaultPort = 80;
 app.listen(defaultPort, () => {

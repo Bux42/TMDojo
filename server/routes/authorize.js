@@ -51,10 +51,16 @@ router.post('/', async (req, res, next) => {
         }
 
         // Repond with user info
+        res.cookie('sessionSecret', sessionSecret, {
+            path: '/',
+            httpOnly: true,
+            secure: false, // TODO: enable on HTTPS server
+            maxAge: 1000 * 60 * 60 * 24 * 365, // 365 days
+        });
+
         res.send({
             accountId: userInfo.account_id,
             displayName: userInfo.display_name,
-            sessionSecret,
         });
     } catch (err) {
         next(err);
