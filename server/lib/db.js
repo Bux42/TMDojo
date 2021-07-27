@@ -335,27 +335,27 @@ const createSession = async (webId) => {
 
     // Create session
     const sessions = db.collection('sessions');
-    const sessionSecret = uuid();
+    const sessionId = uuid();
     await sessions.insertOne({
-        sessionSecret,
+        sessionId,
         userRef: user._id,
     });
 
-    return sessionSecret;
+    return sessionId;
 };
 
-const findSessionBySecret = async (sessionSecret) => {
+const findSessionBySecret = async (sessionId) => {
     // Delete session
     const sessions = db.collection('sessions');
-    const session = await sessions.findOne({ sessionSecret });
+    const session = await sessions.findOne({ sessionId });
     return session;
 };
 
-const deleteSession = async (sessionSecret) => {
+const deleteSession = async (sessionId) => {
     // Delete session
     const sessions = db.collection('sessions');
     await sessions.deleteOne({
-        sessionSecret,
+        sessionId,
     });
 };
 
@@ -363,11 +363,11 @@ const deleteSession = async (sessionSecret) => {
  * If session is valid and can find a user, return user
  * Else, return undefined
  */
-const getUserBySessionSecret = async (sessionSecret) => {
+const getUserBySessionId = async (sessionId) => {
     // Find session
     const sessions = db.collection('sessions');
     const session = await sessions.findOne({
-        sessionSecret,
+        sessionId,
     });
 
     // Return undefined if session is not valid
@@ -402,7 +402,7 @@ module.exports = {
     getReplayById,
     getReplayByFilePath,
     createSession,
-    getUserBySessionSecret,
+    getUserBySessionId,
     findSessionBySecret,
     deleteSession,
 };

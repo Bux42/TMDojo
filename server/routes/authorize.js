@@ -44,14 +44,14 @@ router.post('/', async (req, res, next) => {
         }
 
         // Create session
-        const sessionSecret = await createSession(userInfo.account_id);
-        if (sessionSecret === undefined) {
+        const sessionId = await createSession(userInfo.account_id);
+        if (sessionId === undefined) {
             res.status(500).send({ message: 'Failed to create login session.' });
             return; // TODO: check how to properly end response
         }
 
         // Repond with user info
-        res.cookie('sessionSecret', sessionSecret, {
+        res.cookie('sessionId', sessionId, {
             path: '/',
             httpOnly: true,
             secure: false, // TODO: enable on HTTPS server

@@ -6,28 +6,26 @@ const router = express.Router();
 /**
  * POST /logout
  * Logs user out be deleting their session
- * Body:
- * - sessionSecret
  */
 router.post('/', async (req, res, next) => {
     try {
-        const { sessionSecret } = req.cookies;
+        const { sessionId } = req.cookies;
 
         // Check for missing parameters
-        if (sessionSecret === undefined || typeof sessionSecret !== 'string') {
+        if (sessionId === undefined || typeof sessionId !== 'string') {
             res.status(401).send({ message: 'No session secret supplied.' });
             return; // TODO: check how to properly end response
         }
 
         // Check if the session exists
-        const session = await findSessionBySecret(sessionSecret);
+        const session = await findSessionBySecret(sessionId);
         if (session === null || session === undefined) {
             res.status(401).send({ message: 'No session found for this secret.' });
             return; // TODO: check how to properly end response
         }
 
         // Send instantly expiring cookie
-        res.cookie('sessionSecret', sessionSecret, {
+        res.cookie('sessionId', sessionId, {
             path: '/',
             httpOnly: true,
             secure: false, // TODO: enable on HTTPS server
@@ -35,7 +33,7 @@ router.post('/', async (req, res, next) => {
         });
 
         // Delete session
-        await deleteSession(sessionSecret);
+        await deleteSession(sessionId);
 
         // Repond with user info
         res.status(200).end();
