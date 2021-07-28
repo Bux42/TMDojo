@@ -21,7 +21,7 @@ const Home = (): JSX.Element => {
                 } catch (e) {
                     console.log(e);
                 } finally {
-                    router.replace('/');
+                    router.back();
                 }
             })();
         }
