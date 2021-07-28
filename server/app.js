@@ -9,6 +9,8 @@ const cookieParser = require('cookie-parser');
 
 const db = require('./lib/db');
 
+const { authMiddleware } = require('./middleware/auth');
+
 const authRouter = require('./routes/auth');
 const authorizeRouter = require('./routes/authorize');
 const logoutRouter = require('./routes/logout');
@@ -85,6 +87,9 @@ app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).send('Internal server error');
 });
+
+// App middleware
+app.use(authMiddleware);
 
 // set up routes
 app.use('/auth', authRouter);

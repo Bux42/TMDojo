@@ -41,8 +41,18 @@ export const AuthProvider = ({ children }: any): JSX.Element => {
     }, [asPath]);
 
     const logoutUser = async () => {
-        await logout();
-        setUser(undefined);
+        try {
+            await logout();
+            setUser(undefined);
+        } catch (e) {
+            // If error code is Unauthorized (so no user is logged in), set user to undefined
+            // Should only happen when manually deleting session cookie
+            if (e.response.status === 401) {
+                setUser(undefined);
+            } else {
+                throw e;
+            }
+        }
     };
 
     return (
