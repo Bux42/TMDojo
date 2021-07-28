@@ -15,9 +15,12 @@ const Home = (): JSX.Element => {
             (async () => {
                 try {
                     const storedState = localStorage.getItem('state');
+                    localStorage.removeItem('state');
                     if (storedState === state) {
                         const userInfo = await authorizeWithAccessCode(code);
                         setUser(userInfo);
+                    } else {
+                        console.log(`Stored state (${storedState}) did not match incoming state (${state})`);
                     }
                 } catch (e) {
                     console.log(e);
@@ -26,7 +29,6 @@ const Home = (): JSX.Element => {
                     const originalURL = localStorage.getItem('originalURL');
                     if (originalURL) {
                         localStorage.removeItem('originalURL');
-                        localStorage.removeItem('state');
                         router.replace(originalURL);
                     } else {
                         router.replace('/');
