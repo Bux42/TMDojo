@@ -37,12 +37,12 @@ const UserDisplay = () => {
     return user === undefined
         ? <LoginButton />
         : (
-            <>
+            <div className="flex flex-row items-center">
                 {`Welcome, ${user.displayName}!`}
                 <LogoutButton
                     onClick={onLogout}
                 />
-            </>
+            </div>
         );
 };
 
