@@ -10,14 +10,15 @@ const Home = (): JSX.Element => {
     const { setUser } = useContext(AuthContext);
 
     useEffect(() => {
-        if (code !== undefined && typeof code === 'string') {
-            // TODO:
-            // - Check state
-
+        if (code !== undefined && typeof code === 'string'
+            && state !== undefined && typeof state === 'string') {
             (async () => {
                 try {
-                    const userInfo = await authorizeWithAccessCode(code);
-                    setUser(userInfo);
+                    const storedState = localStorage.getItem('state');
+                    if (storedState === state) {
+                        const userInfo = await authorizeWithAccessCode(code);
+                        setUser(userInfo);
+                    }
                 } catch (e) {
                     console.log(e);
                 } finally {
@@ -25,6 +26,7 @@ const Home = (): JSX.Element => {
                     const originalURL = localStorage.getItem('originalURL');
                     if (originalURL) {
                         localStorage.removeItem('originalURL');
+                        localStorage.removeItem('state');
                         router.replace(originalURL);
                     } else {
                         router.replace('/');

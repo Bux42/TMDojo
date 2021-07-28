@@ -28,8 +28,13 @@ const UserDisplay = () => {
     const onLogin = () => {
         // keep the current route for redirecting back after login
         localStorage.setItem('originalURL', router.asPath);
+
+        // generate and store random string as state
+        const state = Math.random().toString(36).substring(2); // 11 random lower-case alpha-numeric characters
+        localStorage.setItem('state', state);
+
         // redirect to Ubisoft auth
-        router.replace(generateAuthUrl('tmdojo'));
+        router.replace(generateAuthUrl(state));
     };
 
     const onLogout = async () => {
