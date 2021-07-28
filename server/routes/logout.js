@@ -14,14 +14,14 @@ router.post('/', async (req, res, next) => {
         // Check for missing parameters
         if (sessionId === undefined || typeof sessionId !== 'string') {
             res.status(401).send({ message: 'No session secret supplied.' });
-            return; // TODO: check how to properly end response
+            return;
         }
 
         // Check if the session exists
         const session = await findSessionBySecret(sessionId);
         if (session === null || session === undefined) {
             res.status(401).send({ message: 'No session found for this secret.' });
-            return; // TODO: check how to properly end response
+            return;
         }
 
         // Send instantly expiring cookie
