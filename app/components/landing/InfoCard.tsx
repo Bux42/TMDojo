@@ -7,7 +7,7 @@ import {
     message,
 } from 'antd';
 import DiscordButton from '../common/DiscordButton';
-import LoginDisplay from './LoginDisplay';
+import UserDisplay from './UserDisplay';
 import { fetchMe } from '../../lib/api/auth';
 
 type InfoTab = 'welcome'|'howDoesThisWork'|'getInvolved';
@@ -108,7 +108,7 @@ const InfoCard = (): JSX.Element => {
         <Card
             className="w-full dojo-info-card"
             title="Welcome to TMDojo!"
-            extra={<LoginDisplay />}
+            extra={<UserDisplay />}
             tabList={tabList}
             activeTabKey={infoTab}
             onTabChange={(key) => {

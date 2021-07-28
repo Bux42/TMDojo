@@ -53,7 +53,7 @@ export const fetchMe = async (): Promise<MeResponse | undefined> => {
         const { data } = await axios.post(url, {}, { withCredentials: true });
         return data;
     } catch (e) {
-        // TODO: cleaner method to
+        // TODO: find solution for being logged out on a server error?
         return undefined;
     }
 };
