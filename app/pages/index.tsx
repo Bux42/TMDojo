@@ -78,7 +78,7 @@ const Home = (): JSX.Element => {
                         <Tooltip title="Refresh">
                             <Button
                                 shape="circle"
-                                size="large"
+                                className="mr-2"
                                 icon={<ReloadOutlined />}
                                 onClick={fetchMaps}
                             />
