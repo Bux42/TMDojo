@@ -7,7 +7,7 @@ import {
     message,
 } from 'antd';
 import DiscordButton from '../common/DiscordButton';
-import UserDisplay from './UserDisplay';
+import UserDisplay from '../common/UserDisplay';
 import { fetchMe } from '../../lib/api/auth';
 
 type InfoTab = 'welcome'|'howDoesThisWork'|'getInvolved';
