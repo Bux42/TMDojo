@@ -21,7 +21,14 @@ const Home = (): JSX.Element => {
                 } catch (e) {
                     console.log(e);
                 } finally {
-                    router.back();
+                    // redirect to original URL if available, fall back to landing page
+                    const originalURL = localStorage.getItem('originalURL');
+                    if (originalURL) {
+                        localStorage.removeItem('originalURL');
+                        router.replace(originalURL);
+                    } else {
+                        router.replace('/');
+                    }
                 }
             })();
         }
