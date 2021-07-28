@@ -131,6 +131,13 @@ const saveMap = (mapData) => new Promise((resolve, reject) => {
         .catch((error) => reject(error));
 });
 
+const getUserById = async (id) => {
+    const users = db.collection('users');
+    return users.findOne({
+        _id: new ObjectID(id),
+    });
+};
+
 const getUserByWebId = (webId) => new Promise((resolve, reject) => {
     const users = db.collection('users');
     users.findOne({ webId }, (err, user) => {
@@ -303,6 +310,18 @@ const getReplayById = (replayId, populate) => new Promise((resolve, reject) => {
     });
 });
 
+const saveReplay = async (replay) => {
+    const replays = db.collection('replays');
+    await replays.insertOne(replay);
+};
+
+const deleteReplayById = async (replayId) => {
+    const replays = db.collection('replays');
+    await replays.deleteOne({
+        _id: ObjectID(replayId),
+    });
+};
+
 const getReplayByFilePath = (filePath) => new Promise((resolve, reject) => {
     const replays = db.collection('replays');
     replays.findOne({ filePath }, (err, replay) => {
@@ -393,10 +412,12 @@ module.exports = {
     initDB,
     authenticateUser,
     saveReplayMetadata,
+    saveReplay,
     getUniqueMapNames,
     getMapByUId,
     saveMap,
     getUserByWebId,
+    getUserById,
     saveUser,
     getReplays,
     getReplayById,
@@ -405,4 +426,5 @@ module.exports = {
     getUserBySessionId,
     findSessionBySecret,
     deleteSession,
+    deleteReplayById,
 };

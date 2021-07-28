@@ -1,13 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
-    Button, Drawer, Table, Tooltip,
+    Button, Drawer, message, Modal, Table, Tooltip,
 } from 'antd';
 import { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
 import { TableCurrentDataSource } from 'antd/lib/table/interface';
-import { ReloadOutlined } from '@ant-design/icons';
+import {
+    DeleteOutlined, ExclamationCircleOutlined, ReloadOutlined, StarFilled, StarOutlined,
+} from '@ant-design/icons';
 import Link from 'next/link';
-import { FileResponse } from '../../lib/api/apiRequests';
+import { deleteReplay, FileResponse } from '../../lib/api/apiRequests';
 import { getRaceTimeStr, timeDifference } from '../../lib/utils/time';
+import { AuthContext } from '../../lib/contexts/AuthContext';
 
 interface ExtendedFileResponse extends FileResponse {
     readableTime: string;
@@ -22,7 +25,7 @@ interface Props {
     onRemoveReplay: (replay: FileResponse) => void;
     onLoadAllVisibleReplays: (replays: FileResponse[], selectedReplayDataIds: string[]) => void;
     onRemoveAllReplays: (replays: FileResponse[]) => void;
-    onRefreshReplays: () => void;
+    onRefreshReplays: () => Promise<void>;
     selectedReplayDataIds: string[];
 }
 
@@ -43,6 +46,8 @@ const SidebarReplays = ({
     const [visible, setVisible] = useState(false);
     const [visibleReplays, setVisibleReplays] = useState<FileResponse[]>([]);
 
+    const { user } = useContext(AuthContext);
+
     useEffect(() => {
         // initialize visible replays with the first page
         const initiallyVisibleReplays = replays.slice(0, defaultPageSize);
@@ -60,6 +65,44 @@ const SidebarReplays = ({
     const getUniqueFilters = (replayFieldCallback: (replay: FileResponse) => string) => {
         const uniques = Array.from(new Set(replays.map(replayFieldCallback)));
         return uniques.sort().map((val) => ({ text: val, value: val }));
+    };
+
+    const deleteReplayFile = async (replay: ExtendedFileResponse) => {
+        try {
+            await deleteReplay(replay);
+            await onRefreshReplays();
+            message.success('Replay deleted!');
+        } catch (e) {
+            message.error('Could not delete replay, please try again.');
+        }
+    };
+
+    const showDeleteConfirm = (replay: ExtendedFileResponse) => {
+        Modal.confirm({
+            title: 'Are you sure you want to delete this replay?',
+            icon: <ExclamationCircleOutlined />,
+            content: (
+                <>
+                    <span>
+                        {'Map: \t'}
+                        <b>{replay.mapName}</b>
+                    </span>
+                    <br />
+                    <span>
+                        {'Time: \t'}
+                        <b>{replay.readableTime}</b>
+                    </span>
+                    <br />
+                    <span>
+                        {'Driven: \t'}
+                        <b>{replay.relativeDate}</b>
+                    </span>
+                </>),
+            okText: 'Yes',
+            okType: 'danger',
+            cancelText: 'No',
+            onOk: () => deleteReplayFile(replay),
+        });
     };
 
     const columns: ColumnsType<ExtendedFileResponse> = [
@@ -80,14 +123,14 @@ const SidebarReplays = ({
             title: 'Time',
             dataIndex: 'readableTime',
             align: 'right',
-            width: 120,
+            width: 100,
             sorter: (a, b) => a.endRaceTime - b.endRaceTime,
         },
         {
             title: 'Date',
             dataIndex: 'relativeDate',
             align: 'right',
-            width: 120,
+            width: 130,
             sorter: (a, b) => a.date - b.date,
         },
         {
@@ -115,28 +158,40 @@ const SidebarReplays = ({
             title: '',
             key: 'load',
             align: 'center',
-            width: 120,
+            width: 180,
             render: (_, replay) => {
                 const selected = selectedReplayDataIds.indexOf(replay._id) !== -1;
-                return !selected ? (
-                    <Button
-                        size="middle"
-                        type="primary"
-                        onClick={() => onLoadReplay(replay)}
-                        className="w-full"
-                    >
-                        Load
-                    </Button>
-                ) : (
-                    <Button
-                        size="middle"
-                        type="primary"
-                        danger
-                        className="w-full"
-                        onClick={() => onRemoveReplay(replay)}
-                    >
-                        Remove
-                    </Button>
+                return (
+                    <div className="flex flex-row gap-4 items-center">
+                        {!selected ? (
+                            <Button
+                                size="middle"
+                                type="primary"
+                                onClick={() => onLoadReplay(replay)}
+                                className="w-full"
+                            >
+                                Load
+                            </Button>
+                        ) : (
+                            <Button
+                                size="middle"
+                                type="primary"
+                                danger
+                                className="w-full"
+                                onClick={() => onRemoveReplay(replay)}
+                            >
+                                Remove
+                            </Button>
+                        )}
+                        {user && user.accountId === replay.webId && (
+                            <Button
+                                shape="circle"
+                                danger
+                                icon={<DeleteOutlined style={{ fontSize: '16px', color: '#a61d24' }} />}
+                                onClick={() => showDeleteConfirm(replay)}
+                            />
+                        )}
+                    </div>
                 );
             },
         },
