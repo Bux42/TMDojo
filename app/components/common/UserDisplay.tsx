@@ -1,7 +1,6 @@
 import React, { useContext } from 'react';
-import { useRouter } from 'next/router';
 import { Button, message } from 'antd';
-import { generateAuthUrl } from '../../lib/api/auth';
+import { authorizeWithAccessCode, generateAuthUrl } from '../../lib/api/auth';
 import { AuthContext } from '../../lib/contexts/AuthContext';
 
 const LoginButton = ({ onClick } :{onClick: () => void}) => (
@@ -21,20 +20,91 @@ const LogoutButton = ({ onClick } :{onClick: () => void}) => (
     </Button>
 );
 
+// https://dev.to/dinkydani21/how-we-use-a-popup-for-google-and-outlook-oauth-oci
+const receiveMessage = (
+    event: any,
+    onReceivedAuthInfo: (code: string, state: string) => Promise<void>,
+) => {
+    // Do we trust the sender of this message? (might be
+    // different from what we originally opened, for example).
+    if (event.origin !== window.origin) {
+        return;
+    }
+
+    const { data } = event;
+    // // if we trust the sender and the source is our popup
+    const { source, code, state } = data;
+    if (source === 'ubi-login-redirect'
+        && code !== undefined && typeof code === 'string'
+        && state !== undefined && typeof state === 'string') {
+        onReceivedAuthInfo(code, state);
+    }
+};
+
+let windowObjectReference: Window | null = null;
+let previousUrl: string | undefined;
+
+const openAuthWindow = (
+    url: string,
+    name: string,
+    onReceivedAuthInfo: (code: string, state: string) => Promise<void>,
+) => {
+    // remove any existing event listeners
+    window.removeEventListener('message', (event) => receiveMessage(event, onReceivedAuthInfo));
+
+    // window features
+    const strWindowFeatures = 'toolbar=no, menubar=no, width=600, height=700, top=100, left=100';
+
+    if (windowObjectReference === null || windowObjectReference.closed) {
+        /* if the pointer to the window object in memory does not exist
+        or if such pointer exists but the window was closed */
+        windowObjectReference = window.open(url, name, strWindowFeatures);
+    } else if (previousUrl !== url) {
+        /* if the resource to load is different,
+        then we load it in the already opened secondary window and then
+        we bring such window back on top/in front of its parent window. */
+        windowObjectReference = window.open(url, name, strWindowFeatures);
+        windowObjectReference?.focus();
+    } else {
+        /* else the window reference must exist and the window
+        is not closed; therefore, we can bring it back on top of any other
+        window with the focus() method. There would be no need to re-create
+        the window or to reload the referenced resource. */
+        windowObjectReference.focus();
+    }
+
+    // add the listener for receiving a message from the popup
+    window.addEventListener('message', (event) => receiveMessage(event, onReceivedAuthInfo), false);
+
+    // assign the previous URL
+    previousUrl = url;
+};
+
 const UserDisplay = () => {
-    const { user, logoutUser } = useContext(AuthContext);
-    const router = useRouter();
+    const { user, setUser, logoutUser } = useContext(AuthContext);
+
+    const onReceivedAuthInfo = async (code: string, state: string) => {
+        try {
+            const storedState = localStorage.getItem('state');
+            localStorage.removeItem('state');
+            if (storedState === state) {
+                const userInfo = await authorizeWithAccessCode(code);
+                setUser(userInfo);
+            } else {
+                console.log(`Stored state (${storedState}) did not match incoming state (${state})`);
+            }
+        } catch (e) {
+            console.log(e);
+        }
+    };
 
     const onLogin = () => {
-        // keep the current route for redirecting back after login
-        localStorage.setItem('originalURL', router.asPath);
-
         // generate and store random string as state
         const state = Math.random().toString(36).substring(2); // 11 random lower-case alpha-numeric characters
         localStorage.setItem('state', state);
 
         // redirect to Ubisoft auth
-        router.replace(generateAuthUrl(state));
+        openAuthWindow(generateAuthUrl(state), 'Login with Ubisoft', onReceivedAuthInfo);
     };
 
     const onLogout = async () => {
