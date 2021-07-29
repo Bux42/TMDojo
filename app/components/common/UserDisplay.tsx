@@ -25,12 +25,10 @@ const UserDisplay = () => {
     const { user, setUser, logoutUser } = useContext(AuthContext);
 
     const receiveAuthEvent = useCallback(async (event: any) => {
-        // Check event origin
         if (event.origin !== window.origin) {
             return;
         }
 
-        // Check source, code, and state
         const { data } = event;
         const { source, code, state } = data;
         if (source !== 'ubi-login-redirect') {
@@ -43,7 +41,6 @@ const UserDisplay = () => {
             return;
         }
 
-        // Check stored state
         const storedState = localStorage.getItem('state');
         localStorage.removeItem('state');
         if (storedState !== state) {
@@ -51,7 +48,6 @@ const UserDisplay = () => {
             return;
         }
 
-        // Check state and exchange access code
         try {
             const userInfo = await authorizeWithAccessCode(code);
             setUser(userInfo);
@@ -65,7 +61,6 @@ const UserDisplay = () => {
         const state = Math.random().toString(36).substring(2); // 11 random lower-case alpha-numeric characters
         localStorage.setItem('state', state);
 
-        // Open Ubisoft auth popup window
         openAuthWindow(generateAuthUrl(state), 'Login with Ubisoft', receiveAuthEvent);
     };
 

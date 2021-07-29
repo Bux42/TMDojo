@@ -345,14 +345,11 @@ const createSession = async (webId) => {
 };
 
 const findSessionBySecret = async (sessionId) => {
-    // Delete session
     const sessions = db.collection('sessions');
-    const session = await sessions.findOne({ sessionId });
-    return session;
+    return sessions.findOne({ sessionId });
 };
 
 const deleteSession = async (sessionId) => {
-    // Delete session
     const sessions = db.collection('sessions');
     await sessions.deleteOne({
         sessionId,

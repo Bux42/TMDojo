@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { Card, Layout, Spin } from 'antd';
 
-const Home = (): JSX.Element => {
+const AuthRedirect = (): JSX.Element => {
     const router = useRouter();
     const { code, state } = router.query;
 
@@ -34,4 +34,4 @@ const Home = (): JSX.Element => {
     );
 };
 
-export default Home;
+export default AuthRedirect;

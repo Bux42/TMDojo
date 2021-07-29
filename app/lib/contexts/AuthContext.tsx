@@ -1,11 +1,6 @@
 import { useRouter } from 'next/router';
 import React, { createContext, useEffect, useState } from 'react';
-import { fetchMe, logout } from '../api/auth';
-
-export interface UserInfo {
-    displayName: string,
-    accountId: string
-}
+import { fetchLoggedInUser, logout, UserInfo } from '../api/auth';
 
 export interface AuthContextProps {
     user?: UserInfo,
@@ -25,7 +20,7 @@ export const AuthProvider = ({ children }: any): JSX.Element => {
 
     const updateLoggedInUser = async () => {
         try {
-            const me = await fetchMe();
+            const me = await fetchLoggedInUser();
             if (me === undefined) {
                 setUser(undefined);
             } else if (me.accountId !== user?.accountId) {
