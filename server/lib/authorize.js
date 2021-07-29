@@ -1,7 +1,5 @@
 const axios = require('axios');
 
-const querystring = require('querystring');
-
 const exchangeCodeForAccessToken = async (code, redirectUri) => {
     const authUrl = 'https://api.trackmania.com/api/access_token';
     const params = {
@@ -14,7 +12,7 @@ const exchangeCodeForAccessToken = async (code, redirectUri) => {
 
     // TODO: properly handle errors
     const { data } = await axios
-        .post(authUrl, querystring.stringify(params))
+        .post(authUrl, new URLSearchParams(params).toString())
         .catch((e) => console.log(e));
 
     return data.access_token;
