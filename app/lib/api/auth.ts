@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const getRedirectUri = () => {
-    if (!process.browser) {
+    if (typeof window === 'undefined') {
         // Avoid some nextjs compilation errors regarding window being undefined
         return undefined;
     }
