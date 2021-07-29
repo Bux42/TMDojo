@@ -1,8 +1,6 @@
-import React, { useCallback, useContext } from 'react';
+import React, { useContext } from 'react';
 import { Button, message } from 'antd';
-import { authorizeWithAccessCode, generateAuthUrl } from '../../lib/api/auth';
 import { AuthContext } from '../../lib/contexts/AuthContext';
-import openAuthWindow from '../../lib/utils/authPopup';
 
 const LoginButton = ({ onClick } :{onClick: () => void}) => (
     <Button type="primary" onClick={onClick}>
@@ -22,47 +20,7 @@ const LogoutButton = ({ onClick } :{onClick: () => void}) => (
 );
 
 const UserDisplay = () => {
-    const { user, setUser, logoutUser } = useContext(AuthContext);
-
-    const receiveAuthEvent = useCallback(async (event: any) => {
-        if (event.origin !== window.origin) {
-            return;
-        }
-
-        const { data } = event;
-        const { source, code, state } = data;
-        if (source !== 'ubi-login-redirect') {
-            return;
-        }
-        if (code === undefined || code === null || typeof code !== 'string') {
-            return;
-        }
-        if (state === undefined || state === null || typeof state !== 'string') {
-            return;
-        }
-
-        const storedState = localStorage.getItem('state');
-        localStorage.removeItem('state');
-        if (storedState !== state) {
-            console.log(`Stored state (${storedState}) did not match incoming state (${state})`);
-            return;
-        }
-
-        try {
-            const userInfo = await authorizeWithAccessCode(code);
-            setUser(userInfo);
-        } catch (e) {
-            console.log(e);
-        }
-    }, [setUser]);
-
-    const onLogin = () => {
-        // Generate and store random string as state
-        const state = Math.random().toString(36).substring(2); // 11 random lower-case alpha-numeric characters
-        localStorage.setItem('state', state);
-
-        openAuthWindow(generateAuthUrl(state), 'Login with Ubisoft', receiveAuthEvent);
-    };
+    const { user, startAuthFlow, logoutUser } = useContext(AuthContext);
 
     const onLogout = async () => {
         try {
@@ -73,7 +31,7 @@ const UserDisplay = () => {
     };
 
     return user === undefined
-        ? <LoginButton onClick={onLogin} />
+        ? <LoginButton onClick={startAuthFlow} />
         : (
             <div className="flex flex-row items-center">
                 {`Welcome, ${user.displayName}!`}
