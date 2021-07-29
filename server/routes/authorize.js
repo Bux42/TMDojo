@@ -53,7 +53,6 @@ router.post('/', async (req, res, next) => {
         // Repond with user info
         res.cookie('sessionId', sessionId, {
             path: '/',
-            httpOnly: true,
             secure: false, // TODO: enable on HTTPS server
             maxAge: 1000 * 60 * 60 * 24 * 365, // 365 days
         });

@@ -19,15 +19,11 @@ export const AuthProvider = ({ children }: any): JSX.Element => {
     const { asPath } = useRouter();
 
     const updateLoggedInUser = async () => {
-        try {
-            const me = await fetchLoggedInUser();
-            if (me === undefined) {
-                setUser(undefined);
-            } else if (me.accountId !== user?.accountId) {
-                setUser(me);
-            }
-        } catch (e) {
+        const me = await fetchLoggedInUser();
+        if (me === undefined) {
             setUser(undefined);
+        } else if (me?.accountId !== user?.accountId) {
+            setUser(me);
         }
     };
 

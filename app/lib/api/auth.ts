@@ -46,6 +46,15 @@ export interface UserInfo {
 export const fetchLoggedInUser = async (): Promise<UserInfo | undefined> => {
     const url = `${process.env.NEXT_PUBLIC_API_URL}/me`;
 
+    const hasSessionCookie = document.cookie
+        .split(';')
+        .filter((cookie) => cookie.trim().startsWith('sessionId='))
+        .length > 0;
+
+    if (!hasSessionCookie) {
+        return undefined;
+    }
+
     try {
         // TODO: use custom axios instance with default config for withCredentials
         const { data } = await axios.post(url, {}, { withCredentials: true });

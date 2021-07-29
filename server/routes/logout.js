@@ -27,7 +27,6 @@ router.post('/', async (req, res, next) => {
         // Send instantly expiring cookie
         res.cookie('sessionId', sessionId, {
             path: '/',
-            httpOnly: true,
             secure: false, // TODO: enable on HTTPS server
             maxAge: -1, // instantly expires
         });
