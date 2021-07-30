@@ -44,7 +44,7 @@ router.post('/', async (req, res, next) => {
         }
 
         // Create session
-        const sessionId = await createSession(userInfo.account_id);
+        const sessionId = await createSession(userInfo);
         if (sessionId === undefined) {
             res.status(500).send({ message: 'Failed to create login session.' });
             return;
