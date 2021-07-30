@@ -5,7 +5,9 @@ import {
 import Highcharts from 'highcharts/highstock';
 import HighchartsReact from 'highcharts-react-official';
 import { ReplayData } from '../../lib/api/apiRequests';
-import { accelAndBrakeChartOptions, defaultChartOptions, rpmsAndGearChartOptions } from '../../lib/charts/chartOptions';
+import {
+    accelAndBrakeChartOptions, defaultChartOptions, inputSteerChartOptions, rpmsAndGearChartOptions,
+} from '../../lib/charts/chartOptions';
 import {
     engineCurrGearChartData,
     engineRPMsChartData,
@@ -40,7 +42,7 @@ export const ChartTypes: { [name: string]: ChartType } = {
     },
     inputSteer: {
         name: 'inputSteer',
-        chartOptionsCallback: defaultChartOptions,
+        chartOptionsCallback: inputSteerChartOptions,
         chartDataCallback: [inputSteerChartData],
     },
     engineRPMs: {

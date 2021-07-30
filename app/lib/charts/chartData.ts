@@ -9,7 +9,7 @@ export const chartDataTemplate = (replay: ReplayData, decimalPoints: number): an
         name: `${replay.playerName} ${getRaceTimeStr(replay.endRaceTime)}`,
         data: [],
         marker: {
-            enabled: null,
+            enabled: false,
             radius: 3,
             lineWidth: 1,
             lineColor: '#FFFFFF',

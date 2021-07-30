@@ -1,5 +1,3 @@
-import { ChartType } from '../../components/maps/SidebarCharts';
-
 export const chartOptionsTemplate = (): any => {
     const scrollBarOptions = {
         enabled: true,
@@ -18,15 +16,7 @@ export const chartOptionsTemplate = (): any => {
         },
         chart: {
             height: 395,
-            backgroundColor: {
-                linearGradient: {
-                    x1: 0, y1: 0, x2: 1, y2: 1,
-                },
-                stops: [
-                    [0, '#2B2B2C'],
-                    [1, '#2B2B2C'],
-                ],
-            },
+            backgroundColor: '#2B2B2C',
         },
         rangeSelector: {
             enabled: false,
@@ -51,12 +41,26 @@ export const chartOptionsTemplate = (): any => {
             type: 'date',
         },
         scrollbar: scrollBarOptions,
+        line: {
+            marker: {
+                enabled: false,
+            },
+        },
     };
     return (options);
 };
 
 export const defaultChartOptions = (): any => {
     const options = chartOptionsTemplate();
+    return options;
+};
+
+export const inputSteerChartOptions = (): any => {
+    const options = chartOptionsTemplate();
+    options.yAxis = {
+        min: -1,
+        max: 1,
+    };
     return options;
 };
 
