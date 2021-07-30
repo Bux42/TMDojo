@@ -41,7 +41,7 @@ const playerLoginFromWebId = (webId) => {
         return str;
     };
 
-    const isGameLogin = (login) => {
+    const isValidPlayerLogin = (login) => {
         if (login === undefined) {
             return false;
         }
@@ -55,7 +55,7 @@ const playerLoginFromWebId = (webId) => {
         const hexValues = hexToIntArray(cleanID);
         const base64 = Buffer.from(hexValues).toString('base64');
         const playerLogin = base64.replace('+', '-').replace('/', '_').replace(/=+$/, '');
-        return isGameLogin(playerLogin) ? playerLogin : undefined;
+        return isValidPlayerLogin(playerLogin) ? playerLogin : undefined;
     } catch (e) {
         console.log(`Something went wrong while converting webId "${webId}" to a playerLogin:`);
         console.log(e);
