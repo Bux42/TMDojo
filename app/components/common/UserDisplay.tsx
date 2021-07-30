@@ -1,15 +1,11 @@
 import React, { useContext } from 'react';
-import Link from 'next/link';
 import { Button, message } from 'antd';
-import { generateAuthUrl } from '../../lib/api/auth';
 import { AuthContext } from '../../lib/contexts/AuthContext';
 
-const LoginButton = () => (
-    <Link href={generateAuthUrl('tmdojo')}>
-        <Button type="primary">
-            Login with Ubisoft
-        </Button>
-    </Link>
+const LoginButton = ({ onClick } :{onClick: () => void}) => (
+    <Button type="primary" onClick={onClick}>
+        Login with Ubisoft
+    </Button>
 );
 
 const LogoutButton = ({ onClick } :{onClick: () => void}) => (
@@ -24,7 +20,7 @@ const LogoutButton = ({ onClick } :{onClick: () => void}) => (
 );
 
 const UserDisplay = () => {
-    const { user, logoutUser } = useContext(AuthContext);
+    const { user, startAuthFlow, logoutUser } = useContext(AuthContext);
 
     const onLogout = async () => {
         try {
@@ -35,7 +31,7 @@ const UserDisplay = () => {
     };
 
     return user === undefined
-        ? <LoginButton />
+        ? <LoginButton onClick={startAuthFlow} />
         : (
             <div className="flex flex-row items-center">
                 {`Welcome, ${user.displayName}!`}

@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const getRedirectUri = () => {
-    if (!process.browser) {
+    if (typeof window === 'undefined') {
         // Avoid some nextjs compilation errors regarding window being undefined
         return undefined;
     }
@@ -18,9 +18,7 @@ export const generateAuthUrl = (state: string): string => {
         state,
     };
 
-    const res = axios.getUri({ url, params });
-
-    return res;
+    return axios.getUri({ url, params });
 };
 
 interface AuthorizationResponse {
@@ -41,12 +39,21 @@ export const authorizeWithAccessCode = async (accessCode: string): Promise<Autho
     return data;
 };
 
-interface MeResponse {
+export interface UserInfo {
     displayName: string;
     accountId: string;
 }
-export const fetchMe = async (): Promise<MeResponse | undefined> => {
+export const fetchLoggedInUser = async (): Promise<UserInfo | undefined> => {
     const url = `${process.env.NEXT_PUBLIC_API_URL}/me`;
+
+    const hasSessionCookie = document.cookie
+        .split(';')
+        .filter((cookie) => cookie.trim().startsWith('sessionId='))
+        .length > 0;
+
+    if (!hasSessionCookie) {
+        return undefined;
+    }
 
     try {
         // TODO: use custom axios instance with default config for withCredentials

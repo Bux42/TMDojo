@@ -12,20 +12,18 @@ const authMiddleware = async (req, res, next) => {
     // Check for missing parameters
     if (sessionId === undefined || typeof sessionId !== 'string') {
         req.user = undefined;
-        next();
-        return;
+        return next();
     }
 
     // Get user by session secret
     const user = await getUserBySessionId(sessionId);
     if (user === undefined || user === null) {
         req.user = undefined;
-        next();
-        return;
+        return next();
     }
 
     req.user = user;
-    next();
+    return next();
 };
 
 module.exports = {

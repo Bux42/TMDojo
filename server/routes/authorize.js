@@ -44,7 +44,7 @@ router.post('/', async (req, res, next) => {
         }
 
         // Create session
-        const sessionId = await createSession(userInfo.account_id);
+        const sessionId = await createSession(userInfo);
         if (sessionId === undefined) {
             res.status(500).send({ message: 'Failed to create login session.' });
             return;
@@ -53,9 +53,9 @@ router.post('/', async (req, res, next) => {
         // Repond with user info
         res.cookie('sessionId', sessionId, {
             path: '/',
-            httpOnly: true,
             secure: false, // TODO: enable on HTTPS server
             maxAge: 1000 * 60 * 60 * 24 * 365, // 365 days
+            domain: process.env.NODE_ENV === 'prod' ? 'tmdojo.com' : 'localhost',
         });
 
         res.send({

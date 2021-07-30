@@ -1,14 +1,9 @@
 /* eslint-disable react/no-array-index-key */
 /* eslint-disable max-len */
 import React, { useState } from 'react';
-import {
-    Button,
-    Card,
-    message,
-} from 'antd';
+import { Card } from 'antd';
 import DiscordButton from '../common/DiscordButton';
 import UserDisplay from '../common/UserDisplay';
-import { fetchMe } from '../../lib/api/auth';
 
 type InfoTab = 'welcome'|'howDoesThisWork'|'getInvolved';
 

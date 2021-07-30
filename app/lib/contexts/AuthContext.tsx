@@ -1,44 +1,92 @@
 import { useRouter } from 'next/router';
-import React, { createContext, useEffect, useState } from 'react';
-import { fetchMe, logout } from '../api/auth';
-
-export interface UserInfo {
-    displayName: string,
-    accountId: string
-}
+import React, {
+    createContext, useCallback, useEffect, useState,
+} from 'react';
+import {
+    authorizeWithAccessCode, fetchLoggedInUser, generateAuthUrl, logout, UserInfo,
+} from '../api/auth';
+import openAuthWindow from '../utils/authPopup';
 
 export interface AuthContextProps {
     user?: UserInfo,
     setUser: (user?: UserInfo) => void,
     logoutUser: () => Promise<void>
+    startAuthFlow: () => void
 }
 
 export const AuthContext = createContext<AuthContextProps>({
     user: undefined,
     setUser: (user?: UserInfo) => {},
     logoutUser: async () => {},
+    startAuthFlow: () => {},
 });
 
 export const AuthProvider = ({ children }: any): JSX.Element => {
     const [user, setUser] = useState<UserInfo>();
     const { asPath } = useRouter();
 
-    const updateLoggedInUser = async () => {
-        try {
-            const me = await fetchMe();
-            if (me === undefined) {
-                setUser(undefined);
-            } else if (me.accountId !== user?.accountId) {
-                setUser(me);
-            }
-        } catch (e) {
-            setUser(undefined);
-        }
-    };
-
     useEffect(() => {
         updateLoggedInUser();
     }, [asPath]);
+
+    const updateLoggedInUser = async () => {
+        const me = await fetchLoggedInUser();
+        if (me === undefined) {
+            setUser(undefined);
+        } else if (me?.accountId !== user?.accountId) {
+            setUser(me);
+        }
+    };
+
+    const startAuthFlow = () => {
+        // Generate and store random string as state
+        const state = Math.random().toString(36).substring(2); // 11 random lower-case alpha-numeric characters
+        localStorage.setItem('state', state);
+
+        // Remove any existing event listeners
+        window.removeEventListener('message', receiveAuthEvent);
+
+        openAuthWindow(generateAuthUrl(state), 'Login with Ubisoft');
+
+        // Add the listener for receiving a message from the popup
+        window.addEventListener('message', receiveAuthEvent, false);
+    };
+
+    const receiveAuthEvent = useCallback(async (event: any) => {
+        if (event.origin !== window.origin) {
+            return;
+        }
+
+        const { data } = event;
+        const { source, code, state } = data;
+        if (source !== 'ubi-login-redirect') {
+            return;
+        }
+
+        // We received a message from the auth window, remove this listener
+        window.removeEventListener('message', receiveAuthEvent);
+
+        if (code === undefined || code === null || typeof code !== 'string') {
+            return;
+        }
+        if (state === undefined || state === null || typeof state !== 'string') {
+            return;
+        }
+
+        const storedState = localStorage.getItem('state');
+        localStorage.removeItem('state');
+        if (storedState !== state) {
+            console.log(`Stored state (${storedState}) did not match incoming state (${state})`);
+            return;
+        }
+
+        try {
+            const userInfo = await authorizeWithAccessCode(code);
+            setUser(userInfo);
+        } catch (e) {
+            console.log(e);
+        }
+    }, [setUser]);
 
     const logoutUser = async () => {
         try {
@@ -46,7 +94,7 @@ export const AuthProvider = ({ children }: any): JSX.Element => {
             setUser(undefined);
         } catch (e) {
             // If error code is Unauthorized (so no user is logged in), set user to undefined
-            // Should only happen when manually deleting session cookie
+            // This should only happen when manually deleting the session cookie
             if (e.response.status === 401) {
                 setUser(undefined);
             } else {
@@ -61,6 +109,7 @@ export const AuthProvider = ({ children }: any): JSX.Element => {
                 user,
                 setUser,
                 logoutUser,
+                startAuthFlow,
             }}
         >
             {children}

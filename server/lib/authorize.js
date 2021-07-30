@@ -1,7 +1,5 @@
 const axios = require('axios');
 
-const querystring = require('querystring');
-
 const exchangeCodeForAccessToken = async (code, redirectUri) => {
     const authUrl = 'https://api.trackmania.com/api/access_token';
     const params = {
@@ -14,7 +12,7 @@ const exchangeCodeForAccessToken = async (code, redirectUri) => {
 
     // TODO: properly handle errors
     const { data } = await axios
-        .post(authUrl, querystring.stringify(params))
+        .post(authUrl, new URLSearchParams(params).toString())
         .catch((e) => console.log(e));
 
     return data.access_token;
@@ -34,7 +32,39 @@ const fetchUserInfo = async (accessToken) => {
     return data;
 };
 
+const playerLoginFromWebId = (webId) => {
+    const hexToIntArray = (inputString) => {
+        const str = [];
+        for (let i = 0; i < inputString.length; i += 2) {
+            str.push(parseInt(inputString.substr(i, 2), 16));
+        }
+        return str;
+    };
+
+    const isValidPlayerLogin = (login) => {
+        if (login === undefined) {
+            return false;
+        }
+
+        const match = login.match('^[a-zA-Z0-9\\-_]{22}$');
+        return match !== null && match.length > 0;
+    };
+
+    try {
+        const cleanID = webId.replaceAll('-', '');
+        const hexValues = hexToIntArray(cleanID);
+        const base64 = Buffer.from(hexValues).toString('base64');
+        const playerLogin = base64.replace('+', '-').replace('/', '_').replace(/=+$/, '');
+        return isValidPlayerLogin(playerLogin) ? playerLogin : undefined;
+    } catch (e) {
+        console.log(`Something went wrong while converting webId "${webId}" to a playerLogin:`);
+        console.log(e);
+        return undefined;
+    }
+};
+
 module.exports = {
     exchangeCodeForAccessToken,
     fetchUserInfo,
+    playerLoginFromWebId,
 };
