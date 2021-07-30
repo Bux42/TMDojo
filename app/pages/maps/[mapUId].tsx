@@ -16,6 +16,11 @@ import {
 } from '../../lib/api/apiRequests';
 import HeadTitle from '../../components/common/HeadTitle';
 import { SidebarCharts } from '../../components/maps/SidebarCharts';
+import { cleanTMFormatting } from '../../lib/utils/formatting';
+import LoadedReplays from '../../components/maps/LoadedReplays';
+import { TimeLineInfos } from '../../components/viewer/TimeLine';
+
+const timeLineGlobal = new TimeLineInfos();
 
 const Home = (): JSX.Element => {
     const [replays, setReplays] = useState<FileResponse[]>([]);
@@ -74,9 +79,11 @@ const Home = (): JSX.Element => {
         setSelectedReplayData(replayDataFiltered);
     };
 
+    const getTitle = () => (mapData?.name ? `${cleanTMFormatting(mapData.name)} - TMDojo` : 'TMDojo');
+
     return (
         <>
-            <HeadTitle mapInfo={mapData} />
+            <HeadTitle title={getTitle()} />
             <Layout>
                 <MapHeader mapInfo={mapData} />
                 <Layout.Content>
@@ -90,9 +97,13 @@ const Home = (): JSX.Element => {
                         selectedReplayDataIds={selectedReplayData.map((replay) => replay._id)}
                         onRefreshReplays={fetchAndSetReplays}
                     />
+                    {
+                        selectedReplayData.length > 0
+                        && <LoadedReplays replays={selectedReplayData} timeLineGlobal={timeLineGlobal} />
+                    }
                     <SidebarSettings />
                     <SidebarCharts replaysData={selectedReplayData} />
-                    <Viewer3D replaysData={selectedReplayData} />
+                    <Viewer3D replaysData={selectedReplayData} timeLineGlobal={timeLineGlobal} />
                 </Layout.Content>
             </Layout>
         </>

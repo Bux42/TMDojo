@@ -19,8 +19,15 @@ void Render()
             CSmScriptPlayer@ sm_script = cast<CSmPlayer>(app.CurrentPlayground.GameTerminals[0].GUIPlayer).ScriptAPI;
         if (sm_script.WheelsSkiddingCount == 4 && sm_script.DisplaySpeed > 400) {
             float driftAngle = Math::Angle(sm_script.AimDirection.Normalized(), sm_script.Velocity.Normalized() ) - 1.45946f;
-            float driftAngleDeg = Math::ToDeg(driftAngle);
-            Draw::DrawString(vec2(900, 900), vec4(1, 0.2, 0.2, 1), "" + driftAngleDeg, null, 30.0f, 0.0f);
+            float driftAngleDeg = Math::ToDeg(driftAngle) * 100;
+
+            float diff = Math::Abs(driftAngleDeg - 0.5);
+            if (diff > 0.5) {
+                diff = 0.5;
+            }
+            vec4 color = vec4(0.5 + diff, 1 - diff, 0, 1);
+            
+            Draw::DrawString(vec2(900, 900), color, Text::Format("%.2f", driftAngleDeg), null, 30.0f, 0.0f);
         }
     }
 }

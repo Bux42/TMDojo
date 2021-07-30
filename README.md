@@ -1,56 +1,30 @@
-
 # TMDojo
 
-TMDojo is a data visualization tool for Trackmania 2020
+TMDojo is a map and replay data visualization tool for Trackmania 2020.
 
-![alt text](https://cdn.discordapp.com/attachments/424967293538402334/834084842084892772/unknown.png)
+![alt text](https://i.imgur.com/PPt6OFA.png)
 
-The goal is to be able to browse & analyse racing data, and maybe some machine learning
+The goal is to be able to **browse, analyze, and compare** Trackmania replay data.
+For that, we're aiming to provide a wide variety of tools such as a 3D view of the map and detailed charts with all the available data.
+
+The live project can be found at [tmdojo.com](https://tmdojo.com).
+
+## Disclaimer
+
+While this project is actively being developed, we're all working on it in our free time - so updates will come when they're ready.
+
+## Project Structure
 
 The project has three parts:
 
-- app: (web ui with 3D view using THREE.js)
-- plugins: (openplanet plugin that records racing data)
-- server: Recieves & stores racing
-   data sent by the user's plugin, communicate with the front
+- `/app`: React.js front-end
+- `/server`: Node.js back-end for data storage and centralized calculations
+- `/plugin`: [Openplanet](https://openplanet.nl) plugin to record players' racing data in-game
 
-The racing data gathered by the openplanet plugin is a list of 76 bytes blocks, at every frame-ingame, a new block is added to the list (144 FPS == 9 kb/s of data)
+## Setup
 
+Each of the three parts have to be set up individually - check out the respective README files.
 
-Each block stores 19 values:
- - currentRaceTime (int)
- - position (Vec3)
- - aimYaw (float)
- - aimPitch (float)
- - aimDirection (Vec3)
- - velocity (Vec3)
- - speed (float)
- - inputSteer (float)
- - inputGasPedal & inputIsBraking (int)
- - engineRpm (float)
- - engineCurGear (int)
- - wheelsContactCount (int)
- - wheelsSkiddingCount (int)
+## Get in Touch
 
-How to use locally:
-
-- Install MongoDB and create a database named "dojo" (make sure MongoClient url in app.js is the same as yours)
-- Run "npm install" in both /server and /app to auto install dependancies
-- Make sure the node server /server/app.js is running
-- Run "npm run dev" in /app folder and browse http://localhost:4200/ for the web interface
-- Reload plugin in trackmania
-
-You can create a symbolic link for automatic synchronisation of the plugin with the command "mklink"
-To do so, open a cmd as admin, go to the script folder and run the following command:
-
-`mklink Plugin_TMDojo.as [plugin repository path]`
-
-If done correctly, you should have a message like the one below
-
-![alt text](https://media.discordapp.net/attachments/833663831929520149/834025347212771378/unknown.png)
-
-If everything is working, the plugin will send racing data (upon respawn & race finish) to the node server, and you should be able to browse the data on the website
-
-Special thanks to the openplanet discord community, and tooInfinite for the feedbacks, ideas etc
-
-Thanks to TheMrMiku for velocity feature!
+This project is in active development - if you want to know more, help out or test, feel free to [join our Discord server](https://discord.gg/RPbZHvxNRG)!

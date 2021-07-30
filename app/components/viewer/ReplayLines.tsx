@@ -29,8 +29,11 @@ interface ReplayLineProps {
     replay: ReplayData;
     lineType: LineType;
     range: number[];
+    replayLineOpacity: number;
 }
-const ReplayLine = ({ replay, lineType, range }: ReplayLineProps) => {
+const ReplayLine = ({
+    replay, lineType, range, replayLineOpacity,
+}: ReplayLineProps) => {
     const points = useMemo(() => {
         if (range.length > 0) {
             return replay.samples
@@ -57,6 +60,8 @@ const ReplayLine = ({ replay, lineType, range }: ReplayLineProps) => {
             <bufferGeometry onUpdate={onUpdate} />
             <lineBasicMaterial
                 linewidth={10}
+                transparent
+                opacity={replayLineOpacity}
                 linecap="round"
                 linejoin="round"
                 vertexColors
@@ -69,12 +74,14 @@ interface ReplayLinesProps {
     replaysData: ReplayData[];
     lineType: LineType;
     range: number[];
+    replayLineOpacity: number;
     showGearChanges: boolean;
 }
 export const ReplayLines = ({
     replaysData,
     lineType,
     range,
+    replayLineOpacity,
     showGearChanges,
 }: ReplayLinesProps): JSX.Element => (
     <>
@@ -85,6 +92,7 @@ export const ReplayLines = ({
                     replay={replay}
                     lineType={lineType}
                     range={range}
+                    replayLineOpacity={replayLineOpacity}
                 />
                 {showGearChanges && (
                     <ReplayGears key={`replay-${replay._id}-gears`} replay={replay} />

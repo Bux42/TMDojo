@@ -35,6 +35,7 @@ module.exports = {
             },
         ],
         // TS-enforced stuff that only leads to false positives
+        'no-param-reassign': 'off',
         'no-use-before-define': 'off',
         'no-unused-vars': 'off',
         'react/require-default-props': 'off',
