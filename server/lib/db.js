@@ -1,5 +1,6 @@
 const { MongoClient, ObjectID } = require('mongodb');
 const { v4: uuid } = require('uuid');
+const { playerLoginFromWebId } = require('./authorize');
 require('dotenv').config();
 
 const DB_NAME = 'dojo';
@@ -324,13 +325,24 @@ const saveReplayMetadata = (metadata) => new Promise((resolve, reject) => {
  * Creates session using a webId.
  * Returns session secret or undefined if something went wrong
  */
-const createSession = async (webId) => {
+const createSession = async (userInfo) => {
     // Find user
-    const user = await getUserByWebId(webId);
+    let user = await getUserByWebId(userInfo.account_id);
     if (user === undefined || user === null) {
-        // TODO: create user in users collection. Use Ubi API to fill fields
-        console.log(`No user found for id ${webId}`);
-        return undefined;
+        const playerLogin = playerLoginFromWebId(userInfo.account_id);
+
+        if (userInfo.account_id !== undefined
+            && playerLogin !== undefined
+            && userInfo.display_name !== undefined) {
+            user = await saveUser({
+                webId: userInfo.account_id,
+                playerLogin,
+                playerName: userInfo.display_name,
+            });
+        } else {
+            console.log(`Could not create user for webId: ${userInfo.account_id}`);
+            return undefined;
+        }
     }
 
     // Create session

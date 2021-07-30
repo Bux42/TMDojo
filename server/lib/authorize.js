@@ -32,7 +32,28 @@ const fetchUserInfo = async (accessToken) => {
     return data;
 };
 
+const playerLoginFromWebId = (webId) => {
+    const hexToIntArray = (inputString) => {
+        const str = [];
+        for (let i = 0; i < inputString.length; i += 2) {
+            str.push(parseInt(inputString.substr(i, 2), 16));
+        }
+        return str;
+    };
+
+    try {
+        const cleanID = webId.replaceAll('-', '');
+        const hexValues = hexToIntArray(cleanID);
+        const base64 = Buffer.from(hexValues).toString('base64');
+        const playerLogin = base64.replace('+', '-').replace('/', '_').replace(/=+$/, '');
+        return playerLogin;
+    } catch (e) {
+        return undefined;
+    }
+};
+
 module.exports = {
     exchangeCodeForAccessToken,
     fetchUserInfo,
+    playerLoginFromWebId,
 };
