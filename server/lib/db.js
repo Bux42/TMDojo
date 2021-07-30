@@ -1,4 +1,6 @@
 const { MongoClient, ObjectID } = require('mongodb');
+const { v4: uuid } = require('uuid');
+const { playerLoginFromWebId } = require('./authorize');
 require('dotenv').config();
 
 const DB_NAME = 'dojo';
@@ -319,6 +321,86 @@ const saveReplayMetadata = (metadata) => new Promise((resolve, reject) => {
         .catch((error) => reject(error));
 });
 
+/**
+ * Creates session using a webId.
+ * Returns session secret or undefined if something went wrong
+ */
+const createSession = async (userInfo) => {
+    // Find user
+    let user = await getUserByWebId(userInfo.account_id);
+    if (user === undefined || user === null) {
+        const playerLogin = playerLoginFromWebId(userInfo.account_id);
+
+        if (playerLogin === undefined) {
+            console.log(`Failed to create session, generated playerLogin is not valid: ${playerLogin}`);
+            return undefined;
+        }
+
+        if (userInfo.account_id !== undefined && userInfo.display_name !== undefined) {
+            user = await saveUser({
+                webId: userInfo.account_id,
+                playerLogin,
+                playerName: userInfo.display_name,
+            });
+        } else {
+            console.log(`Could not create user for webId: ${userInfo.account_id}`);
+            return undefined;
+        }
+    }
+
+    // Create session
+    const sessions = db.collection('sessions');
+    const sessionId = uuid();
+    await sessions.insertOne({
+        sessionId,
+        userRef: user._id,
+    });
+
+    return sessionId;
+};
+
+const findSessionBySecret = async (sessionId) => {
+    const sessions = db.collection('sessions');
+    return sessions.findOne({ sessionId });
+};
+
+const deleteSession = async (sessionId) => {
+    const sessions = db.collection('sessions');
+    await sessions.deleteOne({
+        sessionId,
+    });
+};
+
+/**
+ * If session is valid and can find a user, return user
+ * Else, return undefined
+ */
+const getUserBySessionId = async (sessionId) => {
+    // Find session
+    const sessions = db.collection('sessions');
+    const session = await sessions.findOne({
+        sessionId,
+    });
+
+    // Return undefined if session is not valid
+    if (session === undefined || session === null) {
+        return undefined;
+    }
+
+    // Find user
+    const users = db.collection('users');
+    const user = await users.findOne({
+        _id: session.userRef,
+    });
+
+    // Return undefined if user could not be found
+    if (user === undefined || user === null) {
+        return undefined;
+    }
+
+    return user;
+};
+
 module.exports = {
     initDB,
     authenticateUser,
@@ -331,4 +413,8 @@ module.exports = {
     getReplays,
     getReplayById,
     getReplayByFilePath,
+    createSession,
+    getUserBySessionId,
+    findSessionBySecret,
+    deleteSession,
 };

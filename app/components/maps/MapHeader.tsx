@@ -5,6 +5,7 @@ import { PageHeader, Button } from 'antd';
 
 import { MapInfo } from '../../lib/api/apiRequests';
 import { cleanTMFormatting } from '../../lib/utils/formatting';
+import UserDisplay from '../common/UserDisplay';
 
 interface Props {
     mapInfo: MapInfo;
@@ -28,10 +29,11 @@ const MapHeader = ({ mapInfo }: Props): JSX.Element => {
         <PageHeader
             onBack={() => router.push('/')}
             title="Replay viewer"
-            subTitle={cleanTMFormatting(mapInfo.name || '')}
-            // anchors need duplicate links for keyboard accessibility
-            extra={(
-                <>
+            subTitle={(
+                <div className="flex flex-row gap-4 items-baseline">
+                    {cleanTMFormatting(mapInfo.name || '')}
+
+                    {/* anchors need duplicate links for keyboard accessibility */}
                     <Link href={tmioURL}>
                         <a target="_blank" rel="noreferrer" href={tmioURL}>
                             <Button key="tm.io" type="primary">
@@ -49,8 +51,9 @@ const MapHeader = ({ mapInfo }: Props): JSX.Element => {
                     ) : (
                         <TmxButton />
                     )}
-                </>
+                </div>
             )}
+            extra={<UserDisplay />}
         />
     );
 };
