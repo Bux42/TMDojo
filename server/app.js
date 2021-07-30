@@ -4,11 +4,18 @@ const express = require('express');
 const https = require('https');
 const fs = require('fs');
 const cors = require('cors');
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 
 const db = require('./lib/db');
 
+const { authMiddleware } = require('./middleware/auth');
+
 const authRouter = require('./routes/auth');
+const authorizeRouter = require('./routes/authorize');
+const logoutRouter = require('./routes/logout');
 const mapRouter = require('./routes/maps');
+const meRouter = require('./routes/me');
 const replayRouter = require('./routes/replays');
 
 // ensure storage directories exist
@@ -24,6 +31,7 @@ app.use(
     cors({
         origin: [
             'http://localhost:4200', // local UI dev environment
+            'http://localhost:3000', // local UI dev environment
             'https://tmdojo.com', // live UI
             /https:\/\/tm-dojo-.*\.vercel\.app/, // Vercel preview environments
         ],
@@ -42,6 +50,13 @@ if (process.env.USE_CERTIFICATES === 'true') {
         )
         .listen(443);
 }
+
+// body-parser middleware
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
+// Cookie Parser middleware
+app.use(cookieParser());
 
 const defaultPort = 80;
 app.listen(defaultPort, () => {
@@ -73,7 +88,13 @@ app.use((err, req, res, next) => {
     res.status(500).send('Internal server error');
 });
 
+// App middleware
+app.use(authMiddleware);
+
 // set up routes
 app.use('/auth', authRouter);
+app.use('/authorize', authorizeRouter);
+app.use('/logout', logoutRouter);
 app.use('/maps', mapRouter);
+app.use('/me', meRouter);
 app.use('/replays', replayRouter);
