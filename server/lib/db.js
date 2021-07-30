@@ -331,9 +331,12 @@ const createSession = async (userInfo) => {
     if (user === undefined || user === null) {
         const playerLogin = playerLoginFromWebId(userInfo.account_id);
 
-        if (userInfo.account_id !== undefined
-            && playerLogin !== undefined
-            && userInfo.display_name !== undefined) {
+        if (playerLogin === undefined) {
+            console.log(`Failed to create session, generated playerLogin is not valid: ${playerLogin}`);
+            return undefined;
+        }
+
+        if (userInfo.account_id !== undefined && userInfo.display_name !== undefined) {
             user = await saveUser({
                 webId: userInfo.account_id,
                 playerLogin,
