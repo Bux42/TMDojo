@@ -29,6 +29,7 @@ router.post('/', async (req, res, next) => {
             path: '/',
             secure: false, // TODO: enable on HTTPS server
             maxAge: -1, // instantly expires
+            domain: process.env.NODE_ENV === 'prod' ? 'tmdojo.com' : 'localhost',
         });
 
         // Delete session
