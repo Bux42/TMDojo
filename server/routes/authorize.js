@@ -55,6 +55,7 @@ router.post('/', async (req, res, next) => {
             path: '/',
             secure: false, // TODO: enable on HTTPS server
             maxAge: 1000 * 60 * 60 * 24 * 365, // 365 days
+            domain: process.env.NODE_ENV === 'prod' ? 'tmdojo.com' : 'localhost',
         });
 
         res.send({
