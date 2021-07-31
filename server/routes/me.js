@@ -1,4 +1,5 @@
 const express = require('express');
+const { setExpiredSessionCookie } = require('../lib/authorize');
 
 const router = express.Router();
 
@@ -12,6 +13,7 @@ router.post('/', async (req, res, next) => {
 
         // Get user by session secret
         if (user === undefined) {
+            setExpiredSessionCookie(res);
             res.status(401).send({ message: 'Not logged in.' });
             return;
         }
