@@ -13,7 +13,7 @@ router.post('/', async (req, res, next) => {
 
         // Get user by session secret
         if (user === undefined) {
-            setExpiredSessionCookie(res);
+            setExpiredSessionCookie(req, res);
             res.status(401).send({ message: 'Not logged in.' });
             return;
         }
