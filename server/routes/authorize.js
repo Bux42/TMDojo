@@ -50,7 +50,7 @@ router.post('/', async (req, res, next) => {
             return;
         }
 
-        setSessionCookie(res, sessionId);
+        setSessionCookie(req, res, sessionId);
 
         res.send({
             accountId: userInfo.account_id,
