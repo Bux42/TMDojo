@@ -4,6 +4,8 @@
  * - mapUId
  * - authorName
  * - thumbnailURL (not implemented yet)
+ * - filePath (not implemented yet)
+ * - objectPath (not implemented yet)
  */
 
 const express = require('express');
@@ -11,10 +13,8 @@ const express = require('express');
 const router = express.Router();
 const axios = require('axios');
 
-const fs = require('fs');
-const path = require('path');
-
 const db = require('../lib/db');
+const artefacts = require('../lib/artefacts');
 
 /**
  * GET /maps
@@ -37,13 +37,14 @@ router.get('/', async (req, res, next) => {
  */
 router.get('/:mapUID', async (req, res, next) => {
     try {
-        if (fs.existsSync(`mapBlocks/${req.params.mapUID}`)) {
-            res.sendFile(path.resolve(`${__dirname}/../mapBlocks/${req.params.mapUID}`));
-        } else {
-            res.status(404).send();
-        }
+        const mapData = await artefacts.retrieveMap(req.params.mapUID);
+        res.send(mapData);
     } catch (err) {
-        next(err);
+        if (err?.message === 'Object not found') {
+            res.status(404).send();
+        } else {
+            next(err);
+        }
     }
 });
 
@@ -81,16 +82,14 @@ router.post('/:mapUID', (req, res, next) => {
         completeData += data;
     });
 
-    req.on('end', () => {
-        const buff = Buffer.from(completeData, 'base64');
-        const filePath = `mapBlocks/${req.params.mapUID}`;
-        fs.writeFile(filePath, buff, (err) => {
-            if (err) {
-                return next(err);
-            }
-            console.log(`POST /maps/${req.params.mapUID}: The file was saved at`, filePath);
-            return res.send();
-        });
+    req.on('end', async () => {
+        try {
+            const buff = Buffer.from(completeData);
+            await artefacts.uploadMap(req.params.mapUID, buff);
+            res.send();
+        } catch (err) {
+            next(err);
+        }
     });
 
     req.on('error', (err) => {
