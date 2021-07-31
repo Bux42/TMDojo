@@ -1,5 +1,5 @@
 const express = require('express');
-const { exchangeCodeForAccessToken, fetchUserInfo } = require('../lib/authorize');
+const { exchangeCodeForAccessToken, fetchUserInfo, setSessionCookie } = require('../lib/authorize');
 const { createSession } = require('../lib/db');
 
 const router = express.Router();
@@ -50,13 +50,7 @@ router.post('/', async (req, res, next) => {
             return;
         }
 
-        // Repond with user info
-        res.cookie('sessionId', sessionId, {
-            path: '/',
-            secure: false, // TODO: enable on HTTPS server
-            maxAge: 1000 * 60 * 60 * 24 * 365, // 365 days
-            domain: process.env.NODE_ENV === 'prod' ? 'tmdojo.com' : 'localhost',
-        });
+        setSessionCookie(res, sessionId);
 
         res.send({
             accountId: userInfo.account_id,

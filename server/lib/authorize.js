@@ -63,8 +63,28 @@ const playerLoginFromWebId = (webId) => {
     }
 };
 
+const setSessionCookieWithAge = (res, sessionId, age) => {
+    res.cookie('sessionId', sessionId, {
+        path: '/',
+        secure: false, // TODO: enable on HTTPS server
+        maxAge: age,
+        domain: process.env.NODE_ENV === 'prod' ? 'tmdojo.com' : 'localhost',
+    });
+};
+
+const setSessionCookie = (res, sessionId) => {
+    const age = 1000 * 60 * 60 * 24 * 365; // 365 days
+    setSessionCookieWithAge(res, sessionId, age);
+};
+
+const setExpiredSessionCookie = (res) => {
+    setSessionCookieWithAge(res, '', -1);
+};
+
 module.exports = {
     exchangeCodeForAccessToken,
     fetchUserInfo,
     playerLoginFromWebId,
+    setSessionCookie,
+    setExpiredSessionCookie,
 };
