@@ -157,7 +157,7 @@ export const getUserByWebId = (
 
 export const saveUser = (
     userData : any,
-) : Promise<{_id: string}> => new Promise((resolve: (_1 : {_id: string}) => void, reject: Rejector) => {
+) : Promise<{_id: string}> => new Promise((resolve: Function, reject: Rejector) => {
     const users = db.collection('users');
     users.insertOne(userData)
         .then(({ insertedId } : {insertedId: string}) => resolve({ _id: insertedId }))
@@ -341,7 +341,7 @@ export const getReplayByFilePath = (
 
 export const saveReplayMetadata = (
     metadata : any,
-) : Promise<{_id: string}> => new Promise((resolve : (_1: {_id: string}) => void, reject : Rejector) => {
+) : Promise<{_id: string}> => new Promise((resolve: Function, reject : Rejector) => {
     const replays = db.collection('replays');
     replays.insertOne(metadata)
         .then(({ insertedId } : {insertedId: string}) => resolve({ _id: insertedId }))
