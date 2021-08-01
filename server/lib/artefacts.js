@@ -11,10 +11,13 @@ const REGION = 'eu-central-1';
 const STORAGE_TYPE_S3 = 'S3';
 const STORAGE_TYPE_FS = 'FS';
 
+// no explicit auth because it implicitly relies on env vars to exist
+// AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY
 const S3Client = new S3({
     region: REGION,
 });
 
+// helper method to convert stream to buffer (S3 responds with streams)
 const streamToBuffer = (stream) => new Promise((resolve, reject) => {
     const chunks = [];
     stream.on('data', (chunk) => chunks.push(chunk));
@@ -25,6 +28,7 @@ const streamToBuffer = (stream) => new Promise((resolve, reject) => {
 const compress = (input) => zlib.gzipSync(input);
 const decompress = (input) => zlib.unzipSync(input);
 
+// generic helper method for uploading artefacts (includes compression)
 const uploadObject = async (storageType, key, value) => {
     if (storageType === STORAGE_TYPE_S3) {
         const params = {
@@ -53,6 +57,7 @@ const uploadObject = async (storageType, key, value) => {
     throw new Error(`Invalid storageType "${storageType}"`);
 };
 
+// generic helper method for fetching artefacts (includes decompression)
 const retrieveObject = async (storageType, key) => {
     try {
         if (storageType === STORAGE_TYPE_S3) {
@@ -73,6 +78,7 @@ const retrieveObject = async (storageType, key) => {
         throw new Error(`Invalid storageType ${storageType}`);
     } catch (error) {
         if (typeof error === typeof NoSuchKey || error?.code === 'ENOENT') {
+            // translate same problem into single error we can detect later
             throw new Error('Object not found');
         } else {
             throw error;
@@ -80,6 +86,7 @@ const retrieveObject = async (storageType, key) => {
     }
 };
 
+// generic helper method for deleting artefacts (includes catching errors when artefacts doesn't exist)
 // linter complains about missing return in catch, but we'd need to return a nonsense value to make it happy
 // eslint-disable-next-line consistent-return
 const deleteObject = async (storageType, key) => {
