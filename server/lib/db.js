@@ -125,6 +125,16 @@ const getMapByUId = (mapUId) => new Promise((resolve, reject) => {
     });
 });
 
+const getMapById = (id) => new Promise((resolve, reject) => {
+    const maps = db.collection('maps');
+    maps.findOne({ _id: ObjectID(id) }, (err, map) => {
+        if (err) {
+            return reject(err);
+        }
+        return resolve(map);
+    });
+});
+
 const saveMap = (mapData) => new Promise((resolve, reject) => {
     const maps = db.collection('maps');
     maps.insertOne(mapData)
@@ -139,6 +149,43 @@ const getUserByWebId = (webId) => new Promise((resolve, reject) => {
             return reject(err);
         }
         return resolve(user);
+    });
+});
+
+const getReplaysByUserId = (userId) => new Promise((resolve, reject) => {
+    const replays = db.collection('replays');
+
+    const pipeline = [
+        // populate map references
+        {
+            $lookup: {
+                from: 'maps',
+                localField: 'mapRef',
+                foreignField: '_id',
+                as: 'map',
+            },
+        },
+        {
+            $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ['$map', 0] }, '$$ROOT'] } },
+        },
+    ];
+
+    pipeline.push({
+        $match: {
+            userRef: new ObjectID(userId),
+        },
+    });
+
+    replays.aggregate(pipeline, async (aggregateErr, cursor) => {
+        if (aggregateErr) {
+            return reject(aggregateErr);
+        }
+        try {
+            const data = await cursor.toArray();
+            return resolve({ files: data, totalResults: data.length });
+        } catch (arrayErr) {
+            return reject(arrayErr);
+        }
     });
 });
 
@@ -407,8 +454,10 @@ module.exports = {
     saveReplayMetadata,
     getUniqueMapNames,
     getMapByUId,
+    getMapById,
     saveMap,
     getUserByWebId,
+    getReplaysByUserId,
     saveUser,
     getReplays,
     getReplayById,

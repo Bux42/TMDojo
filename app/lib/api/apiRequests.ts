@@ -102,3 +102,24 @@ export const getAvailableMaps = async (searchString: string): Promise<AvailableM
     );
     return res.data;
 };
+
+export type UserInfo = {
+    webId?: string;
+    playerLogin?: string;
+    playerName?: number;
+    _id?: number;
+};
+
+export const getUserInfo = async (webId: string): Promise<UserInfo> => {
+    const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/${webId}/info`, {
+        withCredentials: true,
+    });
+    return res.data;
+};
+
+export const getUserReplays = async (userId: string): Promise<FilesResult> => {
+    const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/${userId}/replays`, {
+        withCredentials: true,
+    });
+    return res.data;
+};
