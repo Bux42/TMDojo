@@ -50,7 +50,7 @@ const uploadObject = async (storageType, key, value) => {
         return writeFile(fullPath, compress(value));
     }
 
-    throw new Error({ message: `Invalid storageType "${storageType}"` });
+    throw new Error(`Invalid storageType "${storageType}"`);
 };
 
 const retrieveObject = async (storageType, key) => {
@@ -70,10 +70,10 @@ const retrieveObject = async (storageType, key) => {
             return decompress(data);
         }
 
-        throw new Error({ message: `Invalid storageType ${storageType}` });
+        throw new Error(`Invalid storageType ${storageType}`);
     } catch (error) {
         if (typeof error === typeof NoSuchKey || error?.code === 'ENOENT') {
-            throw new Error({ message: 'Object not found' });
+            throw new Error('Object not found');
         } else {
             throw error;
         }
@@ -108,17 +108,32 @@ const deleteObject = async (storageType, key) => {
 };
 
 // TODO: support S3 for map artefacts
-// this requires some work on the db data model since the map data isn't referenced in db yet
+/**
+ * Upload map data to the server file system
+ * Only supports FS at the moment
+ */
 const uploadMap = async (mapUID, mapData) => {
     const key = `mapBlocks/${mapUID}`;
     await uploadObject(STORAGE_TYPE_FS, key, mapData);
     return key;
 };
 
+/**
+ * Fetch map data from the server file system
+ * Only supports FS at the moment
+ */
 const retrieveMap = async (mapUID) => retrieveObject(STORAGE_TYPE_FS, `mapBlocks/${mapUID}`);
 
+/**
+ * Delete map data from the server file system
+ * Only supports FS at the moment
+ */
 const deleteMap = async (mapUID) => deleteObject(STORAGE_TYPE_FS, `mapBlocks/${mapUID}`);
 
+/**
+ * Upload replay data to the preferred storage type
+ * Returns an object with either filePath or objectPath (indicating which storage type it used)
+ */
 const uploadReplay = async (replayPath, replayData) => {
     let key;
     let keyProperty; // used to report back how the reference needs to be stored in the db
@@ -132,7 +147,7 @@ const uploadReplay = async (replayPath, replayData) => {
         keyProperty = 'filePath';
         await uploadObject(STORAGE_TYPE_FS, key, replayData);
     } else {
-        throw new Error({ message: `Invalid preferred storage type "${PREFERRED_STORAGE_TYPE}"` });
+        throw new Error(`Invalid preferred storage type "${PREFERRED_STORAGE_TYPE}"`);
     }
 
     return {
@@ -140,6 +155,11 @@ const uploadReplay = async (replayPath, replayData) => {
     };
 };
 
+/**
+ * Fetch replay data from the used storage type
+ * Expects replayMetadata to be the DB object (so it can read filePath or objectPath)
+ * Returns data as a UTF8 buffer
+ */
 const retrieveReplay = async (replayMetadata) => {
     let storageType;
     let key;
@@ -151,12 +171,16 @@ const retrieveReplay = async (replayMetadata) => {
         storageType = STORAGE_TYPE_FS;
         key = replayMetadata.filePath;
     } else {
-        throw new Error({ message: 'No object or file in replay' });
+        throw new Error('No object or file in replay');
     }
 
     return retrieveObject(storageType, key);
 };
 
+/**
+ * Delete replay data from the used storage type
+ * Expects replayMetadata to be the DB object (so it can read filePath or objectPath)
+ */
 const deleteReplay = async (replayMetadata) => {
     let storageType;
     let key;
@@ -168,7 +192,7 @@ const deleteReplay = async (replayMetadata) => {
         storageType = STORAGE_TYPE_FS;
         key = replayMetadata.filePath;
     } else {
-        throw new Error({ message: 'No object or file in replay' });
+        throw new Error('No object or file in replay');
     }
 
     return deleteObject(storageType, key);
