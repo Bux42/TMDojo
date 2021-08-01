@@ -6,7 +6,7 @@ import { ColumnsType, TableCurrentDataSource } from 'antd/lib/table/interface';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { FileResponse, getUserReplays, UserInfo } from '../../lib/api/apiRequests';
-import { getRaceTimeStr, timeDifference } from '../../lib/utils/time';
+import { getRaceTimeStr, msToTime, timeDifference } from '../../lib/utils/time';
 
 interface ExtendedFileResponse extends FileResponse {
     readableTime: string;
@@ -16,23 +16,6 @@ interface ExtendedFileResponse extends FileResponse {
 
 interface Props {
     userInfo: UserInfo;
-}
-
-function msToTime(duration: number) {
-    const seconds = Math.floor((duration / 1000) % 60);
-    const minutes = Math.floor((duration / (1000 * 60)) % 60);
-    const hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
-
-    if (hours) {
-        return `${hours} hours and ${minutes} minutes`;
-    }
-    if (minutes) {
-        return `${minutes} minutes and ${seconds} seconds`;
-    }
-    if (seconds) {
-        return `${seconds} seconds`;
-    }
-    return ('');
 }
 
 const UserReplays = ({ userInfo }: Props): JSX.Element => {
