@@ -77,7 +77,7 @@ app.use((req: Request, res: Response, next: Function) => {
 
     // override end() for logging
     const oldEnd = res.end;
-    res.end = (data : any) => {
+    res.end = (data: any) => {
     // data contains the response body
         console.log(`RES: ${req.method} ${req.originalUrl} - ${res.statusCode}`);
         oldEnd.apply(res, [data]);

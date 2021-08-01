@@ -89,7 +89,7 @@ router.get('/:replayId', async (req: Request, res: Response, next: Function) => 
  * - webId
  */
 // eslint-disable-next-line consistent-return
-router.post('/', (req: Request, res: Response, next: Function) : any => {
+router.post('/', (req: Request, res: Response, next: Function): any => {
     const paramNames = [
         'authorName', 'mapName', 'mapUId', 'endRaceTime', 'raceFinished', 'playerName', 'playerLogin', 'webId',
     ];
@@ -116,7 +116,7 @@ router.post('/', (req: Request, res: Response, next: Function) : any => {
     }
 
     let completeData = '';
-    req.on('data', (data : string | Buffer) => {
+    req.on('data', (data: string | Buffer) => {
         completeData += data;
     });
 
