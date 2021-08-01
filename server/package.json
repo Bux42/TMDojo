@@ -3,12 +3,9 @@
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
-		"start": "MODE=prod node dist/index.js",
-		"dev": "MODE=dev nodemon",
-		"test": "mocha -r ts-node/register test/**/*.ts",
-		"build": "tsc",
-		"clean": "rimraf ./build && rimraf ./dist",
-		"lint": "eslint . --ext js"
+		"start": "npx nodemon",
+		"lint": "eslint . --ext ts --ext js",
+		"lint:fix": "eslint . --ext ts --ext js --fix"
 	},
 	"dependencies": {
 		"axios": "^0.21.1",
