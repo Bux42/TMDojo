@@ -39,7 +39,7 @@ router.get('/', async (req: Request, res: Response, next: Function) => {
 router.get('/:mapUID', async (req: Request, res: Response, next: Function) => {
     try {
         if (fs.existsSync(`mapBlocks/${req.params.mapUID}`)) {
-            res.sendFile(path.resolve(`${__dirname}/../mapBlocks/${req.params.mapUID}`));
+            res.sendFile(path.resolve(`${__dirname}/../../mapBlocks/${req.params.mapUID}`));
         } else {
             res.status(404).send();
         }

@@ -58,7 +58,7 @@ router.get('/', async (req: Request, res: Response, next: Function) => {
 router.get('/:replayId', async (req: Request, res: Response, next: Function) => {
     try {
         const replay = await db.getReplayById(req.params.replayId as string);
-        const filePath = path.resolve(`${__dirname}/../${replay.filePath}`);
+        const filePath = path.resolve(`${__dirname}/../../${replay.filePath}`);
         if (fs.existsSync(filePath)) {
             if (req.query.download === 'true') {
                 res.download(filePath, req.query.fileName as string || req.params.replayId as string);
