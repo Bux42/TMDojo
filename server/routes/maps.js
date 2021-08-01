@@ -4,8 +4,6 @@
  * - mapUId
  * - authorName
  * - thumbnailURL (not implemented yet)
- * - filePath (not implemented yet)
- * - objectPath (not implemented yet)
  */
 
 const express = require('express');
