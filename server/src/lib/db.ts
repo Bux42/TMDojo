@@ -1,5 +1,7 @@
 import { MongoClient, ObjectId } from 'mongodb';
 import { config } from 'dotenv';
+import { v4 as uuid } from 'uuid';
+import { playerLoginFromWebId } from './authorize';
 
 config();
 
@@ -7,6 +9,7 @@ const DB_NAME = 'dojo';
 
 let db : any = null;
 
+// eslint-disable-next-line no-unused-vars
 export type Rejector = (_1: Error) => void;
 
 export const initDB = () => {
@@ -24,7 +27,11 @@ export const initDB = () => {
     });
 };
 
-export const authenticateUser = (webId : any, login : any, name : any) : Promise<void> => new Promise((resolve : () => void, reject : Rejector) => {
+export const authenticateUser = (
+    webId: any,
+    login: any,
+    name: any,
+) : Promise<void> => new Promise((resolve : () => void, reject : Rejector) => {
     const users = db.collection('users');
     users
         .find({
@@ -60,7 +67,9 @@ export const authenticateUser = (webId : any, login : any, name : any) : Promise
         });
 });
 
-export const getUniqueMapNames = (mapName ?: string) : Promise<any> => new Promise((resolve: Function, reject : Rejector) => {
+export const getUniqueMapNames = (
+    mapName ?: string,
+) : Promise<any> => new Promise((resolve: Function, reject : Rejector) => {
     const replays = db.collection('replays');
     const queryPipeline = [
         // populate map references to count occurrences
@@ -134,7 +143,9 @@ export const saveMap = (mapData ?: any) : Promise<any> => new Promise((resolve: 
         .catch((error: Error) => reject(error));
 });
 
-export const getUserByWebId = (webId ?: string) : Promise<any> => new Promise((resolve: Function, reject : Rejector) => {
+export const getUserByWebId = (
+    webId ?: string,
+) : Promise<any> => new Promise((resolve: Function, reject : Rejector) => {
     const users = db.collection('users');
     users.findOne({ webId }, (err: Error, user : any) => {
         if (err) {
@@ -144,7 +155,9 @@ export const getUserByWebId = (webId ?: string) : Promise<any> => new Promise((r
     });
 });
 
-export const saveUser = (userData : any) : Promise<{_id: string}> => new Promise((resolve : (_1 : {_id: string}) => void, reject : Rejector) => {
+export const saveUser = (
+    userData : any,
+) : Promise<{_id: string}> => new Promise((resolve: (_1 : {_id: string}) => void, reject: Rejector) => {
     const users = db.collection('users');
     users.insertOne(userData)
         .then(({ insertedId } : {insertedId: string}) => resolve({ _id: insertedId }))
@@ -152,7 +165,12 @@ export const saveUser = (userData : any) : Promise<{_id: string}> => new Promise
 });
 
 export const getReplays = (
-    mapName ?: string, playerName ?: string, mapUId ?: string, raceFinished ?: string, orderBy ?: string, maxResults : string = '1000',
+    mapName ?: string,
+    playerName ?: string,
+    mapUId ?: string,
+    raceFinished ?: string,
+    orderBy ?: string,
+    maxResults : string = '1000',
 ) : Promise<any> => new Promise((resolve: Function, reject : Rejector) => {
     const replays = db.collection('replays');
 
@@ -248,7 +266,10 @@ export const getReplays = (
     });
 });
 
-export const getReplayById = (replayId ?: string, populate ?: boolean) : Promise<any> => new Promise((resolve: Function, reject : Rejector) => {
+export const getReplayById = (
+    replayId ?: string,
+    populate ?: boolean,
+) : Promise<any> => new Promise((resolve: Function, reject : Rejector) => {
     const replays = db.collection('replays');
 
     let pipeline = [
@@ -306,7 +327,9 @@ export const getReplayById = (replayId ?: string, populate ?: boolean) : Promise
     });
 });
 
-export const getReplayByFilePath = (filePath ?: string) : Promise<any> => new Promise((resolve: Function, reject : Rejector) => {
+export const getReplayByFilePath = (
+    filePath ?: string,
+) : Promise<any> => new Promise((resolve: Function, reject : Rejector) => {
     const replays = db.collection('replays');
     replays.findOne({ filePath }, (err: Error, replay : any) => {
         if (err) {
@@ -316,9 +339,91 @@ export const getReplayByFilePath = (filePath ?: string) : Promise<any> => new Pr
     });
 });
 
-export const saveReplayMetadata = (metadata : any) : Promise<{_id: string}> => new Promise((resolve : (_1: {_id: string}) => void, reject : Rejector) => {
+export const saveReplayMetadata = (
+    metadata : any,
+) : Promise<{_id: string}> => new Promise((resolve : (_1: {_id: string}) => void, reject : Rejector) => {
     const replays = db.collection('replays');
     replays.insertOne(metadata)
         .then(({ insertedId } : {insertedId: string}) => resolve({ _id: insertedId }))
         .catch((error: Error) => reject(error));
 });
+
+/**
+ * Creates session using a webId.
+ * Returns session secret or undefined if something went wrong
+ */
+export const createSession = async (userInfo: any) => {
+    // Find user
+    let user = await getUserByWebId(userInfo.account_id);
+    if (user === undefined || user === null) {
+        const playerLogin = playerLoginFromWebId(userInfo.account_id);
+
+        if (playerLogin === undefined) {
+            console.log(`Failed to create session, generated playerLogin is not valid: ${playerLogin}`);
+            return undefined;
+        }
+
+        if (userInfo.account_id !== undefined && userInfo.display_name !== undefined) {
+            user = await saveUser({
+                webId: userInfo.account_id,
+                playerLogin,
+                playerName: userInfo.display_name,
+            });
+        } else {
+            console.log(`Could not create user for webId: ${userInfo.account_id}`);
+            return undefined;
+        }
+    }
+
+    // Create session
+    const sessions = db.collection('sessions');
+    const sessionId = uuid();
+    await sessions.insertOne({
+        sessionId,
+        userRef: user._id,
+    });
+
+    return sessionId;
+};
+
+export const findSessionBySecret = async (sessionId: string) => {
+    const sessions = db.collection('sessions');
+    return sessions.findOne({ sessionId });
+};
+
+export const deleteSession = async (sessionId: string) => {
+    const sessions = db.collection('sessions');
+    await sessions.deleteOne({
+        sessionId,
+    });
+};
+
+/**
+ * If session is valid and can find a user, return user
+ * Else, return undefined
+ */
+export const getUserBySessionId = async (sessionId: string) => {
+    // Find session
+    const sessions = db.collection('sessions');
+    const session = await sessions.findOne({
+        sessionId,
+    });
+
+    // Return undefined if session is not valid
+    if (session === undefined || session === null) {
+        return undefined;
+    }
+
+    // Find user
+    const users = db.collection('users');
+    const user = await users.findOne({
+        _id: session.userRef,
+    });
+
+    // Return undefined if user could not be found
+    if (user === undefined || user === null) {
+        return undefined;
+    }
+
+    return user;
+};

@@ -1,10 +1,9 @@
 /* eslint-disable react/no-array-index-key */
 /* eslint-disable max-len */
 import React, { useState } from 'react';
-import {
-    Card,
-} from 'antd';
+import { Card } from 'antd';
 import DiscordButton from '../common/DiscordButton';
+import UserDisplay from '../common/UserDisplay';
 
 type InfoTab = 'welcome'|'howDoesThisWork'|'getInvolved';
 
@@ -89,6 +88,7 @@ const InfoCard = (): JSX.Element => {
         <Card
             className="w-full dojo-info-card"
             title="Welcome to TMDojo!"
+            extra={<UserDisplay />}
             tabList={tabList}
             activeTabKey={infoTab}
             onTabChange={(key) => {

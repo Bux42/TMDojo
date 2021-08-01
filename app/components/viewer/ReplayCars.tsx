@@ -56,20 +56,20 @@ const ReplayCar = ({
             && stadiumCarMesh.current
             && camPosRef.current) {
             const followed = timeLineGlobal.followedReplay != null && timeLineGlobal.followedReplay._id === replay._id;
+            const hovered = timeLineGlobal.hoveredReplay != null && timeLineGlobal.hoveredReplay._id === replay._id;
 
             // Get closest sample to TimeLine.currentRaceTime
             sampleIndex = Math.round(timeLineGlobal.currentRaceTime / replay.intervalMedian);
             if (sampleIndex > replay.samples.length - 1) {
                 sampleIndex = replay.samples.length - 1;
-            } else {
-                while (sampleIndex > 0
-                    && replay.samples[sampleIndex].currentRaceTime > timeLineGlobal.currentRaceTime) {
-                    sampleIndex--;
-                }
-                while (sampleIndex + 1 < replay.samples.length
-                    && replay.samples[sampleIndex].currentRaceTime < timeLineGlobal.currentRaceTime) {
-                    sampleIndex++;
-                }
+            }
+            while (sampleIndex > 0
+                && replay.samples[sampleIndex].currentRaceTime > timeLineGlobal.currentRaceTime) {
+                sampleIndex--;
+            }
+            while (sampleIndex + 1 < replay.samples.length
+                && replay.samples[sampleIndex].currentRaceTime < timeLineGlobal.currentRaceTime) {
+                sampleIndex++;
             }
 
             const curSample = replay.samples[sampleIndex];
@@ -110,6 +110,12 @@ const ReplayCar = ({
                         camera.position.lerp(camWorldPos, 0.3);
                     }
                 }
+            }
+            // Scale car up if hovered in LoadedReplays
+            if (hovered) {
+                stadiumCarMesh.current.scale.lerp(new THREE.Vector3(0.02, 0.02, 0.02), 0.2);
+            } else {
+                stadiumCarMesh.current.scale.lerp(new THREE.Vector3(0.01, 0.01, 0.01), 0.2);
             }
         }
     });
