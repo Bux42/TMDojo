@@ -1,19 +1,20 @@
 import { MongoClient, ObjectId } from 'mongodb';
 import { config } from 'dotenv';
+
 config();
 
 const DB_NAME = 'dojo';
 
 let db : any = null;
 
-export type Rejector = (_1 : Error) => void;
+export type Rejector = (_1: Error) => void;
 
 export const initDB = () => {
     const mongoClient = new MongoClient(process.env.MONGO_URL, {
         useUnifiedTopology: true,
     } as any);
 
-    mongoClient.connect((err : Error) => {
+    mongoClient.connect((err: Error) => {
         if (err) {
             console.error('initDB: Could not connect to DB, shutting down');
             process.exit();
@@ -29,7 +30,7 @@ export const authenticateUser = (webId : any, login : any, name : any) : Promise
         .find({
             webId,
         })
-        .toArray((err : Error, docs : any) => {
+        .toArray((err: Error, docs : any) => {
             if (err) {
                 reject(err);
             } else if (!docs.length) {
@@ -59,7 +60,7 @@ export const authenticateUser = (webId : any, login : any, name : any) : Promise
         });
 });
 
-export const getUniqueMapNames = (mapName ?: string) : Promise<any> => new Promise((resolve : Function, reject : Rejector) => {
+export const getUniqueMapNames = (mapName ?: string) : Promise<any> => new Promise((resolve: Function, reject : Rejector) => {
     const replays = db.collection('replays');
     const queryPipeline = [
         // populate map references to count occurrences
@@ -103,7 +104,7 @@ export const getUniqueMapNames = (mapName ?: string) : Promise<any> => new Promi
             },
         } as any);
     }
-    replays.aggregate(queryPipeline, async (aggregateErr : Error, cursor : any) => {
+    replays.aggregate(queryPipeline, async (aggregateErr: Error, cursor : any) => {
         if (aggregateErr) {
             return reject(aggregateErr);
         }
@@ -116,9 +117,9 @@ export const getUniqueMapNames = (mapName ?: string) : Promise<any> => new Promi
     });
 });
 
-export const getMapByUId = (mapUId ?: string) : Promise<any> => new Promise((resolve : Function, reject : Rejector) => {
+export const getMapByUId = (mapUId ?: string) : Promise<any> => new Promise((resolve: Function, reject : Rejector) => {
     const maps = db.collection('maps');
-    maps.findOne({ mapUId }, (err : Error, map : any) => {
+    maps.findOne({ mapUId }, (err: Error, map : any) => {
         if (err) {
             return reject(err);
         }
@@ -126,16 +127,16 @@ export const getMapByUId = (mapUId ?: string) : Promise<any> => new Promise((res
     });
 });
 
-export const saveMap = (mapData ?: any) : Promise<any> => new Promise((resolve : Function, reject : Rejector) => {
+export const saveMap = (mapData ?: any) : Promise<any> => new Promise((resolve: Function, reject : Rejector) => {
     const maps = db.collection('maps');
     maps.insertOne(mapData)
         .then((operation : any) => resolve({ _id: operation.insertedId }))
-        .catch((error : Error) => reject(error));
+        .catch((error: Error) => reject(error));
 });
 
-export const getUserByWebId = (webId ?: string) : Promise<any> => new Promise((resolve : Function, reject : Rejector) => {
+export const getUserByWebId = (webId ?: string) : Promise<any> => new Promise((resolve: Function, reject : Rejector) => {
     const users = db.collection('users');
-    users.findOne({ webId }, (err : Error, user : any) => {
+    users.findOne({ webId }, (err: Error, user : any) => {
         if (err) {
             return reject(err);
         }
@@ -146,13 +147,13 @@ export const getUserByWebId = (webId ?: string) : Promise<any> => new Promise((r
 export const saveUser = (userData : any) : Promise<{_id: string}> => new Promise((resolve : (_1 : {_id: string}) => void, reject : Rejector) => {
     const users = db.collection('users');
     users.insertOne(userData)
-        .then(({insertedId} : {insertedId: string}) => resolve({ _id: insertedId }))
-        .catch((error : Error) => reject(error));
+        .then(({ insertedId } : {insertedId: string}) => resolve({ _id: insertedId }))
+        .catch((error: Error) => reject(error));
 });
 
 export const getReplays = (
     mapName ?: string, playerName ?: string, mapUId ?: string, raceFinished ?: string, orderBy ?: string, maxResults : string = '1000',
-) : Promise<any> => new Promise((resolve : Function, reject : Rejector) => {
+) : Promise<any> => new Promise((resolve: Function, reject : Rejector) => {
     const replays = db.collection('replays');
 
     const pipeline = [
@@ -234,7 +235,7 @@ export const getReplays = (
         },
     } as any);
 
-    replays.aggregate(pipeline, async (aggregateErr : Error, cursor : any) => {
+    replays.aggregate(pipeline, async (aggregateErr: Error, cursor : any) => {
         if (aggregateErr) {
             return reject(aggregateErr);
         }
@@ -247,7 +248,7 @@ export const getReplays = (
     });
 });
 
-export const getReplayById = (replayId ?: string, populate ?: boolean) : Promise<any> => new Promise((resolve : Function, reject : Rejector) => {
+export const getReplayById = (replayId ?: string, populate ?: boolean) : Promise<any> => new Promise((resolve: Function, reject : Rejector) => {
     const replays = db.collection('replays');
 
     let pipeline = [
@@ -292,7 +293,7 @@ export const getReplayById = (replayId ?: string, populate ?: boolean) : Promise
         ] as any[]);
     }
 
-    replays.aggregate(pipeline, async (aggregateErr : Error, cursor : any) => {
+    replays.aggregate(pipeline, async (aggregateErr: Error, cursor : any) => {
         if (aggregateErr) {
             return reject(aggregateErr);
         }
@@ -305,9 +306,9 @@ export const getReplayById = (replayId ?: string, populate ?: boolean) : Promise
     });
 });
 
-export const getReplayByFilePath = (filePath ?: string) : Promise<any> => new Promise((resolve : Function, reject : Rejector) => {
+export const getReplayByFilePath = (filePath ?: string) : Promise<any> => new Promise((resolve: Function, reject : Rejector) => {
     const replays = db.collection('replays');
-    replays.findOne({ filePath }, (err : Error, replay : any) => {
+    replays.findOne({ filePath }, (err: Error, replay : any) => {
         if (err) {
             return reject(err);
         }
@@ -318,6 +319,6 @@ export const getReplayByFilePath = (filePath ?: string) : Promise<any> => new Pr
 export const saveReplayMetadata = (metadata : any) : Promise<{_id: string}> => new Promise((resolve : (_1: {_id: string}) => void, reject : Rejector) => {
     const replays = db.collection('replays');
     replays.insertOne(metadata)
-        .then(({insertedId} : {insertedId: string}) => resolve({ _id: insertedId }))
-        .catch((error : Error) => reject(error));
+        .then(({ insertedId } : {insertedId: string}) => resolve({ _id: insertedId }))
+        .catch((error: Error) => reject(error));
 });

@@ -1,9 +1,7 @@
 import { config } from 'dotenv';
-config();
 
-import { Request, Response } from 'express'
+import { Request, Response } from 'express';
 import * as express from 'express';
-
 
 import * as https from 'https';
 import * as fs from 'fs';
@@ -14,6 +12,8 @@ import * as db from './lib/db';
 import authRouter from './routes/auth';
 import mapRouter from './routes/maps';
 import replayRouter from './routes/replays';
+
+config();
 
 // ensure storage directories exist
 if (!fs.existsSync('maps')) {
@@ -56,7 +56,7 @@ app.listen(defaultPort, () => {
 db.initDB();
 
 // request and response logger
-app.use((req : Request, res : Response, next : Function) => {
+app.use((req: Request, res: Response, next: Function) => {
     console.log(`REQ: ${req.method} ${req.originalUrl}`);
 
     // override end() for logging
@@ -72,7 +72,7 @@ app.use((req : Request, res : Response, next : Function) => {
 
 // global error handler (requires 'next' even if it's not used)
 // eslint-disable-next-line no-unused-vars
-app.use((err : Error, req : Request, res : Response, next : Function) => {
+app.use((err: Error, req: Request, res: Response, next: Function) => {
     console.error(err.stack);
     res.status(500).send('Internal server error');
 });

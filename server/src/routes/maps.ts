@@ -6,9 +6,8 @@
  * - thumbnailURL (not implemented yet)
  */
 
-import { Request, Response } from 'express'
+import { Request, Response } from 'express';
 import * as express from 'express';
-
 
 import axios from 'axios';
 
@@ -24,7 +23,7 @@ const router = express.Router();
  * Query params:
  * - mapName (optional)
  */
-router.get('/', async (req : Request, res : Response, next : Function) => {
+router.get('/', async (req: Request, res: Response, next: Function) => {
     try {
         const mapNames = await db.getUniqueMapNames(req.query.mapName as string);
         res.send(mapNames);
@@ -37,7 +36,7 @@ router.get('/', async (req : Request, res : Response, next : Function) => {
  * GET /maps/:mapUID
  * Retrieves map (block) data by mapUID
  */
-router.get('/:mapUID', async (req : Request, res : Response, next : Function) => {
+router.get('/:mapUID', async (req: Request, res: Response, next: Function) => {
     try {
         if (fs.existsSync(`mapBlocks/${req.params.mapUID}`)) {
             res.sendFile(path.resolve(`${__dirname}/../mapBlocks/${req.params.mapUID}`));
@@ -53,7 +52,7 @@ router.get('/:mapUID', async (req : Request, res : Response, next : Function) =>
  * GET /maps/:mapUID/info
  * Retrieves map's metadata (including tm.io information)
  */
-router.get('/:mapUID/info', async (req, res) => {
+router.get('/:mapUID/info', async (req: Request, res: Response) => {
     let mapData = {};
 
     // fetch tm.io data
@@ -76,7 +75,7 @@ router.get('/:mapUID/info', async (req, res) => {
  * POST /maps/:mapUID
  * Stores map (block) data (from the request body)
  */
-router.post('/:mapUID', (req : Request, res : Response, next : Function) => {
+router.post('/:mapUID', (req: Request, res: Response, next: Function) => {
     let completeData = '';
 
     req.on('data', (data) => {
