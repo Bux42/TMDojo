@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React from 'react';
 import { UserInfo } from '../../lib/api/apiRequests';
+import UserDisplay from '../common/UserDisplay';
 
 interface Props {
     userInfo: UserInfo | undefined;
@@ -32,6 +33,7 @@ const UserHeader = ({ userInfo }: Props): JSX.Element => {
 
                 </div>
             )}
+            extra={<UserDisplay />}
         />
     );
 };
