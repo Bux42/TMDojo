@@ -77,7 +77,7 @@ const retrieveObject = async (storageType, key) => {
 
         throw new Error(`Invalid storageType ${storageType}`);
     } catch (error) {
-        if (typeof error === typeof NoSuchKey || error?.code === 'ENOENT') {
+        if (error?.message === 'NoSuchKey' || error?.code === 'ENOENT') {
             // translate same problem into single error we can detect later
             throw new Error('Object not found');
         } else {
