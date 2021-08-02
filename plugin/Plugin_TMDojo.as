@@ -221,7 +221,7 @@ class TMDojo
         vec4 colBorderRed = vec4(1, 0.1, 0.1, 1);
 
         int panelLeftCp = panelLeft + 8;
-        int panelTopCp = panelTop + 8;
+        int panelTopCp = panelTop + 16;
 
         nvg::BeginPath();
         nvg::FontSize(12);
