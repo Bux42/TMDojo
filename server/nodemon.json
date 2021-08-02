@@ -1,5 +1,9 @@
 {
-	"watch": [".","src","addon"],
+	"watch": [
+		".",
+		"src",
+		"addon"
+	],
 	"ext": ".ts,.js",
 	"ignore": [],
 	"exec": "ts-node ./src/index.ts"
