@@ -145,14 +145,17 @@ const uploadReplay = async (replayPath, replayData) => {
     let key;
     let keyProperty; // used to report back how the reference needs to be stored in the db
 
+    // replay data needs to be turned into a base64-encoded buffer first
+    const dataBuffer = Buffer.from(replayData, 'base64');
+
     if (PREFERRED_STORAGE_TYPE === STORAGE_TYPE_S3) {
         key = `maps/${replayPath}`;
         keyProperty = 'objectPath';
-        await uploadObject(STORAGE_TYPE_S3, key, replayData);
+        await uploadObject(STORAGE_TYPE_S3, key, dataBuffer);
     } else if (PREFERRED_STORAGE_TYPE === STORAGE_TYPE_FS) {
         key = `maps/${replayPath}.gz`;
         keyProperty = 'filePath';
-        await uploadObject(STORAGE_TYPE_FS, key, replayData);
+        await uploadObject(STORAGE_TYPE_FS, key, dataBuffer);
     } else {
         throw new Error(`Invalid preferred storage type "${PREFERRED_STORAGE_TYPE}"`);
     }

@@ -109,10 +109,9 @@ router.post('/', (req, res, next) => {
 
     req.on('end', async () => {
         try {
-            const buff = Buffer.from(completeData);
             const fileName = `${req.query.endRaceTime}_${req.query.playerName}_${Date.now()}`;
             const filePath = `${req.query.authorName}/${req.query.mapName}/${fileName}`;
-            const storedReplay = await artefacts.uploadReplay(filePath, buff);
+            const storedReplay = await artefacts.uploadReplay(filePath, completeData);
 
             // check if map already exists
             let map = await db.getMapByUId(req.query.mapUId);
