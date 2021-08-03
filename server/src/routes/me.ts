@@ -1,5 +1,6 @@
-const express = require('express');
-const { setExpiredSessionCookie } = require('../lib/authorize');
+import { Request, Response } from 'express';
+import * as express from 'express';
+import { setExpiredSessionCookie } from '../lib/authorize';
 
 const router = express.Router();
 
@@ -7,13 +8,13 @@ const router = express.Router();
  * POST /me
  * Retrieves user info
  */
-router.post('/', async (req, res, next) => {
+router.post('/', async (req: Request, res: Response, next: Function) => {
     try {
         const { user } = req;
 
         // Get user by session secret
         if (user === undefined) {
-            setExpiredSessionCookie(res);
+            setExpiredSessionCookie(req, res);
             res.status(401).send({ message: 'Not logged in.' });
             return;
         }
@@ -28,4 +29,4 @@ router.post('/', async (req, res, next) => {
     }
 });
 
-module.exports = router;
+export default router;

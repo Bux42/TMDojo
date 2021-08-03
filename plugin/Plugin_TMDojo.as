@@ -203,7 +203,7 @@ class TMDojo
     }
 
     void drawDebugBuffer(CSceneVehicleVis@ vis, CSmScriptPlayer@ sm_script, CGameCtnChallenge@ rootMap) {
-        int panelLeft = 50;
+        int panelLeft = 180;
         int panelTop = 50;
 
         int panelWidth = 300;
@@ -221,83 +221,87 @@ class TMDojo
         vec4 colBorderRed = vec4(1, 0.1, 0.1, 1);
 
         int panelLeftCp = panelLeft + 8;
-        int panelTopCp = panelTop + 8;
+        int panelTopCp = panelTop + 16;
 
-        Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, "CurrentRaceTime: " + sm_script.CurrentRaceTime);
-        panelTopCp += topIncr;
+        nvg::BeginPath();
+        nvg::FontSize(12);
+        nvg::FillColor(vec4(1, 1, 1, 1));
 
-        Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, "Position.x: " + vis.AsyncState.Position.x);
-        panelTopCp += topIncr;
-        Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, "Position.y: " + vis.AsyncState.Position.y);
-        panelTopCp += topIncr;
-        Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, "Position.z: " + vis.AsyncState.Position.z);
+        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "CurrentRaceTime: " + sm_script.CurrentRaceTime);
         panelTopCp += topIncr;
 
-        Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, "WorldVel.x: " + vis.AsyncState.WorldVel.x);
+        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "Position.x: " + vis.AsyncState.Position.x);
         panelTopCp += topIncr;
-        Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, "WorldVel.y: " + vis.AsyncState.WorldVel.y);
+        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "Position.y: " + vis.AsyncState.Position.y);
         panelTopCp += topIncr;
-        Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, "WorldVel.z: " + vis.AsyncState.WorldVel.z);
-        panelTopCp += topIncr;
-
-        Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, "Speed: " + (vis.AsyncState.FrontSpeed * 3.6f));
+        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "Position.z: " + vis.AsyncState.Position.z);
         panelTopCp += topIncr;
 
-        Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, "InputSteer: " + vis.AsyncState.InputSteer);
+        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "WorldVel.x: " + vis.AsyncState.WorldVel.x);
+        panelTopCp += topIncr;
+        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "WorldVel.y: " + vis.AsyncState.WorldVel.y);
+        panelTopCp += topIncr;
+        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "WorldVel.z: " + vis.AsyncState.WorldVel.z);
+        panelTopCp += topIncr;
+
+        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "Speed: " + (vis.AsyncState.FrontSpeed * 3.6f));
+        panelTopCp += topIncr;
+
+        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "InputSteer: " + vis.AsyncState.InputSteer);
         panelTopCp += topIncr;
         
-        Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, "InputGasPedal: " + vis.AsyncState.InputGasPedal); 
+        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "InputGasPedal: " + vis.AsyncState.InputGasPedal); 
         panelTopCp += topIncr;
-        Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, "InputBrakePedal: " + vis.AsyncState.InputBrakePedal);
-        panelTopCp += topIncr;
-
-        Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, "EngineCurGear: " + vis.AsyncState.CurGear);
-        panelTopCp += topIncr;
-        Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, "EngineRpm: " + Vehicle::GetRPM(vis.AsyncState));
+        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "InputBrakePedal: " + vis.AsyncState.InputBrakePedal);
         panelTopCp += topIncr;
 
-        Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, "Up.x: " + vis.AsyncState.Up.x);
+        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "EngineCurGear: " + vis.AsyncState.CurGear);
         panelTopCp += topIncr;
-        Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, "Up.y: " + vis.AsyncState.Up.y);
-        panelTopCp += topIncr;
-        Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, "Up.z: " + vis.AsyncState.Up.z);
+        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "EngineRpm: " + Vehicle::GetRPM(vis.AsyncState));
         panelTopCp += topIncr;
 
-        Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, "Dir.x: " + vis.AsyncState.Dir.x);
+        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "Up.x: " + vis.AsyncState.Up.x);
         panelTopCp += topIncr;
-        Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, "Dir.y: " + vis.AsyncState.Dir.y);
+        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "Up.y: " + vis.AsyncState.Up.y);
         panelTopCp += topIncr;
-        Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, "Dir.z: " + vis.AsyncState.Dir.z);
+        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "Up.z: " + vis.AsyncState.Up.z);
+        panelTopCp += topIncr;
+
+        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "Dir.x: " + vis.AsyncState.Dir.x);
+        panelTopCp += topIncr;
+        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "Dir.y: " + vis.AsyncState.Dir.y);
+        panelTopCp += topIncr;
+        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "Dir.z: " + vis.AsyncState.Dir.z);
         panelTopCp += topIncr;
 
         // MISC
         panelTopCp += topIncr;
 
-        Draw::DrawString(vec2(panelLeftCp, panelTopCp), (g_dojo.serverAvailable ? colBorderGreen: colBorderRed) , "API: " + ApiUrl);
+        //Draw::DrawString(vec2(panelLeftCp, panelTopCp), (g_dojo.serverAvailable ? colBorderGreen: colBorderRed) , "API: " + ApiUrl);
         panelTopCp += topIncr;
 
-        Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, "recording: " + recording);
+        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "recording: " + recording);
         panelTopCp += topIncr;
 
-        Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, "playername: " + network.PlayerInfo.Name);
+        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "playername: " + network.PlayerInfo.Name);
         panelTopCp += topIncr;
 
-        Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, "playerlogin: " + network.PlayerInfo.Login);
+        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "playerlogin: " + network.PlayerInfo.Login);
         panelTopCp += topIncr;
 
-        Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, "webid: " + network.PlayerInfo.WebServicesUserId);
+        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "webid: " + network.PlayerInfo.WebServicesUserId);
         panelTopCp += topIncr;
 
-        Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, "mapName: " + rootMap.MapInfo.NameForUi);
+        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "mapName: " + rootMap.MapInfo.NameForUi);
         panelTopCp += topIncr;
 
-        Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, "mapUid: " + rootMap.MapInfo.MapUid);
+        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "mapUid: " + rootMap.MapInfo.MapUid);
         panelTopCp += topIncr;
 
-        Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, "latestRecordedTime: " + latestRecordedTime);
+        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "latestRecordedTime: " + latestRecordedTime);
         panelTopCp += topIncr;
 
-        Draw::DrawString(vec2(panelLeftCp, panelTopCp), colBorder, "size: " + membuff.GetSize() / 1024 + " kB");
+        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "size: " + membuff.GetSize() / 1024 + " kB");
         panelTopCp += topIncr;
     }
 
