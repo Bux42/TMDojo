@@ -9,6 +9,7 @@ import * as cors from 'cors';
 import * as bodyParser from 'body-parser';
 import * as cookieParser from 'cookie-parser';
 
+import * as dayjs from 'dayjs';
 import * as db from './lib/db';
 
 import authRouter from './routes/auth';
@@ -73,13 +74,14 @@ db.initDB();
 
 // request and response logger
 app.use((req: Request, res: Response, next: Function) => {
-    console.log(`REQ: ${req.method} ${req.originalUrl}`);
+    const getDateStr = () => dayjs().format('DD/MM/YYYY, HH:mm:ss.SSS');
+    console.log(`[${getDateStr()}] REQ: ${req.method} ${req.originalUrl}`);
 
     // override end() for logging
     const oldEnd = res.end;
     res.end = (data: any) => {
     // data contains the response body
-        console.log(`RES: ${req.method} ${req.originalUrl} - ${res.statusCode}`);
+        console.log(`[${getDateStr()}] RES: ${req.method} ${req.originalUrl} - ${res.statusCode}`);
         oldEnd.apply(res, [data]);
     };
 
