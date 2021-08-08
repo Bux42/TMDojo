@@ -51,13 +51,13 @@ const uploadObject = async (storageType: StorageType, key: string, value: string
         const keySegments = key.split('/');
         for (let i = 1; i < keySegments.length; i++) {
             const combinedSegments = keySegments.slice(0, i).join('/');
-            const realPath = path.resolve(`${__dirname}/../${combinedSegments}`);
+            const realPath = path.resolve(`${__dirname}/../../${combinedSegments}`);
             if (!existsSync(realPath)) {
                 mkdirSync(realPath);
             }
         }
 
-        const fullPath = path.resolve(`${__dirname}/../${key}`);
+        const fullPath = path.resolve(`${__dirname}/../../${key}`);
         return writeFile(fullPath, compress(value));
     }
 
@@ -77,7 +77,7 @@ const retrieveObject = async (storageType: StorageType, key: string) => {
         }
 
         if (storageType === StorageType.FileStorage) {
-            const fullPath = path.resolve(`${__dirname}/../${key}`);
+            const fullPath = path.resolve(`${__dirname}/../../${key}`);
             const data = await readFile(fullPath);
             return decompress(data);
         }
@@ -107,7 +107,7 @@ const deleteObject = async (storageType: StorageType, key: string) => {
         }
 
         if (storageType === StorageType.FileStorage) {
-            const fullPath = path.resolve(`${__dirname}/../${key}`);
+            const fullPath = path.resolve(`${__dirname}/../../${key}`);
             // specifically await this before returning to potentially catch an ENOENT error
             return await unlink(fullPath);
         }
