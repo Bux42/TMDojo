@@ -14,6 +14,9 @@ import { CameraMode } from '../../lib/contexts/SettingsContext';
 import InputOverlay from './InputOverlay';
 import { TimeLineInfos } from './TimeLine';
 
+const BACK_WHEEL_Y = 35.232017517089844;
+const FRONT_WHEEL_Y = 35.24349594116211;
+
 interface ReplayCarProps {
     replay: ReplayData;
     timeLineGlobal: TimeLineInfos;
@@ -90,10 +93,10 @@ const ReplayCar = ({
             stadiumCarMesh.current.children[4].rotation.y = curSample.wheelAngle; // FR
 
             // Set wheel suspensions
-            stadiumCarMesh.current.children[1].position.setY(35.232017517089844 - (curSample.rRDamperLen * 100)); // RR
-            stadiumCarMesh.current.children[2].position.setY(35.24349594116211 - (curSample.fLDamperLen * 100)); // FL
-            stadiumCarMesh.current.children[3].position.setY(35.232017517089844 - (curSample.rLDamperLen * 100)); // RL
-            stadiumCarMesh.current.children[4].position.setY(35.24349594116211 - (curSample.fRDamperLen * 100)); // FR
+            stadiumCarMesh.current.children[1].position.setY(BACK_WHEEL_Y - (curSample.rRDamperLen * 100)); // RR
+            stadiumCarMesh.current.children[2].position.setY(FRONT_WHEEL_Y - (curSample.fLDamperLen * 100)); // FL
+            stadiumCarMesh.current.children[3].position.setY(BACK_WHEEL_Y - (curSample.rLDamperLen * 100)); // RL
+            stadiumCarMesh.current.children[4].position.setY(FRONT_WHEEL_Y - (curSample.fRDamperLen * 100)); // FR
 
             // Camera target replay if selected
             if (followed) {
