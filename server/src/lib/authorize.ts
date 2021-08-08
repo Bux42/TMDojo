@@ -1,6 +1,7 @@
-const axios = require('axios');
+import { Request, Response } from 'express';
+import axios from 'axios';
 
-const exchangeCodeForAccessToken = async (code, redirectUri) => {
+export const exchangeCodeForAccessToken = async (code: string, redirectUri: string): Promise<any> => {
     const authUrl = 'https://api.trackmania.com/api/access_token';
     const params = {
         grant_type: 'authorization_code',
@@ -11,29 +12,29 @@ const exchangeCodeForAccessToken = async (code, redirectUri) => {
     };
 
     // TODO: properly handle errors
-    const { data } = await axios
+    const res = await axios
         .post(authUrl, new URLSearchParams(params).toString())
         .catch((e) => console.log(e));
 
-    return data.access_token;
+    return (res as any).data.access_token;
 };
 
-const fetchUserInfo = async (accessToken) => {
+export const fetchUserInfo = async (accessToken: string) => {
     const userUrl = 'https://api.trackmania.com/api/user';
     const config = {
         headers: { Authorization: `Bearer ${accessToken}` },
     };
 
     // TODO: properly handle errors
-    const { data } = await axios
+    const res = await axios
         .get(userUrl, config)
         .catch((e) => console.log(e));
 
-    return data;
+    return (res as any).data;
 };
 
-const playerLoginFromWebId = (webId) => {
-    const hexToIntArray = (inputString) => {
+export const playerLoginFromWebId = (webId: string) => {
+    const hexToIntArray = (inputString: string) => {
         const str = [];
         for (let i = 0; i < inputString.length; i += 2) {
             str.push(parseInt(inputString.substr(i, 2), 16));
@@ -41,7 +42,7 @@ const playerLoginFromWebId = (webId) => {
         return str;
     };
 
-    const isValidPlayerLogin = (login) => {
+    const isValidPlayerLogin = (login: string) => {
         if (login === undefined) {
             return false;
         }
@@ -63,7 +64,7 @@ const playerLoginFromWebId = (webId) => {
     }
 };
 
-const setSessionCookieWithAge = (req, res, sessionId, age) => {
+const setSessionCookieWithAge = (req: Request, res: Response, sessionId: string, age: number) => {
     res.cookie('sessionId', sessionId, {
         path: '/',
         secure: req.secure,
@@ -72,19 +73,11 @@ const setSessionCookieWithAge = (req, res, sessionId, age) => {
     });
 };
 
-const setSessionCookie = (req, res, sessionId) => {
+export const setSessionCookie = (req: Request, res: Response, sessionId: string) => {
     const age = 1000 * 60 * 60 * 24 * 365; // 365 days
     setSessionCookieWithAge(req, res, sessionId, age);
 };
 
-const setExpiredSessionCookie = (req, res) => {
+export const setExpiredSessionCookie = (req: Request, res: Response) => {
     setSessionCookieWithAge(req, res, '', -1);
-};
-
-module.exports = {
-    exchangeCodeForAccessToken,
-    fetchUserInfo,
-    playerLoginFromWebId,
-    setSessionCookie,
-    setExpiredSessionCookie,
 };

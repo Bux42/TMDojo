@@ -1,4 +1,5 @@
-const { getUserBySessionId } = require('../lib/db');
+import { Request, Response } from 'express';
+import { getUserBySessionId } from '../lib/db';
 
 /**
  * Authentication middleware.
@@ -6,7 +7,7 @@ const { getUserBySessionId } = require('../lib/db');
  * Sets req.user to the logged in user
  * Sets req.user to undefined if no user is logged in
  */
-const authMiddleware = async (req, res, next) => {
+const authMiddleware = async (req: Request, res: Response, next: Function) => {
     const { sessionId } = req.cookies;
 
     // Check for missing parameters
@@ -26,6 +27,4 @@ const authMiddleware = async (req, res, next) => {
     return next();
 };
 
-module.exports = {
-    authMiddleware,
-};
+export default authMiddleware;

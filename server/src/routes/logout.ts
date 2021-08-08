@@ -1,6 +1,7 @@
-const express = require('express');
-const { setExpiredSessionCookie } = require('../lib/authorize');
-const { deleteSession, findSessionBySecret } = require('../lib/db');
+import { Request, Response } from 'express';
+import * as express from 'express';
+import { setExpiredSessionCookie } from '../lib/authorize';
+import { deleteSession, findSessionBySecret } from '../lib/db';
 
 const router = express.Router();
 
@@ -8,7 +9,7 @@ const router = express.Router();
  * POST /logout
  * Logs user out be deleting their session
  */
-router.post('/', async (req, res, next) => {
+router.post('/', async (req: Request, res: Response, next: Function) => {
     try {
         const { sessionId } = req.cookies;
 
@@ -36,4 +37,4 @@ router.post('/', async (req, res, next) => {
     }
 });
 
-module.exports = router;
+export default router;
