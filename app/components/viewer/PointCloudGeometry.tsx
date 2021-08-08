@@ -126,7 +126,7 @@ const ReplayPointsMesh = ({ replaysData }: ReplayLinesProps) => {
                 new THREE.Float32BufferAttribute(normals.flatMap((v) => [v.x, v.y, v.z]), 3),
             );
             const { BufferGeometryUtils } = await import('three/examples/jsm/utils/BufferGeometryUtils');
-            bufferGeom = BufferGeometryUtils.mergeVertices(bufferGeom, 1);
+            bufferGeom = BufferGeometryUtils.mergeVertices(bufferGeom, 0.1);
 
             setPointsGeom(bufferGeom);
 
@@ -197,7 +197,7 @@ const ReplayPointsMesh = ({ replaysData }: ReplayLinesProps) => {
                     <meshPhongMaterial side={DoubleSide} color={colors[i]} />
                 </mesh>
             ))} */}
-            {bufferVertices.map((vertex, i) => (
+            {/* {bufferVertices.map((vertex, i) => (
                 <mesh
                     position={vertex}
                     quaternion={(new THREE.Quaternion())
@@ -207,7 +207,7 @@ const ReplayPointsMesh = ({ replaysData }: ReplayLinesProps) => {
                     <planeGeometry args={[2.5, 2.5]} />
                     <meshPhongMaterial side={DoubleSide} color={bufferColors[i]} />
                 </mesh>
-            ))}
+            ))} */}
         </>
     );
 };

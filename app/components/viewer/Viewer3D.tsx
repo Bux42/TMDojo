@@ -18,21 +18,6 @@ interface Props {
     timeLineGlobal: TimeLineInfos;
 }
 
-const Light = () => {
-    const { camera } = useThree();
-
-    return (
-        <directionalLight
-            color="white"
-            intensity={0.5}
-            position={[0, 100, 0]}
-            shadow={new THREE.DirectionalLightShadow(camera)}
-            isDirectionalLight
-            castShadow
-        />
-    );
-};
-
 const Viewer3D = ({ replaysData, timeLineGlobal }: Props): JSX.Element => {
     const {
         lineType,
@@ -64,7 +49,7 @@ const Viewer3D = ({ replaysData, timeLineGlobal }: Props): JSX.Element => {
                 }}
             >
                 <ambientLight />
-                <Light />
+                <directionalLight color="white" intensity={0.5} position={[0, 100, 0]} />
                 <Sky distance={100000000} inclination={0} turbidity={0} rayleigh={10} />
                 <OrbitControls
                     ref={orbitControlsRef}
