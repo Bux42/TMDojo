@@ -9,7 +9,6 @@ const DB_NAME = 'dojo';
 
 let db: any = null;
 
-// eslint-disable-next-line no-unused-vars
 export type Rejector = (_1: Error) => void;
 
 export const initDB = () => {

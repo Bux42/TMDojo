@@ -1,4 +1,4 @@
-/* eslint-disable no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 // eslint-disable-next-line import/no-unresolved
 import { Express } from 'express-serve-static-core';
 
