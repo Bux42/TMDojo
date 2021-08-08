@@ -1,30 +1,33 @@
-import { MongoClient, ObjectId } from 'mongodb';
+import { MongoClient, ObjectId, Db } from 'mongodb';
 import { config } from 'dotenv';
 import { v4 as uuid } from 'uuid';
+import axios from 'axios';
 import { playerLoginFromWebId } from './authorize';
 
 config();
 
 const DB_NAME = 'dojo';
 
-let db: any = null;
+let db: Db | null = null;
 
 // eslint-disable-next-line no-unused-vars
 export type Rejector = (_1: Error) => void;
 
-export const initDB = () => {
-    const mongoClient = new MongoClient(process.env.MONGO_URL, {
+export const initDB = (url?: string) => {
+    const mongoClient = new MongoClient(url || process.env.MONGO_URL, {
         useUnifiedTopology: true,
-    } as any);
-
-    mongoClient.connect((err: Error) => {
-        if (err) {
-            console.error('initDB: Could not connect to DB, shutting down');
-            process.exit();
-        }
-        console.log('initDB: Connected successfully to DB');
-        db = mongoClient.db(DB_NAME);
     });
+
+    try {
+        mongoClient.connect();
+        db = mongoClient.db(DB_NAME);
+        if (url !== undefined) {
+            console.log('initDB: Connected successfully to DB');
+        }
+    } catch (err: any) {
+        console.error('initDB: Could not connect to DB, shutting down');
+        process.exit();
+    }
 };
 
 export const authenticateUser = (
@@ -136,12 +139,26 @@ export const getMapByUId = (mapUId ?: string): Promise<any> => new Promise((reso
     });
 });
 
-export const saveMap = (mapData ?: any): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
+export const saveMap = async (mapData ?: any): Promise<any> => {
     const maps = db.collection('maps');
-    maps.insertOne(mapData)
-        .then((operation: any) => resolve({ _id: operation.insertedId }))
-        .catch((error: Error) => reject(error));
-});
+
+    let tmioData = {};
+
+    if (mapData.mapUId) {
+        const tmxRes = await axios.get(`https://trackmania.io/api/map/${mapData.mapUId}`, {
+            withCredentials: true,
+            headers: { 'User-Agent': 'TMDojo API - https://github.com/Bux42/TMDojo' },
+        });
+        tmioData = tmxRes.data;
+    }
+
+    const operation = await maps.insertOne({
+        ...mapData,
+        extra: tmioData,
+    });
+
+    return { _id: operation.insertedId };
+};
 
 export const getUserByWebId = (
     webId ?: string,

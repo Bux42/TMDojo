@@ -1,0 +1,48 @@
+const tmioSummer202101Data = {
+    author: 'd2372a08-a8a1-46cb-97fb-23a161d85ad0',
+    name: 'Summer 2021 - 01',
+    mapType: '',
+    authorScore: 21024,
+    goldScore: 23000,
+    silverScore: 26000,
+    bronzeScore: 32000,
+    collectionName: 'Stadium',
+    environment: 'Stadium',
+    filename: 'Summer 2021 - 01.Map.Gbx',
+    isPlayable: true,
+    mapId: '6fdc9bfa-6ff9-4916-ae0c-90e083a7bb19',
+    mapUid: '7fsfRSUCQ7YwfBEdRk_GivW6qzj',
+    submitter: 'd2372a08-a8a1-46cb-97fb-23a161d85ad0',
+    timestamp: '2021-07-01T12:45:23+00:00',
+    fileUrl: 'https://prod.trackmania.core.nadeo.online/storageObjects/67e0ba1a-1685-4698-b267-030c7591211b',
+    thumbnailUrl: 'https://prod.trackmania.core.nadeo.online/storageObjects/d9d9b062-ae28-4836-9b58-7f1965279618.jpg',
+    authorplayer: {
+        name: 'Nadeo',
+        tag: 'NAN',
+        id: 'd2372a08-a8a1-46cb-97fb-23a161d85ad0',
+        meta: {
+            vanity: 'nadeo',
+            comment: 'This is a Nadeo system account, not a "real" account.',
+            nadeo: true,
+            twitch: 'trackmania',
+            youtube: 'UCs98eSEpjDWhFZ-nj0RVKQg',
+            twitter: 'trackmania',
+        },
+    },
+    submitterplayer: {
+        name: 'Nadeo',
+        tag: 'NAN',
+        id: 'd2372a08-a8a1-46cb-97fb-23a161d85ad0',
+        meta: {
+            vanity: 'nadeo',
+            comment: 'This is a Nadeo system account, not a "real" account.',
+            nadeo: true,
+            twitch: 'trackmania',
+            youtube: 'UCs98eSEpjDWhFZ-nj0RVKQg',
+            twitter: 'trackmania',
+        },
+    },
+    exchangeid: 31857,
+};
+
+export default tmioSummer202101Data;
