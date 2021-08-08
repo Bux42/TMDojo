@@ -86,8 +86,14 @@ const ReplayCar = ({
             stadiumCarMesh.current.rotation.setFromQuaternion(carRotation);
 
             // Set front wheels rotation
-            stadiumCarMesh.current.children[2].rotation.y = curSample.wheelAngle;
-            stadiumCarMesh.current.children[4].rotation.y = curSample.wheelAngle;
+            stadiumCarMesh.current.children[2].rotation.y = curSample.wheelAngle; // FL
+            stadiumCarMesh.current.children[4].rotation.y = curSample.wheelAngle; // FR
+
+            // Set wheel suspensions
+            stadiumCarMesh.current.children[1].position.setY(35.232017517089844 - (curSample.rRDamperLen * 100)); // RR
+            stadiumCarMesh.current.children[2].position.setY(35.24349594116211 - (curSample.fLDamperLen * 100)); // FL
+            stadiumCarMesh.current.children[3].position.setY(35.232017517089844 - (curSample.rLDamperLen * 100)); // RL
+            stadiumCarMesh.current.children[4].position.setY(35.24349594116211 - (curSample.fRDamperLen * 100)); // FR
 
             // Camera target replay if selected
             if (followed) {
