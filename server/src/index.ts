@@ -22,14 +22,6 @@ import authMiddleware from './middleware/auth';
 
 config();
 
-// ensure storage directories exist
-if (!fs.existsSync('maps')) {
-    fs.mkdirSync('maps');
-}
-if (!fs.existsSync('mapBlocks')) {
-    fs.mkdirSync('mapBlocks');
-}
-
 const app = express();
 app.use(
     cors({
