@@ -1,18 +1,23 @@
-const { MongoClient, ObjectID } = require('mongodb');
-const { v4: uuid } = require('uuid');
-const { playerLoginFromWebId } = require('./authorize');
-require('dotenv').config();
+import { MongoClient, ObjectID, ObjectId } from 'mongodb';
+import { config } from 'dotenv';
+import { v4 as uuid } from 'uuid';
+import { playerLoginFromWebId } from './authorize';
+
+config();
 
 const DB_NAME = 'dojo';
 
-let db = null;
+let db: any = null;
 
-const initDB = () => {
+// eslint-disable-next-line no-unused-vars
+export type Rejector = (_1: Error) => void;
+
+export const initDB = () => {
     const mongoClient = new MongoClient(process.env.MONGO_URL, {
         useUnifiedTopology: true,
-    });
+    } as any);
 
-    mongoClient.connect((err) => {
+    mongoClient.connect((err: Error) => {
         if (err) {
             console.error('initDB: Could not connect to DB, shutting down');
             process.exit();
@@ -22,13 +27,17 @@ const initDB = () => {
     });
 };
 
-const authenticateUser = (webId, login, name) => new Promise((resolve, reject) => {
+export const authenticateUser = (
+    webId: any,
+    login: any,
+    name: any,
+): Promise<void> => new Promise((resolve: () => void, reject: Rejector) => {
     const users = db.collection('users');
     users
         .find({
             webId,
         })
-        .toArray((err, docs) => {
+        .toArray((err: Error, docs: any) => {
             if (err) {
                 reject(err);
             } else if (!docs.length) {
@@ -58,7 +67,9 @@ const authenticateUser = (webId, login, name) => new Promise((resolve, reject) =
         });
 });
 
-const getUniqueMapNames = (mapName) => new Promise((resolve, reject) => {
+export const getUniqueMapNames = (
+    mapName ?: string,
+): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
     const replays = db.collection('replays');
     const queryPipeline = [
         // populate map references to count occurrences
@@ -100,9 +111,9 @@ const getUniqueMapNames = (mapName) => new Promise((resolve, reject) => {
             $match: {
                 mapName: { $regex: `.*${mapName}.*`, $options: 'i' },
             },
-        });
+        } as any);
     }
-    replays.aggregate(queryPipeline, async (aggregateErr, cursor) => {
+    replays.aggregate(queryPipeline, async (aggregateErr: Error, cursor: any) => {
         if (aggregateErr) {
             return reject(aggregateErr);
         }
@@ -115,9 +126,9 @@ const getUniqueMapNames = (mapName) => new Promise((resolve, reject) => {
     });
 });
 
-const getMapByUId = (mapUId) => new Promise((resolve, reject) => {
+export const getMapByUId = (mapUId ?: string): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
     const maps = db.collection('maps');
-    maps.findOne({ mapUId }, (err, map) => {
+    maps.findOne({ mapUId }, (err: Error, map: any) => {
         if (err) {
             return reject(err);
         }
@@ -125,23 +136,25 @@ const getMapByUId = (mapUId) => new Promise((resolve, reject) => {
     });
 });
 
-const saveMap = (mapData) => new Promise((resolve, reject) => {
+export const saveMap = (mapData ?: any): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
     const maps = db.collection('maps');
     maps.insertOne(mapData)
-        .then((operation) => resolve({ _id: operation?.insertedId }))
-        .catch((error) => reject(error));
+        .then((operation: any) => resolve({ _id: operation.insertedId }))
+        .catch((error: Error) => reject(error));
 });
 
-const getUserById = async (id) => {
+export const getUserById = async (id: string) => {
     const users = db.collection('users');
     return users.findOne({
         _id: new ObjectID(id),
     });
 };
 
-const getUserByWebId = (webId) => new Promise((resolve, reject) => {
+export const getUserByWebId = (
+    webId ?: string,
+): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
     const users = db.collection('users');
-    users.findOne({ webId }, (err, user) => {
+    users.findOne({ webId }, (err: Error, user: any) => {
         if (err) {
             return reject(err);
         }
@@ -149,16 +162,23 @@ const getUserByWebId = (webId) => new Promise((resolve, reject) => {
     });
 });
 
-const saveUser = (userData) => new Promise((resolve, reject) => {
+export const saveUser = (
+    userData: any,
+): Promise<{_id: string}> => new Promise((resolve: Function, reject: Rejector) => {
     const users = db.collection('users');
     users.insertOne(userData)
-        .then((operation) => resolve({ _id: operation?.insertedId }))
-        .catch((error) => reject(error));
+        .then(({ insertedId }: {insertedId: string}) => resolve({ _id: insertedId }))
+        .catch((error: Error) => reject(error));
 });
 
-const getReplays = (
-    mapName, playerName, mapUId, raceFinished, orderBy, maxResults = '1000',
-) => new Promise((resolve, reject) => {
+export const getReplays = (
+    mapName ?: string,
+    playerName ?: string,
+    mapUId ?: string,
+    raceFinished ?: string,
+    orderBy ?: string,
+    maxResults: string = '1000',
+): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
     const replays = db.collection('replays');
 
     const pipeline = [
@@ -188,7 +208,7 @@ const getReplays = (
         },
     ];
 
-    const addRegexFilter = (property, propertyName) => {
+    const addRegexFilter = (property ?: string, propertyName ?: string) => {
         if (property) {
             pipeline.push({
                 $match: {
@@ -197,7 +217,7 @@ const getReplays = (
                         $options: 'i',
                     },
                 },
-            });
+            } as any);
         }
     };
 
@@ -211,11 +231,11 @@ const getReplays = (
             $match: {
                 raceFinished: parseInt(raceFinished, 10),
             },
-        });
+        } as any);
     }
 
     if (orderBy && orderBy !== 'None') {
-        const order = {};
+        const order: {endRaceTime?: number, date?: number} = {};
         if (orderBy === 'Time Desc') {
             order.endRaceTime = -1;
         } else if (orderBy === 'Time Asc') {
@@ -227,20 +247,20 @@ const getReplays = (
         }
         pipeline.push({
             $sort: order,
-        });
+        } as any);
     }
 
     // add limit and clean up results
     pipeline.push({
         $limit: parseInt(maxResults, 10),
-    });
+    } as any);
     pipeline.push({
         $project: {
             userRef: 0, user: 0, mapRef: 0, map: 0, filePath: 0,
         },
-    });
+    } as any);
 
-    replays.aggregate(pipeline, async (aggregateErr, cursor) => {
+    replays.aggregate(pipeline, async (aggregateErr: Error, cursor: any) => {
         if (aggregateErr) {
             return reject(aggregateErr);
         }
@@ -253,12 +273,15 @@ const getReplays = (
     });
 });
 
-const getReplayById = (replayId, populate) => new Promise((resolve, reject) => {
+export const getReplayById = (
+    replayId ?: string,
+    populate ?: boolean,
+): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
     const replays = db.collection('replays');
 
     let pipeline = [
         {
-            $match: { _id: ObjectID(replayId) },
+            $match: { _id: new ObjectId(replayId) },
         },
     ];
 
@@ -295,10 +318,10 @@ const getReplayById = (replayId, populate) => new Promise((resolve, reject) => {
                     userRef: 0, user: 0, mapRef: 0, map: 0,
                 },
             },
-        ]);
+        ] as any[]);
     }
 
-    replays.aggregate(pipeline, async (aggregateErr, cursor) => {
+    replays.aggregate(pipeline, async (aggregateErr: Error, cursor: any) => {
         if (aggregateErr) {
             return reject(aggregateErr);
         }
@@ -311,21 +334,23 @@ const getReplayById = (replayId, populate) => new Promise((resolve, reject) => {
     });
 });
 
-const saveReplay = async (replay) => {
+export const saveReplay = async (replay: any) => {
     const replays = db.collection('replays');
     await replays.insertOne(replay);
 };
 
-const deleteReplayById = async (replayId) => {
+export const deleteReplayById = async (replayId: any) => {
     const replays = db.collection('replays');
     await replays.deleteOne({
-        _id: ObjectID(replayId),
+        _id: new ObjectID(replayId),
     });
 };
 
-const getReplayByFilePath = (filePath) => new Promise((resolve, reject) => {
+export const getReplayByFilePath = (
+    filePath ?: string,
+): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
     const replays = db.collection('replays');
-    replays.findOne({ filePath }, (err, replay) => {
+    replays.findOne({ filePath }, (err: Error, replay: any) => {
         if (err) {
             return reject(err);
         }
@@ -333,18 +358,20 @@ const getReplayByFilePath = (filePath) => new Promise((resolve, reject) => {
     });
 });
 
-const saveReplayMetadata = (metadata) => new Promise((resolve, reject) => {
+export const saveReplayMetadata = (
+    metadata: any,
+): Promise<{_id: string}> => new Promise((resolve: Function, reject: Rejector) => {
     const replays = db.collection('replays');
     replays.insertOne(metadata)
-        .then((operation) => resolve({ _id: operation?.insertedId }))
-        .catch((error) => reject(error));
+        .then(({ insertedId }: {insertedId: string}) => resolve({ _id: insertedId }))
+        .catch((error: Error) => reject(error));
 });
 
 /**
  * Creates session using a webId.
  * Returns session secret or undefined if something went wrong
  */
-const createSession = async (userInfo) => {
+export const createSession = async (userInfo: any) => {
     // Find user
     let user = await getUserByWebId(userInfo.account_id);
     if (user === undefined || user === null) {
@@ -378,12 +405,12 @@ const createSession = async (userInfo) => {
     return sessionId;
 };
 
-const findSessionBySecret = async (sessionId) => {
+export const findSessionBySecret = async (sessionId: string) => {
     const sessions = db.collection('sessions');
     return sessions.findOne({ sessionId });
 };
 
-const deleteSession = async (sessionId) => {
+export const deleteSession = async (sessionId: string) => {
     const sessions = db.collection('sessions');
     await sessions.deleteOne({
         sessionId,
@@ -394,7 +421,7 @@ const deleteSession = async (sessionId) => {
  * If session is valid and can find a user, return user
  * Else, return undefined
  */
-const getUserBySessionId = async (sessionId) => {
+export const getUserBySessionId = async (sessionId: string) => {
     // Find session
     const sessions = db.collection('sessions');
     const session = await sessions.findOne({
@@ -418,25 +445,4 @@ const getUserBySessionId = async (sessionId) => {
     }
 
     return user;
-};
-
-module.exports = {
-    initDB,
-    authenticateUser,
-    saveReplayMetadata,
-    saveReplay,
-    getUniqueMapNames,
-    getMapByUId,
-    saveMap,
-    getUserByWebId,
-    getUserById,
-    saveUser,
-    getReplays,
-    getReplayById,
-    getReplayByFilePath,
-    createSession,
-    getUserBySessionId,
-    findSessionBySecret,
-    deleteSession,
-    deleteReplayById,
 };

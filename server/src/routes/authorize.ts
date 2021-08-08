@@ -1,6 +1,8 @@
-const express = require('express');
-const { exchangeCodeForAccessToken, fetchUserInfo } = require('../lib/authorize');
-const { createSession } = require('../lib/db');
+import { Request, Response } from 'express';
+import * as express from 'express';
+import { exchangeCodeForAccessToken, fetchUserInfo, setSessionCookie } from '../lib/authorize';
+
+import { createSession } from '../lib/db';
 
 const router = express.Router();
 
@@ -11,7 +13,7 @@ const router = express.Router();
  * - code
  * - redirect_uri
  */
-router.post('/', async (req, res, next) => {
+router.post('/', async (req: Request, res: Response, next: Function) => {
     try {
         // Get code and redirect URI from body
         const { code, redirect_uri: redirectUri } = req.body;
@@ -50,13 +52,7 @@ router.post('/', async (req, res, next) => {
             return;
         }
 
-        // Repond with user info
-        res.cookie('sessionId', sessionId, {
-            path: '/',
-            secure: false, // TODO: enable on HTTPS server
-            maxAge: 1000 * 60 * 60 * 24 * 365, // 365 days
-            domain: process.env.NODE_ENV === 'prod' ? 'tmdojo.com' : 'localhost',
-        });
+        setSessionCookie(req, res, sessionId);
 
         res.send({
             accountId: userInfo.account_id,
@@ -67,4 +63,4 @@ router.post('/', async (req, res, next) => {
     }
 });
 
-module.exports = router;
+export default router;
