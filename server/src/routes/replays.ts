@@ -169,21 +169,16 @@ router.delete('/:replayId', async (req, res) => {
         return;
     }
 
-    // Delete replay db entry
     await db.deleteReplayById(replay._id);
 
-    // Delete replay file
-    if (fs.existsSync(replay.filePath)) {
-        try {
-            fs.unlinkSync(replay.filePath);
-        } catch (err) {
-            // If deletion failed, add the replay back into the DB
-            await db.saveReplay(replay);
+    try {
+        await artefacts.deleteReplay(replay);
+    } catch (err) {
+        // If deletion failed, add the replay back into the DB
+        await db.saveReplay(replay);
 
-            // Respond with error
-            res.status(500).send('Failed to delete replay file.');
-            return;
-        }
+        res.status(500).send('Failed to delete replay file.');
+        return;
     }
 
     res.status(200).end();

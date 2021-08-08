@@ -100,8 +100,5 @@ export const getAvailableMaps = async (searchString: string): Promise<AvailableM
 };
 
 export const deleteReplay = async (replay: FileResponse) => {
-    await axios.delete(
-        `${process.env.NEXT_PUBLIC_API_URL}/replays/${replay._id}`,
-        { withCredentials: true },
-    );
+    await apiInstance.delete(`/replays/${replay._id}`);
 };
