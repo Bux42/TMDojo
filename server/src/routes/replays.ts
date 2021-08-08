@@ -9,13 +9,13 @@
  * - date
  */
 
-const express = require('express');
+import { Request, Response } from 'express';
+import * as express from 'express';
+
+import * as db from '../lib/db';
+import * as artefacts from '../lib/artefacts';
 
 const router = express.Router();
-
-const db = require('../lib/db');
-const artefacts = require('../lib/artefacts');
-
 /**
  * GET /replays
  * Retrieves filtered replay metadata
@@ -30,15 +30,15 @@ const artefacts = require('../lib/artefacts');
  * - endRaceTimeMax (optional) - currently unused
  * - dateMin (optional) - currently unused
  */
-router.get('/', async (req, res, next) => {
+router.get('/', async (req: Request, res: Response, next: Function) => {
     try {
         const replays = await db.getReplays(
-            req.query.mapName,
-            req.query.playerName,
-            req.query.mapUId,
-            req.query.raceFinished,
-            req.query.orderBy,
-            req.query.maxResults,
+            req.query.mapName as string,
+            req.query.playerName as string,
+            req.query.mapUId as string,
+            req.query.raceFinished as string,
+            req.query.orderBy as string,
+            req.query.maxResults as string,
         );
         res.send(replays);
     } catch (err) {
@@ -53,7 +53,7 @@ router.get('/', async (req, res, next) => {
  * - download (optional)
  * - fileName (optional)
  */
-router.get('/:replayId', async (req, res, next) => {
+router.get('/:replayId', async (req: Request, res: Response, next: Function) => {
     try {
         const replay = await db.getReplayById(req.params.replayId);
         if (!replay) {
@@ -84,7 +84,7 @@ router.get('/:replayId', async (req, res, next) => {
  * - webId
  */
 // eslint-disable-next-line consistent-return
-router.post('/', (req, res, next) => {
+router.post('/', (req: Request, res: Response, next: Function): any => {
     const paramNames = [
         'authorName', 'mapName', 'mapUId', 'endRaceTime', 'raceFinished', 'playerName', 'playerLogin', 'webId',
     ];
@@ -100,10 +100,10 @@ router.post('/', (req, res, next) => {
         return res.status(400).send({ message: 'Request is missing one or more parameters' });
     }
 
-    const secureMapName = decodeURIComponent(req.query.mapName);
+    const secureMapName = decodeURIComponent(req.query.mapName as string);
 
     let completeData = '';
-    req.on('data', (data) => {
+    req.on('data', (data: string | Buffer) => {
         completeData += data;
     });
 
@@ -114,7 +114,7 @@ router.post('/', (req, res, next) => {
             const storedReplay = await artefacts.uploadReplay(filePath, completeData);
 
             // check if map already exists
-            let map = await db.getMapByUId(req.query.mapUId);
+            let map = await db.getMapByUId(`${req.query.mapUId}`);
             if (!map) {
                 map = await db.saveMap({
                     mapName: secureMapName,
@@ -124,7 +124,7 @@ router.post('/', (req, res, next) => {
             }
 
             // check if user already exists
-            let user = await db.getUserByWebId(req.query.webId);
+            let user = await db.getUserByWebId(`${req.query.webId}`);
             if (!user) {
                 user = await db.saveUser({
                     playerName: req.query.playerName,
@@ -138,8 +138,8 @@ router.post('/', (req, res, next) => {
                 mapRef: map._id,
                 userRef: user._id,
                 date: Date.now(),
-                raceFinished: parseInt(req.query.raceFinished, 10),
-                endRaceTime: parseInt(req.query.endRaceTime, 10),
+                raceFinished: parseInt(`${req.query.raceFinished}`, 10),
+                endRaceTime: parseInt(`${req.query.endRaceTime}`, 10),
                 ...storedReplay,
             };
 
@@ -153,4 +153,4 @@ router.post('/', (req, res, next) => {
     req.on('error', (err) => next(err));
 });
 
-module.exports = router;
+export default router;

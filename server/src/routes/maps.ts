@@ -6,23 +6,24 @@
  * - thumbnailURL (not implemented yet)
  */
 
-const express = require('express');
+import { Request, Response } from 'express';
+import * as express from 'express';
+
+import axios from 'axios';
+
+import * as db from '../lib/db';
+import * as artefacts from '../lib/artefacts';
 
 const router = express.Router();
-const axios = require('axios');
-
-const db = require('../lib/db');
-const artefacts = require('../lib/artefacts');
-
 /**
  * GET /maps
  * Retrieves all unique map names we have replays of
  * Query params:
  * - mapName (optional)
  */
-router.get('/', async (req, res, next) => {
+router.get('/', async (req: Request, res: Response, next: Function) => {
     try {
-        const mapNames = await db.getUniqueMapNames(req.query.mapName);
+        const mapNames = await db.getUniqueMapNames(req.query.mapName as string);
         res.send(mapNames);
     } catch (err) {
         next(err);
@@ -33,7 +34,7 @@ router.get('/', async (req, res, next) => {
  * GET /maps/:mapUID
  * Retrieves map (block) data by mapUID
  */
-router.get('/:mapUID', async (req, res, next) => {
+router.get('/:mapUID', async (req: Request, res: Response, next: Function) => {
     try {
         const mapData = await artefacts.retrieveMap(req.params.mapUID);
         res.send(mapData);
@@ -50,7 +51,7 @@ router.get('/:mapUID', async (req, res, next) => {
  * GET /maps/:mapUID/info
  * Retrieves map's metadata (including tm.io information)
  */
-router.get('/:mapUID/info', async (req, res) => {
+router.get('/:mapUID/info', async (req: Request, res: Response) => {
     let mapData = {};
 
     // fetch tm.io data
@@ -73,7 +74,7 @@ router.get('/:mapUID/info', async (req, res) => {
  * POST /maps/:mapUID
  * Stores map (block) data (from the request body)
  */
-router.post('/:mapUID', (req, res, next) => {
+router.post('/:mapUID', (req: Request, res: Response, next: Function) => {
     let completeData = '';
 
     req.on('data', (data) => {
@@ -95,4 +96,4 @@ router.post('/:mapUID', (req, res, next) => {
     });
 });
 
-module.exports = router;
+export default router;

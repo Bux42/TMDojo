@@ -1,5 +1,7 @@
-const express = require('express');
-const { deleteSession, findSessionBySecret } = require('../lib/db');
+import { Request, Response } from 'express';
+import * as express from 'express';
+import { setExpiredSessionCookie } from '../lib/authorize';
+import { deleteSession, findSessionBySecret } from '../lib/db';
 
 const router = express.Router();
 
@@ -7,7 +9,7 @@ const router = express.Router();
  * POST /logout
  * Logs user out be deleting their session
  */
-router.post('/', async (req, res, next) => {
+router.post('/', async (req: Request, res: Response, next: Function) => {
     try {
         const { sessionId } = req.cookies;
 
@@ -20,26 +22,19 @@ router.post('/', async (req, res, next) => {
         // Check if the session exists
         const session = await findSessionBySecret(sessionId);
         if (session === null || session === undefined) {
+            setExpiredSessionCookie(req, res);
             res.status(401).send({ message: 'No session found for this secret.' });
             return;
         }
 
-        // Send instantly expiring cookie
-        res.cookie('sessionId', sessionId, {
-            path: '/',
-            secure: false, // TODO: enable on HTTPS server
-            maxAge: -1, // instantly expires
-            domain: process.env.NODE_ENV === 'prod' ? 'tmdojo.com' : 'localhost',
-        });
-
-        // Delete session
         await deleteSession(sessionId);
 
-        // Repond with user info
+        setExpiredSessionCookie(req, res);
+
         res.status(200).end();
     } catch (err) {
         next(err);
     }
 });
 
-module.exports = router;
+export default router;
