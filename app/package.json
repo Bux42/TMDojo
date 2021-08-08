@@ -18,6 +18,7 @@
     "@types/three": "^0.127.1",
     "antd": "^4.15.2",
     "axios": "^0.21.1",
+    "earcut": "^2.2.3",
     "next": "^10.0.9",
     "react": "17.0.1",
     "react-color": "^2.19.3",
@@ -30,6 +31,7 @@
   "devDependencies": {
     "@babel/plugin-proposal-decorators": "^7.13.5",
     "@svgr/webpack": "^5.5.0",
+    "@types/earcut": "^2.1.1",
     "@types/node": "^14.14.35",
     "@types/react": "^17.0.3",
     "@types/react-color": "^3.0.5",

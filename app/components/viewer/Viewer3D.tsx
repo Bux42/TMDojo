@@ -9,6 +9,7 @@ import { Grid, DEFAULT_GRID_POS } from './Grid';
 import { SettingsContext } from '../../lib/contexts/SettingsContext';
 import FrameRate from './FrameRate';
 import ReplayCars from './ReplayCars';
+import PointCloudGeometry from './PointCloudGeometry';
 
 const BACKGROUND_COLOR = new THREE.Color(0.05, 0.05, 0.05);
 
@@ -16,6 +17,21 @@ interface Props {
     replaysData: ReplayData[];
     timeLineGlobal: TimeLineInfos;
 }
+
+const Light = () => {
+    const { camera } = useThree();
+
+    return (
+        <directionalLight
+            color="white"
+            intensity={0.5}
+            position={[0, 100, 0]}
+            shadow={new THREE.DirectionalLightShadow(camera)}
+            isDirectionalLight
+            castShadow
+        />
+    );
+};
 
 const Viewer3D = ({ replaysData, timeLineGlobal }: Props): JSX.Element => {
     const {
@@ -48,7 +64,7 @@ const Viewer3D = ({ replaysData, timeLineGlobal }: Props): JSX.Element => {
                 }}
             >
                 <ambientLight />
-                <pointLight position={[10, 10, 10]} power={1} />
+                <Light />
                 <Sky distance={100000000} inclination={0} turbidity={0} rayleigh={10} />
                 <OrbitControls
                     ref={orbitControlsRef}
@@ -64,6 +80,8 @@ const Viewer3D = ({ replaysData, timeLineGlobal }: Props): JSX.Element => {
                     replayLineOpacity={replayLineOpacity}
                     showGearChanges={showGearChanges}
                 />
+                <PointCloudGeometry replaysData={replaysData} />
+
                 <Suspense fallback={null}>
                     <ReplayCars
                         replaysData={replaysData}
