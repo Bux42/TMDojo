@@ -4,12 +4,8 @@ import * as path from 'path';
 import * as zlib from 'zlib';
 
 import { S3 } from '@aws-sdk/client-s3';
-import { config } from 'dotenv';
 
-config();
-
-const { PREFERRED_STORAGE_TYPE, AWS_S3_BUCKET_NAME } = process.env;
-const REGION = 'eu-central-1';
+const { PREFERRED_STORAGE_TYPE, AWS_S3_BUCKET_NAME, AWS_S3_REGION } = process.env;
 
 enum StorageType {
     ObjectStorage = 'S3',
@@ -19,7 +15,7 @@ enum StorageType {
 // no explicit auth because it implicitly relies on env vars to exist
 // AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY
 const S3Client = new S3({
-    region: REGION,
+    region: AWS_S3_REGION,
 });
 
 // helper method to convert stream to buffer (S3 responds with streams)
