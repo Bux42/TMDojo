@@ -85,7 +85,7 @@ const ReplayCar = ({
             );
 
             // Move & rotate 3D car from current sample rot & pos
-            mesh.current.position.set(curSample.position.x, curSample.position.y, curSample.position.z);
+            mesh.current.position.lerp(curSample.position, 0.4);
             stadiumCarMesh.current.rotation.setFromQuaternion(carRotation);
 
             // Set front wheels rotation
