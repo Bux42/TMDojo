@@ -85,7 +85,7 @@ const ReplayCar = ({
             );
 
             // Move & rotate 3D car from current sample rot & pos
-            mesh.current.position.lerp(curSample.position, 0.4);
+            mesh.current.position.set(curSample.position.x, curSample.position.y, curSample.position.z);
             stadiumCarMesh.current.rotation.setFromQuaternion(carRotation);
 
             // Set front wheels rotation
@@ -101,22 +101,21 @@ const ReplayCar = ({
             // Camera target replay if selected
             if (followed) {
                 if (orbitControlsRef && orbitControlsRef.current) {
-                    orbitControlsRef.current.target.lerp(curSample.position, 0.2);
+                    orbitControlsRef.current.target = mesh.current.position;
                     if (cameraMode === CameraMode.Follow) {
-                        // move camPosMesh to Follow position
-                        camPosRef.current.rotation.setFromQuaternion(carRotation);
                         // move toward where the car is heading
-                        camPosRef.current.position.set(
-                            -curSample.velocity.x / 5,
-                            -curSample.velocity.y / 5,
-                            -curSample.velocity.z / 5,
-                        );
-                        camPosRef.current.translateZ(-7 - (curSample.speed / 30));
-                        camPosRef.current.translateY(2 + (curSample.speed / 200));
+                        const velocityOffset = curSample.velocity.clone().multiplyScalar(-0.2);
+                        const backPositioning = new THREE.Vector3(0, 4, 2);
+
+                        const nextCamPos = mesh.current.position.clone()
+                            .add(velocityOffset)
+                            .add(backPositioning);
+
                         // move camera to camPosMesh world position
-                        const camWorldPos: THREE.Vector3 = new THREE.Vector3();
-                        camPosRef.current.getWorldPosition(camWorldPos);
-                        camera.position.lerp(camWorldPos, 0.3);
+                        camera.position.lerp(nextCamPos, 0.3);
+
+                        // set debug cam position
+                        camPosRef.current.position.set(camera.position.x, camera.position.y, camera.position.z);
                     }
                 }
             }
