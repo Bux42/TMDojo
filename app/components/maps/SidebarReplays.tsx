@@ -73,7 +73,7 @@ const SidebarReplays = ({
             await onRefreshReplays();
             message.success('Replay deleted!');
         } catch (e) {
-            message.error('Could not delete replay, please try again.');
+            message.error('Could not delete replay.');
         }
     };
 

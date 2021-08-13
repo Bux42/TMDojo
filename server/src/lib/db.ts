@@ -1,4 +1,4 @@
-import { MongoClient, ObjectID, ObjectId } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 import { config } from 'dotenv';
 import { v4 as uuid } from 'uuid';
 import { playerLoginFromWebId } from './authorize';
@@ -142,10 +142,11 @@ export const saveMap = (mapData ?: any): Promise<any> => new Promise((resolve: F
         .catch((error: Error) => reject(error));
 });
 
+// Gets a user by the _id field in the db
 export const getUserById = async (id: string) => {
     const users = db.collection('users');
     return users.findOne({
-        _id: new ObjectID(id),
+        _id: new ObjectId(id),
     });
 };
 
