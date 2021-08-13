@@ -181,7 +181,7 @@ router.delete('/:replayId', async (req, res) => {
         return;
     }
 
-    res.status(200).end();
+    res.send();
 });
 
 export default router;
