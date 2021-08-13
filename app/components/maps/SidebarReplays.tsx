@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useContext } from 'react';
 import {
-    Button, Drawer, message, Modal, Table, Tooltip,
+    Button, Drawer, message, Popconfirm, Table, Tooltip,
 } from 'antd';
 import { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
 import { TableCurrentDataSource } from 'antd/lib/table/interface';
 import {
-    DeleteOutlined, ExclamationCircleOutlined, ReloadOutlined, StarFilled, StarOutlined,
+    DeleteOutlined, QuestionCircleOutlined, ReloadOutlined,
 } from '@ant-design/icons';
 import Link from 'next/link';
 import { deleteReplay, FileResponse } from '../../lib/api/apiRequests';
@@ -75,34 +75,6 @@ const SidebarReplays = ({
         } catch (e) {
             message.error('Could not delete replay, please try again.');
         }
-    };
-
-    const showDeleteConfirm = (replay: ExtendedFileResponse) => {
-        Modal.confirm({
-            title: 'Are you sure you want to delete this replay?',
-            icon: <ExclamationCircleOutlined />,
-            content: (
-                <>
-                    <span>
-                        {'Map: \t'}
-                        <b>{replay.mapName}</b>
-                    </span>
-                    <br />
-                    <span>
-                        {'Time: \t'}
-                        <b>{replay.readableTime}</b>
-                    </span>
-                    <br />
-                    <span>
-                        {'Driven: \t'}
-                        <b>{replay.relativeDate}</b>
-                    </span>
-                </>),
-            okText: 'Yes',
-            okType: 'danger',
-            cancelText: 'No',
-            onOk: () => deleteReplayFile(replay),
-        });
     };
 
     const columns: ColumnsType<ExtendedFileResponse> = [
@@ -184,12 +156,25 @@ const SidebarReplays = ({
                             </Button>
                         )}
                         {user && user.accountId === replay.webId && (
-                            <Button
-                                shape="circle"
-                                danger
-                                icon={<DeleteOutlined style={{ fontSize: '16px', color: '#a61d24' }} />}
-                                onClick={() => showDeleteConfirm(replay)}
-                            />
+                            <Popconfirm
+                                title="Delete this replay?"
+                                placement="right"
+                                icon={(
+                                    <QuestionCircleOutlined
+                                        style={{ color: '#a61d24' }}
+                                    />
+                                )}
+                                cancelText="No"
+                                okText="Yes"
+                                okButtonProps={{ danger: true }}
+                                onConfirm={() => deleteReplayFile(replay)}
+                            >
+                                <Button
+                                    shape="circle"
+                                    danger
+                                    icon={<DeleteOutlined style={{ fontSize: '16px', color: '#a61d24' }} />}
+                                />
+                            </Popconfirm>
                         )}
                     </div>
                 );
