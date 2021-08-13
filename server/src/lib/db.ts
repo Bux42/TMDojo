@@ -342,7 +342,7 @@ export const saveReplay = async (replay: any) => {
 export const deleteReplayById = async (replayId: any) => {
     const replays = db.collection('replays');
     await replays.deleteOne({
-        _id: new ObjectID(replayId),
+        _id: new ObjectId(replayId),
     });
 };
 
