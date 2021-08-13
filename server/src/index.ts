@@ -23,14 +23,6 @@ import authMiddleware from './middleware/auth';
 
 config();
 
-// ensure storage directories exist
-if (!fs.existsSync('maps')) {
-    fs.mkdirSync('maps');
-}
-if (!fs.existsSync('mapBlocks')) {
-    fs.mkdirSync('mapBlocks');
-}
-
 const app = express();
 app.use(
     cors({
@@ -89,7 +81,7 @@ app.use((req: Request, res: Response, next: Function) => {
 });
 
 // global error handler (requires 'next' even if it's not used)
-// eslint-disable-next-line no-unused-vars
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err: Error, req: Request, res: Response, next: Function) => {
     console.error(err.stack);
     res.status(500).send('Internal server error');
