@@ -4,18 +4,16 @@
  * - mapRef
  * - endRaceTime
  * - raceFinished
- * - filePath
+ * - filePath (optional, XOR objectPath)
+ * - objectPath (optional, XOR filePath)
  * - date
  */
 
 import { Request, Response } from 'express';
 import * as express from 'express';
 
-import * as fs from 'fs';
-import * as zlib from 'zlib';
-import * as path from 'path';
-
 import * as db from '../lib/db';
+import * as artefacts from '../lib/artefacts';
 
 const router = express.Router();
 /**
@@ -57,21 +55,18 @@ router.get('/', async (req: Request, res: Response, next: Function) => {
  */
 router.get('/:replayId', async (req: Request, res: Response, next: Function) => {
     try {
-        const replay = await db.getReplayById(req.params.replayId as string);
-        const filePath = path.resolve(`${__dirname}/../../${replay.filePath}`);
-        if (fs.existsSync(filePath)) {
-            if (req.query.download === 'true') {
-                res.download(filePath, req.query.fileName as string || req.params.replayId as string);
-            } else {
-                const file = fs.readFileSync(filePath);
-                const unzipped = zlib.unzipSync(file);
-                res.send(unzipped);
-            }
-        } else {
-            res.status(404).send();
+        const replay = await db.getReplayById(req.params.replayId);
+        if (!replay) {
+            throw new Error('Object not found');
         }
+        const replayData = await artefacts.retrieveReplay(replay);
+        res.send(replayData);
     } catch (err) {
-        next(err);
+        if (err?.message === 'Object not found') {
+            res.status(404).send();
+        } else {
+            next(err);
+        }
     }
 });
 
@@ -107,67 +102,52 @@ router.post('/', (req: Request, res: Response, next: Function): any => {
 
     const secureMapName = decodeURIComponent(req.query.mapName as string);
 
-    // prepare directories
-    if (!fs.existsSync(`maps/${req.query.authorName}`)) {
-        fs.mkdirSync(`maps/${req.query.authorName}`);
-    }
-    if (!fs.existsSync(`maps/${req.query.authorName}/${secureMapName}`)) {
-        fs.mkdirSync(`maps/${req.query.authorName}/${secureMapName}`);
-    }
-
     let completeData = '';
     req.on('data', (data: string | Buffer) => {
         completeData += data;
     });
 
-    req.on('end', () => {
-        const buff = Buffer.from(completeData, 'base64');
-        const fileName = `${req.query.endRaceTime}_${req.query.playerName}_${Date.now()}`;
-        const filePath = `maps/${req.query.authorName}/${secureMapName}/${fileName}.gz`;
+    req.on('end', async () => {
+        try {
+            const fileName = `${req.query.endRaceTime}_${req.query.playerName}_${Date.now()}`;
+            const filePath = `${req.query.authorName}/${req.query.mapName}/${fileName}`;
+            const storedReplay = await artefacts.uploadReplay(filePath, completeData);
 
-        fs.writeFile(filePath, zlib.gzipSync(buff), async (writeErr: Error) => {
-            if (writeErr) {
-                return next(writeErr);
+            // check if map already exists
+            let map = await db.getMapByUId(`${req.query.mapUId}`);
+            if (!map) {
+                map = await db.saveMap({
+                    mapName: secureMapName,
+                    mapUId: req.query.mapUId,
+                    authorName: req.query.authorName,
+                });
             }
 
-            console.log('POST /replays: The file was saved at', filePath);
-
-            try {
-                // check if map already exists
-                let map = await db.getMapByUId(req.query.mapUId as string);
-                if (!map) {
-                    map = await db.saveMap({
-                        mapName: secureMapName,
-                        mapUId: req.query.mapUId,
-                        authorName: req.query.authorName,
-                    });
-                }
-
-                // check if user already exists
-                let user = await db.getUserByWebId(req.query.webId as string);
-                if (!user) {
-                    user = await db.saveUser({
-                        playerName: req.query.playerName,
-                        playerLogin: req.query.playerLogin,
-                        webId: req.query.webId,
-                    });
-                }
-
-                const metadata = {
-                    // reference map and user docs
-                    mapRef: map._id,
-                    userRef: user._id,
-                    filePath,
-                    date: Date.now(),
-                    raceFinished: parseInt(req.query.raceFinished as string, 10),
-                    endRaceTime: parseInt(req.query.endRaceTime as string, 10),
-                };
-                await db.saveReplayMetadata(metadata);
-                return res.send();
-            } catch (dbErr) {
-                return next(dbErr);
+            // check if user already exists
+            let user = await db.getUserByWebId(`${req.query.webId}`);
+            if (!user) {
+                user = await db.saveUser({
+                    playerName: req.query.playerName,
+                    playerLogin: req.query.playerLogin,
+                    webId: req.query.webId,
+                });
             }
-        });
+
+            const metadata = {
+                // reference map and user docs
+                mapRef: map._id,
+                userRef: user._id,
+                date: Date.now(),
+                raceFinished: parseInt(`${req.query.raceFinished}`, 10),
+                endRaceTime: parseInt(`${req.query.endRaceTime}`, 10),
+                ...storedReplay,
+            };
+
+            await db.saveReplayMetadata(metadata);
+            return res.send();
+        } catch (err) {
+            return next(err);
+        }
     });
 
     req.on('error', (err) => next(err));

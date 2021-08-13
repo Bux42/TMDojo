@@ -18,6 +18,11 @@ module.exports = {
         indent: ['error', 4],
         // due to DB IDs we have to disable this
         'no-underscore-dangle': 'off',
+        // TS-enforced stuff that only leads to false positives
+        'no-unused-vars': 'off',
+        '@typescript-eslint/no-unused-vars': 'error',
+        'no-shadow': 'off',
+        '@typescript-eslint/no-shadow': 'error',
         // preferences
         'no-plusplus': 'off',
         'max-len': ['error', 120],
