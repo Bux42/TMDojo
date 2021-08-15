@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
     Button, Checkbox, Drawer,
 } from 'antd';
@@ -15,8 +15,8 @@ import {
     speedChartData,
     inputGazPedalChartData,
     inputIsBrakingChartData,
-    inputSteer2ChartData,
 } from '../../lib/charts/chartData';
+import { SettingsContext } from '../../lib/contexts/SettingsContext';
 
 interface ReplayChartProps {
     replaysData: ReplayData[];
@@ -65,11 +65,6 @@ export const ChartTypes: { [name: string]: ChartType } = {
         chartOptionsCallback: accelAndBrakeChartOptions,
         chartDataCallback: [inputGazPedalChartData, inputIsBrakingChartData],
     },
-    inputSteer2: {
-        name: 'inputSteer2',
-        chartOptionsCallback: defaultChartOptions,
-        chartDataCallback: [inputSteer2ChartData],
-    },
 };
 
 const readProp = (obj: any, prop: any) => obj[prop];
@@ -88,7 +83,8 @@ export const ReplayChart = ({
                 replaySeries.push(serie);
             }
         } else {
-            replaySeries.push(metric.chartDataCallback[0](replay));
+            const serie = metric.chartDataCallback[0](replay);
+            replaySeries.push(serie);
         }
     });
 
@@ -126,6 +122,9 @@ export const SidebarCharts = ({
 }: Props): JSX.Element => {
     const [visible, setVisible] = useState(false);
     const [selectedCharts, setSelectedCharts] = useState<ChartType[]>([]);
+    const {
+        numColorChange,
+    } = useContext(SettingsContext);
     let childCharts: any[] = [];
 
     const addChart = (chart: any) => {

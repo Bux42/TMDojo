@@ -17,6 +17,7 @@ export const chartDataTemplate = (replay: ReplayData, decimalPoints: number): an
         tooltip: {
             valueDecimals: decimalPoints,
         },
+        color: `#${replay.color.getHexString()}`,
     };
     return chartData;
 };
@@ -33,42 +34,6 @@ export const inputSteerChartData = (replay: ReplayData): any => {
     const chartData: any = chartDataTemplate(replay, 3);
     replay.samples.forEach((sample: ReplayDataPoint) => {
         chartData.data.push([sample.currentRaceTime, sample.inputSteer]);
-    });
-    return chartData;
-};
-
-export const inputSteer2ChartData = (replay: ReplayData): any => {
-    const chartData: any = chartDataTemplate(replay, 3);
-    chartData.marker.enabled = true;
-    chartData.colorByPoint = true;
-    replay.samples.forEach((sample: ReplayDataPoint) => {
-        let datapoint;
-        if (sample.inputIsBraking && !sample.inputGasPedal) {
-            datapoint = {
-                x: sample.currentRaceTime,
-                y: sample.inputSteer,
-                color: '#db1a1a',
-            };
-        } else if (!sample.inputIsBraking && sample.inputGasPedal) {
-            datapoint = {
-                x: sample.currentRaceTime,
-                y: sample.inputSteer,
-                color: '#1adb30',
-            };
-        } else if (sample.inputIsBraking && sample.inputGasPedal) {
-            datapoint = {
-                x: sample.currentRaceTime,
-                y: sample.inputSteer,
-                color: '#dbbb1a',
-            };
-        } else {
-            datapoint = {
-                x: sample.currentRaceTime,
-                y: sample.inputSteer,
-                color: '#ffffff',
-            };
-        }
-        chartData.data.push(datapoint);
     });
     return chartData;
 };
