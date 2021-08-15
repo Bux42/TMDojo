@@ -238,18 +238,25 @@ export const SidebarCharts = ({
     ));
     return (
         <div className="absolute right-0 left-0 bottom-0 m-8 mx-auto z-10" style={{ width: '50px' }}>
-            <Button onClick={toggleSidebar} shape="round" size="large">
-                Charts
-            </Button>
+            {!visible
+            && (
+                <Button onClick={toggleSidebar} size="large" className="mb-1">
+                    Charts
+                </Button>
+            )}
             <Drawer
                 mask={false}
                 title="Charts"
                 placement="bottom"
                 onClose={onClose}
                 visible={visible}
-                height={256}
+                height={512}
                 bodyStyle={{
                     overflow: 'auto',
+                }}
+                style={{
+                    bottom: '34px',
+                    opacity: 0.8,
                 }}
                 className="ChartDrawer"
             >
