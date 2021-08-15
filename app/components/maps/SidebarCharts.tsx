@@ -17,6 +17,7 @@ import {
     inputIsBrakingChartData,
 } from '../../lib/charts/chartData';
 import { SettingsContext } from '../../lib/contexts/SettingsContext';
+import { getRaceTimeStr } from '../../lib/utils/time';
 
 interface ReplayChartProps {
     replaysData: ReplayData[];
@@ -77,6 +78,10 @@ export const ReplayChart = ({
         if (metric.chartDataCallback.length > 1) {
             for (let i = 0; i < metric.chartDataCallback.length; i++) {
                 const serie = metric.chartDataCallback[i](replay);
+                const serieTitle = metric.chartDataCallback[i].name.split('ChartData')[0];
+                console.log('serie.title', serie.title);
+                serie.name = `${replay.playerName} ${getRaceTimeStr(replay.endRaceTime)} ${serieTitle}`;
+
                 if (i === 0) {
                     serie.yAxis = i + 1;
                 }
