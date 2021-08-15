@@ -15,7 +15,7 @@ export const chartOptionsTemplate = (): any => {
             enabled: false,
         },
         chart: {
-            height: 395,
+            height: 400,
             backgroundColor: '#2B2B2C',
         },
         rangeSelector: {

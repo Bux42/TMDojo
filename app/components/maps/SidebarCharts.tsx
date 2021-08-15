@@ -13,16 +13,18 @@ import {
     engineRPMsChartData,
     inputSteerChartData,
     speedChartData,
-    inputGazPedalChartData,
+    inputGasPedalChartData,
     inputIsBrakingChartData,
 } from '../../lib/charts/chartData';
 import { SettingsContext } from '../../lib/contexts/SettingsContext';
 import { getRaceTimeStr } from '../../lib/utils/time';
+import { ReplayDataPoint } from '../../lib/replays/replayData';
 
 interface ReplayChartProps {
     replaysData: ReplayData[];
     metric: ChartType;
     addChartFunc: any;
+    allRaceTimes: number[];
     callBack: any;
 }
 
@@ -33,7 +35,7 @@ interface Props {
 export interface ChartType {
     name: string;
     chartOptionsCallback: () => any;
-    chartDataCallback: ((replay: ReplayData) => any)[];
+    chartDataCallback: ((replay: ReplayData, allRaceTimes: number[]) => any)[];
 }
 export const ChartTypes: { [name: string]: ChartType } = {
     speed: {
@@ -64,22 +66,21 @@ export const ChartTypes: { [name: string]: ChartType } = {
     accelAndBrake: {
         name: 'accelAndBrake',
         chartOptionsCallback: accelAndBrakeChartOptions,
-        chartDataCallback: [inputGazPedalChartData, inputIsBrakingChartData],
+        chartDataCallback: [inputGasPedalChartData, inputIsBrakingChartData],
     },
 };
 
 const readProp = (obj: any, prop: any) => obj[prop];
 
 export const ReplayChart = ({
-    replaysData, metric, addChartFunc, callBack,
+    replaysData, metric, addChartFunc, allRaceTimes, callBack,
 }: ReplayChartProps): JSX.Element => {
     const replaySeries: any[] = [];
     replaysData.forEach((replay: ReplayData) => {
         if (metric.chartDataCallback.length > 1) {
             for (let i = 0; i < metric.chartDataCallback.length; i++) {
-                const serie = metric.chartDataCallback[i](replay);
+                const serie = metric.chartDataCallback[i](replay, allRaceTimes);
                 const serieTitle = metric.chartDataCallback[i].name.split('ChartData')[0];
-                console.log('serie.title', serie.title);
                 serie.name = `${replay.playerName} ${getRaceTimeStr(replay.endRaceTime)} ${serieTitle}`;
 
                 if (i === 0) {
@@ -88,12 +89,18 @@ export const ReplayChart = ({
                 replaySeries.push(serie);
             }
         } else {
-            const serie = metric.chartDataCallback[0](replay);
+            const serie = metric.chartDataCallback[0](replay, allRaceTimes);
             replaySeries.push(serie);
         }
     });
 
     const options = metric.chartOptionsCallback();
+
+    // Higchart tooltip needs more space when > 5 replays are loaded
+    if (replaysData.length > 5) {
+        options.chart.height += (replaysData.length - 5) * 34;
+    }
+
     options.title.text = metric.name;
     options.series = replaySeries;
     options.xAxis.events = {
@@ -130,6 +137,18 @@ export const SidebarCharts = ({
     const {
         numColorChange,
     } = useContext(SettingsContext);
+
+    // Get each different currentRaceTime for all replays to get matching chart tooltips
+    const allRaceTimes: number[] = [];
+
+    replaysData.forEach((replay: ReplayData) => {
+        replay.samples.forEach((sample: ReplayDataPoint) => {
+            if (!allRaceTimes.includes(sample.currentRaceTime)) {
+                allRaceTimes.push(sample.currentRaceTime);
+            }
+        });
+    });
+
     let childCharts: any[] = [];
 
     const addChart = (chart: any) => {
@@ -213,6 +232,7 @@ export const SidebarCharts = ({
             callBack={successCallBackData}
             replaysData={replaysData}
             metric={metric}
+            allRaceTimes={allRaceTimes}
             key={metric.name}
         />
     ));
@@ -250,7 +270,14 @@ export const SidebarCharts = ({
                 <div>
                     <div>
                         {Object.keys(ChartTypes).map((chartType) => (
-                            <Checkbox name={chartType} key={chartType} onChange={toggleCheckbox}>{chartType}</Checkbox>
+                            <Checkbox
+                                style={{ textTransform: 'capitalize' }}
+                                name={chartType}
+                                key={chartType}
+                                onChange={toggleCheckbox}
+                            >
+                                {chartType}
+                            </Checkbox>
                         ))}
                     </div>
                     {replayCharts}

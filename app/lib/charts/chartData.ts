@@ -22,50 +22,98 @@ export const chartDataTemplate = (replay: ReplayData, decimalPoints: number): an
     return chartData;
 };
 
-export const speedChartData = (replay: ReplayData): any => {
+export const speedChartData = (replay: ReplayData, allRaceTimes: number[]): any => {
     const chartData: any = chartDataTemplate(replay, 3);
-    replay.samples.forEach((sample: ReplayDataPoint) => {
-        chartData.data.push([sample.currentRaceTime, sample.speed]);
+    let lastSample: ReplayDataPoint;
+    allRaceTimes.forEach((raceTime: number) => {
+        for (let i = 0; i < replay.samples.length; i++) {
+            lastSample = replay.samples[i];
+            if (lastSample.currentRaceTime === raceTime
+                || lastSample.currentRaceTime > raceTime) {
+                chartData.data.push([raceTime, lastSample.speed]);
+                break;
+            }
+        }
     });
     return chartData;
 };
 
-export const inputSteerChartData = (replay: ReplayData): any => {
+export const inputSteerChartData = (replay: ReplayData, allRaceTimes: number[]): any => {
     const chartData: any = chartDataTemplate(replay, 3);
-    replay.samples.forEach((sample: ReplayDataPoint) => {
-        chartData.data.push([sample.currentRaceTime, sample.inputSteer]);
+    let lastSample: ReplayDataPoint;
+    allRaceTimes.forEach((raceTime: number) => {
+        for (let i = 0; i < replay.samples.length; i++) {
+            lastSample = replay.samples[i];
+            if (lastSample.currentRaceTime === raceTime
+                || lastSample.currentRaceTime > raceTime) {
+                chartData.data.push([raceTime, lastSample.inputSteer]);
+                break;
+            }
+        }
     });
     return chartData;
 };
 
-export const engineRPMsChartData = (replay: ReplayData): any => {
+export const engineRPMsChartData = (replay: ReplayData, allRaceTimes: number[]): any => {
     const chartData: any = chartDataTemplate(replay, 3);
-    replay.samples.forEach((sample: ReplayDataPoint) => {
-        chartData.data.push([sample.currentRaceTime, sample.engineRpm]);
+    let lastSample: ReplayDataPoint;
+    allRaceTimes.forEach((raceTime: number) => {
+        for (let i = 0; i < replay.samples.length; i++) {
+            lastSample = replay.samples[i];
+            if (lastSample.currentRaceTime === raceTime
+                || lastSample.currentRaceTime > raceTime) {
+                chartData.data.push([raceTime, lastSample.engineRpm]);
+                break;
+            }
+        }
     });
     return chartData;
 };
 
-export const engineCurrGearChartData = (replay: ReplayData): any => {
+export const engineCurrGearChartData = (replay: ReplayData, allRaceTimes: number[]): any => {
     const chartData: any = chartDataTemplate(replay, 0);
-    replay.samples.forEach((sample: ReplayDataPoint) => {
-        chartData.data.push([sample.currentRaceTime, sample.engineCurGear]);
+    let lastSample: ReplayDataPoint;
+    allRaceTimes.forEach((raceTime: number) => {
+        for (let i = 0; i < replay.samples.length; i++) {
+            lastSample = replay.samples[i];
+            if (lastSample.currentRaceTime === raceTime
+                || lastSample.currentRaceTime > raceTime) {
+                chartData.data.push([raceTime, lastSample.engineCurGear]);
+                break;
+            }
+        }
     });
     return chartData;
 };
 
-export const inputGazPedalChartData = (replay: ReplayData): any => {
+export const inputGasPedalChartData = (replay: ReplayData, allRaceTimes: number[]): any => {
     const chartData: any = chartDataTemplate(replay, 0);
-    replay.samples.forEach((sample: ReplayDataPoint) => {
-        chartData.data.push([sample.currentRaceTime, sample.inputGasPedal ? 1 : 0]);
+    let lastSample: ReplayDataPoint;
+    allRaceTimes.forEach((raceTime: number) => {
+        for (let i = 0; i < replay.samples.length; i++) {
+            lastSample = replay.samples[i];
+            if (lastSample.currentRaceTime === raceTime
+                || lastSample.currentRaceTime > raceTime) {
+                chartData.data.push([raceTime, lastSample.inputGasPedal ? 1 : 0]);
+                break;
+            }
+        }
     });
     return chartData;
 };
 
-export const inputIsBrakingChartData = (replay: ReplayData): any => {
+export const inputIsBrakingChartData = (replay: ReplayData, allRaceTimes: number[]): any => {
     const chartData: any = chartDataTemplate(replay, 0);
-    replay.samples.forEach((sample: ReplayDataPoint) => {
-        chartData.data.push([sample.currentRaceTime, sample.inputIsBraking ? 1 : 0]);
+    let lastSample: ReplayDataPoint;
+    allRaceTimes.forEach((raceTime: number) => {
+        for (let i = 0; i < replay.samples.length; i++) {
+            lastSample = replay.samples[i];
+            if (lastSample.currentRaceTime === raceTime
+                || lastSample.currentRaceTime > raceTime) {
+                chartData.data.push([raceTime, lastSample.inputIsBraking ? 1 : 0]);
+                break;
+            }
+        }
     });
     return chartData;
 };
