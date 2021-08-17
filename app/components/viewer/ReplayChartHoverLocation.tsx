@@ -4,17 +4,18 @@ import React, { useRef } from 'react';
 import { DoubleSide } from 'three';
 import * as THREE from 'three';
 import { ReplayData } from '../../lib/api/apiRequests';
-import { GlobalChartsData } from '../maps/SidebarCharts';
 import getSampleNearTime from '../../lib/utils/replay';
+import GlobalChartsDataSingleton from '../../lib/singletons/globalChartData';
 
 interface ReplayChartHoverLocationProps {
     replay: ReplayData;
-    globalChartsData: GlobalChartsData;
 }
 const ReplayChartHoverLocation = ({
-    replay, globalChartsData,
+    replay,
 }: ReplayChartHoverLocationProps) => {
     const sphereRef = useRef<THREE.Mesh>();
+
+    const globalChartsData = GlobalChartsDataSingleton.getInstance();
 
     useFrame(() => {
         if (sphereRef.current) {

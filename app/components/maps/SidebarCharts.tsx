@@ -19,6 +19,7 @@ import {
 import { SettingsContext } from '../../lib/contexts/SettingsContext';
 import { getRaceTimeStr } from '../../lib/utils/time';
 import { ReplayDataPoint } from '../../lib/replays/replayData';
+import GlobalChartsDataSingleton from '../../lib/singletons/globalChartData';
 
 interface ReplayChartProps {
     replaysData: ReplayData[];
@@ -26,7 +27,6 @@ interface ReplayChartProps {
     addChartFunc: any;
     allRaceTimes: number[];
     callBack: any;
-    globalChartsData: GlobalChartsData;
 }
 
 export interface ChartType {
@@ -70,8 +70,10 @@ export const ChartTypes: { [name: string]: ChartType } = {
 const readProp = (obj: any, prop: any) => obj[prop];
 
 export const ReplayChart = ({
-    replaysData, metric, addChartFunc, allRaceTimes, callBack, globalChartsData,
+    replaysData, metric, addChartFunc, allRaceTimes, callBack,
 }: ReplayChartProps): JSX.Element => {
+    const globalChartsData = GlobalChartsDataSingleton.getInstance();
+
     const replaySeries: any[] = [];
     replaysData.forEach((replay: ReplayData) => {
         if (metric.chartDataCallback.length > 1) {
@@ -145,20 +147,11 @@ const debounce = (callback: () => any, timeout: number) => () => {
     }, timeout);
 };
 
-export class GlobalChartsData {
-    hoveredRaceTime?: number;
-    constructor() {
-        this.hoveredRaceTime = undefined;
-    }
-}
-
 interface Props {
     replaysData: ReplayData[];
-    globalChartsData: GlobalChartsData
 }
 export const SidebarCharts = ({
     replaysData,
-    globalChartsData,
 }: Props): JSX.Element => {
     const [visible, setVisible] = useState(false);
     const [selectedCharts, setSelectedCharts] = useState<ChartType[]>([]);
@@ -262,7 +255,6 @@ export const SidebarCharts = ({
             metric={metric}
             allRaceTimes={allRaceTimes}
             key={metric.name}
-            globalChartsData={globalChartsData}
         />
     ));
     return (

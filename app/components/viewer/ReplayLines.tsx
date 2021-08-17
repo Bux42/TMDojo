@@ -9,7 +9,6 @@ import {
     speedReplayColors,
     inputReplayColors,
 } from '../../lib/replays/replayLineColors';
-import { GlobalChartsData } from '../maps/SidebarCharts';
 import ReplayChartHoverLocation from './ReplayChartHoverLocation';
 import ReplayDnf from './ReplayDnf';
 import ReplayGears from './ReplayGears';
@@ -78,7 +77,6 @@ interface ReplayLinesProps {
     range: number[];
     replayLineOpacity: number;
     showGearChanges: boolean;
-    globalChartsData: GlobalChartsData;
 }
 export const ReplayLines = ({
     replaysData,
@@ -86,7 +84,6 @@ export const ReplayLines = ({
     range,
     replayLineOpacity,
     showGearChanges,
-    globalChartsData,
 }: ReplayLinesProps): JSX.Element => (
     <>
         {replaysData.map((replay) => (
@@ -101,7 +98,6 @@ export const ReplayLines = ({
                 <ReplayChartHoverLocation
                     key={`replay-${replay._id}-chart-hover`}
                     replay={replay}
-                    globalChartsData={globalChartsData}
                 />
                 {showGearChanges && (
                     <ReplayGears key={`replay-${replay._id}-gears`} replay={replay} />
