@@ -22,7 +22,7 @@ const ReplayChartHoverLocation = ({
             if (globalChartsData.hoveredRaceTime !== undefined) {
                 const curSample = getSampleNearTime(replay, globalChartsData.hoveredRaceTime);
 
-                sphereRef.current.position.lerp(curSample.position, 0.8);
+                sphereRef.current.position.set(curSample.position.x, curSample.position.y, curSample.position.z);
             }
         }
     });
