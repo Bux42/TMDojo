@@ -10,14 +10,16 @@ import { SettingsContext } from '../../lib/contexts/SettingsContext';
 import { GraphContext } from '../../lib/contexts/GraphContext';
 import FrameRate from './FrameRate';
 import ReplayCars from './ReplayCars';
+import { GlobalChartsData } from '../maps/SidebarCharts';
 
 const BACKGROUND_COLOR = new THREE.Color(0.05, 0.05, 0.05);
 
 interface Props {
     replaysData: ReplayData[];
     timeLineGlobal: TimeLineInfos;
+    globalChartsData: GlobalChartsData;
 }
-const Viewer3D = ({ replaysData, timeLineGlobal }: Props): JSX.Element => {
+const Viewer3D = ({ replaysData, timeLineGlobal, globalChartsData }: Props): JSX.Element => {
     const {
         lineType,
         showGearChanges,
@@ -67,6 +69,7 @@ const Viewer3D = ({ replaysData, timeLineGlobal }: Props): JSX.Element => {
                     replayLineOpacity={replayLineOpacity}
                     showGearChanges={showGearChanges}
                     range={range}
+                    globalChartsData={globalChartsData}
                 />
                 <Suspense fallback={null}>
                     <ReplayCars

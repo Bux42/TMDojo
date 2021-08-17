@@ -13,6 +13,7 @@ import vecToQuat from '../../lib/utils/math';
 import { CameraMode } from '../../lib/contexts/SettingsContext';
 import InputOverlay from './InputOverlay';
 import { TimeLineInfos } from './TimeLine';
+import getSampleNearTime from '../../lib/utils/replay';
 
 interface ReplayCarProps {
     replay: ReplayData;
@@ -34,7 +35,7 @@ const ReplayCar = ({
 
     const currentSampleRef = useRef<ReplayDataPoint>(replay.samples[0]);
 
-    let sampleIndex = 0;
+    let curSample = replay.samples[0];
 
     // Get own material from loaded car model
     const carMesh: THREE.Mesh = fbx.children[0] as THREE.Mesh;
@@ -59,20 +60,7 @@ const ReplayCar = ({
             const hovered = timeLineGlobal.hoveredReplay != null && timeLineGlobal.hoveredReplay._id === replay._id;
 
             // Get closest sample to TimeLine.currentRaceTime
-            sampleIndex = Math.round(timeLineGlobal.currentRaceTime / replay.intervalMedian);
-            if (sampleIndex > replay.samples.length - 1) {
-                sampleIndex = replay.samples.length - 1;
-            }
-            while (sampleIndex > 0
-                && replay.samples[sampleIndex].currentRaceTime > timeLineGlobal.currentRaceTime) {
-                sampleIndex--;
-            }
-            while (sampleIndex + 1 < replay.samples.length
-                && replay.samples[sampleIndex].currentRaceTime < timeLineGlobal.currentRaceTime) {
-                sampleIndex++;
-            }
-
-            const curSample = replay.samples[sampleIndex];
+            curSample = getSampleNearTime(replay, timeLineGlobal.currentRaceTime);
             currentSampleRef.current = curSample;
 
             // Get car rotation
@@ -139,9 +127,9 @@ const ReplayCar = ({
         <>
             <mesh
                 position={[
-                    replay.samples[sampleIndex].position.x,
-                    replay.samples[sampleIndex].position.y,
-                    replay.samples[sampleIndex].position.z]}
+                    curSample.position.x,
+                    curSample.position.y,
+                    curSample.position.z]}
                 ref={mesh}
                 scale={1}
             >

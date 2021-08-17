@@ -26,10 +26,7 @@ interface ReplayChartProps {
     addChartFunc: any;
     allRaceTimes: number[];
     callBack: any;
-}
-
-interface Props {
-    replaysData: ReplayData[];
+    globalChartsData: GlobalChartsData;
 }
 
 export interface ChartType {
@@ -73,7 +70,7 @@ export const ChartTypes: { [name: string]: ChartType } = {
 const readProp = (obj: any, prop: any) => obj[prop];
 
 export const ReplayChart = ({
-    replaysData, metric, addChartFunc, allRaceTimes, callBack,
+    replaysData, metric, addChartFunc, allRaceTimes, callBack, globalChartsData,
 }: ReplayChartProps): JSX.Element => {
     const replaySeries: any[] = [];
     replaysData.forEach((replay: ReplayData) => {
@@ -111,6 +108,25 @@ export const ReplayChart = ({
             });
         },
     };
+    options.plotOptions = {
+        series: {
+            events: {
+                mouseOut: () => {
+                    globalChartsData.hoveredRaceTime = undefined;
+                },
+            },
+            point: {
+                events: {
+                    mouseOver: (event: any) => {
+                        event.preventDefault();
+                        if (!event.target.isNull && typeof event.target.x === 'number') {
+                            globalChartsData.hoveredRaceTime = event.target.x;
+                        }
+                    },
+                },
+            },
+        },
+    };
 
     const highCharts = <HighchartsReact constructorType="stockChart" highcharts={Highcharts} options={options} />;
     addChartFunc(highCharts);
@@ -129,8 +145,20 @@ const debounce = (callback: () => any, timeout: number) => () => {
     }, timeout);
 };
 
+export class GlobalChartsData {
+    hoveredRaceTime?: number;
+    constructor() {
+        this.hoveredRaceTime = undefined;
+    }
+}
+
+interface Props {
+    replaysData: ReplayData[];
+    globalChartsData: GlobalChartsData
+}
 export const SidebarCharts = ({
     replaysData,
+    globalChartsData,
 }: Props): JSX.Element => {
     const [visible, setVisible] = useState(false);
     const [selectedCharts, setSelectedCharts] = useState<ChartType[]>([]);
@@ -234,6 +262,7 @@ export const SidebarCharts = ({
             metric={metric}
             allRaceTimes={allRaceTimes}
             key={metric.name}
+            globalChartsData={globalChartsData}
         />
     ));
     return (
