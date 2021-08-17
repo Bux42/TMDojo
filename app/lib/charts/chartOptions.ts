@@ -17,6 +17,7 @@ export const chartOptionsTemplate = (): any => {
         chart: {
             height: 400,
             backgroundColor: '#2B2B2C',
+            zoomType: 'x',
         },
         rangeSelector: {
             enabled: false,
@@ -39,6 +40,7 @@ export const chartOptionsTemplate = (): any => {
         },
         yAxis: {
             type: 'date',
+            gridLineColor: '#3f3f40',
         },
         scrollbar: scrollBarOptions,
         line: {
@@ -58,6 +60,7 @@ export const defaultChartOptions = (): any => {
 export const inputSteerChartOptions = (): any => {
     const options = chartOptionsTemplate();
     options.yAxis = {
+        ...options.yAxis,
         min: -1,
         max: 1,
     };
@@ -67,6 +70,7 @@ export const inputSteerChartOptions = (): any => {
 export const rpmsAndGearChartOptions = (): any => {
     const options = chartOptionsTemplate();
     options.yAxis = [{
+        ...options.yAxis,
         title: {
             text: 'RPMs',
         },
@@ -75,6 +79,7 @@ export const rpmsAndGearChartOptions = (): any => {
         },
         lineWidth: 2,
     }, {
+        ...options.yAxis,
         title: {
             text: 'Gear',
         },
@@ -90,6 +95,7 @@ export const rpmsAndGearChartOptions = (): any => {
 export const accelAndBrakeChartOptions = (): any => {
     const options = chartOptionsTemplate();
     options.yAxis = [{
+        ...options.yAxis,
         title: {
             text: 'Gaz',
         },
@@ -98,6 +104,7 @@ export const accelAndBrakeChartOptions = (): any => {
         },
         lineWidth: 2,
     }, {
+        ...options.yAxis,
         title: {
             text: 'Brake',
         },
