@@ -14,6 +14,9 @@ bool OnlySaveFinished = true;
 [Setting name="TMDojoApiUrl" description="TMDojo API Url"]
 string ApiUrl = REMOTE_API;
 
+[Setting name="TMDojoPluginSecret" description="TMDojo Plugin Secret"]
+string TMDojoPluginSecret = "";
+
 [Setting name="TMDojoDebugOverlayEnabled" description="Enable / Disable debug overlay"]
 bool DebugOverlayEnabled = false;
 
@@ -151,6 +154,9 @@ class TMDojo
     // Server status
     bool serverAvailable = false;
     bool checkingServer = false;
+
+    // Plugin status
+    bool pluginAuthed = false;
 
 	CSmPlayer@ GetViewingPlayer()
 	{
@@ -566,8 +572,25 @@ void RenderMenu()
             }
         }
 
+        if (UI::MenuItem("Auth Plugin", "", false, true)) {
+            startnew(pluginAuth);
+        }
 		UI::EndMenu();
 	}
+}
+
+void pluginAuth() {
+    Net::HttpRequest@ auth = Net::HttpGet(ApiUrl + "/auth/plugin?name=" + g_dojo.playerName + "&login=" + g_dojo.playerLogin + "&webid=" + g_dojo.webId);
+     while (!auth.Finished()) {
+        yield();
+        sleep(50);
+    }
+    if (auth.String().Contains("http")) {
+        print("" + auth.String());
+        OpenBrowserURL(auth.String());
+    } else {
+        print("no link, something went wrong");
+    }
 }
 
 void checkServer() {
@@ -575,13 +598,17 @@ void checkServer() {
     g_dojo.playerName = g_dojo.network.PlayerInfo.Name;
     g_dojo.playerLogin = g_dojo.network.PlayerInfo.Login;
     g_dojo.webId = g_dojo.network.PlayerInfo.WebServicesUserId;
-    Net::HttpRequest@ auth = Net::HttpGet(ApiUrl + "/auth?name=" + g_dojo.playerName + "&login=" + g_dojo.playerLogin + "&webid=" + g_dojo.webId);
+    Net::HttpRequest@ auth = Net::HttpGet(ApiUrl + "/auth?name=" + g_dojo.playerName + "&login=" + g_dojo.playerLogin + "&webid=" + g_dojo.webId + "&secret=" + TMDojoPluginSecret);
     while (!auth.Finished()) {
         yield();
         sleep(50);
     }
     if (auth.String().get_Length() > 0) {
         g_dojo.serverAvailable = true;
+        print("/auth response: " + auth.String());
+        if (auth.String().Contains("Authorized")) {
+            g_dojo.pluginAuthed = true;
+        }
     } else {
         g_dojo.serverAvailable = false;
     }
