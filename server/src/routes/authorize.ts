@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import * as express from 'express';
 import { exchangeCodeForAccessToken, fetchUserInfo, setSessionCookie } from '../lib/authorize';
 
-import { createSession } from '../lib/db';
+import { createSession, getUserByWebId, saveUser } from '../lib/db';
 
 const router = express.Router();
 
@@ -15,8 +15,8 @@ const router = express.Router();
  */
 router.post('/', async (req: Request, res: Response, next: Function) => {
     try {
-        // Get code and redirect URI from body
-        const { code, redirect_uri: redirectUri } = req.body;
+        // Get code, redirect URI and clientCode from body
+        const { code, redirect_uri: redirectUri, clientCode } = req.body;
 
         // Check for missing parameters
         const missingParams = [];
@@ -45,7 +45,8 @@ router.post('/', async (req: Request, res: Response, next: Function) => {
             return;
         }
 
-        // Create session
+        // Create UI session
+        // TODO: if clientCode exists (i.e. if this is plugin auth), only create a new UI session if there isn't one yet
         const sessionId = await createSession(userInfo);
         if (sessionId === undefined) {
             res.status(500).send({ message: 'Failed to create login session.' });
@@ -58,6 +59,24 @@ router.post('/', async (req: Request, res: Response, next: Function) => {
             accountId: userInfo.account_id,
             displayName: userInfo.display_name,
         });
+
+        // if clientCode exists, create a separate plugin session
+        // first, check the user doc for the clientCode
+        const userDoc = await getUserByWebId(userInfo.account_id);
+        if (userDoc.clientCode !== clientCode) {
+            // looks like a different client/the UI initiated this login - don't create a plugin session
+            console.log(
+                '/authorize: User\'s clientCode does not match the OAuth state, no plugin session will be created',
+            );
+            return;
+        }
+
+        // remove clientCode from user
+        delete userDoc.clientCode;
+        await saveUser(userDoc);
+
+        // create a new plugin session including the clientCode
+        await createSession(userInfo, clientCode);
     } catch (err) {
         next(err);
     }

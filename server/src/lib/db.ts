@@ -30,6 +30,7 @@ export const authenticateUser = (
     webId: any,
     login: any,
     name: any,
+    clientCode: any,
 ): Promise<void> => new Promise((resolve: () => void, reject: Rejector) => {
     const users = db.collection('users');
     users
@@ -45,6 +46,7 @@ export const authenticateUser = (
                     playerLogin: login,
                     playerName: name,
                     last_active: Date.now(),
+                    clientCode: clientCode || null,
                 });
                 resolve();
             } else {
@@ -53,6 +55,7 @@ export const authenticateUser = (
                         playerLogin: login,
                         playerName: name,
                         last_active: Date.now(),
+                        clientCode: clientCode || null,
                     },
                 };
                 users.updateOne(
@@ -158,7 +161,7 @@ export const saveUser = (
     userData: any,
 ): Promise<{_id: string}> => new Promise((resolve: Function, reject: Rejector) => {
     const users = db.collection('users');
-    users.insertOne(userData)
+    users.replaceOne({ _id: userData._id }, userData, { upsert: true })
         .then(({ insertedId }: {insertedId: string}) => resolve({ _id: insertedId }))
         .catch((error: Error) => reject(error));
 });
@@ -351,7 +354,7 @@ export const saveReplayMetadata = (
  * Creates session using a webId.
  * Returns session secret or undefined if something went wrong
  */
-export const createSession = async (userInfo: any) => {
+export const createSession = async (userInfo: any, clientCode?: any) => {
     // Find user
     let user = await getUserByWebId(userInfo.account_id);
     if (user === undefined || user === null) {
@@ -379,15 +382,26 @@ export const createSession = async (userInfo: any) => {
     const sessionId = uuid();
     await sessions.insertOne({
         sessionId,
+        clientCode: clientCode || null,
         userRef: user._id,
     });
 
     return sessionId;
 };
 
+export const updateSession = async (session: any) => {
+    const sessions = db.collection('sessions');
+    return sessions.replaceOne({ _id: session._id }, session, { upsert: true });
+};
+
 export const findSessionBySecret = async (sessionId: string) => {
     const sessions = db.collection('sessions');
     return sessions.findOne({ sessionId });
+};
+
+export const findSessionByClientCode = async (clientCode: string) => {
+    const sessions = db.collection('sessions');
+    return sessions.findOne({ clientCode });
 };
 
 export const deleteSession = async (sessionId: string) => {
