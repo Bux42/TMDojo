@@ -14,6 +14,9 @@ bool OnlySaveFinished = true;
 [Setting name="TMDojoApiUrl" description="TMDojo API Url"]
 string ApiUrl = REMOTE_API;
 
+[Setting name="TMDojoClientCode" description="TMDojo plugin Client Code"]
+string ClientCode = "";
+
 [Setting name="TMDojoDebugOverlayEnabled" description="Enable / Disable debug overlay"]
 bool DebugOverlayEnabled = false;
 
@@ -565,9 +568,24 @@ void RenderMenu()
                 startnew(checkServer);
             }
         }
+        
+        if (UI::MenuItem("CheckPluginAuth", "", false, true)) {
+            startnew(checkPluginAuth);
+		}
+
 
 		UI::EndMenu();
 	}
+}
+
+void checkPluginAuth() {
+    print("CheckPluginAuth");
+    Net::HttpRequest@ auth = Net::HttpGet(ApiUrl + "/auth/pluginSecret?clientCode=" + ClientCode);
+    while (!auth.Finished()) {
+        yield();
+        sleep(50);
+    }
+    print("CheckPluginAuth response: " + auth.String());
 }
 
 void checkServer() {
@@ -581,6 +599,19 @@ void checkServer() {
         sleep(50);
     }
     if (auth.String().get_Length() > 0) {
+        print("/auth response: " + auth.String());
+        print("ClientCode: " + ClientCode);
+        Json::Value json = Json::Parse(auth.String());
+
+        try {
+            string authUrl = json["authURL"];
+            ClientCode = json["clientCode"];
+            OpenBrowserURL(authUrl);
+            print(authUrl);
+        } catch {
+            error("Json error");
+        }
+
         g_dojo.serverAvailable = true;
     } else {
         g_dojo.serverAvailable = false;
