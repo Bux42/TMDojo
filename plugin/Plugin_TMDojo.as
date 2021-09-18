@@ -17,6 +17,9 @@ string ApiUrl = REMOTE_API;
 [Setting name="TMDojoClientCode" description="TMDojo plugin Client Code"]
 string ClientCode = "";
 
+[Setting password name="TMDojoSessionId" description="TMDojo plugin SessionId"]
+string SessionId = "";
+
 [Setting name="TMDojoDebugOverlayEnabled" description="Enable / Disable debug overlay"]
 bool DebugOverlayEnabled = false;
 
@@ -29,6 +32,17 @@ const string REMOTE_API = "https://api.tmdojo.com";
 int RECORDING_FPS = 60;
 
 int latestRecordedTime = -6666;
+
+int checkSessionIdCount = 0;
+int maxCheckSessionId = 60;
+
+string pluginAuthUrl = "";
+
+bool pluginAuthed = false;
+
+string red = "\\$f33";
+string green = "\\$9f3";
+string orange = "\\$fb3";
 
 MemoryBuffer membuff = MemoryBuffer(0);
 bool recording = false;
@@ -526,10 +540,6 @@ void PostRecordedData(ref @handle) {
 
 void RenderMenu()
 {
-    string red = "\\$f33";
-    string green = "\\$9f3";
-    string orange = "\\$fb3";
-
     string menuTitle = "";
     if (g_dojo.checkingServer) {
         menuTitle = orange + Icons::Wifi + "\\$z TMDojo";
@@ -568,24 +578,50 @@ void RenderMenu()
                 startnew(checkServer);
             }
         }
-        
-        if (UI::MenuItem("CheckPluginAuth", "", false, true)) {
-            startnew(checkPluginAuth);
-		}
 
+        if (pluginAuthed) {
+            if (UI::MenuItem(green + Icons::Plug + " Plugin Authenticated")) {
+            }
+        } else {
+            if (UI::MenuItem(red + Icons::Plug + " Authenticate Plugin")) {
+                authenticatePlugin();
+            }
+        }
 
 		UI::EndMenu();
 	}
 }
 
-void checkPluginAuth() {
-    print("CheckPluginAuth");
-    Net::HttpRequest@ auth = Net::HttpGet(ApiUrl + "/auth/pluginSecret?clientCode=" + ClientCode);
-    while (!auth.Finished()) {
-        yield();
-        sleep(50);
+void getPluginAuth() {
+    while (checkSessionIdCount < maxCheckSessionId) {
+        sleep(1000);
+        print("getPluginAuth Count: " + checkSessionIdCount + " / " + maxCheckSessionId);
+        checkSessionIdCount++;
+        Net::HttpRequest@ auth = Net::HttpGet(ApiUrl + "/auth/pluginSecret?clientCode=" + ClientCode);
+        while (!auth.Finished()) {
+            yield();
+            sleep(50);
+        }
+        print("getPluginAuth response: " + auth.String());
+        try {
+            Json::Value json = Json::Parse(auth.String());
+            SessionId = json["sessionId"];
+            UI::ShowNotification("TMDojo", "Plugin is authenticated!", vec4(0, 0.4, 0, 1));
+            pluginAuthed = true;
+            ClientCode = "";
+            break;
+        } catch {
+            error("/auth/pluginSecret: no sessionId in reponse");
+        }
     }
-    print("CheckPluginAuth response: " + auth.String());
+    if (checkSessionIdCount >= maxCheckSessionId) {
+        UI::ShowNotification("TMDojo", "Plugin authentication took too long, please try again", vec4(0.4, 0, 0, 1));
+    }
+}
+
+void authenticatePlugin() {
+    OpenBrowserURL(pluginAuthUrl);
+    startnew(getPluginAuth);
 }
 
 void checkServer() {
@@ -593,25 +629,36 @@ void checkServer() {
     g_dojo.playerName = g_dojo.network.PlayerInfo.Name;
     g_dojo.playerLogin = g_dojo.network.PlayerInfo.Login;
     g_dojo.webId = g_dojo.network.PlayerInfo.WebServicesUserId;
-    Net::HttpRequest@ auth = Net::HttpGet(ApiUrl + "/auth?name=" + g_dojo.playerName + "&login=" + g_dojo.playerLogin + "&webid=" + g_dojo.webId);
+    Net::HttpRequest@ auth = Net::HttpGet(ApiUrl + "/auth?name=" + g_dojo.playerName + "&login=" + g_dojo.playerLogin + "&webid=" + g_dojo.webId + "&sessionId=" + SessionId);
     while (!auth.Finished()) {
         yield();
         sleep(50);
     }
     if (auth.String().get_Length() > 0) {
-        print("/auth response: " + auth.String());
-        print("ClientCode: " + ClientCode);
         Json::Value json = Json::Parse(auth.String());
 
-        try {
-            string authUrl = json["authURL"];
-            ClientCode = json["clientCode"];
-            OpenBrowserURL(authUrl);
-            print(authUrl);
-        } catch {
-            error("Json error");
-        }
+        if (json.GetType() != Json::Type::Null) {
+            print("HasKey authUrl: " + json.HasKey("authURL"));
+            print("HasKey authSuccess: " + json.HasKey("authSuccess"));
 
+            if (json.HasKey("authURL")) {
+                try {
+                    pluginAuthUrl = json["authURL"];
+                    ClientCode = json["clientCode"];
+                    UI::ShowNotification("TMDojo", "Plugin needs authentication!");
+                } catch {
+                    error("checkServer json error");
+                }
+            }
+            if (json.HasKey("authSuccess")) {
+                pluginAuthed = true;
+                UI::ShowNotification("TMDojo", "Plugin is authenticated!", vec4(0, 0.4, 0, 1));
+            }
+        } else {
+            UI::ShowNotification("TMDojo", "checkServer() Error: Json response is null", vec4(0.4, 0, 0, 1));
+            error("checkServer server response is not json");
+        }
+        
         g_dojo.serverAvailable = true;
     } else {
         g_dojo.serverAvailable = false;
