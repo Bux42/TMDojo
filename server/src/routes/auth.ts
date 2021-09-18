@@ -28,6 +28,18 @@ router.get('/', async (req: Request, res: Response, next: Function) => {
         // generate clientCode
         const clientCode = uuid();
 
+        // check if sessionId sent by plugin checks out wih user infos
+
+        const pluginSession = await db.findSessionBySecret(req.query.sessionId.toString());
+
+        if (pluginSession) {
+            const pluginUser = await db.getUserByWebId(req.query.webid.toString());
+            if (pluginSession.userRef.toString() === pluginUser._id.toString()) {
+                res.send({ authSuccess: true });
+                return;
+            }
+        }
+
         // make sure user exists and store clientCode in user's document
         await db.authenticateUser(req.query.webid, req.query.login, req.query.name, clientCode);
 
