@@ -15,9 +15,11 @@ export class TimeLineInfos {
     maxRaceTime: number;
     followedReplay: ReplayData | undefined;
     hoveredReplay: ReplayData | undefined;
+    isPlaying: boolean;
     constructor() {
         this.currentRaceTime = 0;
         this.maxRaceTime = 0;
+        this.isPlaying = false;
     }
 }
 
@@ -38,6 +40,8 @@ const TimeLineView = ({ replaysData, timeLineGlobal }: TimeLineViewProps) => {
 
     const min = 0;
     timeLineGlobal.maxRaceTime = 0;
+
+    timeLineGlobal.isPlaying = playing;
 
     if (timeLineGlobal.followedReplay !== null) {
         if (!replaysData.some((replay: ReplayData) => replay._id === timeLineGlobal.followedReplay?._id)) {

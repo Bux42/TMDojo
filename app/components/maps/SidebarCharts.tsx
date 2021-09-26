@@ -147,27 +147,29 @@ export const ReplayChart = ({
 
     if (syncWithTimeLine) {
         globalInterval = setInterval(() => {
-            let validCharts: boolean = false;
-            highCharts.props.highcharts.charts.forEach((chart: any) => {
-                if (chart) {
-                    validCharts = true;
-                    const matchingPts: any[] = [];
-                    chart.series.forEach((serie: any) => {
-                        for (let i = 0; i < serie.points.length; i++) {
-                            if (serie.points[i].category >= timeLineGlobal.currentRaceTime) {
-                                matchingPts.push(serie.points[i]);
-                                serie.points[i].setState('hover');
-                                break;
+            if (timeLineGlobal.isPlaying) {
+                let validCharts: boolean = false;
+                highCharts.props.highcharts.charts.forEach((chart: any) => {
+                    if (chart) {
+                        validCharts = true;
+                        const matchingPts: any[] = [];
+                        chart.series.forEach((serie: any) => {
+                            for (let i = 0; i < serie.points.length; i++) {
+                                if (serie.points[i].category >= timeLineGlobal.currentRaceTime) {
+                                    matchingPts.push(serie.points[i]);
+                                    serie.points[i].setState('hover');
+                                    break;
+                                }
                             }
+                        });
+                        if (matchingPts.length) {
+                            chart.tooltip.refresh(matchingPts);
                         }
-                    });
-                    if (matchingPts.length) {
-                        chart.tooltip.refresh(matchingPts);
                     }
+                });
+                if (!validCharts) {
+                    clearInterval(globalInterval);
                 }
-            });
-            if (!validCharts) {
-                clearInterval(globalInterval);
             }
         }, 1);
     } else {

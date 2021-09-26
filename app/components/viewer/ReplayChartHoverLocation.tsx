@@ -23,6 +23,9 @@ const ReplayChartHoverLocation = ({
                 const curSample = getSampleNearTime(replay, globalChartsData.hoveredRaceTime);
 
                 sphereRef.current.position.set(curSample.position.x, curSample.position.y, curSample.position.z);
+                sphereRef.current.scale.set(0.5, 0.5, 0.5);
+            } else {
+                sphereRef.current.scale.lerp(new THREE.Vector3(0, 0, 0), 0.1);
             }
         }
     });
