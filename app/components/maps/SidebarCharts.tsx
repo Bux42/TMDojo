@@ -20,6 +20,7 @@ import { SettingsContext } from '../../lib/contexts/SettingsContext';
 import { getRaceTimeStr } from '../../lib/utils/time';
 import { ReplayDataPoint } from '../../lib/replays/replayData';
 import GlobalChartsDataSingleton from '../../lib/singletons/globalChartData';
+import { TimeLineInfos } from '../viewer/TimeLine';
 
 interface ReplayChartProps {
     replaysData: ReplayData[];
@@ -27,6 +28,8 @@ interface ReplayChartProps {
     addChartFunc: any;
     allRaceTimes: number[];
     callBack: any;
+    timeLineGlobal: TimeLineInfos;
+    syncWithTimeLine: boolean;
 }
 
 export interface ChartType {
@@ -69,8 +72,10 @@ export const ChartTypes: { [name: string]: ChartType } = {
 
 const readProp = (obj: any, prop: any) => obj[prop];
 
+let globalInterval: ReturnType<typeof setTimeout>;
+
 export const ReplayChart = ({
-    replaysData, metric, addChartFunc, allRaceTimes, callBack,
+    replaysData, metric, addChartFunc, allRaceTimes, callBack, timeLineGlobal, syncWithTimeLine,
 }: ReplayChartProps): JSX.Element => {
     const globalChartsData = GlobalChartsDataSingleton.getInstance();
 
@@ -96,8 +101,14 @@ export const ReplayChart = ({
     const options = metric.chartOptionsCallback();
 
     // Higchart tooltip needs more space when > 5 replays are loaded
+
     if (replaysData.length > 5) {
         options.chart.height += (replaysData.length - 5) * 34;
+    }
+
+    // give more space when > 1 tooltip per replay
+    if (metric.chartDataCallback.length > 1) {
+        options.chart.height += replaysData.length * 34;
     }
 
     options.title.text = metric.name;
@@ -131,6 +142,38 @@ export const ReplayChart = ({
     };
 
     const highCharts = <HighchartsReact constructorType="stockChart" highcharts={Highcharts} options={options} />;
+
+    clearInterval(globalInterval);
+
+    if (syncWithTimeLine) {
+        globalInterval = setInterval(() => {
+            let validCharts: boolean = false;
+            highCharts.props.highcharts.charts.forEach((chart: any) => {
+                if (chart) {
+                    validCharts = true;
+                    const matchingPts: any[] = [];
+                    chart.series.forEach((serie: any) => {
+                        for (let i = 0; i < serie.points.length; i++) {
+                            if (serie.points[i].category >= timeLineGlobal.currentRaceTime) {
+                                matchingPts.push(serie.points[i]);
+                                serie.points[i].setState('hover');
+                                break;
+                            }
+                        }
+                    });
+                    if (matchingPts.length) {
+                        chart.tooltip.refresh(matchingPts);
+                    }
+                }
+            });
+            if (!validCharts) {
+                clearInterval(globalInterval);
+            }
+        }, 1);
+    } else {
+        clearInterval(globalInterval);
+    }
+
     addChartFunc(highCharts);
     return (
         highCharts
@@ -149,11 +192,14 @@ const debounce = (callback: () => any, timeout: number) => () => {
 
 interface Props {
     replaysData: ReplayData[];
+    timeLineGlobal: TimeLineInfos;
 }
 export const SidebarCharts = ({
     replaysData,
+    timeLineGlobal,
 }: Props): JSX.Element => {
-    const [visible, setVisible] = useState(false);
+    const [visible, setVisible] = useState<boolean>(false);
+    const [syncWithTimeLine, setSyncWithTimeLine] = useState<boolean>(true);
     const [selectedCharts, setSelectedCharts] = useState<ChartType[]>([]);
     const {
         numColorChange,
@@ -169,6 +215,7 @@ export const SidebarCharts = ({
             }
         });
     });
+    allRaceTimes.sort((a, b) => a - b);
 
     let childCharts: any[] = [];
 
@@ -218,6 +265,10 @@ export const SidebarCharts = ({
         };
     });
 
+    const toggleSyncCheckbox = (e: any) => {
+        setSyncWithTimeLine(e.target.checked);
+    };
+
     const toggleCheckbox = (e: any) => {
         if (e.target.checked) {
             if (!selectedCharts.includes(readProp(ChartTypes, e.target.name))) {
@@ -255,19 +306,33 @@ export const SidebarCharts = ({
             metric={metric}
             allRaceTimes={allRaceTimes}
             key={metric.name}
+            timeLineGlobal={timeLineGlobal}
+            syncWithTimeLine={syncWithTimeLine}
         />
     ));
     return (
         <div className="absolute right-0 left-0 bottom-0 m-8 mx-auto z-10" style={{ width: '50px' }}>
             {!visible
-            && (
-                <Button onClick={toggleSidebar} size="large" className="mb-1">
-                    Charts
-                </Button>
-            )}
+                && (
+                    <Button onClick={toggleSidebar} size="large" className="mb-1">
+                        Charts
+                    </Button>
+                )}
             <Drawer
                 mask={false}
-                title="Charts"
+                title={(
+                    <div>
+                        Charts
+                        <Checkbox
+                            style={{ marginLeft: '15px' }}
+                            onChange={toggleSyncCheckbox}
+                            checked={syncWithTimeLine}
+                        >
+                            Sync with timeline
+                        </Checkbox>
+                    </div>
+
+                )}
                 placement="bottom"
                 onClose={onClose}
                 visible={visible}

@@ -102,9 +102,15 @@ const Home = (): JSX.Element => {
                         && <LoadedReplays replays={selectedReplayData} timeLineGlobal={timeLineGlobal} />
                     }
                     <SidebarSettings />
-                    <SidebarCharts
-                        replaysData={selectedReplayData}
-                    />
+                    {
+                        selectedReplayData.length > 0
+                        && (
+                            <SidebarCharts
+                                replaysData={selectedReplayData}
+                                timeLineGlobal={timeLineGlobal}
+                            />
+                        )
+                    }
                     <Viewer3D
                         replaysData={selectedReplayData}
                         timeLineGlobal={timeLineGlobal}
