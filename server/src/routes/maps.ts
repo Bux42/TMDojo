@@ -6,25 +6,24 @@
  * - thumbnailURL (not implemented yet)
  */
 
-const express = require('express');
+import { Request, Response } from 'express';
+import * as express from 'express';
+
+import axios from 'axios';
+
+import * as db from '../lib/db';
+import * as artefacts from '../lib/artefacts';
 
 const router = express.Router();
-const axios = require('axios');
-
-const fs = require('fs');
-const path = require('path');
-
-const db = require('../lib/db');
-
 /**
  * GET /maps
  * Retrieves all unique map names we have replays of
  * Query params:
  * - mapName (optional)
  */
-router.get('/', async (req, res, next) => {
+router.get('/', async (req: Request, res: Response, next: Function) => {
     try {
-        const mapNames = await db.getUniqueMapNames(req.query.mapName);
+        const mapNames = await db.getUniqueMapNames(req.query.mapName as string);
         res.send(mapNames);
     } catch (err) {
         next(err);
@@ -35,15 +34,16 @@ router.get('/', async (req, res, next) => {
  * GET /maps/:mapUID
  * Retrieves map (block) data by mapUID
  */
-router.get('/:mapUID', async (req, res, next) => {
+router.get('/:mapUID', async (req: Request, res: Response, next: Function) => {
     try {
-        if (fs.existsSync(`mapBlocks/${req.params.mapUID}`)) {
-            res.sendFile(path.resolve(`${__dirname}/../mapBlocks/${req.params.mapUID}`));
-        } else {
-            res.status(404).send();
-        }
+        const mapData = await artefacts.retrieveMap(req.params.mapUID);
+        res.send(mapData);
     } catch (err) {
-        next(err);
+        if (err?.message === 'Object not found') {
+            res.status(404).send();
+        } else {
+            next(err);
+        }
     }
 });
 
@@ -51,7 +51,7 @@ router.get('/:mapUID', async (req, res, next) => {
  * GET /maps/:mapUID/info
  * Retrieves map's metadata (including tm.io information)
  */
-router.get('/:mapUID/info', async (req, res) => {
+router.get('/:mapUID/info', async (req: Request, res: Response) => {
     let mapData = {};
 
     // fetch tm.io data
@@ -74,23 +74,21 @@ router.get('/:mapUID/info', async (req, res) => {
  * POST /maps/:mapUID
  * Stores map (block) data (from the request body)
  */
-router.post('/:mapUID', (req, res, next) => {
+router.post('/:mapUID', (req: Request, res: Response, next: Function) => {
     let completeData = '';
 
     req.on('data', (data) => {
         completeData += data;
     });
 
-    req.on('end', () => {
-        const buff = Buffer.from(completeData, 'base64');
-        const filePath = `mapBlocks/${req.params.mapUID}`;
-        fs.writeFile(filePath, buff, (err) => {
-            if (err) {
-                return next(err);
-            }
-            console.log(`POST /maps/${req.params.mapUID}: The file was saved at`, filePath);
-            return res.send();
-        });
+    req.on('end', async () => {
+        try {
+            const buff = Buffer.from(completeData);
+            await artefacts.uploadMap(req.params.mapUID, buff);
+            res.send();
+        } catch (err) {
+            next(err);
+        }
     });
 
     req.on('error', (err) => {
@@ -98,4 +96,4 @@ router.post('/:mapUID', (req, res, next) => {
     });
 });
 
-module.exports = router;
+export default router;

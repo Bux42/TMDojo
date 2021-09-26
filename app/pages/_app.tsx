@@ -2,7 +2,7 @@
 import React from 'react';
 import Head from 'next/head';
 import { SettingsProvider } from '../lib/contexts/SettingsContext';
-import { GraphProvider } from '../lib/contexts/GraphContext';
+import { AuthProvider } from '../lib/contexts/AuthContext';
 import '../styles/globals.css';
 
 interface Props {
@@ -13,8 +13,8 @@ interface Props {
 const ANALYTICS_ID = process.env.NEXT_PUBLIC_ANALYTICS_ID;
 
 const App = ({ Component, pageProps }: Props): React.ReactElement => (
-    <SettingsProvider>
-        <GraphProvider>
+    <AuthProvider>
+        <SettingsProvider>
             <Head>
                 {
                     ANALYTICS_ID && (
@@ -38,8 +38,8 @@ const App = ({ Component, pageProps }: Props): React.ReactElement => (
                 <title>TMDojo</title>
             </Head>
             <Component {...pageProps} />
-        </GraphProvider>
-    </SettingsProvider>
+        </SettingsProvider>
+    </AuthProvider>
 );
 
 export default App;
