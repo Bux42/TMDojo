@@ -73,6 +73,7 @@ export const ChartTypes: { [name: string]: ChartType } = {
 const readProp = (obj: any, prop: any) => obj[prop];
 
 let globalInterval: ReturnType<typeof setTimeout>;
+let prevCurrentRacetime: number = 0;
 
 export const ReplayChart = ({
     replaysData, metric, addChartFunc, allRaceTimes, callBack, timeLineGlobal, syncWithTimeLine,
@@ -147,7 +148,8 @@ export const ReplayChart = ({
 
     if (syncWithTimeLine) {
         globalInterval = setInterval(() => {
-            if (timeLineGlobal.isPlaying) {
+            if (timeLineGlobal.isPlaying || prevCurrentRacetime !== timeLineGlobal.currentRaceTime) {
+                prevCurrentRacetime = timeLineGlobal.currentRaceTime;
                 let validCharts: boolean = false;
                 highCharts.props.highcharts.charts.forEach((chart: any) => {
                     if (chart) {
