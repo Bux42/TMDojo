@@ -29,22 +29,12 @@ export const LineTypes: { [name: string]: LineType } = {
 interface ReplayLineProps {
     replay: ReplayData;
     lineType: LineType;
-    range: number[];
     replayLineOpacity: number;
 }
 const ReplayLine = ({
-    replay, lineType, range, replayLineOpacity,
+    replay, lineType, replayLineOpacity,
 }: ReplayLineProps) => {
-    const points = useMemo(() => {
-        if (range.length > 0) {
-            return replay.samples
-                .filter(
-                    (sample) => sample.currentRaceTime >= range[0] && sample.currentRaceTime <= range[1],
-                )
-                .map((sample) => sample.position);
-        }
-        return replay.samples.map((sample) => sample.position);
-    }, [replay.samples, range]);
+    const points = useMemo(() => replay.samples.map((sample) => sample.position), [replay.samples]);
 
     const colorBuffer = useMemo(() => lineType.colorsCallback(replay), [replay, lineType]);
 
@@ -74,14 +64,12 @@ const ReplayLine = ({
 interface ReplayLinesProps {
     replaysData: ReplayData[];
     lineType: LineType;
-    range: number[];
     replayLineOpacity: number;
     showGearChanges: boolean;
 }
 export const ReplayLines = ({
     replaysData,
     lineType,
-    range,
     replayLineOpacity,
     showGearChanges,
 }: ReplayLinesProps): JSX.Element => (
@@ -92,7 +80,6 @@ export const ReplayLines = ({
                     key={`replay-${replay._id}-line`}
                     replay={replay}
                     lineType={lineType}
-                    range={range}
                     replayLineOpacity={replayLineOpacity}
                 />
                 <ReplayChartHoverLocation

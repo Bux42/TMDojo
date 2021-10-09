@@ -1,13 +1,12 @@
 import React, { Suspense, useContext, useRef } from 'react';
 import * as THREE from 'three';
-import { Canvas, useLoader, useThree } from '@react-three/fiber';
+import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Sky } from '@react-three/drei';
 import { ReplayData } from '../../lib/api/apiRequests';
 import { ReplayLines } from './ReplayLines';
 import { TimeLine, TimeLineInfos } from './TimeLine';
 import { Grid, DEFAULT_GRID_POS } from './Grid';
 import { SettingsContext } from '../../lib/contexts/SettingsContext';
-import { GraphContext } from '../../lib/contexts/GraphContext';
 import FrameRate from './FrameRate';
 import ReplayCars from './ReplayCars';
 
@@ -28,8 +27,6 @@ const Viewer3D = ({ replaysData, timeLineGlobal }: Props): JSX.Element => {
         cameraMode,
         numColorChange,
     } = useContext(SettingsContext);
-
-    const { range } = useContext(GraphContext);
 
     const orbitControlsRef = useRef<any>();
 
@@ -66,7 +63,6 @@ const Viewer3D = ({ replaysData, timeLineGlobal }: Props): JSX.Element => {
                     lineType={lineType}
                     replayLineOpacity={replayLineOpacity}
                     showGearChanges={showGearChanges}
-                    range={range}
                 />
                 <Suspense fallback={null}>
                     <ReplayCars
