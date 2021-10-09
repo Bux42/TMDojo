@@ -13,8 +13,8 @@ import * as ReactColor from 'react-color';
 import * as THREE from 'three';
 import { FileResponse, ReplayData } from '../../lib/api/apiRequests';
 import { CameraMode, SettingsContext } from '../../lib/contexts/SettingsContext';
+import GlobalTimeLineInfos from '../../lib/singletons/timeLineInfos';
 import { getRaceTimeStr } from '../../lib/utils/time';
-import { TimeLineInfos } from '../viewer/TimeLine';
 
 interface LoadedReplayProps {
     replay: ReplayData;
@@ -25,7 +25,6 @@ interface LoadedReplayProps {
 
 interface LoadedReplaysProps {
     replays: ReplayData[];
-    timeLineGlobal: TimeLineInfos;
 }
 
 const LoadedReplay = ({
@@ -137,12 +136,14 @@ const LoadedReplay = ({
 };
 
 const LoadedReplays = ({
-    replays, timeLineGlobal,
+    replays,
 }: LoadedReplaysProps): JSX.Element => {
     const [visible, setVisible] = useState(false);
     const [followed, setFollowed] = useState<ReplayData>();
     const [hovered, setHovered] = useState<ReplayData>();
     const { numColorChange, cameraMode, setCameraMode } = useContext(SettingsContext);
+
+    const timeLineGlobal = GlobalTimeLineInfos.getInstance();
 
     const toggleSidebar = () => {
         setVisible(!visible);

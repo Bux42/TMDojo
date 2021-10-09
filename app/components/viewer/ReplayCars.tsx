@@ -1,26 +1,24 @@
 import {
-    extend, useFrame, Canvas, useThree, useLoader, Camera,
+    useFrame, useThree, Camera,
 } from '@react-three/fiber';
 import * as THREE from 'three';
 import React, {
     useRef, useState,
 } from 'react';
-import { useFBX, useGLTF } from '@react-three/drei';
+import { useFBX } from '@react-three/drei';
 import { ReplayData } from '../../lib/api/apiRequests';
 import { ReplayDataPoint } from '../../lib/replays/replayData';
-import { getRaceTimeStr } from '../../lib/utils/time';
 import vecToQuat from '../../lib/utils/math';
 import { CameraMode } from '../../lib/contexts/SettingsContext';
 import InputOverlay from './InputOverlay';
-import { TimeLineInfos } from './TimeLine';
 import getSampleNearTime from '../../lib/utils/replay';
+import GlobalTimeLineInfos from '../../lib/singletons/timeLineInfos';
 
 const BACK_WHEEL_Y = 35.232017517089844;
 const FRONT_WHEEL_Y = 35.24349594116211;
 
 interface ReplayCarProps {
     replay: ReplayData;
-    timeLineGlobal: TimeLineInfos;
     camera: Camera;
     orbitControlsRef: any;
     showInputOverlay: boolean;
@@ -30,13 +28,15 @@ interface ReplayCarProps {
 }
 
 const ReplayCar = ({
-    replay, timeLineGlobal, camera, orbitControlsRef, showInputOverlay, fbx, replayCarOpacity, cameraMode,
+    replay, camera, orbitControlsRef, showInputOverlay, fbx, replayCarOpacity, cameraMode,
 }: ReplayCarProps) => {
     const mesh = useRef<THREE.Mesh>();
     const stadiumCarMesh = useRef<THREE.Mesh>();
     const camPosRef = useRef<THREE.Mesh>();
 
     const currentSampleRef = useRef<ReplayDataPoint>(replay.samples[0]);
+
+    const timeLineGlobal = GlobalTimeLineInfos.getInstance();
 
     let curSample = replay.samples[0];
 
@@ -168,7 +168,6 @@ const ReplayCar = ({
 
 interface ReplayCarsProps {
     replaysData: ReplayData[];
-    timeLineGlobal: TimeLineInfos;
     orbitControlsRef: any;
     showInputOverlay: boolean;
     replayCarOpacity: number;
@@ -177,7 +176,6 @@ interface ReplayCarsProps {
 
 const ReplayCars = ({
     replaysData,
-    timeLineGlobal,
     orbitControlsRef,
     showInputOverlay,
     replayCarOpacity,
@@ -192,7 +190,6 @@ const ReplayCars = ({
                 <ReplayCar
                     key={`replay-${replay._id}-car`}
                     replay={replay}
-                    timeLineGlobal={timeLineGlobal}
                     camera={camera}
                     orbitControlsRef={orbitControlsRef}
                     showInputOverlay={showInputOverlay}

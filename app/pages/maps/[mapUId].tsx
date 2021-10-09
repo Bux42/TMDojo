@@ -18,9 +18,9 @@ import HeadTitle from '../../components/common/HeadTitle';
 import { SidebarCharts } from '../../components/maps/SidebarCharts';
 import { cleanTMFormatting } from '../../lib/utils/formatting';
 import LoadedReplays from '../../components/maps/LoadedReplays';
-import { TimeLineInfos } from '../../components/viewer/TimeLine';
+import GlobalTimeLineInfos from '../../lib/singletons/timeLineInfos';
 
-const timeLineGlobal = new TimeLineInfos();
+const timeLineGlobal = GlobalTimeLineInfos.getInstance();
 
 const Home = (): JSX.Element => {
     const [replays, setReplays] = useState<FileResponse[]>([]);

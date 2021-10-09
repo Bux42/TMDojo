@@ -1,31 +1,13 @@
-import { useEffect, useRef, useState } from 'react';
-import * as THREE from 'three';
-import {
-    Billboard, Sphere, Text, Plane,
-} from '@react-three/drei';
-import { useFrame } from '@react-three/fiber';
+import { useState } from 'react';
 import {
     Slider, InputNumber, Row, Col, Button,
 } from 'antd';
 import { ReplayData } from '../../lib/api/apiRequests';
-import { getRaceTimeStr, timeDifference } from '../../lib/utils/time';
-
-export class TimeLineInfos {
-    currentRaceTime: number;
-    maxRaceTime: number;
-    followedReplay: ReplayData | undefined;
-    hoveredReplay: ReplayData | undefined;
-    isPlaying: boolean;
-    constructor() {
-        this.currentRaceTime = 0;
-        this.maxRaceTime = 0;
-        this.isPlaying = false;
-    }
-}
+import { getRaceTimeStr } from '../../lib/utils/time';
+import GlobalTimeLineInfos from '../../lib/singletons/timeLineInfos';
 
 interface TimeLineViewProps {
     replaysData: ReplayData[];
-    timeLineGlobal: TimeLineInfos;
 }
 
 // declare setInterval return variable outside to keep persistent reference for clearInterval after render
@@ -33,12 +15,15 @@ let playInterval: ReturnType<typeof setTimeout>;
 let expectedTime = Date.now();
 const TICK_TIME = 1000 / 60;
 
-const TimeLineView = ({ replaysData, timeLineGlobal }: TimeLineViewProps) => {
+const TimeLineView = ({ replaysData }: TimeLineViewProps) => {
     const [timeLineTime, setTimeLineTime] = useState<number>(0);
     const [timelineSpeed, setTimelineSpeed] = useState<number>(1);
     const [playing, setPlaying] = useState<boolean>(false);
 
     const min = 0;
+
+    const timeLineGlobal = GlobalTimeLineInfos.getInstance();
+
     timeLineGlobal.maxRaceTime = 0;
 
     timeLineGlobal.isPlaying = playing;
@@ -185,14 +170,12 @@ const TimeLineView = ({ replaysData, timeLineGlobal }: TimeLineViewProps) => {
 
 interface TimeLineProps {
     replaysData: ReplayData[];
-    timeLineGlobal: TimeLineInfos;
 }
 
 export const TimeLine = ({
     replaysData,
-    timeLineGlobal,
 }: TimeLineProps): JSX.Element => (
     <>
-        <TimeLineView key="timeLine" replaysData={replaysData} timeLineGlobal={timeLineGlobal} />
+        <TimeLineView key="timeLine" replaysData={replaysData} />
     </>
 );

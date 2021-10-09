@@ -20,7 +20,7 @@ import { SettingsContext } from '../../lib/contexts/SettingsContext';
 import { getRaceTimeStr } from '../../lib/utils/time';
 import { ReplayDataPoint } from '../../lib/replays/replayData';
 import GlobalChartsDataSingleton from '../../lib/singletons/globalChartData';
-import { TimeLineInfos } from '../viewer/TimeLine';
+import GlobalTimeLineInfos from '../../lib/singletons/timeLineInfos';
 
 interface RangeUpdateInfos {
     Event: AxisSetExtremesEventObject,
@@ -33,7 +33,6 @@ interface ReplayChartProps {
     addChartFunc: (chart: JSX.Element) => void;
     allRaceTimes: number[];
     rangeUpdatedCallback: (rangeUpdateInfos: RangeUpdateInfos) => void;
-    timeLineGlobal: TimeLineInfos;
     syncWithTimeLine: boolean;
 }
 
@@ -81,9 +80,10 @@ let globalInterval: ReturnType<typeof setTimeout>;
 let prevCurrentRacetime: number = 0;
 
 export const ReplayChart = ({
-    replaysData, metric, addChartFunc, allRaceTimes, rangeUpdatedCallback, timeLineGlobal, syncWithTimeLine,
+    replaysData, metric, addChartFunc, allRaceTimes, rangeUpdatedCallback, syncWithTimeLine,
 }: ReplayChartProps): JSX.Element => {
     const globalChartsData = GlobalChartsDataSingleton.getInstance();
+    const timeLineGlobal = GlobalTimeLineInfos.getInstance();
 
     const replaySeries: any[] = [];
     replaysData.forEach((replay: ReplayData) => {
@@ -201,11 +201,10 @@ const debounce = (callback: () => any, timeout: number) => () => {
 
 interface Props {
     replaysData: ReplayData[];
-    timeLineGlobal: TimeLineInfos;
 }
+
 export const SidebarCharts = ({
     replaysData,
-    timeLineGlobal,
 }: Props): JSX.Element => {
     const [visible, setVisible] = useState<boolean>(false);
     const [syncWithTimeLine, setSyncWithTimeLine] = useState<boolean>(true);
@@ -315,7 +314,6 @@ export const SidebarCharts = ({
             metric={metric}
             allRaceTimes={allRaceTimes}
             key={metric.name}
-            timeLineGlobal={timeLineGlobal}
             syncWithTimeLine={syncWithTimeLine}
         />
     ));
