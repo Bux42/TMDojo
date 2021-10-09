@@ -2,8 +2,6 @@ import { ReplayData } from '../api/apiRequests';
 import { ReplayDataPoint } from '../replays/replayData';
 import { getRaceTimeStr } from '../utils/time';
 
-// eslint-disable-next-line import/prefer-default-export
-
 export const chartDataTemplate = (replay: ReplayData, decimalPoints: number): any => {
     const chartData: any = {
         name: `${replay.playerName} ${getRaceTimeStr(replay.endRaceTime)}`,
