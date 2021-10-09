@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import {
     Button, Checkbox, Drawer,
 } from 'antd';
-import Highcharts from 'highcharts/highstock';
+import Highcharts, { AxisSetExtremesEventObject } from 'highcharts/highstock';
 import HighchartsReact from 'highcharts-react-official';
 import { ReplayData } from '../../lib/api/apiRequests';
 import {
@@ -22,12 +22,17 @@ import { ReplayDataPoint } from '../../lib/replays/replayData';
 import GlobalChartsDataSingleton from '../../lib/singletons/globalChartData';
 import { TimeLineInfos } from '../viewer/TimeLine';
 
+interface RangeUpdateInfos {
+    Event: AxisSetExtremesEventObject,
+    Metric: ChartType,
+}
+
 interface ReplayChartProps {
     replaysData: ReplayData[];
     metric: ChartType;
     addChartFunc: (chart: JSX.Element) => void;
     allRaceTimes: number[];
-    callback: any;
+    rangeUpdatedCallback: (rangeUpdateInfos: RangeUpdateInfos) => void;
     timeLineGlobal: TimeLineInfos;
     syncWithTimeLine: boolean;
 }
@@ -76,7 +81,7 @@ let globalInterval: ReturnType<typeof setTimeout>;
 let prevCurrentRacetime: number = 0;
 
 export const ReplayChart = ({
-    replaysData, metric, addChartFunc, allRaceTimes, callback, timeLineGlobal, syncWithTimeLine,
+    replaysData, metric, addChartFunc, allRaceTimes, rangeUpdatedCallback, timeLineGlobal, syncWithTimeLine,
 }: ReplayChartProps): JSX.Element => {
     const globalChartsData = GlobalChartsDataSingleton.getInstance();
 
@@ -115,8 +120,8 @@ export const ReplayChart = ({
     options.title.text = metric.name;
     options.series = replaySeries;
     options.xAxis.events = {
-        afterSetExtremes(event: any) {
-            callback({
+        afterSetExtremes(event: AxisSetExtremesEventObject) {
+            rangeUpdatedCallback({
                 Event: event,
                 Metric: metric,
             });
@@ -284,13 +289,13 @@ export const SidebarCharts = ({
         }
     };
 
-    const debounceChangeRange = (data: any) => {
+    const debounceChangeRange = (rangeUpdate: RangeUpdateInfos) => {
         const myDebounce = debounce(() => {
             childCharts.forEach((chart: JSX.Element) => {
-                if (chart.props.options.title.text !== data.Metric) {
+                if (chart.props.options.title.text !== rangeUpdate.Metric) {
                     chart.props.highcharts.charts.forEach((subChart: any) => {
                         if (subChart && subChart.xAxis) {
-                            subChart.xAxis[0].setExtremes(data.Event.min, data.Event.max);
+                            subChart.xAxis[0].setExtremes(rangeUpdate.Event.min, rangeUpdate.Event.max);
                         }
                     });
                 }
@@ -305,7 +310,7 @@ export const SidebarCharts = ({
     const replayCharts = selectedCharts.map((metric) => (
         <ReplayChart
             addChartFunc={addChart}
-            callback={successCallBackData}
+            rangeUpdatedCallback={successCallBackData}
             replaysData={replaysData}
             metric={metric}
             allRaceTimes={allRaceTimes}
