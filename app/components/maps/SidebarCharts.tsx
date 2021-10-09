@@ -25,7 +25,7 @@ import { TimeLineInfos } from '../viewer/TimeLine';
 interface ReplayChartProps {
     replaysData: ReplayData[];
     metric: ChartType;
-    addChartFunc: any;
+    addChartFunc: (chart: JSX.Element) => void;
     allRaceTimes: number[];
     callBack: any;
     timeLineGlobal: TimeLineInfos;
@@ -221,9 +221,9 @@ export const SidebarCharts = ({
     });
     allRaceTimes.sort((a, b) => a - b);
 
-    let childCharts: any[] = [];
+    let childCharts: JSX.Element[] = [];
 
-    const addChart = (chart: any) => {
+    const addChart = (chart: JSX.Element) => {
         childCharts.push(chart);
     };
 
@@ -286,7 +286,7 @@ export const SidebarCharts = ({
 
     const debounceChangeRange = (data: any) => {
         const myDebounce = debounce(() => {
-            childCharts.forEach((chart: any) => {
+            childCharts.forEach((chart: JSX.Element) => {
                 if (chart.props.options.title.text !== data.Metric) {
                     chart.props.highcharts.charts.forEach((subChart: any) => {
                         if (subChart && subChart.xAxis) {
