@@ -74,8 +74,6 @@ export const ChartTypes: { [name: string]: ChartType } = {
     },
 };
 
-const readProp = (obj: any, prop: any) => obj[prop];
-
 let globalInterval: ReturnType<typeof setTimeout>;
 let prevCurrentRacetime: number = 0;
 
@@ -279,10 +277,10 @@ export const ChartsDrawer = ({
 
     const toggleCheckbox = (e: any) => {
         if (e.target.checked) {
-            if (!selectedCharts.includes(readProp(ChartTypes, e.target.name))) {
-                setSelectedCharts([...selectedCharts, readProp(ChartTypes, e.target.name)]);
+            if (!selectedCharts.includes(ChartTypes[e.target.name])) {
+                setSelectedCharts([...selectedCharts, ChartTypes[e.target.name]]);
             }
-        } else if (selectedCharts.includes(readProp(ChartTypes, e.target.name))) {
+        } else if (selectedCharts.includes(ChartTypes[e.target.name])) {
             setSelectedCharts(selectedCharts.filter((x) => x.name !== e.target.name));
             childCharts = childCharts.filter((x) => x.props.options.title.text !== e.target.name);
         }
