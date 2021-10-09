@@ -27,7 +27,7 @@ interface ReplayChartProps {
     metric: ChartType;
     addChartFunc: (chart: JSX.Element) => void;
     allRaceTimes: number[];
-    callBack: any;
+    callback: any;
     timeLineGlobal: TimeLineInfos;
     syncWithTimeLine: boolean;
 }
@@ -76,7 +76,7 @@ let globalInterval: ReturnType<typeof setTimeout>;
 let prevCurrentRacetime: number = 0;
 
 export const ReplayChart = ({
-    replaysData, metric, addChartFunc, allRaceTimes, callBack, timeLineGlobal, syncWithTimeLine,
+    replaysData, metric, addChartFunc, allRaceTimes, callback, timeLineGlobal, syncWithTimeLine,
 }: ReplayChartProps): JSX.Element => {
     const globalChartsData = GlobalChartsDataSingleton.getInstance();
 
@@ -116,7 +116,7 @@ export const ReplayChart = ({
     options.series = replaySeries;
     options.xAxis.events = {
         afterSetExtremes(event: any) {
-            callBack({
+            callback({
                 Event: event,
                 Metric: metric,
             });
@@ -305,7 +305,7 @@ export const SidebarCharts = ({
     const replayCharts = selectedCharts.map((metric) => (
         <ReplayChart
             addChartFunc={addChart}
-            callBack={successCallBackData}
+            callback={successCallBackData}
             replaysData={replaysData}
             metric={metric}
             allRaceTimes={allRaceTimes}
