@@ -203,7 +203,7 @@ interface Props {
     replaysData: ReplayData[];
 }
 
-export const SidebarCharts = ({
+export const ChartsDrawer = ({
     replaysData,
 }: Props): JSX.Element => {
     const [visible, setVisible] = useState<boolean>(false);

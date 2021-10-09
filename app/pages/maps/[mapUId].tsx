@@ -15,12 +15,9 @@ import {
     MapInfo,
 } from '../../lib/api/apiRequests';
 import HeadTitle from '../../components/common/HeadTitle';
-import { SidebarCharts } from '../../components/maps/SidebarCharts';
+import { ChartsDrawer } from '../../components/maps/ChartsDrawer';
 import { cleanTMFormatting } from '../../lib/utils/formatting';
 import LoadedReplays from '../../components/maps/LoadedReplays';
-import GlobalTimeLineInfos from '../../lib/singletons/timeLineInfos';
-
-const timeLineGlobal = GlobalTimeLineInfos.getInstance();
 
 const Home = (): JSX.Element => {
     const [replays, setReplays] = useState<FileResponse[]>([]);
@@ -99,21 +96,19 @@ const Home = (): JSX.Element => {
                     />
                     {
                         selectedReplayData.length > 0
-                        && <LoadedReplays replays={selectedReplayData} timeLineGlobal={timeLineGlobal} />
+                        && <LoadedReplays replays={selectedReplayData} />
                     }
                     <SidebarSettings />
                     {
                         selectedReplayData.length > 0
                         && (
-                            <SidebarCharts
+                            <ChartsDrawer
                                 replaysData={selectedReplayData}
-                                timeLineGlobal={timeLineGlobal}
                             />
                         )
                     }
                     <Viewer3D
                         replaysData={selectedReplayData}
-                        timeLineGlobal={timeLineGlobal}
                     />
                 </Layout.Content>
             </Layout>
