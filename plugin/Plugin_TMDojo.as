@@ -32,6 +32,8 @@ bool recording = false;
 
 TMDojo@ g_dojo;
 
+// https://github.com/codecat/tm-dashboard special thanks to miss for getting vehicule informations
+
 namespace Vehicle
 {
 	uint VehiclesManagerIndex = 4;
@@ -431,6 +433,28 @@ class TMDojo
                 @cast<FinishHandle>(fh).sm_script = sm_script;
                 @cast<FinishHandle>(fh).network = network;
                 cast<FinishHandle>(fh).endRaceTime = latestRecordedTime;
+
+                // https://github.com/GreepTheSheep/openplanet-mx-random special thanks to greep for getting accurate endRaceTime
+
+                int endRaceTimeAccurate = -1;
+
+                CSmArenaRulesMode@ PlaygroundScript = cast<CSmArenaRulesMode>(app.PlaygroundScript);
+                CGamePlayground@ GamePlayground = cast<CGamePlayground>(app.CurrentPlayground);
+                if (PlaygroundScript !is null && GamePlayground.GameTerminals.get_Length() > 0) {
+                    CSmPlayer@ player = cast<CSmPlayer>(GamePlayground.GameTerminals[0].ControlledPlayer);
+                    if (GamePlayground.GameTerminals[0].UISequence_Current == CGameTerminal::ESGamePlaygroundUIConfig__EUISequence::Finish && player !is null) {
+                        auto ghost = PlaygroundScript.Ghost_RetrieveFromPlayer(player.ScriptAPI);
+                        if (ghost !is null) {
+                            if (ghost.Result.Time > 0 && ghost.Result.Time < 4294967295) endRaceTimeAccurate = ghost.Result.Time;
+                            PlaygroundScript.DataFileMgr.Ghost_Release(ghost.Id);
+                        } else endRaceTimeAccurate = -1;
+                    } else endRaceTimeAccurate = -1;
+                } else endRaceTimeAccurate = -1;
+
+                if (endRaceTimeAccurate > 0) {
+                    cast<FinishHandle>(fh).endRaceTime = endRaceTimeAccurate;
+                }
+
                 startnew(PostRecordedData, fh);
             } else if (latestRecordedTime > sm_script.CurrentRaceTime) {
                 // Give up
