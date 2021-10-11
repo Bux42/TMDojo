@@ -27,7 +27,7 @@ const router = express.Router();
 router.get('/', async (req: Request, res: Response, next: Function) => {
     try {
         // generate clientCode
-        const clientCode = uuid();
+        const clientCode = `plugin-${uuid()}`;
 
         // check if sessionId sent by plugin checks out wih user infos
 
