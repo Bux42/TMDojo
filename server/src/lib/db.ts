@@ -26,7 +26,7 @@ export const initDB = () => {
     });
 };
 
-export const authenticateUser = (
+export const createUser = (
     webId: any,
     login: any,
     name: any,
@@ -161,6 +161,7 @@ export const saveUser = (
     userData: any,
 ): Promise<{_id: string}> => new Promise((resolve: Function, reject: Rejector) => {
     const users = db.collection('users');
+    // if _id is not defined, the upsert option will ensure a new document is created
     users.replaceOne({ _id: userData._id }, userData, { upsert: true })
         .then(({ insertedId }: {insertedId: string}) => resolve({ _id: insertedId }))
         .catch((error: Error) => reject(error));
@@ -390,8 +391,11 @@ export const createSession = async (userInfo: any, clientCode?: any) => {
 };
 
 export const updateSession = async (session: any) => {
+    if (!session._id) {
+        throw new Error('Session without _id cannot be updated');
+    }
     const sessions = db.collection('sessions');
-    return sessions.replaceOne({ _id: session._id }, session, { upsert: true });
+    return sessions.replaceOne({ _id: session._id }, session);
 };
 
 export const findSessionBySecret = async (sessionId: string) => {

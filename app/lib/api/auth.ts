@@ -1,14 +1,10 @@
 import axios from 'axios';
 import apiInstance from './apiInstance';
 
-const getRedirectUri = (isPluginAuth?: any) => {
+const getRedirectUri = () => {
     if (typeof window === 'undefined') {
         // Avoid some nextjs compilation errors regarding window being undefined
         return undefined;
-    }
-    // TODO: clean this up a bit - plugin auth requires a different redirectURI
-    if (isPluginAuth) {
-        return `${window.location.origin}/auth_redirect_plugin`;
     }
     return `${window.location.origin}/auth_redirect`;
 };
@@ -30,18 +26,18 @@ interface AuthorizationResponse {
     displayName: string;
     accountId: string;
 }
+
 export const authorizeWithAccessCode = async (
     accessCode: string, clientCode?: string,
 ): Promise<AuthorizationResponse> => {
-    const params = {
+    const params: any = {
         code: accessCode,
-        redirect_uri: getRedirectUri(!!clientCode),
-        clientCode,
+        redirect_uri: getRedirectUri(),
     };
 
-    if (!clientCode) {
+    if (clientCode) {
         // make sure clientCode is only sent if it exists
-        delete params.clientCode;
+        params.clientCode = clientCode;
     }
 
     const { data } = await apiInstance.post('/authorize', params, { withCredentials: true });

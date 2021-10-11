@@ -41,13 +41,13 @@ router.get('/', async (req: Request, res: Response, next: Function) => {
         }
 
         // make sure user exists and store clientCode in user's document
-        await db.authenticateUser(req.query.webid, req.query.login, req.query.name, clientCode);
+        await db.createUser(req.query.webid, req.query.login, req.query.name, clientCode);
 
         // generate OAuth URL
         let authURL = 'https://api.trackmania.com/oauth/authorize';
         authURL += '?response_type=code';
         authURL += `&client_id=${process.env.TM_API_CLIENT_ID}`;
-        authURL += `&redirect_uri=${encodeURIComponent(`${process.env.TMDOJO_UI_URL}/auth_redirect_plugin`)}`;
+        authURL += `&redirect_uri=${encodeURIComponent(`${process.env.TMDOJO_UI_URL}/auth_redirect`)}`;
         authURL += `&state=${clientCode}`;
 
         res.send({ authURL, clientCode });
