@@ -582,8 +582,11 @@ void RenderMenu()
         if (pluginAuthed) {
             if (UI::MenuItem(green + Icons::Plug + " Plugin Authenticated")) {
             }
+            if (UI::MenuItem(orange + Icons::SignOut + " Logout")) {
+               startnew(logout);
+            }
         } else {
-            if (UI::MenuItem(red + Icons::Plug + " Authenticate Plugin")) {
+            if (UI::MenuItem(orange + Icons::Plug + " Authenticate Plugin")) {
                 authenticatePlugin();
             }
         }
@@ -592,10 +595,23 @@ void RenderMenu()
 	}
 }
 
+void logout() {
+    string logoutBody = "{\"sessionId\":\"" + SessionId + "\"}";
+    Net::HttpRequest@ req = Net::HttpPost(ApiUrl + "/logout", logoutBody, "application/json");
+    while (!req.Finished()) {
+        yield();
+        sleep(50);
+    }
+    UI::ShowNotification("TMDojo", "Plugin logged out!", vec4(0, 0.4, 0, 1));
+    SessionId = "";
+    pluginAuthed = false;
+    checkServer();
+}
+
 void getPluginAuth() {
     while (checkSessionIdCount < maxCheckSessionId) {
         sleep(1000);
-        print("getPluginAuth Count: " + checkSessionIdCount + " / " + maxCheckSessionId);
+        print("getPluginAuth Count: " + checkSessionIdCount + " / " + maxCheckSessionId + " url: " + ApiUrl + "/auth/pluginSecret?clientCode=" + ClientCode);
         checkSessionIdCount++;
         Net::HttpRequest@ auth = Net::HttpGet(ApiUrl + "/auth/pluginSecret?clientCode=" + ClientCode);
         while (!auth.Finished()) {
@@ -606,7 +622,7 @@ void getPluginAuth() {
         try {
             Json::Value json = Json::Parse(auth.String());
             SessionId = json["sessionId"];
-            UI::ShowNotification("TMDojo", "Plugin is authenticated!", vec4(0, 0.4, 0, 1));
+            UI::ShowNotification("TMDojo", "Plugin is authenticated!", vec4(0, 0.4, 0, 1), 10000);
             pluginAuthed = true;
             ClientCode = "";
             break;
@@ -615,7 +631,7 @@ void getPluginAuth() {
         }
     }
     if (checkSessionIdCount >= maxCheckSessionId) {
-        UI::ShowNotification("TMDojo", "Plugin authentication took too long, please try again", vec4(0.4, 0, 0, 1));
+        UI::ShowNotification("TMDojo", "Plugin authentication took too long, please try again", vec4(0.4, 0, 0, 1), 10000);
     }
 }
 
@@ -645,6 +661,7 @@ void checkServer() {
                 try {
                     pluginAuthUrl = json["authURL"];
                     ClientCode = json["clientCode"];
+                    SessionId = "";
                     UI::ShowNotification("TMDojo", "Plugin needs authentication!");
                 } catch {
                     error("checkServer json error");

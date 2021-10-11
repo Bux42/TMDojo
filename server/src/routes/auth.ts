@@ -22,6 +22,7 @@ const router = express.Router();
  * - webid
  * - login
  * - name
+ * - sessionId
  */
 router.get('/', async (req: Request, res: Response, next: Function) => {
     try {
@@ -57,7 +58,7 @@ router.get('/', async (req: Request, res: Response, next: Function) => {
 });
 
 /**
- * GET /auth
+ * GET /pluginSecret
  * Returns session for client (last step in the plugin auth flow)
  * Query params:
  * - clientCode

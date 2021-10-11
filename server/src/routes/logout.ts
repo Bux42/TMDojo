@@ -11,7 +11,12 @@ const router = express.Router();
  */
 router.post('/', async (req: Request, res: Response, next: Function) => {
     try {
-        const { sessionId } = req.cookies;
+        let { sessionId } = req.cookies;
+
+        // Check if request originated from plugin
+        if (!sessionId) {
+            sessionId = req.body.sessionId;
+        }
 
         // Check for missing parameters
         if (sessionId === undefined || typeof sessionId !== 'string') {
