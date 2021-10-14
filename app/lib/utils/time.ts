@@ -6,7 +6,7 @@ export const getRaceTimeStr = (raceTime: number): string => {
     return (
         `${`${minutes > 0 ? `${minutes}:` : ''}`
         + `${minutes > 0 ? String(seconds).padStart(2, '0') : seconds}`
-        + '.'}${String(milliseconds).padEnd(3, '0')}`
+        + '.'}${String(milliseconds).padStart(3, '0')}`
     );
 };
 
