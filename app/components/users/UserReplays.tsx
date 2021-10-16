@@ -1,6 +1,10 @@
 import {
-    Button,
-    Card, Layout, Table, TablePaginationConfig,
+    Card,
+    Col,
+    Row,
+    Statistic,
+    Table,
+    TablePaginationConfig,
 } from 'antd';
 import { ColumnsType, TableCurrentDataSource } from 'antd/lib/table/interface';
 import Link from 'next/link';
@@ -32,8 +36,8 @@ const UserReplays = ({ userInfo }: Props): JSX.Element => {
     const totalRecordedTimeStr = msToTime(totalRecordedTime);
 
     useEffect(() => {
-        if (userInfo !== undefined && userInfo._id) {
-            fetchAndSetUserReplays(`${userInfo._id}`);
+        if (userInfo !== undefined && userInfo.webId) {
+            fetchAndSetUserReplays(`${userInfo.webId}`);
         }
     }, []);
 
@@ -136,16 +140,14 @@ const UserReplays = ({ userInfo }: Props): JSX.Element => {
             <Card
                 title="Replays"
             >
-                <p>
-                    {userReplays ? userReplays.length : 0}
-                    {' '}
-                    replays recorded
-                </p>
-                <p>
-                    {totalRecordedTimeStr}
-                    {' '}
-                    total recording time
-                </p>
+                <Row gutter={16}>
+                    <Col span={12}>
+                        <Statistic title="Count" value={userReplays ? userReplays.length : 0} />
+                    </Col>
+                    <Col span={12}>
+                        <Statistic title="Total Time" value={totalRecordedTimeStr} />
+                    </Col>
+                </Row>
             </Card>
             <Card>
                 <Table

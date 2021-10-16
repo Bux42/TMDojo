@@ -30,7 +30,7 @@ const Home = (): JSX.Element => {
             <HeadTitle title={getTitle()} />
             <Layout>
                 <UserHeader userInfo={userInfos} />
-                <Layout.Content className="w-3/5 m-auto h-full flex flex-col pt-8">
+                <Layout.Content className="w-4/5 m-auto h-full flex flex-col pt-8">
                     {userInfos
                     && (
                         <Card

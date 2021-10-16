@@ -18,6 +18,7 @@ import replayRouter from './routes/replays';
 import authorizeRouter from './routes/authorize';
 import logoutRouter from './routes/logout';
 import meRouter from './routes/me';
+import userRouter from './routes/users';
 
 import authMiddleware from './middleware/auth';
 

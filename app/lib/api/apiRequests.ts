@@ -107,14 +107,14 @@ export type UserInfo = {
 };
 
 export const getUserInfo = async (webId: string): Promise<UserInfo> => {
-    const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/${webId}/info`, {
+    const res = await apiInstance.get(`/users/${webId}/info`, {
         withCredentials: true,
     });
     return res.data;
 };
 
-export const getUserReplays = async (userId: string): Promise<FilesResult> => {
-    const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/users/${userId}/replays`, {
+export const getUserReplays = async (webId: string): Promise<FilesResult> => {
+    const res = await apiInstance.get(`/users/${webId}/replays`, {
         withCredentials: true,
     });
     return res.data;
