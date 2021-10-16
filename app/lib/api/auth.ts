@@ -1,4 +1,5 @@
 import axios from 'axios';
+import apiInstance from './apiInstance';
 
 const getRedirectUri = () => {
     if (typeof window === 'undefined') {
@@ -26,15 +27,12 @@ interface AuthorizationResponse {
     accountId: string;
 }
 export const authorizeWithAccessCode = async (accessCode: string): Promise<AuthorizationResponse> => {
-    const url = `${process.env.NEXT_PUBLIC_API_URL}/authorize`;
-
     const params = {
         code: accessCode,
         redirect_uri: getRedirectUri(),
     };
 
-    // TODO: use custom axios instance with default config for withCredentials
-    const { data } = await axios.post(url, params, { withCredentials: true });
+    const { data } = await apiInstance.post('/authorize', params, { withCredentials: true });
 
     return data;
 };
@@ -44,8 +42,6 @@ export interface UserInfo {
     accountId: string;
 }
 export const fetchLoggedInUser = async (): Promise<UserInfo | undefined> => {
-    const url = `${process.env.NEXT_PUBLIC_API_URL}/me`;
-
     const hasSessionCookie = document.cookie
         .split(';')
         .filter((cookie) => cookie.trim().startsWith('sessionId='))
@@ -56,8 +52,7 @@ export const fetchLoggedInUser = async (): Promise<UserInfo | undefined> => {
     }
 
     try {
-        // TODO: use custom axios instance with default config for withCredentials
-        const { data } = await axios.post(url, {}, { withCredentials: true });
+        const { data } = await apiInstance.post('/me');
         return data;
     } catch (e) {
         // TODO: find solution for being logged out on a server error?
@@ -66,8 +61,5 @@ export const fetchLoggedInUser = async (): Promise<UserInfo | undefined> => {
 };
 
 export const logout = async (): Promise<void> => {
-    const url = `${process.env.NEXT_PUBLIC_API_URL}/logout`;
-
-    // TODO: use custom axios instance with default config for withCredentials
-    await axios.post(url, {}, { withCredentials: true });
+    await apiInstance.post('/logout');
 };

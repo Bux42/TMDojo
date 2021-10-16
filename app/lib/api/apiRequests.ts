@@ -1,4 +1,4 @@
-import axios from 'axios';
+import apiInstance from './apiInstance';
 import { readDataView, DataViewResult } from '../replays/replayData';
 
 interface FilterParams {
@@ -44,9 +44,8 @@ const DEFAULT_FILTERS = {
 };
 
 export const getReplays = async (filters: FilterParams = DEFAULT_FILTERS): Promise<FilesResult> => {
-    const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/replays`, {
+    const res = await apiInstance.get('/replays', {
         params: { ...DEFAULT_FILTERS, ...filters },
-        withCredentials: true,
     });
 
     return res.data;
@@ -54,7 +53,7 @@ export const getReplays = async (filters: FilterParams = DEFAULT_FILTERS): Promi
 
 export interface ReplayData extends FileResponse, DataViewResult {}
 export const fetchReplayData = async (file: FileResponse): Promise<ReplayData> => {
-    const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/replays/${file._id}`, {
+    const res = await apiInstance.get(`/replays/${file._id}`, {
         responseType: 'arraybuffer',
     });
 
@@ -80,9 +79,7 @@ export type MapInfo = {
 };
 
 export const getMapInfo = async (mapUId: string): Promise<MapInfo> => {
-    const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/maps/${mapUId}/info`, {
-        withCredentials: true,
-    });
+    const res = await apiInstance.get(`/maps/${mapUId}/info`);
     return res.data;
 };
 
@@ -94,12 +91,11 @@ export type AvailableMap = {
 };
 
 export const getAvailableMaps = async (searchString: string): Promise<AvailableMap[]> => {
-    const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/maps${searchString ? `?mapName=${searchString}` : ''}`,
-        {
-            withCredentials: true,
+    const res = await apiInstance.get('/maps', {
+        params: {
+            mapName: searchString,
         },
-    );
+    });
     return res.data;
 };
 
