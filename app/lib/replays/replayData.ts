@@ -33,6 +33,8 @@ export class ReplayDataPoint {
     rRSlipCoef: number;
     rRDamperLen: number;
 
+    acceleration: number;
+
     constructor(dataView: DataView, offset: number) {
         this.offset = offset;
         this.currentRaceTime = this.readInt32(dataView);
@@ -66,6 +68,8 @@ export class ReplayDataPoint {
         this.rRGroundContactMaterial = this.readUInt8(dataView);
         this.rRSlipCoef = this.readFloat(dataView);
         this.rRDamperLen = this.readFloat(dataView);
+
+        this.acceleration = 0;
     }
 
     readInt32 = (dataView: DataView): number => {
@@ -126,6 +130,7 @@ export const readDataView = (dataView: DataView): DataViewResult => {
     }
     for (let i = 1; i < samples.length; i++) {
         sampleIntevals.push(samples[i].currentRaceTime - samples[i - 1].currentRaceTime);
+        samples[i].acceleration = samples[i].speed - samples[i - 1].speed;
     }
     const median = (arr: number[]) => {
         const mid = Math.floor(arr.length / 2);

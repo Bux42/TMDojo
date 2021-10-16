@@ -15,6 +15,7 @@ import {
     speedChartData,
     inputGasPedalChartData,
     inputIsBrakingChartData,
+    accelerationChartData,
 } from '../../lib/charts/chartData';
 import { SettingsContext } from '../../lib/contexts/SettingsContext';
 import { getRaceTimeStr } from '../../lib/utils/time';
@@ -46,6 +47,11 @@ export const ChartTypes: { [name: string]: ChartType } = {
         name: 'speed',
         chartOptionsCallback: defaultChartOptions,
         chartDataCallback: [speedChartData],
+    },
+    acceleration: {
+        name: 'acceleration',
+        chartOptionsCallback: defaultChartOptions,
+        chartDataCallback: [accelerationChartData],
     },
     inputSteer: {
         name: 'inputSteer',

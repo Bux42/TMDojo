@@ -36,6 +36,22 @@ export const speedChartData = (replay: ReplayData, allRaceTimes: number[]): any 
     return chartData;
 };
 
+export const accelerationChartData = (replay: ReplayData, allRaceTimes: number[]): any => {
+    const chartData: any = chartDataTemplate(replay, 3);
+    let lastSample: ReplayDataPoint;
+    allRaceTimes.forEach((raceTime: number) => {
+        for (let i = 0; i < replay.samples.length; i++) {
+            lastSample = replay.samples[i];
+            if (lastSample.currentRaceTime === raceTime
+                || lastSample.currentRaceTime > raceTime) {
+                chartData.data.push([raceTime, lastSample.acceleration]);
+                break;
+            }
+        }
+    });
+    return chartData;
+};
+
 export const inputSteerChartData = (replay: ReplayData, allRaceTimes: number[]): any => {
     const chartData: any = chartDataTemplate(replay, 3);
     let lastSample: ReplayDataPoint;
