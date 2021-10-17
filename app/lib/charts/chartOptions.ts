@@ -1,5 +1,65 @@
-import Highcharts from 'highcharts/highstock';
+import Highcharts, { AxisOptions, AxisSetExtremesEventObject } from 'highcharts/highstock';
+import { RangeUpdateInfos } from '../../components/maps/ChartsDrawer';
+import { ReplayData } from '../api/apiRequests';
+import GlobalChartsDataSingleton from '../singletons/globalChartData';
 import { getRaceTimeStr } from '../utils/time';
+import { ChartType } from './chartTypes';
+
+export const globalChartOptions = (
+    options: Highcharts.Options,
+    replaysData: ReplayData[],
+    metric: ChartType,
+    replaySeries: any[],
+    rangeUpdatedCallback: (rangeUpdateInfos: RangeUpdateInfos) => void,
+): Highcharts.Options => {
+    const globalChartsData = GlobalChartsDataSingleton.getInstance();
+
+    // Higchart tooltip needs more space when > 5 replays are loaded
+    if (options.chart && replaysData.length > 5) {
+        options.chart.height = (options.chart.height as number) + (replaysData.length - 5) * 34;
+    }
+    // give more space when > 1 tooltip per replay
+    if (options.chart && metric.chartDataCallback.length > 1) {
+        options.chart.height = (options.chart.height as number) + replaysData.length * 34;
+    }
+
+    if (options.title) {
+        options.title.text = metric.name;
+    }
+    options.series = replaySeries;
+    if (options.xAxis) {
+        (options.xAxis as AxisOptions).events = {
+            afterSetExtremes(event: AxisSetExtremesEventObject) {
+                rangeUpdatedCallback({
+                    Event: event,
+                    Metric: metric,
+                });
+            },
+        };
+    }
+
+    options.plotOptions = {
+        series: {
+            events: {
+                mouseOut: () => {
+                    globalChartsData.hoveredRaceTime = undefined;
+                },
+            },
+            point: {
+                events: {
+                    mouseOver: (event: any) => {
+                        event.preventDefault();
+                        if (!event.target.isNull && typeof event.target.x === 'number') {
+                            globalChartsData.hoveredRaceTime = event.target.x;
+                        }
+                    },
+                },
+            },
+        },
+    };
+
+    return options;
+};
 
 export const chartOptionsTemplate = (): Highcharts.Options => {
     const scrollBarOptions = {

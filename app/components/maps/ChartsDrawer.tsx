@@ -2,17 +2,17 @@ import React, { useContext, useEffect, useState } from 'react';
 import {
     Button, Checkbox, Drawer,
 } from 'antd';
-import Highcharts, { AxisOptions, AxisSetExtremesEventObject } from 'highcharts/highstock';
+import Highcharts, { AxisSetExtremesEventObject } from 'highcharts/highstock';
 import HighchartsReact from 'highcharts-react-official';
 import { ReplayData } from '../../lib/api/apiRequests';
 import { SettingsContext } from '../../lib/contexts/SettingsContext';
 import { getRaceTimeStr } from '../../lib/utils/time';
 import { ReplayDataPoint } from '../../lib/replays/replayData';
-import GlobalChartsDataSingleton from '../../lib/singletons/globalChartData';
 import GlobalTimeLineInfos from '../../lib/singletons/timeLineInfos';
 import { ChartType, ChartTypes } from '../../lib/charts/chartTypes';
+import { globalChartOptions } from '../../lib/charts/chartOptions';
 
-interface RangeUpdateInfos {
+export interface RangeUpdateInfos {
     Event: AxisSetExtremesEventObject,
     Metric: ChartType,
 }
@@ -32,7 +32,6 @@ let prevCurrentRacetime: number = 0;
 export const ReplayChart = ({
     replaysData, metric, addChartFunc, allRaceTimes, rangeUpdatedCallback, syncWithTimeLine,
 }: ReplayChartProps): JSX.Element => {
-    const globalChartsData = GlobalChartsDataSingleton.getInstance();
     const timeLineGlobal = GlobalTimeLineInfos.getInstance();
 
     const replaySeries: any[] = [];
@@ -54,55 +53,15 @@ export const ReplayChart = ({
         }
     });
 
-    const options: Highcharts.Options = metric.chartOptionsCallback();
-
-    // Higchart tooltip needs more space when > 5 replays are loaded
-    if (options.chart && replaysData.length > 5) {
-        options.chart.height = (options.chart.height as number) + (replaysData.length - 5) * 34;
-    }
-    // give more space when > 1 tooltip per replay
-    if (options.chart && metric.chartDataCallback.length > 1) {
-        options.chart.height = (options.chart.height as number) + replaysData.length * 34;
-    }
-
-    if (options.title) {
-        options.title.text = metric.name;
-    }
-    options.series = replaySeries;
-    if (options.xAxis) {
-        (options.xAxis as AxisOptions).events = {
-            afterSetExtremes(event: AxisSetExtremesEventObject) {
-                rangeUpdatedCallback({
-                    Event: event,
-                    Metric: metric,
-                });
-            },
-        };
-    }
-
-    options.plotOptions = {
-        series: {
-            events: {
-                mouseOut: () => {
-                    globalChartsData.hoveredRaceTime = undefined;
-                },
-            },
-            point: {
-                events: {
-                    mouseOver: (event: any) => {
-                        event.preventDefault();
-                        if (!event.target.isNull && typeof event.target.x === 'number') {
-                            globalChartsData.hoveredRaceTime = event.target.x;
-                        }
-                    },
-                },
-            },
-        },
-    };
+    const options: Highcharts.Options = globalChartOptions(
+        metric.chartOptionsCallback(),
+        replaysData,
+        metric,
+        replaySeries,
+        rangeUpdatedCallback,
+    );
 
     const highCharts = <HighchartsReact constructorType="stockChart" highcharts={Highcharts} options={options} />;
-
-    clearInterval(globalInterval);
 
     const getTooltipPoints = (chart: any): any[] => {
         const matchingPts: any[] = [];
@@ -117,6 +76,8 @@ export const ReplayChart = ({
         });
         return matchingPts;
     };
+
+    clearInterval(globalInterval);
 
     if (syncWithTimeLine) {
         globalInterval = setInterval(() => {
