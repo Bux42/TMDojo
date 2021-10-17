@@ -1,4 +1,7 @@
-export const chartOptionsTemplate = (): any => {
+import Highcharts from 'highcharts/highstock';
+import { getRaceTimeStr } from '../utils/time';
+
+export const chartOptionsTemplate = (): Highcharts.Options => {
     const scrollBarOptions = {
         enabled: true,
         barBackgroundColor: '#808083',
@@ -10,7 +13,7 @@ export const chartOptionsTemplate = (): any => {
         trackBackgroundColor: '#404043',
         trackBorderColor: '#404043',
     };
-    const options = {
+    const options: Highcharts.Options = {
         credits: {
             enabled: false,
         },
@@ -32,22 +35,25 @@ export const chartOptionsTemplate = (): any => {
         },
         tooltip: {
             shared: true,
+            formatter() {
+                return [`<b>${getRaceTimeStr(this.x)}</b><br>`].concat(
+                    this.points
+                        ? this.points.map((point) => `
+                    <b style="color: ${point.color}">▉ </b>${point.series.name}: <b>${point.y.toFixed(3)}</b>
+                    <br>`) : [],
+                );
+            },
         },
         xAxis: {
             scrollbar: scrollBarOptions,
-            type: 'number',
+            type: 'linear',
             opposite: false,
         },
         yAxis: {
-            type: 'date',
+            type: 'linear',
             gridLineColor: '#3f3f40',
         },
         scrollbar: scrollBarOptions,
-        line: {
-            marker: {
-                enabled: false,
-            },
-        },
     };
     return (options);
 };

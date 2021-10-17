@@ -6,7 +6,10 @@ import Highcharts, { AxisSetExtremesEventObject } from 'highcharts/highstock';
 import HighchartsReact from 'highcharts-react-official';
 import { ReplayData } from '../../lib/api/apiRequests';
 import {
-    accelAndBrakeChartOptions, defaultChartOptions, inputSteerChartOptions, rpmsAndGearChartOptions,
+    accelAndBrakeChartOptions,
+    defaultChartOptions,
+    inputSteerChartOptions,
+    rpmsAndGearChartOptions,
 } from '../../lib/charts/chartOptions';
 import {
     engineCurrGearChartData,
