@@ -172,10 +172,12 @@ interface TimeLineProps {
     replaysData: ReplayData[];
 }
 
-export const TimeLine = ({
+const TimeLine = ({
     replaysData,
 }: TimeLineProps): JSX.Element => (
     <>
         <TimeLineView key="timeLine" replaysData={replaysData} />
     </>
 );
+
+export default TimeLine;
