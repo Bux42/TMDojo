@@ -44,11 +44,7 @@ const Home = (): JSX.Element => {
                             <Card
                                 color="red"
                             >
-                                WebId
-                                {' '}
-                                {webId}
-                                {' '}
-                                not found!
+                                Profile not found
                             </Card>
                         )}
                 </Layout.Content>
