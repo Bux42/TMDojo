@@ -280,7 +280,7 @@ export const ChartsDrawer = ({
             document.removeEventListener('mousemove', onMouseMove);
             document.removeEventListener('mouseup', onMouseUp);
         };
-    }, []);
+    });
 
     const toggleSyncCheckbox = (e: any) => {
         setSyncWithTimeLine(e.target.checked);
