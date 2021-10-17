@@ -11,7 +11,7 @@ interface Props {
 
 const UserHeader = ({ userInfo }: Props): JSX.Element => {
     const router = useRouter();
-    const headerTitle = `User profile of ${userInfo ? userInfo.playerName : 'undefined'}`;
+    const headerTitle = userInfo ? `User profile of ${userInfo.playerName}` : 'Profile not found';
     const tmioURL = userInfo ? `https://trackmania.io/#/player/${userInfo.webId}` : '';
 
     return (
