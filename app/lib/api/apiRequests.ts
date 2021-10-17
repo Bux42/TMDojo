@@ -107,15 +107,11 @@ export type UserInfo = {
 };
 
 export const getUserInfo = async (webId: string): Promise<UserInfo> => {
-    const res = await apiInstance.get(`/users/${webId}/info`, {
-        withCredentials: true,
-    });
+    const res = await apiInstance.get(`/users/${webId}/info`);
     return res.data;
 };
 
 export const getUserReplays = async (webId: string): Promise<FilesResult> => {
-    const res = await apiInstance.get(`/users/${webId}/replays`, {
-        withCredentials: true,
-    });
+    const res = await apiInstance.get(`/users/${webId}/replays`);
     return res.data;
 };

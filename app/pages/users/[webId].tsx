@@ -16,7 +16,7 @@ const Home = (): JSX.Element => {
     const getTitle = () => (userInfos ? `${userInfos.playerName} - TMDojo` : 'TMDojo');
 
     const fetchAndSetUser = async (_webId: string) => {
-        const user : UserInfo = await getUserInfo(_webId);
+        const user: UserInfo = await getUserInfo(_webId);
         setUserInfos(user);
     };
 
@@ -32,25 +32,25 @@ const Home = (): JSX.Element => {
                 <UserHeader userInfo={userInfos} />
                 <Layout.Content className="w-4/5 m-auto h-full flex flex-col pt-8">
                     {userInfos
-                    && (
-                        <Card
-                            title={userInfos?.playerName}
-                        >
-                            {userInfos && <UserReplays userInfo={userInfos} />}
-                        </Card>
-                    )}
+                        && (
+                            <Card
+                                title={userInfos?.playerName}
+                            >
+                                {userInfos && <UserReplays userInfo={userInfos} />}
+                            </Card>
+                        )}
                     {!userInfos
-                    && (
-                        <Card
-                            color="red"
-                        >
-                            WebId
-                            {' '}
-                            {webId}
-                            {' '}
-                            not found!
-                        </Card>
-                    )}
+                        && (
+                            <Card
+                                color="red"
+                            >
+                                WebId
+                                {' '}
+                                {webId}
+                                {' '}
+                                not found!
+                            </Card>
+                        )}
                 </Layout.Content>
             </Layout>
         </>
