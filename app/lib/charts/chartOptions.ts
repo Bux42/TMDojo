@@ -32,6 +32,7 @@ export const chartOptionsTemplate = (): Highcharts.Options => {
             style: {
                 color: '#ffffff',
             },
+            text: '',
         },
         tooltip: {
             shared: true,

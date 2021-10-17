@@ -2,29 +2,15 @@ import React, { useContext, useEffect, useState } from 'react';
 import {
     Button, Checkbox, Drawer,
 } from 'antd';
-import Highcharts, { AxisSetExtremesEventObject } from 'highcharts/highstock';
+import Highcharts, { AxisOptions, AxisSetExtremesEventObject } from 'highcharts/highstock';
 import HighchartsReact from 'highcharts-react-official';
 import { ReplayData } from '../../lib/api/apiRequests';
-import {
-    accelAndBrakeChartOptions,
-    defaultChartOptions,
-    inputSteerChartOptions,
-    rpmsAndGearChartOptions,
-} from '../../lib/charts/chartOptions';
-import {
-    engineCurrGearChartData,
-    engineRPMsChartData,
-    inputSteerChartData,
-    speedChartData,
-    inputGasPedalChartData,
-    inputIsBrakingChartData,
-    accelerationChartData,
-} from '../../lib/charts/chartData';
 import { SettingsContext } from '../../lib/contexts/SettingsContext';
 import { getRaceTimeStr } from '../../lib/utils/time';
 import { ReplayDataPoint } from '../../lib/replays/replayData';
 import GlobalChartsDataSingleton from '../../lib/singletons/globalChartData';
 import GlobalTimeLineInfos from '../../lib/singletons/timeLineInfos';
+import { ChartType, ChartTypes } from '../../lib/charts/chartTypes';
 
 interface RangeUpdateInfos {
     Event: AxisSetExtremesEventObject,
@@ -39,49 +25,6 @@ interface ReplayChartProps {
     rangeUpdatedCallback: (rangeUpdateInfos: RangeUpdateInfos) => void;
     syncWithTimeLine: boolean;
 }
-
-export interface ChartType {
-    name: string;
-    chartOptionsCallback: () => any;
-    chartDataCallback: ((replay: ReplayData, allRaceTimes: number[]) => any)[];
-}
-export const ChartTypes: { [name: string]: ChartType } = {
-    speed: {
-        name: 'speed',
-        chartOptionsCallback: defaultChartOptions,
-        chartDataCallback: [speedChartData],
-    },
-    acceleration: {
-        name: 'acceleration',
-        chartOptionsCallback: defaultChartOptions,
-        chartDataCallback: [accelerationChartData],
-    },
-    inputSteer: {
-        name: 'inputSteer',
-        chartOptionsCallback: inputSteerChartOptions,
-        chartDataCallback: [inputSteerChartData],
-    },
-    engineRPMs: {
-        name: 'engineRPMs',
-        chartOptionsCallback: defaultChartOptions,
-        chartDataCallback: [engineRPMsChartData],
-    },
-    engineCurrGear: {
-        name: 'engineCurrGear',
-        chartOptionsCallback: defaultChartOptions,
-        chartDataCallback: [engineCurrGearChartData],
-    },
-    rpmsAndGear: {
-        name: 'rpmsAndGear',
-        chartOptionsCallback: rpmsAndGearChartOptions,
-        chartDataCallback: [engineCurrGearChartData, engineRPMsChartData],
-    },
-    accelAndBrake: {
-        name: 'accelAndBrake',
-        chartOptionsCallback: accelAndBrakeChartOptions,
-        chartDataCallback: [inputGasPedalChartData, inputIsBrakingChartData],
-    },
-};
 
 let globalInterval: ReturnType<typeof setTimeout>;
 let prevCurrentRacetime: number = 0;
@@ -111,29 +54,32 @@ export const ReplayChart = ({
         }
     });
 
-    const options = metric.chartOptionsCallback();
+    const options: Highcharts.Options = metric.chartOptionsCallback();
 
     // Higchart tooltip needs more space when > 5 replays are loaded
-
-    if (replaysData.length > 5) {
-        options.chart.height += (replaysData.length - 5) * 34;
+    if (options.chart && replaysData.length > 5) {
+        options.chart.height = (options.chart.height as number) + (replaysData.length - 5) * 34;
     }
-
     // give more space when > 1 tooltip per replay
-    if (metric.chartDataCallback.length > 1) {
-        options.chart.height += replaysData.length * 34;
+    if (options.chart && metric.chartDataCallback.length > 1) {
+        options.chart.height = (options.chart.height as number) + replaysData.length * 34;
     }
 
-    options.title.text = metric.name;
+    if (options.title) {
+        options.title.text = metric.name;
+    }
     options.series = replaySeries;
-    options.xAxis.events = {
-        afterSetExtremes(event: AxisSetExtremesEventObject) {
-            rangeUpdatedCallback({
-                Event: event,
-                Metric: metric,
-            });
-        },
-    };
+    if (options.xAxis) {
+        (options.xAxis as AxisOptions).events = {
+            afterSetExtremes(event: AxisSetExtremesEventObject) {
+                rangeUpdatedCallback({
+                    Event: event,
+                    Metric: metric,
+                });
+            },
+        };
+    }
+
     options.plotOptions = {
         series: {
             events: {
