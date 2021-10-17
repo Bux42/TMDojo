@@ -16,14 +16,6 @@ import * as db from '../lib/db';
 
 const router = express.Router();
 
-router.get('/', async (req: Request, res: Response, next: Function) => {
-    try {
-        res.send({ text: 'yep' });
-    } catch (err) {
-        next(err);
-    }
-});
-
 /**
  * GET /users/:webId/info
  * Retrieves user infos by webId
