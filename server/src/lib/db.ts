@@ -334,11 +334,6 @@ export const getReplayById = (
     });
 });
 
-export const saveReplay = async (replay: any) => {
-    const replays = db.collection('replays');
-    await replays.insertOne(replay);
-};
-
 export const deleteReplayById = async (replayId: any) => {
     const replays = db.collection('replays');
     await replays.deleteOne({

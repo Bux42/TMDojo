@@ -175,7 +175,7 @@ router.delete('/:replayId', async (req, res) => {
         await artefacts.deleteReplay(replay);
     } catch (err) {
         // If deletion failed, add the replay back into the DB
-        await db.saveReplay(replay);
+        await db.saveReplayMetadata(replay);
 
         res.status(500).send('Failed to delete replay file.');
         return;
