@@ -38,6 +38,8 @@ const SidebarReplays = ({
 }: Props): JSX.Element => {
     const defaultPageSize = 14;
 
+    const hasUnfinishedReplays = replays.some((replay: FileResponse) => !replay.raceFinished);
+
     const tmioURL = 'https://trackmania.io/#/player/';
 
     const [visible, setVisible] = useState(false);
@@ -91,27 +93,6 @@ const SidebarReplays = ({
             sorter: (a, b) => a.date - b.date,
         },
         {
-            title: 'Finished',
-            dataIndex: 'finished',
-            align: 'center',
-            width: 120,
-            filters: [
-                { text: 'Yes', value: true },
-                { text: 'No', value: false },
-            ],
-            onFilter: (value, record) => record.finished === value,
-            filterMultiple: false,
-            render: (_, replay) => (
-                <>
-                    {replay.finished ? (
-                        <div className="text-green-500">Yes</div>
-                    ) : (
-                        <div className="text-red-500">No</div>
-                    )}
-                </>
-            ),
-        },
-        {
             title: '',
             key: 'load',
             align: 'center',
@@ -141,6 +122,30 @@ const SidebarReplays = ({
             },
         },
     ];
+
+    if (hasUnfinishedReplays) {
+        columns.splice(columns.length - 2, 0, {
+            title: 'Finished',
+            dataIndex: 'finished',
+            align: 'center',
+            width: 120,
+            filters: [
+                { text: 'Yes', value: true },
+                { text: 'No', value: false },
+            ],
+            onFilter: (value, record) => record.finished === value,
+            filterMultiple: false,
+            render: (_, replay) => (
+                <>
+                    {replay.finished ? (
+                        <div className="text-green-500">Yes</div>
+                    ) : (
+                        <div className="text-red-500">No</div>
+                    )}
+                </>
+            ),
+        });
+    }
 
     const addReplayInfo = (replayList: FileResponse[]): ExtendedFileResponse[] => {
         const now = new Date().getTime();
