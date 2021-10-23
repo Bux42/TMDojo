@@ -17,6 +17,9 @@ bool OnlySaveFinished = true;
 [Setting name="TMDojoApiUrl" description="TMDojo API Url"]
 string ApiUrl = REMOTE_API;
 
+[Setting name="TMDojoUiUrl" description="TMDojo Ui Url"]
+string UiUrl = REMOTE_UI;
+
 [Setting name="TMDojoClientCode" description="TMDojo plugin Client Code"]
 string ClientCode = "";
 
@@ -31,6 +34,9 @@ bool OverlayEnabled = true;
 
 const string LOCAL_API = "http://localhost";
 const string REMOTE_API = "https://api.tmdojo.com";
+
+const string LOCAL_UI = "http://localhost:4200";
+const string REMOTE_UI = "https://tmdojo.com";
 
 int RECORDING_FPS = 60;
 
@@ -589,8 +595,10 @@ void RenderMenu()
 		}
 
         string otherApi = ApiUrl == LOCAL_API ? REMOTE_API : LOCAL_API;
-        if (DevMode && UI::MenuItem("Switch to " + otherApi , "", false, true)) {
+        string otherUi = ApiUrl == LOCAL_API ? REMOTE_UI : LOCAL_UI;
+        if (DevMode && UI::MenuItem("Switch to " + otherApi + " " + otherUi , "", false, true)) {
             ApiUrl = otherApi;
+            UiUrl = otherUi;
             startnew(checkServer);
 		}
 
@@ -762,7 +770,7 @@ void RenderInterface() {
         UI::Text("");
 
         if (UI::Button("My profile")) {
-            OpenBrowserURL(ApiUrl + "/users/" + g_dojo.webId);
+            OpenBrowserURL(UiUrl + "/users/" + g_dojo.webId);
         }
     }
     UI::End();
