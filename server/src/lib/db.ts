@@ -167,6 +167,41 @@ export const saveUser = (
         .catch((error: Error) => reject(error));
 });
 
+export const geReplaysByUserRef = (
+    userRef: string,
+): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
+    const replays = db.collection('replays');
+
+    const pipeline = [
+        {
+            $match: { userRef: new ObjectId(userRef) },
+        },
+        {
+            $lookup: {
+                from: 'maps',
+                localField: 'mapRef',
+                foreignField: '_id',
+                as: 'map',
+            },
+        },
+        {
+            $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ['$map', 0] }, '$$ROOT'] } },
+        },
+    ];
+
+    replays.aggregate(pipeline, async (aggregateErr: Error, cursor: any) => {
+        if (aggregateErr) {
+            return reject(aggregateErr);
+        }
+        try {
+            const data = await cursor.toArray();
+            return resolve({ files: data, totalResults: data.length });
+        } catch (arrayErr) {
+            return reject(arrayErr);
+        }
+    });
+});
+
 export const getReplays = (
     mapName ?: string,
     playerName ?: string,

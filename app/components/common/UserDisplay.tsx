@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import { Button, message } from 'antd';
+import Link from 'next/link';
 import { AuthContext } from '../../lib/contexts/AuthContext';
 
 const LoginButton = ({ onClick } :{onClick: () => void}) => (
@@ -19,6 +20,26 @@ const LogoutButton = ({ onClick } :{onClick: () => void}) => (
     </Button>
 );
 
+interface ProfileButtonProps {
+    webId: string;
+}
+
+const ProfileButton = ({ webId }: ProfileButtonProps) => {
+    const userProfileUrl = '/users/';
+    return (
+        <Button
+            type="primary"
+            style={{ marginLeft: '10px' }}
+        >
+            <Link href={`${userProfileUrl}${webId}`}>
+                <a target="_blank" rel="noreferrer" href={`${userProfileUrl}${webId}`}>
+                    Profile
+                </a>
+            </Link>
+        </Button>
+    );
+};
+
 const UserDisplay = () => {
     const { user, startAuthFlow, logoutUser } = useContext(AuthContext);
 
@@ -35,6 +56,7 @@ const UserDisplay = () => {
         : (
             <div className="flex flex-row items-center">
                 {`Welcome, ${user.displayName}!`}
+                <ProfileButton webId={user.accountId} />
                 <LogoutButton
                     onClick={onLogout}
                 />

@@ -54,6 +54,8 @@ bool recording = false;
 
 TMDojo@ g_dojo;
 
+// https://github.com/codecat/tm-dashboard special thanks to miss for getting vehicule informations
+
 namespace Vehicle
 {
 	uint VehiclesManagerIndex = 4;
@@ -327,7 +329,7 @@ class TMDojo
         panelTopCp += topIncr;
     }
 
-    void FillBuffer(CSceneVehicleVis@ vis, CSmScriptPlayer@ sm_script) {
+    void FillBuffer(CSceneVehicleVis@ vis, CSmScriptPlayer@ sm_script, int currentRaceTime) {
         int gazAndBrake = 0;
         int gazPedal = vis.AsyncState.InputGasPedal > 0 ? 1 : 0;
         int isBraking = vis.AsyncState.InputBrakePedal > 0 ? 2 : 0;
@@ -335,7 +337,7 @@ class TMDojo
         gazAndBrake |= gazPedal;
         gazAndBrake |= isBraking;
 
-        membuff.Write(sm_script.CurrentRaceTime);
+        membuff.Write(currentRaceTime);
 
         membuff.Write(vis.AsyncState.Position.x);
         membuff.Write(vis.AsyncState.Position.y);
@@ -363,7 +365,6 @@ class TMDojo
         membuff.Write(vis.AsyncState.Dir.y);
         membuff.Write(vis.AsyncState.Dir.z);
 
-
         uint8 fLGroundContactMaterial = vis.AsyncState.FLGroundContactMaterial;
         membuff.Write(fLGroundContactMaterial);
         membuff.Write(vis.AsyncState.FLSlipCoef);
@@ -383,7 +384,6 @@ class TMDojo
         membuff.Write(rRGroundContactMaterial);
         membuff.Write(vis.AsyncState.RRSlipCoef);
         membuff.Write(vis.AsyncState.RRDamperLen);
-
     }
     
 
@@ -396,12 +396,6 @@ class TMDojo
 			return;
 		}
 
-		if (app.CurrentPlayground !is null && app.CurrentPlayground.Interface !is null) {
-            if (Dev::GetOffsetUint32(app.CurrentPlayground.Interface, 0x1C) == 0) {
-                return;
-            }
-        }
-
         if (app.CurrentPlayground == null || app.CurrentPlayground.GameTerminals.get_Length() == 0 || app.CurrentPlayground.GameTerminals[0].GUIPlayer == null) {
             return;
         }
@@ -409,6 +403,7 @@ class TMDojo
         CSmScriptPlayer@ sm_script = cast<CSmPlayer>(app.CurrentPlayground.GameTerminals[0].GUIPlayer).ScriptAPI;
         CGamePlaygroundUIConfig@ uiConfig = app.CurrentPlayground.UIConfigs[0];
         CGameCtnChallenge@ rootMap = app.RootMap;
+
         if (sm_script == null) {
             return;
         }
@@ -438,10 +433,21 @@ class TMDojo
             this.drawOverlay();
         }
 
-        if (!recording && sm_script.CurrentRaceTime > -50 && sm_script.CurrentRaceTime < 0) {
+        auto playgroundScript = cast<CSmArenaRulesMode>(app.PlaygroundScript);
+        int currentRaceTime = sm_script.CurrentRaceTime;
+
+        if (app.CurrentPlayground !is null && app.CurrentPlayground.Interface !is null) {
+            if (Dev::GetOffsetUint32(app.CurrentPlayground.Interface, 0x1C) == 0) {
+                currentRaceTime = playgroundScript.Now - player.ScriptAPI.StartTime;
+            }
+        }
+
+        if (!recording && currentRaceTime > -50 && currentRaceTime < 0) {
             recording = true;
         }
+        
         if (recording) {
+            
             if (uiConfig.UISequence == 11) {
                 // Finished track
                 print("[TMDojo]: Finished");
@@ -453,8 +459,31 @@ class TMDojo
                 @cast<FinishHandle>(fh).sm_script = sm_script;
                 @cast<FinishHandle>(fh).network = network;
                 cast<FinishHandle>(fh).endRaceTime = latestRecordedTime;
+
+                // https://github.com/GreepTheSheep/openplanet-mx-random special thanks to greep for getting accurate endRaceTime
+
+                int endRaceTimeAccurate = -1;
+
+                CSmArenaRulesMode@ PlaygroundScript = cast<CSmArenaRulesMode>(app.PlaygroundScript);
+
+                CGamePlayground@ GamePlayground = cast<CGamePlayground>(app.CurrentPlayground);
+                if (PlaygroundScript !is null && GamePlayground.GameTerminals.get_Length() > 0) {
+                    CSmPlayer@ player = cast<CSmPlayer>(GamePlayground.GameTerminals[0].ControlledPlayer);
+                    if (GamePlayground.GameTerminals[0].UISequence_Current == CGameTerminal::ESGamePlaygroundUIConfig__EUISequence::Finish && player !is null) {
+                        auto ghost = PlaygroundScript.Ghost_RetrieveFromPlayer(player.ScriptAPI);
+                        if (ghost !is null) {
+                            if (ghost.Result.Time > 0 && ghost.Result.Time < 4294967295) endRaceTimeAccurate = ghost.Result.Time;
+                            PlaygroundScript.DataFileMgr.Ghost_Release(ghost.Id);
+                        } else endRaceTimeAccurate = -1;
+                    } else endRaceTimeAccurate = -1;
+                } else endRaceTimeAccurate = -1;
+
+                if (endRaceTimeAccurate > 0) {
+                    cast<FinishHandle>(fh).endRaceTime = endRaceTimeAccurate;
+                }
+
                 startnew(PostRecordedData, fh);
-            } else if (latestRecordedTime > sm_script.CurrentRaceTime) {
+            } else if (latestRecordedTime > 0 && currentRaceTime < 0) {
                 // Give up
                 print("[TMDojo]: Give up");
 
@@ -468,7 +497,7 @@ class TMDojo
                 startnew(PostRecordedData, fh);
             } else {
                  // Record current data
-                int timeSinceLastRecord = sm_script.CurrentRaceTime - latestRecordedTime;
+                int timeSinceLastRecord = currentRaceTime - latestRecordedTime;
                 if (timeSinceLastRecord > (1.0 / RECORDING_FPS) * 1000) {
                     // Keep track of the amount of samples for which the position did not changed, used to pause recording
                     if (Math::Abs(latestPlayerPosition.x - sm_script.Position.x) < 0.001 &&
@@ -478,11 +507,10 @@ class TMDojo
                     } else {
                         numSamePositions = 0;
                     }
-
                     // Fill buffer if player has moved recently
                     if (numSamePositions < RECORDING_FPS) {
-                        FillBuffer(vis, sm_script);
-                        latestRecordedTime = sm_script.CurrentRaceTime;
+                        FillBuffer(vis, sm_script, currentRaceTime);
+                        latestRecordedTime = currentRaceTime;
                     }
 
                     latestPlayerPosition = sm_script.Position;
