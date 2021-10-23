@@ -8,11 +8,23 @@
 [Setting name="TMDojoEnabled" description="Enable / Disable plugin"]
 bool Enabled = true;
 
+[Setting name="TMDojoDevMode" description="Enable / Disable DevMode"]
+bool DevMode = false;
+
 [Setting name="TMDojoOnlySaveFinished" description="Only save race data when race is finished"]
 bool OnlySaveFinished = true;
 
 [Setting name="TMDojoApiUrl" description="TMDojo API Url"]
 string ApiUrl = REMOTE_API;
+
+[Setting name="TMDojoUiUrl" description="TMDojo Ui Url"]
+string UiUrl = REMOTE_UI;
+
+[Setting name="TMDojoClientCode" description="TMDojo plugin Client Code"]
+string ClientCode = "";
+
+[Setting password name="TMDojoSessionId" description="TMDojo plugin SessionId"]
+string SessionId = "";
 
 [Setting name="TMDojoDebugOverlayEnabled" description="Enable / Disable debug overlay"]
 bool DebugOverlayEnabled = false;
@@ -23,9 +35,25 @@ bool OverlayEnabled = true;
 const string LOCAL_API = "http://localhost";
 const string REMOTE_API = "https://api.tmdojo.com";
 
+const string LOCAL_UI = "http://localhost:4200";
+const string REMOTE_UI = "https://tmdojo.com";
+
 int RECORDING_FPS = 60;
 
 int latestRecordedTime = -6666;
+
+int checkSessionIdCount = 0;
+int maxCheckSessionId = 60;
+
+string pluginAuthUrl = "";
+
+bool pluginAuthed = false;
+bool isAuthenticating = false;
+bool authWindowOpened = false;
+
+string red = "\\$f33";
+string green = "\\$9f3";
+string orange = "\\$fb3";
 
 MemoryBuffer membuff = MemoryBuffer(0);
 bool recording = false;
@@ -551,10 +579,6 @@ void PostRecordedData(ref @handle) {
 
 void RenderMenu()
 {
-    string red = "\\$f33";
-    string green = "\\$9f3";
-    string orange = "\\$fb3";
-
     string menuTitle = "";
     if (g_dojo.checkingServer) {
         menuTitle = orange + Icons::Wifi + "\\$z TMDojo";
@@ -571,8 +595,10 @@ void RenderMenu()
 		}
 
         string otherApi = ApiUrl == LOCAL_API ? REMOTE_API : LOCAL_API;
-        if (UI::MenuItem("Switch to " + otherApi , "", false, true)) {
+        string otherUi = ApiUrl == LOCAL_API ? REMOTE_UI : LOCAL_UI;
+        if (DevMode && UI::MenuItem("Switch to " + otherApi + " " + otherUi , "", false, true)) {
             ApiUrl = otherApi;
+            UiUrl = otherUi;
             startnew(checkServer);
 		}
 
@@ -580,7 +606,7 @@ void RenderMenu()
             OverlayEnabled = !OverlayEnabled;
 		}
 
-        if (UI::MenuItem(DebugOverlayEnabled ? "[X]  Debug Overlay" : "[  ]  Debug Overlay", "", false, true)) {
+        if (DevMode && UI::MenuItem(DebugOverlayEnabled ? "[X]  Debug Overlay" : "[  ]  Debug Overlay", "", false, true)) {
             DebugOverlayEnabled = !DebugOverlayEnabled;
 		}
 
@@ -594,8 +620,66 @@ void RenderMenu()
             }
         }
 
+        if (pluginAuthed) {
+            if (UI::MenuItem(green + Icons::Plug + " Plugin Authenticated")) {
+                authWindowOpened = true;
+            }
+            if (UI::MenuItem(orange + Icons::SignOut + " Logout")) {
+               startnew(logout);
+            }
+        } else {
+            if (UI::MenuItem(orange + Icons::Plug + " Authenticate Plugin")) {
+                authWindowOpened = true;
+            }
+        }
+
 		UI::EndMenu();
 	}
+}
+
+void logout() {
+    string logoutBody = "{\"sessionId\":\"" + SessionId + "\"}";
+    Net::HttpRequest@ req = Net::HttpPost(ApiUrl + "/logout", logoutBody, "application/json");
+    while (!req.Finished()) {
+        yield();
+        sleep(50);
+    }
+    UI::ShowNotification("TMDojo", "Plugin logged out!", vec4(0, 0.4, 0, 1));
+    SessionId = "";
+    pluginAuthed = false;
+    checkServer();  
+}
+
+void getPluginAuth() {
+    isAuthenticating = true;
+    while (checkSessionIdCount < maxCheckSessionId) {
+        sleep(1000);
+        checkSessionIdCount++;
+        Net::HttpRequest@ auth = Net::HttpGet(ApiUrl + "/auth/pluginSecret?clientCode=" + ClientCode);
+        while (!auth.Finished()) {
+            yield();
+            sleep(50);
+        }
+        try {
+            Json::Value json = Json::Parse(auth.String());
+            SessionId = json["sessionId"];
+            UI::ShowNotification("TMDojo", "Plugin is authenticated!", vec4(0, 0.4, 0, 1), 10000);
+            pluginAuthed = true;
+            ClientCode = "";
+            break;
+        } catch {
+            
+        }
+    }
+    isAuthenticating = false;
+    if (checkSessionIdCount >= maxCheckSessionId) {
+        UI::ShowNotification("TMDojo", "Plugin authentication took too long, please try again", vec4(0.4, 0, 0, 1), 10000);
+    }
+}
+
+void authenticatePlugin() {
+    OpenBrowserURL(pluginAuthUrl);
+    startnew(getPluginAuth);
 }
 
 void checkServer() {
@@ -603,12 +687,37 @@ void checkServer() {
     g_dojo.playerName = g_dojo.network.PlayerInfo.Name;
     g_dojo.playerLogin = g_dojo.network.PlayerInfo.Login;
     g_dojo.webId = g_dojo.network.PlayerInfo.WebServicesUserId;
-    Net::HttpRequest@ auth = Net::HttpGet(ApiUrl + "/auth?name=" + g_dojo.playerName + "&login=" + g_dojo.playerLogin + "&webid=" + g_dojo.webId);
+    Net::HttpRequest@ auth = Net::HttpGet(ApiUrl + "/auth?name=" + g_dojo.playerName + "&login=" + g_dojo.playerLogin + "&webid=" + g_dojo.webId + "&sessionId=" + SessionId);
     while (!auth.Finished()) {
         yield();
         sleep(50);
     }
     if (auth.String().get_Length() > 0) {
+        Json::Value json = Json::Parse(auth.String());
+
+        if (json.GetType() != Json::Type::Null) {
+            print("HasKey authUrl: " + json.HasKey("authURL"));
+            print("HasKey authSuccess: " + json.HasKey("authSuccess"));
+
+            if (json.HasKey("authURL")) {
+                try {
+                    pluginAuthUrl = json["authURL"];
+                    ClientCode = json["clientCode"];
+                    SessionId = "";
+                    UI::ShowNotification("TMDojo", "Plugin needs authentication!");
+                } catch {
+                    error("checkServer json error");
+                }
+            }
+            if (json.HasKey("authSuccess")) {
+                pluginAuthed = true;
+                UI::ShowNotification("TMDojo", "Plugin is authenticated!", vec4(0, 0.4, 0, 1));
+            }
+        } else {
+            UI::ShowNotification("TMDojo", "checkServer() Error: Json response is null", vec4(0.4, 0, 0, 1));
+            error("checkServer server response is not json");
+        }
+        
         g_dojo.serverAvailable = true;
     } else {
         g_dojo.serverAvailable = false;
@@ -629,4 +738,40 @@ void Render() {
     if (g_dojo !is null && Enabled) {
 		g_dojo.Render();
 	}
+}
+
+void RenderInterface() {
+    if (!authWindowOpened) {
+        return;
+    }
+    UI::SetNextWindowContentSize(780, 230);
+
+    UI::Begin("TMDojo Plugin Authentication", authWindowOpened);
+    if (!pluginAuthed) {
+        UI::Text(orange + "Not authenticated");
+        UI::Text("");
+        UI::Text("In order to upload your replays to TMDojo, you need to tell us who you are.");
+        UI::Text("Please click the \"Authenticate Plugin\" button below - it will open a browser window for you to log into your Ubisoft account.");
+        UI::Text("Don't worry: This only gives us access to your accountID and your name!");
+        UI::Text("");
+        UI::Text("Once you've clicked the button, you have one minute to log in.");
+        UI::Text("If it takes a bit longer, you can just press the button again (if you're already logged in, it's just gonna take a second).");
+        UI::Text("");
+        if (!isAuthenticating && UI::Button("Authenticate Plugin")) {
+            authenticatePlugin();
+        }
+        if (isAuthenticating) {
+            UI::Text("Awaiting authentication, " + (maxCheckSessionId - checkSessionIdCount) + " seconds remaining");
+        }
+    } else {
+        UI::Text(green + "Plugin authed!");
+        UI::Text("");
+        UI::Text("Welcome " + g_dojo.playerName + ", you can now upload replays to the TMDojo!");
+        UI::Text("");
+
+        if (UI::Button("My profile")) {
+            OpenBrowserURL(UiUrl + "/users/" + g_dojo.webId);
+        }
+    }
+    UI::End();
 }
