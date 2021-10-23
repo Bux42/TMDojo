@@ -8,6 +8,9 @@
 [Setting name="TMDojoEnabled" description="Enable / Disable plugin"]
 bool Enabled = true;
 
+[Setting name="TMDojoDevMode" description="Enable / Disable DevMode"]
+bool DevMode = false;
+
 [Setting name="TMDojoOnlySaveFinished" description="Only save race data when race is finished"]
 bool OnlySaveFinished = true;
 
@@ -39,6 +42,8 @@ int maxCheckSessionId = 60;
 string pluginAuthUrl = "";
 
 bool pluginAuthed = false;
+bool isAuthenticating = false;
+bool authWindowOpened = false;
 
 string red = "\\$f33";
 string green = "\\$9f3";
@@ -556,7 +561,7 @@ void RenderMenu()
 		}
 
         string otherApi = ApiUrl == LOCAL_API ? REMOTE_API : LOCAL_API;
-        if (UI::MenuItem("Switch to " + otherApi , "", false, true)) {
+        if (DevMode && UI::MenuItem("Switch to " + otherApi , "", false, true)) {
             ApiUrl = otherApi;
             startnew(checkServer);
 		}
@@ -565,7 +570,7 @@ void RenderMenu()
             OverlayEnabled = !OverlayEnabled;
 		}
 
-        if (UI::MenuItem(DebugOverlayEnabled ? "[X]  Debug Overlay" : "[  ]  Debug Overlay", "", false, true)) {
+        if (DevMode && UI::MenuItem(DebugOverlayEnabled ? "[X]  Debug Overlay" : "[  ]  Debug Overlay", "", false, true)) {
             DebugOverlayEnabled = !DebugOverlayEnabled;
 		}
 
@@ -581,13 +586,14 @@ void RenderMenu()
 
         if (pluginAuthed) {
             if (UI::MenuItem(green + Icons::Plug + " Plugin Authenticated")) {
+                authWindowOpened = true;
             }
             if (UI::MenuItem(orange + Icons::SignOut + " Logout")) {
                startnew(logout);
             }
         } else {
             if (UI::MenuItem(orange + Icons::Plug + " Authenticate Plugin")) {
-                authenticatePlugin();
+                authWindowOpened = true;
             }
         }
 
@@ -605,20 +611,19 @@ void logout() {
     UI::ShowNotification("TMDojo", "Plugin logged out!", vec4(0, 0.4, 0, 1));
     SessionId = "";
     pluginAuthed = false;
-    checkServer();
+    checkServer();  
 }
 
 void getPluginAuth() {
+    isAuthenticating = true;
     while (checkSessionIdCount < maxCheckSessionId) {
         sleep(1000);
-        print("getPluginAuth Count: " + checkSessionIdCount + " / " + maxCheckSessionId + " url: " + ApiUrl + "/auth/pluginSecret?clientCode=" + ClientCode);
         checkSessionIdCount++;
         Net::HttpRequest@ auth = Net::HttpGet(ApiUrl + "/auth/pluginSecret?clientCode=" + ClientCode);
         while (!auth.Finished()) {
             yield();
             sleep(50);
         }
-        print("getPluginAuth response: " + auth.String());
         try {
             Json::Value json = Json::Parse(auth.String());
             SessionId = json["sessionId"];
@@ -627,9 +632,10 @@ void getPluginAuth() {
             ClientCode = "";
             break;
         } catch {
-            error("/auth/pluginSecret: no sessionId in reponse");
+            
         }
     }
+    isAuthenticating = false;
     if (checkSessionIdCount >= maxCheckSessionId) {
         UI::ShowNotification("TMDojo", "Plugin authentication took too long, please try again", vec4(0.4, 0, 0, 1), 10000);
     }
@@ -696,4 +702,40 @@ void Render() {
     if (g_dojo !is null && Enabled) {
 		g_dojo.Render();
 	}
+}
+
+void RenderInterface() {
+    if (!authWindowOpened) {
+        return;
+    }
+    UI::SetNextWindowContentSize(780, 230);
+
+    UI::Begin("TMDojo Plugin Authentication", authWindowOpened);
+    if (!pluginAuthed) {
+        UI::Text(orange + "Not authenticated");
+        UI::Text("");
+        UI::Text("In order to upload your replays to TMDojo, you need to tell us who you are.");
+        UI::Text("Please click the \"Authenticate Plugin\" button below - it will open a browser window for you to log into your Ubisoft account.");
+        UI::Text("Don't worry: This only gives us access to your accountID and your name!");
+        UI::Text("");
+        UI::Text("Once you've clicked the button, you have one minute to log in.");
+        UI::Text("If it takes a bit longer, you can just press the button again (if you're already logged in, it's just gonna take a second).");
+        UI::Text("");
+        if (!isAuthenticating && UI::Button("Authenticate Plugin")) {
+            authenticatePlugin();
+        }
+        if (isAuthenticating) {
+            UI::Text("Awaiting authentication, " + (maxCheckSessionId - checkSessionIdCount) + " seconds remaining");
+        }
+    } else {
+        UI::Text(green + "Plugin authed!");
+        UI::Text("");
+        UI::Text("Welcome " + g_dojo.playerName + ", you can now upload replays to the TMDojo!");
+        UI::Text("");
+
+        if (UI::Button("My profile")) {
+            OpenBrowserURL(ApiUrl + "/users/" + g_dojo.webId);
+        }
+    }
+    UI::End();
 }
