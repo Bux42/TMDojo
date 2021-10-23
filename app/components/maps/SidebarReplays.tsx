@@ -3,7 +3,7 @@ import {
     Button, Drawer, Table, Tooltip,
 } from 'antd';
 import { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
-import { TableCurrentDataSource } from 'antd/lib/table/interface';
+import { ColumnType, TableCurrentDataSource } from 'antd/lib/table/interface';
 import { ReloadOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { FileResponse } from '../../lib/api/apiRequests';
@@ -38,7 +38,7 @@ const SidebarReplays = ({
 }: Props): JSX.Element => {
     const defaultPageSize = 14;
 
-    const hasUnfinishedReplays = replays.some((replay: FileResponse) => !replay.raceFinished);
+    const showFinishedColumn = replays.some((replay: FileResponse) => !replay.raceFinished);
 
     const tmioURL = 'https://trackmania.io/#/player/';
 
@@ -144,8 +144,8 @@ const SidebarReplays = ({
         },
     ];
 
-    if (!hasUnfinishedReplays) {
-        columns = columns.filter((column) => column.title !== 'Finished');
+    if (!showFinishedColumn) {
+        columns = columns.filter((column: ColumnType<ExtendedFileResponse>) => column.dataIndex !== 'finished');
     }
 
     const addReplayInfo = (replayList: FileResponse[]): ExtendedFileResponse[] => {
