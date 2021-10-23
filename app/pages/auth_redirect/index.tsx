@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useRouter } from 'next/router';
-import { Card, Layout, Spin } from 'antd';
+import {
+    Card, Layout, PageHeader, Spin,
+} from 'antd';
 import { authorizeWithAccessCode } from '../../lib/api/auth';
 import { AuthContext } from '../../lib/contexts/AuthContext';
 
@@ -29,8 +31,8 @@ const AuthRedirect = (): JSX.Element => {
                 };
 
                 authorize();
-            // for the UI login, this page should only be opened in a new popup window
-            // it should send back the code and state it received to its opener
+                // for the UI login, this page should only be opened in a new popup window
+                // it should send back the code and state it received to its opener
             } else {
                 // send them to the opening window
                 window.opener.postMessage({ source: 'ubi-login-redirect', code, state });
@@ -43,6 +45,10 @@ const AuthRedirect = (): JSX.Element => {
 
     return (
         <Layout>
+            <PageHeader
+                onBack={() => router.push('/')}
+                title="Home"
+            />
             <Layout.Content className="w-4/5 m-auto h-full flex flex-col pt-8">
                 <Card
                     className="w-full align-center"
