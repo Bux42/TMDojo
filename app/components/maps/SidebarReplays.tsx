@@ -64,7 +64,7 @@ const SidebarReplays = ({
         return uniques.sort().map((val) => ({ text: val, value: val }));
     };
 
-    const columns: ColumnsType<ExtendedFileResponse> = [
+    let columns: ColumnsType<ExtendedFileResponse> = [
         {
             title: 'Player',
             dataIndex: 'playerName',
@@ -91,6 +91,27 @@ const SidebarReplays = ({
             align: 'right',
             width: 120,
             sorter: (a, b) => a.date - b.date,
+        },
+        {
+            title: 'Finished',
+            dataIndex: 'finished',
+            align: 'center',
+            width: 120,
+            filters: [
+                { text: 'Yes', value: true },
+                { text: 'No', value: false },
+            ],
+            onFilter: (value, record) => record.finished === value,
+            filterMultiple: false,
+            render: (_, replay) => (
+                <>
+                    {replay.finished ? (
+                        <div className="text-green-500">Yes</div>
+                    ) : (
+                        <div className="text-red-500">No</div>
+                    )}
+                </>
+            ),
         },
         {
             title: '',
@@ -123,28 +144,8 @@ const SidebarReplays = ({
         },
     ];
 
-    if (hasUnfinishedReplays) {
-        columns.splice(columns.length - 2, 0, {
-            title: 'Finished',
-            dataIndex: 'finished',
-            align: 'center',
-            width: 120,
-            filters: [
-                { text: 'Yes', value: true },
-                { text: 'No', value: false },
-            ],
-            onFilter: (value, record) => record.finished === value,
-            filterMultiple: false,
-            render: (_, replay) => (
-                <>
-                    {replay.finished ? (
-                        <div className="text-green-500">Yes</div>
-                    ) : (
-                        <div className="text-red-500">No</div>
-                    )}
-                </>
-            ),
-        });
+    if (!hasUnfinishedReplays) {
+        columns = columns.filter((column) => column.title !== 'Finished');
     }
 
     const addReplayInfo = (replayList: FileResponse[]): ExtendedFileResponse[] => {
