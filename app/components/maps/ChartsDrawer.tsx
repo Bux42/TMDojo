@@ -63,7 +63,7 @@ export const ReplayChart = ({
 
     const highCharts = <HighchartsReact constructorType="stockChart" highcharts={Highcharts} options={options} />;
 
-    const getTooltipPoints = (chart: any): any[] => {
+    const refreshTooltipPoints = (chart: any) => {
         const matchingPts: any[] = [];
         chart.series.forEach((serie: any) => {
             for (let i = 0; i < serie.points.length; i++) {
@@ -74,7 +74,9 @@ export const ReplayChart = ({
                 }
             }
         });
-        return matchingPts;
+        if (matchingPts.length) {
+            chart.tooltip.refresh(matchingPts);
+        }
     };
 
     clearInterval(globalInterval);
@@ -87,10 +89,7 @@ export const ReplayChart = ({
                 highCharts.props.highcharts.charts.forEach((chart: any) => {
                     if (chart) {
                         validCharts = true;
-                        const matchingPts: any[] = getTooltipPoints(chart);
-                        if (matchingPts.length) {
-                            chart.tooltip.refresh(matchingPts);
-                        }
+                        refreshTooltipPoints(chart);
                     }
                 });
                 if (!validCharts) {
