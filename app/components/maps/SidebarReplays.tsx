@@ -40,7 +40,7 @@ const SidebarReplays = ({
 
     const showFinishedColumn = replays.some((replay: FileResponse) => !replay.raceFinished);
 
-    const tmioURL = 'https://trackmania.io/#/player/';
+    const userProfileUrl = '/users/';
 
     const [visible, setVisible] = useState(false);
     const [visibleReplays, setVisibleReplays] = useState<FileResponse[]>([]);
@@ -71,8 +71,8 @@ const SidebarReplays = ({
             filters: getUniqueFilters((replay) => replay.playerName),
             onFilter: (value, record) => record.playerName === value,
             render: (text, replay) => (
-                <Link href={`${tmioURL}${replay.webId}`}>
-                    <a target="_blank" rel="noreferrer" href={`${tmioURL}${replay.webId}`}>
+                <Link href={`${userProfileUrl}${replay.webId}`}>
+                    <a target="_blank" rel="noreferrer" href={`${userProfileUrl}${replay.webId}`}>
                         {replay.playerName}
                     </a>
                 </Link>

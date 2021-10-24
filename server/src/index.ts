@@ -18,6 +18,7 @@ import replayRouter from './routes/replays';
 import authorizeRouter from './routes/authorize';
 import logoutRouter from './routes/logout';
 import meRouter from './routes/me';
+import userRouter from './routes/users';
 
 import authMiddleware from './middleware/auth';
 
@@ -95,5 +96,6 @@ app.use('/auth', authRouter);
 app.use('/authorize', authorizeRouter);
 app.use('/logout', logoutRouter);
 app.use('/maps', mapRouter);
+app.use('/users', userRouter);
 app.use('/me', meRouter);
 app.use('/replays', replayRouter);
