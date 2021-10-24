@@ -13,8 +13,8 @@ import { ChartType, ChartTypes } from '../../lib/charts/chartTypes';
 import { globalChartOptions } from '../../lib/charts/chartOptions';
 
 export interface RangeUpdateInfos {
-    Event: AxisSetExtremesEventObject,
-    Metric: ChartType,
+    event: AxisSetExtremesEventObject,
+    metric: ChartType,
 }
 
 interface ReplayChartProps {
@@ -210,10 +210,10 @@ export const ChartsDrawer = ({
     const debounceChangeRange = (rangeUpdate: RangeUpdateInfos) => {
         const myDebounce = debounce(() => {
             childCharts.forEach((chart: JSX.Element) => {
-                if (chart.props.options.title.text !== rangeUpdate.Metric) {
+                if (chart.props.options.title.text !== rangeUpdate.metric) {
                     chart.props.highcharts.charts.forEach((subChart: any) => {
                         if (subChart && subChart.xAxis) {
-                            subChart.xAxis[0].setExtremes(rangeUpdate.Event.min, rangeUpdate.Event.max);
+                            subChart.xAxis[0].setExtremes(rangeUpdate.event.min, rangeUpdate.event.max);
                         }
                     });
                 }
