@@ -31,8 +31,8 @@ export const globalChartOptions = (
         (options.xAxis as AxisOptions).events = {
             afterSetExtremes(event: AxisSetExtremesEventObject) {
                 rangeUpdatedCallback({
-                    Event: event,
-                    Metric: metric,
+                    event,
+                    metric,
                 });
             },
         };
