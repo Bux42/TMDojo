@@ -1,13 +1,7 @@
 import Highcharts from 'highcharts/highstock';
 import { ReplayData } from '../api/apiRequests';
 import {
-    accelerationChartData,
-    engineCurrGearChartData,
-    engineRPMsChartData,
-    inputGasPedalChartData,
-    inputIsBrakingChartData,
-    inputSteerChartData,
-    speedChartData,
+    metricChartData,
 } from './chartData';
 import {
     accelAndBrakeChartOptions,
@@ -18,43 +12,51 @@ import {
 
 export interface ChartType {
     name: string;
+    metrics: string[];
     chartOptionsCallback: () => Highcharts.Options;
-    chartDataCallback: ((replay: ReplayData, allRaceTimes: number[]) => any)[];
+    chartDataCallback: ((replay: ReplayData, allRaceTimes: number[], metric: string) => any)[];
 }
 export const ChartTypes: { [name: string]: ChartType } = {
     speed: {
         name: 'speed',
+        metrics: ['speed'],
         chartOptionsCallback: defaultChartOptions,
-        chartDataCallback: [speedChartData],
+        chartDataCallback: [metricChartData],
     },
     acceleration: {
         name: 'acceleration',
+        metrics: ['acceleration'],
         chartOptionsCallback: defaultChartOptions,
-        chartDataCallback: [accelerationChartData],
+        chartDataCallback: [metricChartData],
     },
     inputSteer: {
         name: 'inputSteer',
+        metrics: ['inputSteer'],
         chartOptionsCallback: inputSteerChartOptions,
-        chartDataCallback: [inputSteerChartData],
+        chartDataCallback: [metricChartData],
     },
-    engineRPMs: {
-        name: 'engineRPMs',
+    engineRpm: {
+        name: 'engineRpm',
+        metrics: ['engineRpm'],
         chartOptionsCallback: defaultChartOptions,
-        chartDataCallback: [engineRPMsChartData],
+        chartDataCallback: [metricChartData],
     },
-    engineCurrGear: {
-        name: 'engineCurrGear',
+    engineCurGear: {
+        name: 'engineCurGear',
+        metrics: ['engineCurGear'],
         chartOptionsCallback: defaultChartOptions,
-        chartDataCallback: [engineCurrGearChartData],
+        chartDataCallback: [metricChartData],
     },
     rpmsAndGear: {
         name: 'rpmsAndGear',
+        metrics: ['engineRpm', 'engineCurGear'],
         chartOptionsCallback: rpmsAndGearChartOptions,
-        chartDataCallback: [engineCurrGearChartData, engineRPMsChartData],
+        chartDataCallback: [metricChartData, metricChartData],
     },
     accelAndBrake: {
         name: 'accelAndBrake',
+        metrics: ['inputGasPedal', 'inputIsBraking'],
         chartOptionsCallback: accelAndBrakeChartOptions,
-        chartDataCallback: [inputGasPedalChartData, inputIsBrakingChartData],
+        chartDataCallback: [metricChartData, metricChartData],
     },
 };

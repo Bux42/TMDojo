@@ -38,7 +38,7 @@ export const ReplayChart = ({
     replaysData.forEach((replay: ReplayData) => {
         if (metric.chartDataCallback.length > 1) {
             for (let i = 0; i < metric.chartDataCallback.length; i++) {
-                const serie = metric.chartDataCallback[i](replay, allRaceTimes);
+                const serie = metric.chartDataCallback[i](replay, allRaceTimes, metric.metrics[i]);
                 const serieTitle = metric.chartDataCallback[i].name.split('ChartData')[0];
                 serie.name = `${replay.playerName} ${getRaceTimeStr(replay.endRaceTime)} ${serieTitle}`;
 
@@ -48,7 +48,7 @@ export const ReplayChart = ({
                 replaySeries.push(serie);
             }
         } else {
-            const serie = metric.chartDataCallback[0](replay, allRaceTimes);
+            const serie = metric.chartDataCallback[0](replay, allRaceTimes, metric.metrics[0]);
             replaySeries.push(serie);
         }
     });
