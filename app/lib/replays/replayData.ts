@@ -106,7 +106,7 @@ export interface DataViewResult {
 
 export const readDataView = (dataView: DataView): DataViewResult => {
     const samples = [];
-    const sampleIntevals = [];
+    const sampleIntervals = [];
     let intervalMedian = 20; // default to 60fps
     let lastPos: THREE.Vector3 = new THREE.Vector3(0, 0, 0);
     let dnfPos: THREE.Vector3 = new THREE.Vector3(0, 0, 0);
@@ -129,7 +129,7 @@ export const readDataView = (dataView: DataView): DataViewResult => {
         lastPos = s.position;
     }
     for (let i = 1; i < samples.length; i++) {
-        sampleIntevals.push(samples[i].currentRaceTime - samples[i - 1].currentRaceTime);
+        sampleIntervals.push(samples[i].currentRaceTime - samples[i - 1].currentRaceTime);
         samples[i].acceleration = samples[i].speed - samples[i - 1].speed;
     }
     const median = (arr: number[]) => {
@@ -137,7 +137,7 @@ export const readDataView = (dataView: DataView): DataViewResult => {
         const nums = [...arr].sort((a, b) => a - b);
         return arr.length % 2 !== 0 ? nums[mid] : (nums[mid - 1] + nums[mid]) / 2;
     };
-    intervalMedian = median(sampleIntevals);
+    intervalMedian = median(sampleIntervals);
     return {
         samples, minPos, maxPos, dnfPos, color, intervalMedian,
     };
