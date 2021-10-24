@@ -3,7 +3,7 @@ import {
     Button, Drawer, Table, Tooltip,
 } from 'antd';
 import { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
-import { TableCurrentDataSource } from 'antd/lib/table/interface';
+import { ColumnType, TableCurrentDataSource } from 'antd/lib/table/interface';
 import { ReloadOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { FileResponse } from '../../lib/api/apiRequests';
@@ -38,6 +38,8 @@ const SidebarReplays = ({
 }: Props): JSX.Element => {
     const defaultPageSize = 14;
 
+    const showFinishedColumn = replays.some((replay: FileResponse) => !replay.raceFinished);
+
     const userProfileUrl = '/users/';
 
     const [visible, setVisible] = useState(false);
@@ -62,7 +64,7 @@ const SidebarReplays = ({
         return uniques.sort().map((val) => ({ text: val, value: val }));
     };
 
-    const columns: ColumnsType<ExtendedFileResponse> = [
+    let columns: ColumnsType<ExtendedFileResponse> = [
         {
             title: 'Player',
             dataIndex: 'playerName',
@@ -141,6 +143,10 @@ const SidebarReplays = ({
             },
         },
     ];
+
+    if (!showFinishedColumn) {
+        columns = columns.filter((column: ColumnType<ExtendedFileResponse>) => column.dataIndex !== 'finished');
+    }
 
     const addReplayInfo = (replayList: FileResponse[]): ExtendedFileResponse[] => {
         const now = new Date().getTime();
