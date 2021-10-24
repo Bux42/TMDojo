@@ -129,7 +129,10 @@ export const readDataView = (dataView: DataView): DataViewResult => {
         lastPos = s.position;
     }
     for (let i = 1; i < samples.length; i++) {
-        sampleIntervals.push(samples[i].currentRaceTime - samples[i - 1].currentRaceTime);
+        const interval = samples[i].currentRaceTime - samples[i - 1].currentRaceTime;
+        if (interval > 0) {
+            sampleIntervals.push(interval);
+        }
         samples[i].acceleration = samples[i].speed - samples[i - 1].speed;
     }
     const median = (arr: number[]) => {
