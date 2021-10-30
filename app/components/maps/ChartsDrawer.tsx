@@ -4,6 +4,7 @@ import {
 } from 'antd';
 import Highcharts, { AxisSetExtremesEventObject } from 'highcharts/highstock';
 import HighchartsReact from 'highcharts-react-official';
+import { CheckboxChangeEvent } from 'antd/lib/checkbox';
 import { ReplayData } from '../../lib/api/apiRequests';
 import { SettingsContext } from '../../lib/contexts/SettingsContext';
 import { getRaceTimeStr } from '../../lib/utils/time';
@@ -15,12 +16,12 @@ import { metricChartData } from '../../lib/charts/chartData';
 
 export interface RangeUpdateInfos {
     event: AxisSetExtremesEventObject,
-    metric: ChartType,
+    chartType: ChartType,
 }
 
 interface ReplayChartProps {
     replaysData: ReplayData[];
-    metric: ChartType;
+    chartType: ChartType;
     addChartFunc: (chart: JSX.Element) => void;
     allRaceTimes: number[];
     rangeUpdatedCallback: (rangeUpdateInfos: RangeUpdateInfos) => void;
@@ -31,16 +32,16 @@ let globalInterval: ReturnType<typeof setTimeout>;
 let prevCurrentRacetime: number = 0;
 
 export const ReplayChart = ({
-    replaysData, metric, addChartFunc, allRaceTimes, rangeUpdatedCallback, syncWithTimeLine,
+    replaysData, chartType: metric, addChartFunc, allRaceTimes, rangeUpdatedCallback, syncWithTimeLine,
 }: ReplayChartProps): JSX.Element => {
     const timeLineGlobal = GlobalTimeLineInfos.getInstance();
 
     const replaySeries: any[] = [];
     replaysData.forEach((replay: ReplayData) => {
-        if (metric.metrics.length > 1) {
-            for (let i = 0; i < metric.metrics.length; i++) {
-                const serie = metricChartData(replay, allRaceTimes, metric.metrics[i]);
-                const serieTitle = metric.metrics[i];
+        if (metric.chartData.length > 1) {
+            for (let i = 0; i < metric.chartData.length; i++) {
+                const serie = metricChartData(replay, allRaceTimes, metric.chartData[i]);
+                const serieTitle = metric.chartData[i].name;
                 serie.name = `${replay.playerName} ${getRaceTimeStr(replay.endRaceTime)} ${serieTitle}`;
 
                 if (i === 0) {
@@ -49,7 +50,7 @@ export const ReplayChart = ({
                 replaySeries.push(serie);
             }
         } else {
-            const serie = metricChartData(replay, allRaceTimes, metric.metrics[0]);
+            const serie = metricChartData(replay, allRaceTimes, metric.chartData[0]);
             replaySeries.push(serie);
         }
     });
@@ -127,7 +128,7 @@ export const ChartsDrawer = ({
 }: Props): JSX.Element => {
     const [visible, setVisible] = useState<boolean>(false);
     const [syncWithTimeLine, setSyncWithTimeLine] = useState<boolean>(true);
-    const [selectedCharts, setSelectedCharts] = useState<ChartType[]>([]);
+    const [selectedChartTypes, setSelectedCharts] = useState<ChartType[]>([]);
     const {
         numColorChange,
     } = useContext(SettingsContext);
@@ -196,21 +197,23 @@ export const ChartsDrawer = ({
         setSyncWithTimeLine(e.target.checked);
     };
 
-    const toggleCheckbox = (e: any) => {
-        if (e.target.checked) {
-            if (!selectedCharts.includes(ChartTypes[e.target.name])) {
-                setSelectedCharts([...selectedCharts, ChartTypes[e.target.name]]);
+    const toggleCheckbox = (e: CheckboxChangeEvent) => {
+        if (e.target && e.target.name) {
+            if (e.target.checked) {
+                if (!selectedChartTypes.includes(ChartTypes[e.target.name])) {
+                    setSelectedCharts([...selectedChartTypes, ChartTypes[e.target.name]]);
+                }
+            } else if (selectedChartTypes.includes(ChartTypes[e.target.name])) {
+                setSelectedCharts(selectedChartTypes.filter((x) => x.name !== e.target.name));
+                childCharts = childCharts.filter((x) => x.props.options.title.text !== e.target.name);
             }
-        } else if (selectedCharts.includes(ChartTypes[e.target.name])) {
-            setSelectedCharts(selectedCharts.filter((x) => x.name !== e.target.name));
-            childCharts = childCharts.filter((x) => x.props.options.title.text !== e.target.name);
         }
     };
 
     const debounceChangeRange = (rangeUpdate: RangeUpdateInfos) => {
         const myDebounce = debounce(() => {
             childCharts.forEach((chart: JSX.Element) => {
-                if (chart.props.options.title.text !== rangeUpdate.metric) {
+                if (chart.props.options.title.text !== rangeUpdate.chartType) {
                     chart.props.highcharts.charts.forEach((subChart: any) => {
                         if (subChart && subChart.xAxis) {
                             subChart.xAxis[0].setExtremes(rangeUpdate.event.min, rangeUpdate.event.max);
@@ -225,14 +228,14 @@ export const ChartsDrawer = ({
     const successCallBackData = (data: any) => {
         debounceChangeRange(data);
     };
-    const replayCharts = selectedCharts.map((metric) => (
+    const replayCharts = selectedChartTypes.map((chartType) => (
         <ReplayChart
             addChartFunc={addChart}
             rangeUpdatedCallback={successCallBackData}
             replaysData={replaysData}
-            metric={metric}
+            chartType={chartType}
             allRaceTimes={allRaceTimes}
-            key={metric.name}
+            key={chartType.name}
             syncWithTimeLine={syncWithTimeLine}
         />
     ));

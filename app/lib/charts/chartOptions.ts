@@ -8,7 +8,7 @@ import { ChartType } from './chartTypes';
 export const globalChartOptions = (
     options: Highcharts.Options,
     replaysData: ReplayData[],
-    metric: ChartType,
+    chartType: ChartType,
     replaySeries: any[],
     rangeUpdatedCallback: (rangeUpdateInfos: RangeUpdateInfos) => void,
 ): Highcharts.Options => {
@@ -19,12 +19,12 @@ export const globalChartOptions = (
         options.chart.height = (options.chart.height as number) + (replaysData.length - 5) * 34;
     }
     // give more space when > 1 tooltip per replay
-    if (options.chart && metric.metrics.length > 1) {
+    if (options.chart && chartType.chartData.length > 1) {
         options.chart.height = (options.chart.height as number) + replaysData.length * 34;
     }
 
     if (options.title) {
-        options.title.text = metric.name;
+        options.title.text = chartType.name;
     }
     options.series = replaySeries;
     if (options.xAxis) {
@@ -32,7 +32,7 @@ export const globalChartOptions = (
             afterSetExtremes(event: AxisSetExtremesEventObject) {
                 rangeUpdatedCallback({
                     event,
-                    metric,
+                    chartType,
                 });
             },
         };

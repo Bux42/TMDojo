@@ -1,4 +1,5 @@
 import Highcharts from 'highcharts/highstock';
+import { ReplayDataPoint } from '../replays/replayData';
 import {
     accelAndBrakeChartOptions,
     defaultChartOptions,
@@ -6,45 +7,93 @@ import {
     rpmsAndGearChartOptions,
 } from './chartOptions';
 
+export interface ChartDataInfo {
+    name: string;
+    dataCallback: (replayData: ReplayDataPoint) => number;
+}
+
 export interface ChartType {
     name: string;
-    metrics: string[];
+    chartData: ChartDataInfo[];
     chartOptionsCallback: () => Highcharts.Options;
 }
 export const ChartTypes: { [name: string]: ChartType } = {
     speed: {
-        name: 'speed',
-        metrics: ['speed'],
+        name: 'Speed',
+        chartData: [
+            {
+                name: 'speed',
+                dataCallback: (replayData: ReplayDataPoint) => replayData.speed,
+            },
+        ],
         chartOptionsCallback: defaultChartOptions,
     },
     acceleration: {
-        name: 'acceleration',
-        metrics: ['acceleration'],
+        name: 'Acceleration',
+        chartData: [
+            {
+                name: 'acceleration',
+                dataCallback: (replayData: ReplayDataPoint) => replayData.acceleration,
+            },
+        ],
         chartOptionsCallback: defaultChartOptions,
     },
     inputSteer: {
-        name: 'inputSteer',
-        metrics: ['inputSteer'],
+        name: 'Steer Input',
+        chartData: [
+            {
+                name: 'inputSteer',
+                dataCallback: (replayData: ReplayDataPoint) => replayData.inputSteer,
+            },
+        ],
         chartOptionsCallback: inputSteerChartOptions,
     },
     engineRpm: {
-        name: 'engineRpm',
-        metrics: ['engineRpm'],
+        name: 'Engine RPM',
+        chartData: [
+            {
+                name: 'engineRpm',
+                dataCallback: (replayData: ReplayDataPoint) => replayData.engineRpm,
+            },
+        ],
         chartOptionsCallback: defaultChartOptions,
     },
     engineCurGear: {
-        name: 'engineCurGear',
-        metrics: ['engineCurGear'],
+        name: 'Gears',
+        chartData: [
+            {
+                name: 'engineCurGear',
+                dataCallback: (replayData: ReplayDataPoint) => replayData.engineCurGear,
+            },
+        ],
         chartOptionsCallback: defaultChartOptions,
     },
     rpmsAndGear: {
-        name: 'rpmsAndGear',
-        metrics: ['engineRpm', 'engineCurGear'],
+        name: 'RPM and Gears',
+        chartData: [
+            {
+                name: 'engineRpm',
+                dataCallback: (replayData: ReplayDataPoint) => replayData.engineRpm,
+            },
+            {
+                name: 'engineCurGear',
+                dataCallback: (replayData: ReplayDataPoint) => replayData.engineCurGear,
+            },
+        ],
         chartOptionsCallback: rpmsAndGearChartOptions,
     },
     accelAndBrake: {
-        name: 'accelAndBrake',
-        metrics: ['inputGasPedal', 'inputIsBraking'],
+        name: 'Gas and Brake inputs',
+        chartData: [
+            {
+                name: 'inputGasPedal',
+                dataCallback: (replayData: ReplayDataPoint) => replayData.inputGasPedal,
+            },
+            {
+                name: 'inputIsBraking',
+                dataCallback: (replayData: ReplayDataPoint) => replayData.inputIsBraking,
+            },
+        ],
         chartOptionsCallback: accelAndBrakeChartOptions,
     },
 };
