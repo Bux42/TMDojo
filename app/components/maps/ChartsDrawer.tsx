@@ -168,7 +168,12 @@ export const ChartsDrawer = ({
 
     const onMouseMove = (e: any) => {
         if (isResizing) {
-            const offsetBottom = document.body.offsetHeight - (e.clientY - document.body.offsetTop);
+            let elBottomPos = 0;
+            const elBottom = el1.style.bottom;
+            if (typeof elBottom === 'string' && elBottom.endsWith('px')) {
+                elBottomPos = parseInt(elBottom.replace('px', ''), 10);
+            }
+            const offsetBottom = document.body.offsetHeight - (e.clientY - document.body.offsetTop) - elBottomPos;
             const minHeight = 50;
             const maxHeight = 800;
             if (offsetBottom > minHeight && offsetBottom < maxHeight && el1) {
@@ -248,7 +253,6 @@ export const ChartsDrawer = ({
                             Sync with timeline
                         </Checkbox>
                     </div>
-
                 )}
                 placement="bottom"
                 onClose={onClose}
@@ -266,7 +270,7 @@ export const ChartsDrawer = ({
                 <div
                     style={{
                         position: 'absolute',
-                        height: '5px',
+                        height: '12px',
                         padding: '4px 0 0',
                         right: 0,
                         top: 0,
