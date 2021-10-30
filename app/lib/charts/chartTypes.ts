@@ -1,8 +1,4 @@
 import Highcharts from 'highcharts/highstock';
-import { ReplayData } from '../api/apiRequests';
-import {
-    metricChartData,
-} from './chartData';
 import {
     accelAndBrakeChartOptions,
     defaultChartOptions,
