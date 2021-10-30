@@ -242,18 +242,7 @@ export const ChartsDrawer = ({
                 )}
             <Drawer
                 mask={false}
-                title={(
-                    <div>
-                        Charts
-                        <Checkbox
-                            style={{ marginLeft: '15px' }}
-                            onChange={toggleSyncCheckbox}
-                            checked={syncWithTimeLine}
-                        >
-                            Sync with timeline
-                        </Checkbox>
-                    </div>
-                )}
+                title="Charts"
                 placement="bottom"
                 onClose={onClose}
                 visible={visible}
