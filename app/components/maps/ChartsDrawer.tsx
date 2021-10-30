@@ -227,7 +227,11 @@ export const ChartsDrawer = ({
         <div className="absolute right-0 left-0 bottom-0 m-8 mx-auto z-10" style={{ width: '50px' }}>
             {!visible
                 && (
-                    <Button onClick={toggleSidebar} size="large" className="mb-1">
+                    <Button
+                        onClick={toggleSidebar}
+                        size="large"
+                        className="mb-8"
+                    >
                         Charts
                     </Button>
                 )}
@@ -254,7 +258,7 @@ export const ChartsDrawer = ({
                     overflow: 'auto',
                 }}
                 style={{
-                    bottom: '34px',
+                    bottom: '48px',
                     opacity: 0.8,
                 }}
                 className="ChartDrawer"
@@ -274,7 +278,7 @@ export const ChartsDrawer = ({
                     aria-hidden="true"
                 />
                 <div>
-                    <div>
+                    <div className="flex justify-center pb-6">
                         {Object.keys(ChartTypes).map((chartType) => (
                             <Checkbox
                                 style={{ textTransform: 'capitalize' }}
@@ -282,7 +286,7 @@ export const ChartsDrawer = ({
                                 key={chartType}
                                 onChange={(e: CheckboxChangeEvent) => onToggleCheckbox(chartType, e.target.checked)}
                             >
-                                {chartType}
+                                {ChartTypes[chartType].name}
                             </Checkbox>
                         ))}
                     </div>

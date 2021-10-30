@@ -119,7 +119,7 @@ const TimeLineView = ({ replaysData }: TimeLineViewProps) => {
         <>
             {replaysData.length > 0
         && (
-            <Row className="absolute bottom-0 w-full z-10" style={{ backgroundColor: 'rgba(20,20,20,0.5)' }}>
+            <Row className="absolute bottom-0 w-full px-10 py-2 z-10" style={{ backgroundColor: 'rgba(20,20,20,1)' }}>
                 <Col span={12}>
                     <Slider
                         min={min}
@@ -130,7 +130,7 @@ const TimeLineView = ({ replaysData }: TimeLineViewProps) => {
                         tipFormatter={timeFormat}
                     />
                 </Col>
-                <Col span={3}>
+                <Col span={2}>
                     <InputNumber
                         min={min}
                         max={timeLineGlobal.maxRaceTime}
@@ -149,10 +149,7 @@ const TimeLineView = ({ replaysData }: TimeLineViewProps) => {
                         {playing ? 'Pause' : 'Play'}
                     </Button>
                 </Col>
-                <Col span={2} className="m-1">
-                    {`Speed: ${timelineSpeed}x`}
-                </Col>
-                <Col span={3}>
+                <Col span={2}>
                     <Slider
                         min={0.25}
                         max={2}
@@ -161,6 +158,9 @@ const TimeLineView = ({ replaysData }: TimeLineViewProps) => {
                         step={0.25}
                         tipFormatter={(value) => `${value}x`}
                     />
+                </Col>
+                <Col span={2} className="m-1">
+                    {`Speed: ${timelineSpeed}x`}
                 </Col>
             </Row>
         )}

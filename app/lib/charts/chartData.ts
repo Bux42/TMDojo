@@ -9,9 +9,16 @@ export const chartDataTemplate = (replay: ReplayData): any => {
         data: [],
         marker: {
             enabled: false,
-            radius: 3,
-            lineWidth: 1,
+            radius: 0,
+            lineWidth: 0,
             lineColor: '#FFFFFF',
+            states: {
+                hover: {
+                    enabled: true,
+                    radius: 3,
+                    lineWidth: 1,
+                },
+            },
         },
         color: `#${replay.color.getHexString()}`,
     };
