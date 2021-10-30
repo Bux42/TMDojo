@@ -19,7 +19,7 @@ export const globalChartOptions = (
         options.chart.height = (options.chart.height as number) + (replaysData.length - 5) * 34;
     }
     // give more space when > 1 tooltip per replay
-    if (options.chart && metric.chartDataCallback.length > 1) {
+    if (options.chart && metric.metrics.length > 1) {
         options.chart.height = (options.chart.height as number) + replaysData.length * 34;
     }
 

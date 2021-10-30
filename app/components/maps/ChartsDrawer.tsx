@@ -11,6 +11,7 @@ import { ReplayDataPoint } from '../../lib/replays/replayData';
 import GlobalTimeLineInfos from '../../lib/singletons/timeLineInfos';
 import { ChartType, ChartTypes } from '../../lib/charts/chartTypes';
 import { globalChartOptions } from '../../lib/charts/chartOptions';
+import { metricChartData } from '../../lib/charts/chartData';
 
 export interface RangeUpdateInfos {
     event: AxisSetExtremesEventObject,
@@ -36,10 +37,10 @@ export const ReplayChart = ({
 
     const replaySeries: any[] = [];
     replaysData.forEach((replay: ReplayData) => {
-        if (metric.chartDataCallback.length > 1) {
-            for (let i = 0; i < metric.chartDataCallback.length; i++) {
-                const serie = metric.chartDataCallback[i](replay, allRaceTimes, metric.metrics[i]);
-                const serieTitle = metric.chartDataCallback[i].name.split('ChartData')[0];
+        if (metric.metrics.length > 1) {
+            for (let i = 0; i < metric.metrics.length; i++) {
+                const serie = metricChartData(replay, allRaceTimes, metric.metrics[i]);
+                const serieTitle = metric.metrics[i];
                 serie.name = `${replay.playerName} ${getRaceTimeStr(replay.endRaceTime)} ${serieTitle}`;
 
                 if (i === 0) {
@@ -48,7 +49,7 @@ export const ReplayChart = ({
                 replaySeries.push(serie);
             }
         } else {
-            const serie = metric.chartDataCallback[0](replay, allRaceTimes, metric.metrics[0]);
+            const serie = metricChartData(replay, allRaceTimes, metric.metrics[0]);
             replaySeries.push(serie);
         }
     });
