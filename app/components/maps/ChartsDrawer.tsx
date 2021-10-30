@@ -1,4 +1,7 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, {
+    createRef,
+    useContext, useEffect, useRef, useState,
+} from 'react';
 import {
     Button, Checkbox, Drawer,
 } from 'antd';
@@ -19,10 +22,16 @@ export interface RangeUpdateInfos {
     chartType: ChartType,
 }
 
+type ChartRefContent = {
+    chart: Highcharts.Chart;
+    container: React.RefObject<HTMLDivElement>;
+}
+type ChartRef = React.RefObject<ChartRefContent>
+
 interface ReplayChartProps {
+    chartRef: ChartRef,
     replaysData: ReplayData[];
     chartType: ChartType;
-    addChartFunc: (chart: JSX.Element) => void;
     allRaceTimes: number[];
     rangeUpdatedCallback: (rangeUpdateInfos: RangeUpdateInfos) => void;
     syncWithTimeLine: boolean;
@@ -32,7 +41,7 @@ let globalInterval: ReturnType<typeof setTimeout>;
 let prevCurrentRacetime: number = 0;
 
 export const ReplayChart = ({
-    replaysData, chartType: metric, addChartFunc, allRaceTimes, rangeUpdatedCallback, syncWithTimeLine,
+    chartRef, replaysData, chartType: metric, allRaceTimes, rangeUpdatedCallback, syncWithTimeLine,
 }: ReplayChartProps): JSX.Element => {
     const timeLineGlobal = GlobalTimeLineInfos.getInstance();
 
@@ -63,7 +72,14 @@ export const ReplayChart = ({
         rangeUpdatedCallback,
     );
 
-    const highCharts = <HighchartsReact constructorType="stockChart" highcharts={Highcharts} options={options} />;
+    const highCharts = (
+        <HighchartsReact
+            ref={chartRef}
+            constructorType="stockChart"
+            highcharts={Highcharts}
+            options={options}
+        />
+    );
 
     const refreshTooltipPoints = (chart: any) => {
         const matchingPts: any[] = [];
@@ -103,7 +119,6 @@ export const ReplayChart = ({
         clearInterval(globalInterval);
     }
 
-    addChartFunc(highCharts);
     return (
         highCharts
     );
@@ -145,11 +160,7 @@ export const ChartsDrawer = ({
     });
     allRaceTimes.sort((a, b) => a - b);
 
-    let childCharts: JSX.Element[] = [];
-
-    const addChart = (chart: JSX.Element) => {
-        childCharts.push(chart);
-    };
+    const chartRefs: ChartRef[] = selectedChartTypes.map(() => createRef<ChartRefContent>());
 
     let el1: any;
     let isResizing = false;
@@ -199,46 +210,39 @@ export const ChartsDrawer = ({
 
     const toggleCheckbox = (e: CheckboxChangeEvent) => {
         if (e.target && e.target.name) {
-            if (e.target.checked) {
-                if (!selectedChartTypes.includes(ChartTypes[e.target.name])) {
-                    setSelectedCharts([...selectedChartTypes, ChartTypes[e.target.name]]);
+            const chartType = ChartTypes[e.target.name];
+            if (chartType) {
+                if (e.target.checked) {
+                    if (!selectedChartTypes.includes(chartType)) {
+                        setSelectedCharts([...selectedChartTypes, chartType]);
+                    }
+                } else if (selectedChartTypes.includes(chartType)) {
+                    setSelectedCharts(selectedChartTypes.filter((x) => x.name !== chartType.name));
                 }
-            } else if (selectedChartTypes.includes(ChartTypes[e.target.name])) {
-                setSelectedCharts(selectedChartTypes.filter((x) => x.name !== e.target.name));
-                childCharts = childCharts.filter((x) => x.props.options.title.text !== e.target.name);
             }
         }
     };
 
     const debounceChangeRange = (rangeUpdate: RangeUpdateInfos) => {
         const myDebounce = debounce(() => {
-            childCharts.forEach((chart: JSX.Element) => {
-                if (chart.props.options.title.text !== rangeUpdate.chartType) {
-                    chart.props.highcharts.charts.forEach((subChart: any) => {
-                        if (subChart && subChart.xAxis) {
-                            subChart.xAxis[0].setExtremes(rangeUpdate.event.min, rangeUpdate.event.max);
+            chartRefs.forEach((chartRef: ChartRef, i) => {
+                if (chartRef && typeof chartRef !== 'function' && chartRef.current) {
+                    if (chartRef.current.chart.xAxis) {
+                        if (selectedChartTypes[i].name !== rangeUpdate.chartType.name) {
+                            chartRef.current.chart.xAxis[0]
+                                .setExtremes(rangeUpdate.event.min, rangeUpdate.event.max, true, false);
                         }
-                    });
+                    }
                 }
             });
         }, 200);
         myDebounce();
     };
 
-    const successCallBackData = (data: any) => {
+    const successCallBackData = (data: RangeUpdateInfos) => {
         debounceChangeRange(data);
     };
-    const replayCharts = selectedChartTypes.map((chartType) => (
-        <ReplayChart
-            addChartFunc={addChart}
-            rangeUpdatedCallback={successCallBackData}
-            replaysData={replaysData}
-            chartType={chartType}
-            allRaceTimes={allRaceTimes}
-            key={chartType.name}
-            syncWithTimeLine={syncWithTimeLine}
-        />
-    ));
+
     return (
         <div className="absolute right-0 left-0 bottom-0 m-8 mx-auto z-10" style={{ width: '50px' }}>
             {!visible
@@ -302,7 +306,17 @@ export const ChartsDrawer = ({
                             </Checkbox>
                         ))}
                     </div>
-                    {replayCharts}
+                    {selectedChartTypes.map((chartType, i) => (
+                        <ReplayChart
+                            chartRef={chartRefs[i]}
+                            rangeUpdatedCallback={successCallBackData}
+                            replaysData={replaysData}
+                            chartType={chartType}
+                            allRaceTimes={allRaceTimes}
+                            key={chartType.name}
+                            syncWithTimeLine={syncWithTimeLine}
+                        />
+                    ))}
                 </div>
             </Drawer>
         </div>
