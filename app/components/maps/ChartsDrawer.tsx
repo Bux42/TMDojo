@@ -223,24 +223,21 @@ export const ChartsDrawer = ({
         }
     };
 
-    const debounceChangeRange = (rangeUpdate: RangeUpdateInfos) => {
-        const myDebounce = debounce(() => {
-            chartRefs.forEach((chartRef: ChartRef, i) => {
-                if (chartRef && typeof chartRef !== 'function' && chartRef.current) {
-                    if (chartRef.current.chart.xAxis) {
-                        if (selectedChartTypes[i].name !== rangeUpdate.chartType.name) {
-                            chartRef.current.chart.xAxis[0]
-                                .setExtremes(rangeUpdate.event.min, rangeUpdate.event.max, true, false);
-                        }
+    const changeAllChartRanges = (rangeUpdate: RangeUpdateInfos) => {
+        chartRefs.forEach((chartRef: ChartRef, i) => {
+            if (chartRef && typeof chartRef !== 'function' && chartRef.current) {
+                if (chartRef.current.chart.xAxis) {
+                    if (selectedChartTypes[i].name !== rangeUpdate.chartType.name) {
+                        chartRef.current.chart.xAxis[0]
+                            .setExtremes(rangeUpdate.event.min, rangeUpdate.event.max, true, false);
                     }
                 }
-            });
-        }, 200);
-        myDebounce();
+            }
+        });
     };
 
-    const successCallBackData = (data: RangeUpdateInfos) => {
-        debounceChangeRange(data);
+    const onRangeUpdated = (data: RangeUpdateInfos) => {
+        changeAllChartRanges(data);
     };
 
     return (
@@ -309,7 +306,7 @@ export const ChartsDrawer = ({
                     {selectedChartTypes.map((chartType, i) => (
                         <ReplayChart
                             chartRef={chartRefs[i]}
-                            rangeUpdatedCallback={successCallBackData}
+                            rangeUpdatedCallback={onRangeUpdated}
                             replaysData={replaysData}
                             chartType={chartType}
                             allRaceTimes={allRaceTimes}
