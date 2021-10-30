@@ -81,20 +81,15 @@ export const ReplayChart = ({
         />
     );
 
-    const refreshTooltipPoints = (chart: any) => {
-        const matchingPts: any[] = [];
+    const hoverMarkerAtCurrentTime = (chart: any) => {
         chart.series.forEach((serie: any) => {
             for (let i = 0; i < serie.points.length; i++) {
                 if (serie.points[i].category >= timeLineGlobal.currentRaceTime) {
-                    matchingPts.push(serie.points[i]);
                     serie.points[i].setState('hover');
                     break;
                 }
             }
         });
-        if (matchingPts.length) {
-            chart.tooltip.refresh(matchingPts);
-        }
     };
 
     clearInterval(globalInterval);
@@ -107,7 +102,7 @@ export const ReplayChart = ({
                 highCharts.props.highcharts.charts.forEach((chart: any) => {
                     if (chart) {
                         validCharts = true;
-                        refreshTooltipPoints(chart);
+                        hoverMarkerAtCurrentTime(chart);
                     }
                 });
                 if (!validCharts) {
