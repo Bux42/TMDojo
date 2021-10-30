@@ -124,16 +124,6 @@ export const ReplayChart = ({
     );
 };
 
-// eslint-disable-next-line no-undef
-let timer: NodeJS.Timeout;
-
-const debounce = (callback: () => any, timeout: number) => () => {
-    clearTimeout(timer);
-    timer = setTimeout(() => {
-        callback();
-    }, timeout);
-};
-
 interface Props {
     replaysData: ReplayData[];
 }
@@ -208,17 +198,15 @@ export const ChartsDrawer = ({
         setSyncWithTimeLine(e.target.checked);
     };
 
-    const toggleCheckbox = (e: CheckboxChangeEvent) => {
-        if (e.target && e.target.name) {
-            const chartType = ChartTypes[e.target.name];
-            if (chartType) {
-                if (e.target.checked) {
-                    if (!selectedChartTypes.includes(chartType)) {
-                        setSelectedCharts([...selectedChartTypes, chartType]);
-                    }
-                } else if (selectedChartTypes.includes(chartType)) {
-                    setSelectedCharts(selectedChartTypes.filter((x) => x.name !== chartType.name));
+    const onToggleCheckbox = (chartTypeKey: string, checked: boolean) => {
+        const chartType = ChartTypes[chartTypeKey];
+        if (chartType) {
+            if (checked) {
+                if (!selectedChartTypes.includes(chartType)) {
+                    setSelectedCharts([...selectedChartTypes, chartType]);
                 }
+            } else {
+                setSelectedCharts(selectedChartTypes.filter((x) => x.name !== chartType.name));
             }
         }
     };
@@ -297,7 +285,7 @@ export const ChartsDrawer = ({
                                 style={{ textTransform: 'capitalize' }}
                                 name={chartType}
                                 key={chartType}
-                                onChange={toggleCheckbox}
+                                onChange={(e: CheckboxChangeEvent) => onToggleCheckbox(chartType, e.target.checked)}
                             >
                                 {chartType}
                             </Checkbox>
