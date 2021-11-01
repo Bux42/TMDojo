@@ -139,7 +139,7 @@ const LoadedReplay = ({
 const LoadedReplays = ({
     replays, timeLineGlobal,
 }: LoadedReplaysProps): JSX.Element => {
-    const [visible, setVisible] = useState(false);
+    const [visible, setVisible] = useState(true);
     const [followed, setFollowed] = useState<ReplayData>();
     const [hovered, setHovered] = useState<ReplayData>();
     const { numColorChange, cameraMode, setCameraMode } = useContext(SettingsContext);

@@ -42,7 +42,7 @@ const SidebarReplays = ({
 
     const userProfileUrl = '/users/';
 
-    const [visible, setVisible] = useState(false);
+    const [visible, setVisible] = useState(true);
     const [visibleReplays, setVisibleReplays] = useState<FileResponse[]>([]);
 
     useEffect(() => {
