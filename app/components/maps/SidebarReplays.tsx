@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-    Button, Drawer, Table, Tooltip,
+    Button, Drawer, Spin, Table, Tooltip,
 } from 'antd';
 import { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
 import { ColumnType, TableCurrentDataSource } from 'antd/lib/table/interface';
@@ -18,6 +18,7 @@ interface ExtendedFileResponse extends FileResponse {
 interface Props {
     mapUId: string;
     replays: FileResponse[];
+    loadingReplays: boolean;
     onLoadReplay: (replay: FileResponse) => void;
     onRemoveReplay: (replay: FileResponse) => void;
     onLoadAllVisibleReplays: (replays: FileResponse[], selectedReplayDataIds: string[]) => void;
@@ -29,6 +30,7 @@ interface Props {
 const SidebarReplays = ({
     mapUId,
     replays,
+    loadingReplays,
     onLoadReplay,
     onRemoveReplay,
     onLoadAllVisibleReplays,
@@ -197,48 +199,50 @@ const SidebarReplays = ({
                 visible={visible}
                 className="h-screen"
             >
-                <div className="flex flex-row justify-between items-center mb-4 mx-4">
-                    <div className="flex flex-row gap-4">
-                        <Button
-                            type="primary"
-                            onClick={() => onLoadAllVisibleReplays(visibleReplays, selectedReplayDataIds)}
-                        >
-                            Load all visible
-                        </Button>
-                        <Button
-                            type="primary"
-                            danger
-                            onClick={() => onRemoveAllReplays(visibleReplays)}
-                        >
-                            Unload all
-                        </Button>
-                    </div>
-                    <div className="mr-6">
-                        <Tooltip title="Refresh">
+                <Spin spinning={loadingReplays}>
+                    <div className="flex flex-row justify-between items-center mb-4 mx-4">
+                        <div className="flex flex-row gap-4">
                             <Button
-                                shape="circle"
-                                size="large"
-                                icon={<ReloadOutlined />}
-                                onClick={onRefreshReplays}
-                            />
-                        </Tooltip>
+                                type="primary"
+                                onClick={() => onLoadAllVisibleReplays(visibleReplays, selectedReplayDataIds)}
+                            >
+                                Load all visible
+                            </Button>
+                            <Button
+                                type="primary"
+                                danger
+                                onClick={() => onRemoveAllReplays(visibleReplays)}
+                            >
+                                Unload all
+                            </Button>
+                        </div>
+                        <div className="mr-6">
+                            <Tooltip title="Refresh">
+                                <Button
+                                    shape="circle"
+                                    size="large"
+                                    icon={<ReloadOutlined />}
+                                    onClick={onRefreshReplays}
+                                />
+                            </Tooltip>
+                        </div>
                     </div>
-                </div>
-                <div>
-                    <Table
-                        onChange={(pagination, filters, sorter, currentPageData) => {
-                            onReplayTableChange(pagination, currentPageData);
-                        }}
-                        dataSource={addReplayInfo(replays)}
-                        columns={columns}
-                        size="small"
-                        pagination={{
-                            pageSize: defaultPageSize,
-                            position: ['bottomCenter'],
-                        }}
-                        scroll={{ scrollToFirstRowOnChange: true }}
-                    />
-                </div>
+                    <div>
+                        <Table
+                            onChange={(pagination, filters, sorter, currentPageData) => {
+                                onReplayTableChange(pagination, currentPageData);
+                            }}
+                            dataSource={addReplayInfo(replays)}
+                            columns={columns}
+                            size="small"
+                            pagination={{
+                                pageSize: defaultPageSize,
+                                position: ['bottomCenter'],
+                            }}
+                            scroll={{ scrollToFirstRowOnChange: true }}
+                        />
+                    </div>
+                </Spin>
             </Drawer>
         </div>
     );

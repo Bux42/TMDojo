@@ -23,6 +23,7 @@ const timeLineGlobal = new TimeLineInfos();
 
 const Home = (): JSX.Element => {
     const [replays, setReplays] = useState<FileResponse[]>([]);
+    const [loadingReplays, setLoadingReplays] = useState<boolean>(true);
     const [selectedReplayData, setSelectedReplayData] = useState<ReplayData[]>([]);
     const [mapData, setMapData] = useState<MapInfo>({});
 
@@ -30,8 +31,10 @@ const Home = (): JSX.Element => {
     const { mapUId } = router.query;
 
     const fetchAndSetReplays = async () => {
+        setLoadingReplays(true);
         const { files } = await getReplays({ mapUId: `${mapUId}` });
         setReplays(files);
+        setLoadingReplays(false);
     };
 
     useEffect(() => {
@@ -89,6 +92,7 @@ const Home = (): JSX.Element => {
                     <SidebarReplays
                         mapUId={`${mapUId}`}
                         replays={replays}
+                        loadingReplays={loadingReplays}
                         onLoadReplay={onLoadReplay}
                         onRemoveReplay={onRemoveReplay}
                         onLoadAllVisibleReplays={onLoadAllVisibleReplays}
