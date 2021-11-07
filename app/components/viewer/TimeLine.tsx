@@ -1,29 +1,13 @@
-import { useEffect, useRef, useState } from 'react';
-import * as THREE from 'three';
-import {
-    Billboard, Sphere, Text, Plane,
-} from '@react-three/drei';
-import { useFrame } from '@react-three/fiber';
+import { useState } from 'react';
 import {
     Slider, InputNumber, Row, Col, Button,
 } from 'antd';
 import { ReplayData } from '../../lib/api/apiRequests';
-import { getRaceTimeStr, timeDifference } from '../../lib/utils/time';
-
-export class TimeLineInfos {
-    currentRaceTime: number;
-    maxRaceTime: number;
-    followedReplay: ReplayData | undefined;
-    hoveredReplay: ReplayData | undefined;
-    constructor() {
-        this.currentRaceTime = 0;
-        this.maxRaceTime = 0;
-    }
-}
+import { getRaceTimeStr } from '../../lib/utils/time';
+import GlobalTimeLineInfos from '../../lib/singletons/timeLineInfos';
 
 interface TimeLineViewProps {
     replaysData: ReplayData[];
-    timeLineGlobal: TimeLineInfos;
 }
 
 // declare setInterval return variable outside to keep persistent reference for clearInterval after render
@@ -31,13 +15,18 @@ let playInterval: ReturnType<typeof setTimeout>;
 let expectedTime = Date.now();
 const TICK_TIME = 1000 / 60;
 
-const TimeLineView = ({ replaysData, timeLineGlobal }: TimeLineViewProps) => {
+const TimeLineView = ({ replaysData }: TimeLineViewProps) => {
     const [timeLineTime, setTimeLineTime] = useState<number>(0);
     const [timelineSpeed, setTimelineSpeed] = useState<number>(1);
     const [playing, setPlaying] = useState<boolean>(false);
 
     const min = 0;
+
+    const timeLineGlobal = GlobalTimeLineInfos.getInstance();
+
     timeLineGlobal.maxRaceTime = 0;
+
+    timeLineGlobal.isPlaying = playing;
 
     if (timeLineGlobal.followedReplay !== null) {
         if (!replaysData.some((replay: ReplayData) => replay._id === timeLineGlobal.followedReplay?._id)) {
@@ -130,7 +119,7 @@ const TimeLineView = ({ replaysData, timeLineGlobal }: TimeLineViewProps) => {
         <>
             {replaysData.length > 0
         && (
-            <Row className="absolute bottom-0 w-full z-10" style={{ backgroundColor: 'rgba(20,20,20,0.5)' }}>
+            <Row className="absolute bottom-0 w-full px-10 py-2 z-10" style={{ backgroundColor: 'rgba(20,20,20,1)' }}>
                 <Col span={12}>
                     <Slider
                         min={min}
@@ -141,7 +130,7 @@ const TimeLineView = ({ replaysData, timeLineGlobal }: TimeLineViewProps) => {
                         tipFormatter={timeFormat}
                     />
                 </Col>
-                <Col span={3}>
+                <Col span={2}>
                     <InputNumber
                         min={min}
                         max={timeLineGlobal.maxRaceTime}
@@ -160,10 +149,7 @@ const TimeLineView = ({ replaysData, timeLineGlobal }: TimeLineViewProps) => {
                         {playing ? 'Pause' : 'Play'}
                     </Button>
                 </Col>
-                <Col span={2} className="m-1">
-                    {`Speed: ${timelineSpeed}x`}
-                </Col>
-                <Col span={3}>
+                <Col span={2}>
                     <Slider
                         min={0.25}
                         max={2}
@@ -173,6 +159,9 @@ const TimeLineView = ({ replaysData, timeLineGlobal }: TimeLineViewProps) => {
                         tipFormatter={(value) => `${value}x`}
                     />
                 </Col>
+                <Col span={2} className="m-1">
+                    {`Speed: ${timelineSpeed}x`}
+                </Col>
             </Row>
         )}
         </>
@@ -181,14 +170,14 @@ const TimeLineView = ({ replaysData, timeLineGlobal }: TimeLineViewProps) => {
 
 interface TimeLineProps {
     replaysData: ReplayData[];
-    timeLineGlobal: TimeLineInfos;
 }
 
-export const TimeLine = ({
+const TimeLine = ({
     replaysData,
-    timeLineGlobal,
 }: TimeLineProps): JSX.Element => (
     <>
-        <TimeLineView key="timeLine" replaysData={replaysData} timeLineGlobal={timeLineGlobal} />
+        <TimeLineView key="timeLine" replaysData={replaysData} />
     </>
 );
+
+export default TimeLine;
