@@ -1,10 +1,8 @@
-import { Sphere } from '@react-three/drei';
-import dynamic from 'next/dynamic';
 import React, { useEffect, useMemo, useState } from 'react';
 import * as THREE from 'three';
-import { DoubleSide, MeshNormalMaterial, PointsMaterial } from 'three';
-import * as earcut from 'earcut';
 import { ReplayData } from '../../lib/api/apiRequests';
+
+const EDGE_LENGTH_THRESHOLD = 8;
 
 interface PointInfo {
     vertices: THREE.Vector3[];
@@ -27,7 +25,7 @@ const getReplayPoints = (replaysData: ReplayData[]): PointInfo => {
         }
         // Asphalt
         if (groundMaterial === 16) {
-            return new THREE.Color(0.9, 0.9, 0.9);
+            return new THREE.Color(0.3, 0.3, 0.3);
         }
         // Water
         if (groundMaterial === 13) {
@@ -44,170 +42,133 @@ const getReplayPoints = (replaysData: ReplayData[]): PointInfo => {
         return DEFAULT_COLOR;
     };
 
-    replaysData.forEach((replay) => replay.samples.forEach((sample) => {
-        const up = sample.up.clone();
-        const side = sample.dir.clone().cross(up).multiplyScalar(WIDTH / 2);
-        const front = sample.dir.clone().multiplyScalar(LENGTH / 2);
-        const basePos = sample.position.clone().addScaledVector(front, 0.2);
+    replaysData.forEach((replay) => replay.samples
+        // .filter((sample) => sample.position.lengthSq() > 0.1)
+        .forEach((sample) => {
+            const up = sample.up.clone();
+            const side = sample.dir.clone().cross(up).multiplyScalar(WIDTH / 2);
+            const front = sample.dir.clone().multiplyScalar(LENGTH / 2);
+            const basePos = sample.position.clone().addScaledVector(front, 0.2);
 
-        if (sample.rLGroundContactMaterial !== 80) {
-            vertices.push(basePos.clone().sub(front).sub(side));
-            colors.push(getColor(sample.rLGroundContactMaterial));
-            normals.push(up);
-        }
-        if (sample.rRGroundContactMaterial !== 80) {
-            vertices.push(basePos.clone().sub(front).add(side));
-            colors.push(getColor(sample.rRGroundContactMaterial));
-            normals.push(up);
-        }
+            if (sample.rLGroundContactMaterial !== 80) {
+                const pos = basePos.clone()
+                    .sub(front)
+                    .sub(side)
+                    .sub(up.clone().multiplyScalar(sample.rLDamperLen));
+                vertices.push(pos);
+                colors.push(getColor(sample.rLGroundContactMaterial));
+            }
+            if (sample.rRGroundContactMaterial !== 80) {
+                const pos = basePos.clone()
+                    .sub(front)
+                    .add(side)
+                    .sub(up.clone().multiplyScalar(sample.rRDamperLen));
+                vertices.push(pos);
+                colors.push(getColor(sample.rRGroundContactMaterial));
+            }
+            if (sample.fLGroundContactMaterial !== 80) {
+                const pos = basePos.clone()
+                    .add(front)
+                    .sub(side)
+                    .sub(up.clone().multiplyScalar(sample.fLDamperLen));
+                vertices.push(pos);
+                colors.push(getColor(sample.fLGroundContactMaterial));
+            }
+            if (sample.fRGroundContactMaterial !== 80) {
+                const pos = basePos.clone()
+                    .add(front)
+                    .add(side)
+                    .sub(up.clone().multiplyScalar(sample.fRDamperLen));
+                vertices.push(pos);
+                colors.push(getColor(sample.fRGroundContactMaterial));
+            }
 
-        if (sample.fLGroundContactMaterial !== 80) {
-            vertices.push(basePos.clone().add(front).sub(side));
-            colors.push(getColor(sample.fLGroundContactMaterial));
             normals.push(up);
-        }
-        if (sample.fRGroundContactMaterial !== 80) {
-            vertices.push(basePos.clone().add(front).add(side));
-            colors.push(getColor(sample.fRGroundContactMaterial));
-            normals.push(up);
-        }
-    }));
+        }));
 
     return { vertices, colors, normals };
 };
 
-const ReplayPointsMesh = ({ replaysData }: ReplayLinesProps) => {
-    // const [geometry, setGeometry] = useState<any>();
-    const [pointsGeom, setPointsGeom] = useState<any>();
-    // const [trisGeom, setTrisGeom] = useState<any>();
+const filterTrianglesByEdgeLength = (
+    vertices: THREE.Vector3[],
+    triIndices: Uint32Array,
+    edgeLengthThreshold: number,
+) => {
+    const thresholdSq = edgeLengthThreshold ** 2;
 
-    const [bufferVertices, setBufferVertices] = useState<THREE.Vector3[]>([]);
-    const [bufferColors, setBufferColors] = useState<THREE.Color[]>([]);
-    const [bufferNormals, setBufferNormals] = useState<THREE.Vector3[]>([]);
+    const closeTriangles = [];
+
+    for (let i = 0; i < triIndices.length; i += 3) {
+        const v1 = vertices[triIndices[i]];
+        const v2 = vertices[triIndices[i + 1]];
+        const v3 = vertices[triIndices[i + 2]];
+
+        const e1 = v1.distanceToSquared(v2);
+        const e2 = v1.distanceToSquared(v3);
+        const e3 = v2.distanceToSquared(v3);
+
+        // If all edge lengths are smaller than threshold, add triangle indices to array
+        if (e1 < thresholdSq && e2 < thresholdSq && e3 < thresholdSq) {
+            closeTriangles.push(...[
+                triIndices[i],
+                triIndices[i + 1],
+                triIndices[i + 2],
+            ]);
+        }
+    }
+
+    return closeTriangles;
+};
+
+const triangulatePointCloud = async (vertices: THREE.Vector3[]): Promise<number[]> => {
+    const Delaunator = await (await import('delaunator')).default;
+    const indexDelaunay = Delaunator.from(
+        vertices.map((v) => [v.x, v.z]),
+    );
+
+    const closeTriangles = filterTrianglesByEdgeLength(
+        vertices,
+        indexDelaunay.triangles,
+        EDGE_LENGTH_THRESHOLD,
+    );
+
+    return closeTriangles;
+};
+
+const ReplayPointsMesh = ({ replaysData }: ReplayLinesProps) => {
+    const [meshGeom, setMeshGeom] = useState<THREE.BufferGeometry>();
 
     const { vertices, colors, normals } = useMemo(() => getReplayPoints(replaysData), [replaysData]);
 
-    // useEffect(() => {
-    //     const setNewGeom = async () => {
-    //         const bufferGeom = new THREE.BufferGeometry();
-    //         bufferGeom.setAttribute(
-    //             'position',
-    //             new THREE.Float32BufferAttribute(vertices.flatMap((v) => [v.x, v.y, v.z]), 3),
-    //         );
-
-    //         // const { ConvexGeometry } = await import('three/examples/jsm/geometries/ConvexGeometry');
-    //         // const { BufferGeometryUtils } = await import('three/examples/jsm/utils/BufferGeometryUtils');
-    //         const { WireframeGeometry } = await import('three/src/geometries/WireframeGeometry');
-
-    //         // let convex = new ConvexGeometry(vertices);
-    //         // convex = BufferGeometryUtils.mergeVertices(convex, 0.1);
-    //         // convex.computeVertexNormals();
-
-    //         const wireframe = new WireframeGeometry(bufferGeom);
-
-    //         setGeometry(wireframe);
-    //     };
-    //     setNewGeom();
-    // }, [replaysData]);
-
     useEffect(() => {
         const setNewGeom = async () => {
-            let bufferGeom = new THREE.BufferGeometry();
-            bufferGeom.setAttribute(
-                'position',
-                new THREE.Float32BufferAttribute(vertices.flatMap((v) => [v.x, v.y, v.z]), 3),
-            );
-            bufferGeom.setAttribute(
+            const newMeshGeom = new THREE.BufferGeometry().setFromPoints(vertices);
+            newMeshGeom.setAttribute(
                 'color',
                 new THREE.Float32BufferAttribute(colors.flatMap((c) => [c.r, c.g, c.b]), 3),
             );
-            bufferGeom.setAttribute(
-                'normal',
-                new THREE.Float32BufferAttribute(normals.flatMap((v) => [v.x, v.y, v.z]), 3),
-            );
-            const { BufferGeometryUtils } = await import('three/examples/jsm/utils/BufferGeometryUtils');
-            bufferGeom = BufferGeometryUtils.mergeVertices(bufferGeom, 0.1);
 
-            setPointsGeom(bufferGeom);
+            const triangleIndices = await triangulatePointCloud(vertices);
 
-            const bufferVertices_: THREE.Vector3[] = [];
-            const bufferColors_: THREE.Color[] = [];
-            const bufferNormals_: THREE.Vector3[] = [];
+            newMeshGeom.setIndex(triangleIndices);
+            newMeshGeom.computeVertexNormals();
 
-            if (bufferGeom) {
-                const p = bufferGeom.attributes.position.array;
-                const c = bufferGeom.attributes.color.array;
-                const n = bufferGeom.attributes.normal.array;
-
-                for (let i = 0; i < p.length; i += 3) {
-                    bufferVertices_.push(new THREE.Vector3(p[i], p[i + 1], p[i + 2]));
-                    bufferColors_.push(new THREE.Color(c[i], c[i + 1], c[i + 2]));
-                    bufferNormals_.push(new THREE.Vector3(n[i], n[i + 1], n[i + 2]));
-                }
-            }
-
-            setBufferVertices(bufferVertices_);
-            setBufferColors(bufferColors_);
-            setBufferNormals(bufferNormals_);
+            setMeshGeom(newMeshGeom);
         };
         setNewGeom();
     }, [replaysData]);
 
-    // useEffect(() => {
-    //     const setNewGeom = async () => {
-    //         const triangleIndices = earcut.default(vertices.flatMap((v) => [v.x, v.y, v.z]), undefined, 3);
-
-    //         const triPositions = triangleIndices.flatMap((index) => {
-    //             const v = vertices[index];
-    //             return [v.x, v.y, v.z];
-    //         });
-
-    //         let bufferGeom = new THREE.BufferGeometry();
-    //         bufferGeom.setAttribute(
-    //             'position',
-    //             new THREE.Float32BufferAttribute(triPositions, 3),
-    //         );
-    //         const { BufferGeometryUtils } = await import('three/examples/jsm/utils/BufferGeometryUtils');
-    //         bufferGeom = BufferGeometryUtils.mergeVertices(bufferGeom, 1);
-
-    //         setTrisGeom(bufferGeom);
-    //     };
-    //     setNewGeom();
-    // }, [replaysData]);
-
     return (
         <>
-            {/* <mesh geometry={geometry}>
-                <meshNormalMaterial />
+            <mesh geometry={meshGeom} castShadow>
+                <meshStandardMaterial vertexColors />
+            </mesh>
+            {/* <mesh geometry={meshGeom} castShadow>
+                <meshNormalMaterial vertexColors wireframe />
             </mesh> */}
-            {/* <mesh geometry={trisGeom}>
-                <meshNormalMaterial />
-            </mesh> */}
-            <points
-                geometry={pointsGeom}
-            >
+            {/* <points geometry={meshGeom}>
                 <pointsMaterial vertexColors />
-            </points>
-            {/* {vertices.map((vertex, i) => (
-                <mesh
-                    position={vertex}
-                    quaternion={(new THREE.Quaternion()).setFromUnitVectors(new THREE.Vector3(0, 0, 1), normals[i])}
-                >
-                    <planeGeometry args={[3, 3]} />
-                    <meshPhongMaterial side={DoubleSide} color={colors[i]} />
-                </mesh>
-            ))} */}
-            {/* {bufferVertices.map((vertex, i) => (
-                <mesh
-                    position={vertex}
-                    quaternion={(new THREE.Quaternion())
-                        .setFromUnitVectors(new THREE.Vector3(0, 0, 1), bufferNormals[i])}
-                    castShadow
-                >
-                    <planeGeometry args={[2.5, 2.5]} />
-                    <meshPhongMaterial side={DoubleSide} color={bufferColors[i]} />
-                </mesh>
-            ))} */}
+            </points> */}
         </>
     );
 };
