@@ -1,4 +1,4 @@
-import { MongoClient, ObjectId } from 'mongodb';
+import { MongoClient, ObjectId, Db } from 'mongodb';
 import { config } from 'dotenv';
 import { v4 as uuid } from 'uuid';
 import { playerLoginFromWebId } from './authorize';
@@ -7,7 +7,7 @@ config();
 
 const DB_NAME = 'dojo';
 
-let db: any = null;
+let db: Db = null;
 
 export type Rejector = (_1: Error) => void;
 
@@ -69,9 +69,9 @@ export const createUser = (
         });
 });
 
-export const getUniqueMapNames = (
+export const getUniqueMapNames = async (
     mapName ?: string,
-): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
+): Promise<any> => {
     const replays = db.collection('replays');
     const queryPipeline = [
         // populate map references to count occurrences
@@ -115,18 +115,11 @@ export const getUniqueMapNames = (
             },
         } as any);
     }
-    replays.aggregate(queryPipeline, async (aggregateErr: Error, cursor: any) => {
-        if (aggregateErr) {
-            return reject(aggregateErr);
-        }
-        try {
-            const data = await cursor.toArray();
-            return resolve(data);
-        } catch (arrayErr) {
-            return reject(arrayErr);
-        }
-    });
-});
+
+    const cursor = replays.aggregate(queryPipeline);
+    const data = await cursor.toArray();
+    return data;
+};
 
 export const getMapByUId = (mapUId ?: string): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
     const maps = db.collection('maps');
@@ -175,9 +168,9 @@ export const saveUser = (
         .catch((error: Error) => reject(error));
 });
 
-export const geReplaysByUserRef = (
+export const getReplaysByUserRef = async (
     userRef: string,
-): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
+): Promise<any> => {
     const replays = db.collection('replays');
 
     const pipeline = [
@@ -197,27 +190,19 @@ export const geReplaysByUserRef = (
         },
     ];
 
-    replays.aggregate(pipeline, async (aggregateErr: Error, cursor: any) => {
-        if (aggregateErr) {
-            return reject(aggregateErr);
-        }
-        try {
-            const data = await cursor.toArray();
-            return resolve({ files: data, totalResults: data.length });
-        } catch (arrayErr) {
-            return reject(arrayErr);
-        }
-    });
-});
+    const cursor = replays.aggregate(pipeline);
+    const data = await cursor.toArray();
+    return { files: data, totalResults: data.length };
+};
 
-export const getReplays = (
+export const getReplays = async (
     mapName ?: string,
     playerName ?: string,
     mapUId ?: string,
     raceFinished ?: string,
     orderBy ?: string,
     maxResults: string = '1000',
-): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
+): Promise<any> => {
     const replays = db.collection('replays');
 
     const pipeline = [
@@ -299,23 +284,15 @@ export const getReplays = (
         },
     } as any);
 
-    replays.aggregate(pipeline, async (aggregateErr: Error, cursor: any) => {
-        if (aggregateErr) {
-            return reject(aggregateErr);
-        }
-        try {
-            const data = await cursor.toArray();
-            return resolve({ files: data, totalResults: data.length });
-        } catch (arrayErr) {
-            return reject(arrayErr);
-        }
-    });
-});
+    const cursor = replays.aggregate(pipeline);
+    const data = await cursor.toArray();
+    return { files: data, totalResults: data.length };
+};
 
-export const getReplayById = (
+export const getReplayById = async (
     replayId ?: string,
     populate ?: boolean,
-): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
+): Promise<any> => {
     const replays = db.collection('replays');
 
     let pipeline = [
@@ -360,18 +337,10 @@ export const getReplayById = (
         ] as any[]);
     }
 
-    replays.aggregate(pipeline, async (aggregateErr: Error, cursor: any) => {
-        if (aggregateErr) {
-            return reject(aggregateErr);
-        }
-        try {
-            const data = await cursor.toArray();
-            return resolve(data[0]);
-        } catch (arrayErr) {
-            return reject(arrayErr);
-        }
-    });
-});
+    const cursor = replays.aggregate(pipeline);
+    const data = await cursor.toArray();
+    return data[0];
+};
 
 export const deleteReplayById = async (replayId: any) => {
     const replays = db.collection('replays');
@@ -397,7 +366,7 @@ export const saveReplayMetadata = (
 ): Promise<{_id: string}> => new Promise((resolve: Function, reject: Rejector) => {
     const replays = db.collection('replays');
     replays.insertOne(metadata)
-        .then(({ insertedId }: {insertedId: string}) => resolve({ _id: insertedId }))
+        .then(({ insertedId }: {insertedId: ObjectId}) => resolve({ _id: insertedId }))
         .catch((error: Error) => reject(error));
 });
 
