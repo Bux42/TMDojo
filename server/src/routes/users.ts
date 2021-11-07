@@ -38,7 +38,7 @@ router.get('/:webId/info', async (req: Request, res: Response, next: Function) =
 router.get('/:webId/replays', async (req: Request, res: Response, next: Function) => {
     try {
         const userInfos = await db.getUserByWebId(req.params.webId);
-        const userReplays = await db.geReplaysByUserRef(userInfos._id);
+        const userReplays = await db.getReplaysByUserRef(userInfos._id);
         res.send(userReplays);
     } catch (err) {
         next(err);
