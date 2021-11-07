@@ -99,6 +99,10 @@ export const getAvailableMaps = async (searchString: string): Promise<AvailableM
     return res.data;
 };
 
+export const deleteReplay = async (replay: FileResponse) => {
+    await apiInstance.delete(`/replays/${replay._id}`);
+};
+
 export type UserInfo = {
     webId?: string;
     playerLogin?: string;

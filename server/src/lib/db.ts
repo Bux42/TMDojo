@@ -145,6 +145,14 @@ export const saveMap = (mapData ?: any): Promise<any> => new Promise((resolve: F
         .catch((error: Error) => reject(error));
 });
 
+// Gets a user by the _id field in the db
+export const getUserById = async (id: string) => {
+    const users = db.collection('users');
+    return users.findOne({
+        _id: new ObjectId(id),
+    });
+};
+
 export const getUserByWebId = (
     webId ?: string,
 ): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
@@ -364,6 +372,13 @@ export const getReplayById = (
         }
     });
 });
+
+export const deleteReplayById = async (replayId: any) => {
+    const replays = db.collection('replays');
+    await replays.deleteOne({
+        _id: new ObjectId(replayId),
+    });
+};
 
 export const getReplayByFilePath = (
     filePath ?: string,

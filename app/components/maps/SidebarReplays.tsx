@@ -1,13 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
-    Button, Drawer, Spin, Table, Tooltip,
+    Button, Drawer, message, Popconfirm, Spin, Table, Tooltip,
 } from 'antd';
+import {
+    DeleteOutlined, QuestionCircleOutlined, ReloadOutlined,
+} from '@ant-design/icons';
 import { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
 import { ColumnType, TableCurrentDataSource } from 'antd/lib/table/interface';
-import { ReloadOutlined } from '@ant-design/icons';
 import Link from 'next/link';
-import { FileResponse } from '../../lib/api/apiRequests';
+import { deleteReplay, FileResponse } from '../../lib/api/apiRequests';
 import { getRaceTimeStr, timeDifference } from '../../lib/utils/time';
+import { AuthContext } from '../../lib/contexts/AuthContext';
 
 interface ExtendedFileResponse extends FileResponse {
     readableTime: string;
@@ -23,7 +26,7 @@ interface Props {
     onRemoveReplay: (replay: FileResponse) => void;
     onLoadAllVisibleReplays: (replays: FileResponse[], selectedReplayDataIds: string[]) => void;
     onRemoveAllReplays: (replays: FileResponse[]) => void;
-    onRefreshReplays: () => void;
+    onRefreshReplays: () => Promise<void>;
     selectedReplayDataIds: string[];
 }
 
@@ -47,6 +50,8 @@ const SidebarReplays = ({
     const [visible, setVisible] = useState(true);
     const [visibleReplays, setVisibleReplays] = useState<FileResponse[]>([]);
 
+    const { user } = useContext(AuthContext);
+
     useEffect(() => {
         // initialize visible replays with the first page
         const initiallyVisibleReplays = replays.slice(0, defaultPageSize);
@@ -64,6 +69,16 @@ const SidebarReplays = ({
     const getUniqueFilters = (replayFieldCallback: (replay: FileResponse) => string) => {
         const uniques = Array.from(new Set(replays.map(replayFieldCallback)));
         return uniques.sort().map((val) => ({ text: val, value: val }));
+    };
+
+    const deleteReplayFile = async (replay: ExtendedFileResponse) => {
+        try {
+            await deleteReplay(replay);
+            await onRefreshReplays();
+            message.success('Replay deleted!');
+        } catch (e) {
+            message.error('Could not delete replay.');
+        }
     };
 
     let columns: ColumnsType<ExtendedFileResponse> = [
@@ -84,14 +99,14 @@ const SidebarReplays = ({
             title: 'Time',
             dataIndex: 'readableTime',
             align: 'right',
-            width: 120,
+            width: 100,
             sorter: (a, b) => a.endRaceTime - b.endRaceTime,
         },
         {
             title: 'Date',
             dataIndex: 'relativeDate',
             align: 'right',
-            width: 120,
+            width: 130,
             sorter: (a, b) => a.date - b.date,
         },
         {
@@ -119,28 +134,53 @@ const SidebarReplays = ({
             title: '',
             key: 'load',
             align: 'center',
-            width: 120,
+            width: 180,
             render: (_, replay) => {
                 const selected = selectedReplayDataIds.indexOf(replay._id) !== -1;
-                return !selected ? (
-                    <Button
-                        size="middle"
-                        type="primary"
-                        onClick={() => onLoadReplay(replay)}
-                        className="w-full"
-                    >
-                        Load
-                    </Button>
-                ) : (
-                    <Button
-                        size="middle"
-                        type="primary"
-                        danger
-                        className="w-full"
-                        onClick={() => onRemoveReplay(replay)}
-                    >
-                        Remove
-                    </Button>
+                return (
+                    <div className="flex flex-row gap-4 items-center">
+                        {!selected ? (
+                            <Button
+                                size="middle"
+                                type="primary"
+                                onClick={() => onLoadReplay(replay)}
+                                className="w-full"
+                            >
+                                Load
+                            </Button>
+                        ) : (
+                            <Button
+                                size="middle"
+                                type="primary"
+                                danger
+                                className="w-full"
+                                onClick={() => onRemoveReplay(replay)}
+                            >
+                                Remove
+                            </Button>
+                        )}
+                        {user && user.accountId === replay.webId && (
+                            <Popconfirm
+                                title="Delete this replay?"
+                                placement="right"
+                                icon={(
+                                    <QuestionCircleOutlined
+                                        style={{ color: '#a61d24' }}
+                                    />
+                                )}
+                                cancelText="No"
+                                okText="Yes"
+                                okButtonProps={{ danger: true }}
+                                onConfirm={() => deleteReplayFile(replay)}
+                            >
+                                <Button
+                                    shape="circle"
+                                    danger
+                                    icon={<DeleteOutlined style={{ fontSize: '16px', color: '#a61d24' }} />}
+                                />
+                            </Popconfirm>
+                        )}
+                    </div>
                 );
             },
         },
