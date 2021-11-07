@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useContext } from 'react';
 import {
-    Button, Drawer, message, Popconfirm, Table, Tooltip,
+    Button, Drawer, message, Popconfirm, Spin, Table, Tooltip,
 } from 'antd';
-import { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
-import { TableCurrentDataSource } from 'antd/lib/table/interface';
 import {
     DeleteOutlined, QuestionCircleOutlined, ReloadOutlined,
 } from '@ant-design/icons';
+import { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
+import { ColumnType, TableCurrentDataSource } from 'antd/lib/table/interface';
 import Link from 'next/link';
 import { deleteReplay, FileResponse } from '../../lib/api/apiRequests';
 import { getRaceTimeStr, timeDifference } from '../../lib/utils/time';
@@ -21,6 +21,7 @@ interface ExtendedFileResponse extends FileResponse {
 interface Props {
     mapUId: string;
     replays: FileResponse[];
+    loadingReplays: boolean;
     onLoadReplay: (replay: FileResponse) => void;
     onRemoveReplay: (replay: FileResponse) => void;
     onLoadAllVisibleReplays: (replays: FileResponse[], selectedReplayDataIds: string[]) => void;
@@ -32,6 +33,7 @@ interface Props {
 const SidebarReplays = ({
     mapUId,
     replays,
+    loadingReplays,
     onLoadReplay,
     onRemoveReplay,
     onLoadAllVisibleReplays,
@@ -41,9 +43,11 @@ const SidebarReplays = ({
 }: Props): JSX.Element => {
     const defaultPageSize = 14;
 
-    const tmioURL = 'https://trackmania.io/#/player/';
+    const showFinishedColumn = replays.some((replay: FileResponse) => !replay.raceFinished);
 
-    const [visible, setVisible] = useState(false);
+    const userProfileUrl = '/users/';
+
+    const [visible, setVisible] = useState(true);
     const [visibleReplays, setVisibleReplays] = useState<FileResponse[]>([]);
 
     const { user } = useContext(AuthContext);
@@ -77,15 +81,15 @@ const SidebarReplays = ({
         }
     };
 
-    const columns: ColumnsType<ExtendedFileResponse> = [
+    let columns: ColumnsType<ExtendedFileResponse> = [
         {
             title: 'Player',
             dataIndex: 'playerName',
             filters: getUniqueFilters((replay) => replay.playerName),
             onFilter: (value, record) => record.playerName === value,
             render: (text, replay) => (
-                <Link href={`${tmioURL}${replay.webId}`}>
-                    <a target="_blank" rel="noreferrer" href={`${tmioURL}${replay.webId}`}>
+                <Link href={`${userProfileUrl}${replay.webId}`}>
+                    <a target="_blank" rel="noreferrer" href={`${userProfileUrl}${replay.webId}`}>
                         {replay.playerName}
                     </a>
                 </Link>
@@ -182,6 +186,10 @@ const SidebarReplays = ({
         },
     ];
 
+    if (!showFinishedColumn) {
+        columns = columns.filter((column: ColumnType<ExtendedFileResponse>) => column.dataIndex !== 'finished');
+    }
+
     const addReplayInfo = (replayList: FileResponse[]): ExtendedFileResponse[] => {
         const now = new Date().getTime();
 
@@ -231,48 +239,50 @@ const SidebarReplays = ({
                 visible={visible}
                 className="h-screen"
             >
-                <div className="flex flex-row justify-between items-center mb-4 mx-4">
-                    <div className="flex flex-row gap-4">
-                        <Button
-                            type="primary"
-                            onClick={() => onLoadAllVisibleReplays(visibleReplays, selectedReplayDataIds)}
-                        >
-                            Load all visible
-                        </Button>
-                        <Button
-                            type="primary"
-                            danger
-                            onClick={() => onRemoveAllReplays(visibleReplays)}
-                        >
-                            Unload all
-                        </Button>
-                    </div>
-                    <div className="mr-6">
-                        <Tooltip title="Refresh">
+                <Spin spinning={loadingReplays}>
+                    <div className="flex flex-row justify-between items-center mb-4 mx-4">
+                        <div className="flex flex-row gap-4">
                             <Button
-                                shape="circle"
-                                size="large"
-                                icon={<ReloadOutlined />}
-                                onClick={onRefreshReplays}
-                            />
-                        </Tooltip>
+                                type="primary"
+                                onClick={() => onLoadAllVisibleReplays(visibleReplays, selectedReplayDataIds)}
+                            >
+                                Load all visible
+                            </Button>
+                            <Button
+                                type="primary"
+                                danger
+                                onClick={() => onRemoveAllReplays(visibleReplays)}
+                            >
+                                Unload all
+                            </Button>
+                        </div>
+                        <div className="mr-6">
+                            <Tooltip title="Refresh">
+                                <Button
+                                    shape="circle"
+                                    size="large"
+                                    icon={<ReloadOutlined />}
+                                    onClick={onRefreshReplays}
+                                />
+                            </Tooltip>
+                        </div>
                     </div>
-                </div>
-                <div>
-                    <Table
-                        onChange={(pagination, filters, sorter, currentPageData) => {
-                            onReplayTableChange(pagination, currentPageData);
-                        }}
-                        dataSource={addReplayInfo(replays)}
-                        columns={columns}
-                        size="small"
-                        pagination={{
-                            pageSize: defaultPageSize,
-                            position: ['bottomCenter'],
-                        }}
-                        scroll={{ scrollToFirstRowOnChange: true }}
-                    />
-                </div>
+                    <div>
+                        <Table
+                            onChange={(pagination, filters, sorter, currentPageData) => {
+                                onReplayTableChange(pagination, currentPageData);
+                            }}
+                            dataSource={addReplayInfo(replays)}
+                            columns={columns}
+                            size="small"
+                            pagination={{
+                                pageSize: defaultPageSize,
+                                position: ['bottomCenter'],
+                            }}
+                            scroll={{ scrollToFirstRowOnChange: true }}
+                        />
+                    </div>
+                </Spin>
             </Drawer>
         </div>
     );

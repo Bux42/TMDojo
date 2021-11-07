@@ -9,6 +9,7 @@ import {
     speedReplayColors,
     inputReplayColors,
 } from '../../lib/replays/replayLineColors';
+import ReplayChartHoverLocation from './ReplayChartHoverLocation';
 import ReplayDnf from './ReplayDnf';
 import ReplayGears from './ReplayGears';
 
@@ -30,9 +31,12 @@ interface ReplayLineProps {
     lineType: LineType;
     replayLineOpacity: number;
 }
-const ReplayLine = ({ replay, lineType, replayLineOpacity }: ReplayLineProps) => {
-    const points = useMemo(() => replay.samples.map((sample) => sample.position), [replay]);
-    const colorBuffer = useMemo(() => lineType.colorsCallback(replay), [replay, lineType, replay.color]);
+const ReplayLine = ({
+    replay, lineType, replayLineOpacity,
+}: ReplayLineProps) => {
+    const points = useMemo(() => replay.samples.map((sample) => sample.position), [replay.samples]);
+
+    const colorBuffer = useMemo(() => lineType.colorsCallback(replay), [replay, lineType]);
 
     const onUpdate = useCallback(
         (self) => {
@@ -77,6 +81,10 @@ export const ReplayLines = ({
                     replay={replay}
                     lineType={lineType}
                     replayLineOpacity={replayLineOpacity}
+                />
+                <ReplayChartHoverLocation
+                    key={`replay-${replay._id}-chart-hover`}
+                    replay={replay}
                 />
                 {showGearChanges && (
                     <ReplayGears key={`replay-${replay._id}-gears`} replay={replay} />

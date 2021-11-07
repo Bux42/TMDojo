@@ -15,14 +15,13 @@ import {
     MapInfo,
 } from '../../lib/api/apiRequests';
 import HeadTitle from '../../components/common/HeadTitle';
+import { ChartsDrawer } from '../../components/maps/ChartsDrawer';
 import { cleanTMFormatting } from '../../lib/utils/formatting';
 import LoadedReplays from '../../components/maps/LoadedReplays';
-import { TimeLineInfos } from '../../components/viewer/TimeLine';
-
-const timeLineGlobal = new TimeLineInfos();
 
 const Home = (): JSX.Element => {
     const [replays, setReplays] = useState<FileResponse[]>([]);
+    const [loadingReplays, setLoadingReplays] = useState<boolean>(true);
     const [selectedReplayData, setSelectedReplayData] = useState<ReplayData[]>([]);
     const [mapData, setMapData] = useState<MapInfo>({});
 
@@ -30,8 +29,10 @@ const Home = (): JSX.Element => {
     const { mapUId } = router.query;
 
     const fetchAndSetReplays = async () => {
+        setLoadingReplays(true);
         const { files } = await getReplays({ mapUId: `${mapUId}` });
         setReplays(files);
+        setLoadingReplays(false);
     };
 
     useEffect(() => {
@@ -89,6 +90,7 @@ const Home = (): JSX.Element => {
                     <SidebarReplays
                         mapUId={`${mapUId}`}
                         replays={replays}
+                        loadingReplays={loadingReplays}
                         onLoadReplay={onLoadReplay}
                         onRemoveReplay={onRemoveReplay}
                         onLoadAllVisibleReplays={onLoadAllVisibleReplays}
@@ -96,12 +98,22 @@ const Home = (): JSX.Element => {
                         selectedReplayDataIds={selectedReplayData.map((replay) => replay._id)}
                         onRefreshReplays={fetchAndSetReplays}
                     />
+                    {
+                        selectedReplayData.length > 0
+                        && <LoadedReplays replays={selectedReplayData} />
+                    }
                     <SidebarSettings />
                     {
                         selectedReplayData.length > 0
-                    && <LoadedReplays replays={selectedReplayData} timeLineGlobal={timeLineGlobal} />
+                        && (
+                            <ChartsDrawer
+                                replaysData={selectedReplayData}
+                            />
+                        )
                     }
-                    <Viewer3D replaysData={selectedReplayData} timeLineGlobal={timeLineGlobal} />
+                    <Viewer3D
+                        replaysData={selectedReplayData}
+                    />
                 </Layout.Content>
             </Layout>
         </>

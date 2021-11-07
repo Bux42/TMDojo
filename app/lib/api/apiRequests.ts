@@ -102,3 +102,20 @@ export const getAvailableMaps = async (searchString: string): Promise<AvailableM
 export const deleteReplay = async (replay: FileResponse) => {
     await apiInstance.delete(`/replays/${replay._id}`);
 };
+
+export type UserInfo = {
+    webId?: string;
+    playerLogin?: string;
+    playerName?: number;
+    _id?: number;
+};
+
+export const getUserInfo = async (webId: string): Promise<UserInfo> => {
+    const res = await apiInstance.get(`/users/${webId}/info`);
+    return res.data;
+};
+
+export const getUserReplays = async (webId: string): Promise<FilesResult> => {
+    const res = await apiInstance.get(`/users/${webId}/replays`);
+    return res.data;
+};

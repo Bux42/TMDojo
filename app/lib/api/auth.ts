@@ -26,11 +26,19 @@ interface AuthorizationResponse {
     displayName: string;
     accountId: string;
 }
-export const authorizeWithAccessCode = async (accessCode: string): Promise<AuthorizationResponse> => {
-    const params = {
+
+export const authorizeWithAccessCode = async (
+    accessCode: string, clientCode?: string,
+): Promise<AuthorizationResponse> => {
+    const params: any = {
         code: accessCode,
         redirect_uri: getRedirectUri(),
     };
+
+    if (clientCode) {
+        // make sure clientCode is only sent if it exists
+        params.clientCode = clientCode;
+    }
 
     const { data } = await apiInstance.post('/authorize', params, { withCredentials: true });
 

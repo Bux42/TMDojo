@@ -26,10 +26,11 @@ export const initDB = () => {
     });
 };
 
-export const authenticateUser = (
+export const createUser = (
     webId: any,
     login: any,
     name: any,
+    clientCode: any,
 ): Promise<void> => new Promise((resolve: () => void, reject: Rejector) => {
     const users = db.collection('users');
     users
@@ -45,6 +46,7 @@ export const authenticateUser = (
                     playerLogin: login,
                     playerName: name,
                     last_active: Date.now(),
+                    clientCode: clientCode || null,
                 });
                 resolve();
             } else {
@@ -53,6 +55,7 @@ export const authenticateUser = (
                         playerLogin: login,
                         playerName: name,
                         last_active: Date.now(),
+                        clientCode: clientCode || null,
                     },
                 };
                 users.updateOne(
@@ -166,9 +169,45 @@ export const saveUser = (
     userData: any,
 ): Promise<{_id: string}> => new Promise((resolve: Function, reject: Rejector) => {
     const users = db.collection('users');
-    users.insertOne(userData)
+    // if _id is not defined, the upsert option will ensure a new document is created
+    users.replaceOne({ _id: userData._id }, userData, { upsert: true })
         .then(({ insertedId }: {insertedId: string}) => resolve({ _id: insertedId }))
         .catch((error: Error) => reject(error));
+});
+
+export const geReplaysByUserRef = (
+    userRef: string,
+): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
+    const replays = db.collection('replays');
+
+    const pipeline = [
+        {
+            $match: { userRef: new ObjectId(userRef) },
+        },
+        {
+            $lookup: {
+                from: 'maps',
+                localField: 'mapRef',
+                foreignField: '_id',
+                as: 'map',
+            },
+        },
+        {
+            $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ['$map', 0] }, '$$ROOT'] } },
+        },
+    ];
+
+    replays.aggregate(pipeline, async (aggregateErr: Error, cursor: any) => {
+        if (aggregateErr) {
+            return reject(aggregateErr);
+        }
+        try {
+            const data = await cursor.toArray();
+            return resolve({ files: data, totalResults: data.length });
+        } catch (arrayErr) {
+            return reject(arrayErr);
+        }
+    });
 });
 
 export const getReplays = (
@@ -366,7 +405,7 @@ export const saveReplayMetadata = (
  * Creates session using a webId.
  * Returns session secret or undefined if something went wrong
  */
-export const createSession = async (userInfo: any) => {
+export const createSession = async (userInfo: any, clientCode?: any) => {
     // Find user
     let user = await getUserByWebId(userInfo.account_id);
     if (user === undefined || user === null) {
@@ -394,15 +433,29 @@ export const createSession = async (userInfo: any) => {
     const sessionId = uuid();
     await sessions.insertOne({
         sessionId,
+        clientCode: clientCode || null,
         userRef: user._id,
     });
 
     return sessionId;
 };
 
+export const updateSession = async (session: any) => {
+    if (!session._id) {
+        throw new Error('Session without _id cannot be updated');
+    }
+    const sessions = db.collection('sessions');
+    return sessions.replaceOne({ _id: session._id }, session);
+};
+
 export const findSessionBySecret = async (sessionId: string) => {
     const sessions = db.collection('sessions');
     return sessions.findOne({ sessionId });
+};
+
+export const findSessionByClientCode = async (clientCode: string) => {
+    const sessions = db.collection('sessions');
+    return sessions.findOne({ clientCode });
 };
 
 export const deleteSession = async (sessionId: string) => {
