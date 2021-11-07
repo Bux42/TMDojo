@@ -2,6 +2,7 @@ import {
     Card,
     Col,
     Row,
+    Spin,
     Statistic,
     Table,
     TablePaginationConfig,
@@ -24,12 +25,15 @@ interface Props {
 
 const UserReplays = ({ userInfo }: Props): JSX.Element => {
     const [userReplays, setUserReplays] = useState<FileResponse[]>([]);
+    const [loadingReplays, setLoadingReplays] = useState<boolean>(true);
     const [visibleReplays, setVisibleReplays] = useState<FileResponse[]>([]);
     const defaultPageSize = 10;
 
     const fetchAndSetUserReplays = async (userId: string) => {
+        setLoadingReplays(true);
         const { files } = await getUserReplays(userId);
         setUserReplays(files);
+        setLoadingReplays(false);
     };
 
     const totalRecordedTime = userReplays.reduce((a, b) => a + b.endRaceTime, 0);
@@ -137,33 +141,36 @@ const UserReplays = ({ userInfo }: Props): JSX.Element => {
 
     return (
         <>
-            <Card
-                title="Replays"
-            >
-                <Row gutter={16}>
-                    <Col span={12}>
-                        <Statistic title="Count" value={userReplays ? userReplays.length : 0} />
-                    </Col>
-                    <Col span={12}>
-                        <Statistic title="Total Time" value={totalRecordedTimeStr} />
-                    </Col>
-                </Row>
-            </Card>
-            <Card>
-                <Table
-                    onChange={(pagination, filters, sorter, currentPageData) => {
-                        onReplayTableChange(pagination, currentPageData);
-                    }}
-                    dataSource={addReplayInfo(userReplays)}
-                    columns={columns}
-                    size="small"
-                    pagination={{
-                        pageSize: defaultPageSize,
-                        position: ['bottomCenter'],
-                    }}
-                    scroll={{ scrollToFirstRowOnChange: true }}
-                />
-            </Card>
+            <Spin spinning={loadingReplays}>
+                <Card
+                    title="Replays"
+                >
+                    <Row gutter={16}>
+                        <Col span={12}>
+                            <Statistic title="Count" value={userReplays ? userReplays.length : 0} />
+                        </Col>
+                        <Col span={12}>
+                            <Statistic title="Total Time" value={totalRecordedTimeStr} />
+                        </Col>
+                    </Row>
+                </Card>
+                <Card>
+                    <Table
+                        onChange={(pagination, filters, sorter, currentPageData) => {
+                            onReplayTableChange(pagination, currentPageData);
+                        }}
+                        dataSource={addReplayInfo(userReplays)}
+                        columns={columns}
+                        size="small"
+                        pagination={{
+                            pageSize: defaultPageSize,
+                            position: ['bottomCenter'],
+                        }}
+                        scroll={{ scrollToFirstRowOnChange: true }}
+                    />
+                </Card>
+            </Spin>
+
         </>
     );
 };
