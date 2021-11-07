@@ -41,6 +41,9 @@ module.exports = {
         'react/require-default-props': 'off',
         // due to DB IDs we have to disable this
         'no-underscore-dangle': 'off',
+        camelcase: ['error', {
+            allow: ['redirect_uri', 'client_id', 'response_type'],
+        }],
         // preferences
         '@typescript-eslint/no-use-before-define': 'off',
         'no-plusplus': 'off',

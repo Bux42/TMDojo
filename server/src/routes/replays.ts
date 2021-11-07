@@ -153,4 +153,35 @@ router.post('/', (req: Request, res: Response, next: Function): any => {
     req.on('error', (err) => next(err));
 });
 
+/**
+ * DELETE /replays/:replayId
+ * Deletes a replay file
+ */
+router.delete('/:replayId', async (req, res) => {
+    // Fetch replay
+    const replay = await db.getReplayById(req.params.replayId);
+    const replayUser = await db.getUserById(replay.userRef);
+
+    // Check user
+    const { user } = req;
+    if (user === undefined || user.webId !== replayUser.webId) {
+        res.status(401).send('Not authorized to delete replay.');
+        return;
+    }
+
+    await db.deleteReplayById(replay._id);
+
+    try {
+        await artefacts.deleteReplay(replay);
+    } catch (err) {
+        // If deletion failed, add the replay back into the DB
+        await db.saveReplayMetadata(replay);
+
+        res.status(500).send('Failed to delete replay file.');
+        return;
+    }
+
+    res.send();
+});
+
 export default router;

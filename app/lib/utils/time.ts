@@ -6,7 +6,7 @@ export const getRaceTimeStr = (raceTime: number): string => {
     return (
         `${`${minutes > 0 ? `${minutes}:` : ''}`
         + `${minutes > 0 ? String(seconds).padStart(2, '0') : seconds}`
-        + '.'}${String(milliseconds).padEnd(3, '0')}`
+        + '.'}${String(milliseconds).padStart(3, '0')}`
     );
 };
 
@@ -40,4 +40,21 @@ export const timeDifference = (current: number, previous: number): string => {
     }
     const time = Math.round(elapsed / msPerYear);
     return `${time} year${addPlural(time)} ago`;
+};
+
+export const msToTime = (duration: number) => {
+    const seconds = Math.floor((duration / 1000) % 60);
+    const minutes = Math.floor((duration / (1000 * 60)) % 60);
+    const hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
+
+    if (hours) {
+        return `${hours} hours and ${minutes} minutes`;
+    }
+    if (minutes) {
+        return `${minutes} minutes and ${seconds} seconds`;
+    }
+    if (seconds) {
+        return `${seconds} seconds`;
+    }
+    return ('');
 };
