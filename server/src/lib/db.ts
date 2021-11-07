@@ -69,9 +69,9 @@ export const createUser = (
         });
 });
 
-export const getUniqueMapNames = (
+export const getUniqueMapNames = async (
     mapName ?: string,
-): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
+): Promise<any> => {
     const replays = db.collection('replays');
     const queryPipeline = [
         // populate map references to count occurrences
@@ -116,18 +116,10 @@ export const getUniqueMapNames = (
         } as any);
     }
 
-    try {
-        const cursor = replays.aggregate(queryPipeline);
-        try {
-            const data = cursor.toArray();
-            return resolve(data);
-        } catch (arrayErr) {
-            return reject(arrayErr);
-        }
-    } catch (aggregateErr) {
-        return reject(aggregateErr);
-    }
-});
+    const cursor = replays.aggregate(queryPipeline);
+    const data = await cursor.toArray();
+    return data;
+};
 
 export const getMapByUId = (mapUId ?: string): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
     const maps = db.collection('maps');
