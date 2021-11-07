@@ -128,13 +128,15 @@ export const readDataView = (dataView: DataView): DataViewResult => {
         maxPos = maxPos.max(s.position);
         lastPos = s.position;
     }
+
     for (let i = 1; i < samples.length; i++) {
         const interval = samples[i].currentRaceTime - samples[i - 1].currentRaceTime;
         if (interval > 0) {
             sampleIntervals.push(interval);
+            samples[i].acceleration = ((samples[i].speed - samples[i - 1].speed) / interval) * 1000;
         }
-        samples[i].acceleration = samples[i].speed - samples[i - 1].speed;
     }
+
     const median = (arr: number[]) => {
         const mid = Math.floor(arr.length / 2);
         const nums = [...arr].sort((a, b) => a - b);
