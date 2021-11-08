@@ -48,8 +48,9 @@ const Viewer3D = ({ replaysData, timeLineGlobal }: Props): JSX.Element => {
                     far: 50000,
                 }}
             >
-                <ambientLight />
-                <directionalLight color="white" intensity={0.5} position={[0, 100, 0]} />
+                <ambientLight color={new THREE.Color(0.025, 0.025, 0.025)} />
+                <hemisphereLight color={new THREE.Color(0.1, 0.01, 0.01)} />
+                <directionalLight color="white" intensity={0.2} position={[0, 100, 0]} castShadow />
                 <Sky distance={100000000} inclination={0} turbidity={0} rayleigh={10} />
                 <OrbitControls
                     ref={orbitControlsRef}

@@ -161,7 +161,7 @@ const ReplayPointsMesh = ({ replaysData }: ReplayLinesProps) => {
     return (
         <>
             <mesh geometry={meshGeom} castShadow>
-                <meshStandardMaterial vertexColors />
+                <meshStandardMaterial side={THREE.DoubleSide} vertexColors />
             </mesh>
             {/* <mesh geometry={meshGeom} castShadow>
                 <meshNormalMaterial vertexColors wireframe />
