@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useContext, useMemo } from 'react';
 import * as THREE from 'three';
 import { ReplayData } from '../../lib/api/apiRequests';
 import {
@@ -35,8 +35,7 @@ const ReplayLine = ({
     replay, lineType, replayLineOpacity,
 }: ReplayLineProps) => {
     const points = useMemo(() => replay.samples.map((sample) => sample.position), [replay.samples]);
-
-    const colorBuffer = useMemo(() => lineType.colorsCallback(replay), [replay, lineType]);
+    const colorBuffer = useMemo(() => lineType.colorsCallback(replay), [replay, lineType, replay.color]);
 
     const onUpdate = useCallback(
         (self) => {

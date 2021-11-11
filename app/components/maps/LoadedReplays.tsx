@@ -1,13 +1,13 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import {
-    CaretLeftOutlined, CaretRightOutlined, EyeOutlined, LeftCircleFilled,
+    CaretLeftOutlined, CaretRightOutlined, EyeOutlined,
 } from '@ant-design/icons';
 import {
-    Button, Checkbox, Drawer, Select, Row, Col, Slider, Radio, RadioChangeEvent, List, Divider,
+    Button, Drawer, Row, Col, Radio, RadioChangeEvent, List, Divider,
 } from 'antd';
 import React, {
-    Dispatch, SetStateAction, useContext, useState,
+    useContext, useState,
 } from 'react';
 import * as ReactColor from 'react-color';
 import * as THREE from 'three';
@@ -141,7 +141,7 @@ const LoadedReplays = ({
     const [visible, setVisible] = useState(true);
     const [followed, setFollowed] = useState<ReplayData>();
     const [hovered, setHovered] = useState<ReplayData>();
-    const { numColorChange, cameraMode, setCameraMode } = useContext(SettingsContext);
+    const { cameraMode, setCameraMode } = useContext(SettingsContext);
 
     const timeLineGlobal = GlobalTimeLineInfos.getInstance();
 
