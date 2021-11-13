@@ -72,12 +72,12 @@ export const ChartTypes: { [name: string]: ChartType } = {
         name: 'RPM and Gears',
         chartData: [
             {
-                name: 'engineRpm',
-                dataCallback: (replayData: ReplayDataPoint) => replayData.engineRpm,
-            },
-            {
                 name: 'engineCurGear',
                 dataCallback: (replayData: ReplayDataPoint) => replayData.engineCurGear,
+            },
+            {
+                name: 'engineRpm',
+                dataCallback: (replayData: ReplayDataPoint) => replayData.engineRpm,
             },
         ],
         chartOptionsCallback: rpmsAndGearChartOptions,
@@ -86,12 +86,12 @@ export const ChartTypes: { [name: string]: ChartType } = {
         name: 'Gas and Brake inputs',
         chartData: [
             {
-                name: 'inputGasPedal',
-                dataCallback: (replayData: ReplayDataPoint) => replayData.inputGasPedal,
-            },
-            {
                 name: 'inputIsBraking',
                 dataCallback: (replayData: ReplayDataPoint) => replayData.inputIsBraking,
+            },
+            {
+                name: 'inputGasPedal',
+                dataCallback: (replayData: ReplayDataPoint) => replayData.inputGasPedal,
             },
         ],
         chartOptionsCallback: accelAndBrakeChartOptions,
