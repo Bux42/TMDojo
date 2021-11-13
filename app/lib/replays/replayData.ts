@@ -46,8 +46,8 @@ export class ReplayDataPoint {
         const gasAndBrake = this.readInt32(dataView);
         // gasAndBrake are encoded in a single byte using the first 2 bits
         //  00 = no input, 01 = gas, 10 = brake, 11 = gas+brake
-        this.inputGasPedal = (gasAndBrake & 1);
-        this.inputIsBraking = (gasAndBrake & 2);
+        this.inputGasPedal = (gasAndBrake & 1) ? 1 : 0;
+        this.inputIsBraking = (gasAndBrake & 2) ? 1 : 0;
         this.engineRpm = this.readFloat(dataView);
         this.engineCurGear = this.readInt32(dataView);
         this.up = this.readVector3(dataView);
