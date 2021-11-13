@@ -337,6 +337,8 @@ class TMDojo
 
         bool hudOff = false;
 
+        bool hudOff = false;
+
         if (app.CurrentPlayground !is null && app.CurrentPlayground.Interface !is null) {
             if (Dev::GetOffsetUint32(app.CurrentPlayground.Interface, 0x1C) == 0) {
                 hudOff = true;
