@@ -4,7 +4,7 @@ import {
     accelAndBrakeChartOptions,
     defaultChartOptions,
     inputSteerChartOptions,
-    rpmsAndGearChartOptions,
+    rpmAndGearChartOptions,
 } from './chartOptions';
 
 export interface ChartDataInfo {
@@ -80,7 +80,7 @@ export const ChartTypes: { [name: string]: ChartType } = {
                 dataCallback: (replayData: ReplayDataPoint) => replayData.engineRpm,
             },
         ],
-        chartOptionsCallback: rpmsAndGearChartOptions,
+        chartOptionsCallback: rpmAndGearChartOptions,
     },
     accelAndBrake: {
         name: 'Gas and Brake inputs',
