@@ -435,17 +435,22 @@ class TMDojo
             return;
         }
 
-        if (Enabled && OverlayEnabled) {
-            this.drawOverlay();
-        }
+        
 
         auto playgroundScript = cast<CSmArenaRulesMode>(app.PlaygroundScript);
         int currentRaceTime = sm_script.CurrentRaceTime;
 
+        bool hudOff = false;
+
         if (app.CurrentPlayground !is null && app.CurrentPlayground.Interface !is null) {
             if (Dev::GetOffsetUint32(app.CurrentPlayground.Interface, 0x1C) == 0) {
                 currentRaceTime = playgroundScript.Now - player.ScriptAPI.StartTime;
+                hudOff = true;
             }
+        }
+
+        if (Enabled && OverlayEnabled && !hudOff) {
+            this.drawOverlay();
         }
 
         if (!recording && currentRaceTime > -50 && currentRaceTime < 0) {
