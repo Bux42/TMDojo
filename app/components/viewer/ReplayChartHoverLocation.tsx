@@ -4,7 +4,7 @@ import React, { useRef } from 'react';
 import { DoubleSide } from 'three';
 import * as THREE from 'three';
 import { ReplayData } from '../../lib/api/apiRequests';
-import getSampleNearTime from '../../lib/utils/replay';
+import { getClosestSampleBeforeTime } from '../../lib/utils/replay';
 import GlobalChartsDataSingleton from '../../lib/singletons/globalChartData';
 
 interface ReplayChartHoverLocationProps {
@@ -20,7 +20,7 @@ const ReplayChartHoverLocation = ({
     useFrame(() => {
         if (sphereRef.current) {
             if (globalChartsData.hoveredRaceTime !== undefined) {
-                const curSample = getSampleNearTime(replay, globalChartsData.hoveredRaceTime);
+                const curSample = getClosestSampleBeforeTime(replay, globalChartsData.hoveredRaceTime);
 
                 sphereRef.current.position.set(curSample.position.x, curSample.position.y, curSample.position.z);
                 sphereRef.current.scale.set(0.5, 0.5, 0.5);

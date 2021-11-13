@@ -1,7 +1,7 @@
 import { ReplayData } from '../api/apiRequests';
 import { ReplayDataPoint } from '../replays/replayData';
 
-const getSampleNearTime = (replay: ReplayData, raceTime: number): ReplayDataPoint => {
+export const getClosestSampleIndexBeforeTime = (replay: ReplayData, raceTime: number): number => {
     // First sample index guess based on median data point interval
     let sampleIndex = Math.round(raceTime / replay.intervalMedian);
     sampleIndex = Math.min(Math.max(0, sampleIndex), replay.samples.length - 1);
@@ -13,11 +13,15 @@ const getSampleNearTime = (replay: ReplayData, raceTime: number): ReplayDataPoin
     }
     // If we are before the race time, iterate forward in time
     while (sampleIndex + 1 < replay.samples.length
-        && replay.samples[sampleIndex].currentRaceTime < raceTime) {
+        && replay.samples[sampleIndex + 1].currentRaceTime < raceTime) {
         sampleIndex++;
     }
 
-    return replay.samples[sampleIndex];
+    return sampleIndex;
 };
 
-export default getSampleNearTime;
+export const getClosestSampleBeforeTime = (replay: ReplayData, raceTime: number): ReplayDataPoint => {
+    const sampleIndex = getClosestSampleIndexBeforeTime(replay, raceTime);
+
+    return replay.samples[sampleIndex];
+};
