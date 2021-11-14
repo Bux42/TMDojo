@@ -1,10 +1,6 @@
 # From: https://evilmartians.com/chronicles/serverless-typescript-a-complete-setup-for-aws-sam-lambda
 
 .PHONY: build-RuntimeDependenciesLayer build-lambda-common
-.PHONY: build-tmDojoFunction
-
-build-tmDojoFunction:
-	$(MAKE) HANDLER=src/handlers/get-all-items.ts build-lambda-common
 
 build-lambda-common:
 	npm install
