@@ -11,20 +11,18 @@ let db: any = null;
 
 export type Rejector = (_1: Error) => void;
 
-export const initDB = () => {
+export const initDB = async () => {
     const mongoClient = new MongoClient(process.env.MONGO_URL, {
         useUnifiedTopology: true,
     } as any);
 
-    mongoClient.connect((err: Error) => {
-        if (err) {
-            console.error('initDB: Could not connect to DB, shutting down');
-            process.exit();
-        }
-        console.log('initDB: Connected successfully to DB');
-        db = mongoClient.db(DB_NAME);
-    });
+    const mongoClientConnected = await mongoClient.connect();
+
+    console.log('initDB: Connected successfully to DB');
+    db = mongoClientConnected.db(DB_NAME);
 };
+
+export const isConnected = () => db !== null;
 
 export const createUser = (
     webId: any,

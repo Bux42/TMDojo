@@ -1,13 +1,21 @@
 {
 	"compilerOptions": {
+		// From @tsconfig/node16/tsconfig.json:
+		"target": "es2021",
+		"lib": ["es2021", "dom"],
 		"module": "commonjs",
+	
+		// "strict": true,
+		// "esModuleInterop": true,
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true,
+
+		// Custom settings:
 		"noImplicitAny": true,
 		"sourceMap": true,
 		"removeComments": true,
 		"preserveConstEnums": true,
 		"declaration": true,
-		"target": "esnext",
-		"lib": ["esnext", "dom"],
 		"outDir": "./dist",
 		"noUnusedLocals": true,
 		"noImplicitReturns": true,
