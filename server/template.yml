@@ -11,16 +11,6 @@ Description: >-
 Transform:
 - AWS::Serverless-2016-10-31
 
-# Reference for RuntimeDependenciesLayer + Makefile: 
-#   https://evilmartians.com/chronicles/serverless-typescript-a-complete-setup-for-aws-sam-lambda
-Globals:
-  Function:
-    Layers:
-      - !Ref RuntimeDependenciesLayer
-    Runtime: nodejs14.x
-    MemorySize: 128
-    Timeout: 100
-
 # Resources declares the AWS resources that you want to include in the stack
 # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/resources-section-structure.html
 Resources:
@@ -31,11 +21,12 @@ Resources:
   TMDojoFunction:
     Type: AWS::Serverless::Function
     Metadata:
-      BuildMethod: makefile
+      DockerTag: nodejs14.x-v1
+      DockerContext: ./
+      Dockerfile: Dockerfile
     Properties:
-      # Handler points to compiled Typescript file in /dist
-      Handler: dist/serverlessApp.handler
-      Description: Lambda function to host the server of TMDojo 
+      PackageType: Image
+      Description: Lambda function for the TMDojo server
       Architectures:
         - x86_64
       Events:
@@ -49,17 +40,6 @@ Resources:
           Properties:
             Path: /{proxy+}
             Method: ANY
-  
-  RuntimeDependenciesLayer:
-    Type: AWS::Serverless::LayerVersion
-    Metadata:
-      BuildMethod: makefile
-    Properties:
-      Description: Runtime dependencies for Lambdas
-      ContentUri: ./
-      CompatibleRuntimes:
-        - nodejs14.x
-      RetentionPolicy: Retain
 
 Outputs:
   WebEndpoint:
