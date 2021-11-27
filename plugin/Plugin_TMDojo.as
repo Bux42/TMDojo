@@ -476,7 +476,7 @@ void PostRecordedData(ref @handle) {
                             "&endRaceTime=" + endRaceTime +
                             "&raceFinished=" + (finished ? "1" : "0");
         Net::HttpRequest@ req = Net::HttpPost(reqUrl, membuff.ReadToBase64(membuff.GetSize()), "application/octet-stream");
-        if (!req.Finished()) {
+        while (!req.Finished()) {
             yield();
         }
         UI::ShowNotification("TMDojo", "Uploaded replay successfully!");
