@@ -18,8 +18,9 @@ export const initDB = async () => {
 
     const mongoClientConnected = await mongoClient.connect();
 
-    console.log('initDB: Connected successfully to DB');
     db = mongoClientConnected.db(DB_NAME);
+
+    console.log('initDB: DB connection successful');
 };
 
 export const isConnected = () => db !== null;

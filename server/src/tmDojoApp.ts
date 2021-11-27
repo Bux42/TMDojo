@@ -21,9 +21,12 @@ import meRouter from './routes/me';
 import userRouter from './routes/users';
 
 import authMiddleware from './middleware/auth';
-import connectToDbMiddleware from './middleware/connectToDb';
+import ensureDbConnection from './middleware/ensureDbConnection';
 
 config();
+
+// initialize DB connection
+db.initDB();
 
 const app = express();
 app.use(
@@ -57,9 +60,6 @@ app.use(bodyParser.json());
 // Cookie Parser middleware
 app.use(cookieParser());
 
-// initialize DB connection
-db.initDB();
-
 // request and response logger
 app.use((req: Request, res: Response, next: Function) => {
     const getDateStr = () => dayjs().format('DD/MM/YYYY, HH:mm:ss.SSS');
@@ -84,8 +84,8 @@ app.use((err: Error, req: Request, res: Response, next: Function) => {
 });
 
 // App middleware
+app.use(ensureDbConnection);
 app.use(authMiddleware);
-app.use(connectToDbMiddleware);
 
 // set up routes
 app.use('/auth', authRouter);
