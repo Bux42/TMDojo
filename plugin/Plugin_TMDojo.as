@@ -169,6 +169,7 @@ class TMDojo
 
     CTrackManiaNetwork@ network;
     int prevRaceTime = -6666;
+    int currentRaceTime = -6666;
 
     vec3 latestPlayerPosition;
     int numSamePositions = 0;
@@ -232,110 +233,7 @@ class TMDojo
         nvg::Text(textLeft, textTop, (recording ? "Recording" : "Not Recording"));
     }
 
-    void drawDebugBuffer(CSceneVehicleVis@ vis, CSmScriptPlayer@ sm_script, CGameCtnChallenge@ rootMap) {
-        int panelLeft = 180;
-        int panelTop = 50;
-
-        int panelWidth = 300;
-        int panelHeight = 540;
-
-        int topIncr = 18;
-
-        nvg::BeginPath();
-        nvg::Rect(panelLeft, panelTop, panelWidth, panelHeight);
-        nvg::FillColor(vec4(0,0,0,0.8));
-        nvg::Fill();
-        nvg::ClosePath();
-        vec4 colBorder = vec4(1, 1, 1, 1);
-        vec4 colBorderGreen = vec4(0.1, 1, 0.1, 1);
-        vec4 colBorderRed = vec4(1, 0.1, 0.1, 1);
-
-        int panelLeftCp = panelLeft + 8;
-        int panelTopCp = panelTop + 16;
-
-        nvg::BeginPath();
-        nvg::FontSize(12);
-        nvg::FillColor(vec4(1, 1, 1, 1));
-
-        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "CurrentRaceTime: " + sm_script.CurrentRaceTime);
-        panelTopCp += topIncr;
-
-        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "Position.x: " + vis.AsyncState.Position.x);
-        panelTopCp += topIncr;
-        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "Position.y: " + vis.AsyncState.Position.y);
-        panelTopCp += topIncr;
-        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "Position.z: " + vis.AsyncState.Position.z);
-        panelTopCp += topIncr;
-
-        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "WorldVel.x: " + vis.AsyncState.WorldVel.x);
-        panelTopCp += topIncr;
-        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "WorldVel.y: " + vis.AsyncState.WorldVel.y);
-        panelTopCp += topIncr;
-        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "WorldVel.z: " + vis.AsyncState.WorldVel.z);
-        panelTopCp += topIncr;
-
-        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "Speed: " + (vis.AsyncState.FrontSpeed * 3.6f));
-        panelTopCp += topIncr;
-
-        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "InputSteer: " + vis.AsyncState.InputSteer);
-        panelTopCp += topIncr;
-        
-        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "InputGasPedal: " + vis.AsyncState.InputGasPedal); 
-        panelTopCp += topIncr;
-        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "InputBrakePedal: " + vis.AsyncState.InputBrakePedal);
-        panelTopCp += topIncr;
-
-        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "EngineCurGear: " + vis.AsyncState.CurGear);
-        panelTopCp += topIncr;
-        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "EngineRpm: " + Vehicle::GetRPM(vis.AsyncState));
-        panelTopCp += topIncr;
-
-        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "Up.x: " + vis.AsyncState.Up.x);
-        panelTopCp += topIncr;
-        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "Up.y: " + vis.AsyncState.Up.y);
-        panelTopCp += topIncr;
-        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "Up.z: " + vis.AsyncState.Up.z);
-        panelTopCp += topIncr;
-
-        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "Dir.x: " + vis.AsyncState.Dir.x);
-        panelTopCp += topIncr;
-        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "Dir.y: " + vis.AsyncState.Dir.y);
-        panelTopCp += topIncr;
-        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "Dir.z: " + vis.AsyncState.Dir.z);
-        panelTopCp += topIncr;
-
-        // MISC
-        panelTopCp += topIncr;
-
-        //Draw::DrawString(vec2(panelLeftCp, panelTopCp), (g_dojo.serverAvailable ? colBorderGreen: colBorderRed) , "API: " + ApiUrl);
-        panelTopCp += topIncr;
-
-        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "recording: " + recording);
-        panelTopCp += topIncr;
-
-        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "playername: " + network.PlayerInfo.Name);
-        panelTopCp += topIncr;
-
-        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "playerlogin: " + network.PlayerInfo.Login);
-        panelTopCp += topIncr;
-
-        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "webid: " + network.PlayerInfo.WebServicesUserId);
-        panelTopCp += topIncr;
-
-        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "mapName: " + rootMap.MapInfo.NameForUi);
-        panelTopCp += topIncr;
-
-        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "mapUid: " + rootMap.MapInfo.MapUid);
-        panelTopCp += topIncr;
-
-        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "latestRecordedTime: " + latestRecordedTime);
-        panelTopCp += topIncr;
-
-        nvg::TextBox(panelLeftCp, panelTopCp, panelWidth, "size: " + membuff.GetSize() / 1024 + " kB");
-        panelTopCp += topIncr;
-    }
-
-    void FillBuffer(CSceneVehicleVis@ vis, CSmScriptPlayer@ sm_script, int currentRaceTime) {
+    void FillBuffer(CSceneVehicleVis@ vis, CSmScriptPlayer@ sm_script) {
         int gazAndBrake = 0;
         int gazPedal = vis.AsyncState.InputGasPedal > 0 ? 1 : 0;
         int isBraking = vis.AsyncState.InputBrakePedal > 0 ? 2 : 0;
@@ -343,7 +241,7 @@ class TMDojo
         gazAndBrake |= gazPedal;
         gazAndBrake |= isBraking;
 
-        membuff.Write(currentRaceTime);
+        membuff.Write(g_dojo.currentRaceTime);
 
         membuff.Write(vis.AsyncState.Position.x);
         membuff.Write(vis.AsyncState.Position.y);
@@ -391,7 +289,6 @@ class TMDojo
         membuff.Write(vis.AsyncState.RRSlipCoef);
         membuff.Write(vis.AsyncState.RRDamperLen);
     }
-    
 
 	void Render()
 	{
@@ -414,13 +311,12 @@ class TMDojo
             return;
         }
 
-		CSceneVehicleVis@ vis = null;
+        CSceneVehicleVis@ vis = null;
 
 		auto player = GetViewingPlayer();
 		if (player !is null && player.User.Name.Contains(network.PlayerInfo.Name)) {
 			@vis = Vehicle::GetVis(sceneVis, player);
 		}
-
 
 		if (vis is null) {
 			return;
@@ -438,25 +334,35 @@ class TMDojo
         
 
         auto playgroundScript = cast<CSmArenaRulesMode>(app.PlaygroundScript);
-        int currentRaceTime = sm_script.CurrentRaceTime;
 
         bool hudOff = false;
 
         if (app.CurrentPlayground !is null && app.CurrentPlayground.Interface !is null) {
             if (Dev::GetOffsetUint32(app.CurrentPlayground.Interface, 0x1C) == 0) {
-                currentRaceTime = playgroundScript.Now - player.ScriptAPI.StartTime;
                 hudOff = true;
+                if (playgroundScript == null) {
+                    if (app.Network.PlaygroundClientScriptAPI != null) {
+                        auto playgroundClientScriptAPI = cast<CGamePlaygroundClientScriptAPI>(app.Network.PlaygroundClientScriptAPI);
+                        if (playgroundClientScriptAPI != null) {
+                            g_dojo.currentRaceTime = playgroundClientScriptAPI.GameTime - player.ScriptAPI.StartTime;
+                        }
+                    }
+                } else {
+                    g_dojo.currentRaceTime = playgroundScript.Now - player.ScriptAPI.StartTime;
+                }
+            } else {
+                g_dojo.currentRaceTime = sm_script.CurrentRaceTime;
             }
         }
 
-        if (Enabled && OverlayEnabled && !hudOff) {
+        if (Enabled && OverlayEnabled && !hudOff) {     
             this.drawOverlay();
         }
 
-        if (!recording && currentRaceTime > -50 && currentRaceTime < 0) {
+        if (!recording && g_dojo.currentRaceTime > -50 && g_dojo.currentRaceTime < 0) {
             recording = true;
         }
-        
+
         if (recording) {
             
             if (uiConfig.UISequence == 11) {
@@ -494,7 +400,7 @@ class TMDojo
                 }
 
                 startnew(PostRecordedData, fh);
-            } else if (latestRecordedTime > 0 && currentRaceTime < 0) {
+            } else if (latestRecordedTime > 0 && g_dojo.currentRaceTime < 0) {
                 // Give up
                 print("[TMDojo]: Give up");
 
@@ -508,7 +414,7 @@ class TMDojo
                 startnew(PostRecordedData, fh);
             } else {
                  // Record current data
-                int timeSinceLastRecord = currentRaceTime - latestRecordedTime;
+                int timeSinceLastRecord = g_dojo.currentRaceTime - latestRecordedTime;
                 if (timeSinceLastRecord > (1.0 / RECORDING_FPS) * 1000) {
                     // Keep track of the amount of samples for which the position did not changed, used to pause recording
                     if (Math::Abs(latestPlayerPosition.x - sm_script.Position.x) < 0.001 &&
@@ -520,16 +426,13 @@ class TMDojo
                     }
                     // Fill buffer if player has moved recently
                     if (numSamePositions < RECORDING_FPS) {
-                        FillBuffer(vis, sm_script, currentRaceTime);
-                        latestRecordedTime = currentRaceTime;
+                        FillBuffer(vis, sm_script);
+                        latestRecordedTime = g_dojo.currentRaceTime;
                     }
 
                     latestPlayerPosition = sm_script.Position;
                 }
             }
-        }
-        if (DebugOverlayEnabled) {
-            drawDebugBuffer(vis, sm_script, rootMap);
         }
 	}
 }
@@ -555,6 +458,7 @@ void PostRecordedData(ref @handle) {
         print("[TMDojo]: Not saving file, too little data");
         membuff.Resize(0);
         latestRecordedTime = -6666;
+        g_dojo.currentRaceTime = -6666;
         recording = false;
         return;
     }
@@ -579,6 +483,7 @@ void PostRecordedData(ref @handle) {
     }
     recording = false;
     latestRecordedTime = -6666;
+    g_dojo.currentRaceTime = -6666;
     membuff.Resize(0);
 }
 
@@ -745,12 +650,8 @@ void Render() {
 	}
 }
 
-void RenderInterface() {
-    if (!authWindowOpened) {
-        return;
-    }
+void renderAuthWindow() {
     UI::SetNextWindowContentSize(780, 230);
-
     UI::Begin("TMDojo Plugin Authentication", authWindowOpened);
     if (!pluginAuthed) {
         UI::Text(orange + "Not authenticated");
@@ -779,4 +680,89 @@ void RenderInterface() {
         }
     }
     UI::End();
+}
+
+void renderDebugOverlay() {
+    UI::SetNextWindowContentSize(780, 230);
+    UI::Begin("TMDojo Debug", DebugOverlayEnabled);
+
+
+    UI::Columns(2);
+
+    UI::Text("Recording: " + recording);
+    UI::Text("CurrentRaceTime: " + g_dojo.currentRaceTime);
+    UI::Text("LatestRecordedTime: " + latestRecordedTime);
+    UI::Text("Buffer Size (bytes): " + membuff.GetSize());
+
+    CSceneVehicleVis@ vis = null;
+
+    auto app = GetApp();
+
+    auto sceneVis = app.GameScene;
+    if (sceneVis != null && app.Editor == null) {
+        if (app.CurrentPlayground != null && app.CurrentPlayground.GameTerminals.get_Length() > 0 && app.CurrentPlayground.GameTerminals[0].GUIPlayer != null) {
+            auto player = g_dojo.GetViewingPlayer();
+            if (player !is null && player.User.Name.Contains(g_dojo.network.PlayerInfo.Name)) {
+                @vis = Vehicle::GetVis(sceneVis, player);
+            }
+        }
+    }
+
+    if (vis != null) {
+        UI::NextColumn();
+
+        UI::Text("Position.x: " + vis.AsyncState.Position.x);
+        UI::Text("Position.y: " + vis.AsyncState.Position.y);
+        UI::Text("Position.z: " + vis.AsyncState.Position.z);
+
+        UI::Text("WorldVel.x: " + vis.AsyncState.WorldVel.x);
+        UI::Text("WorldVel.y: " + vis.AsyncState.WorldVel.y);
+        UI::Text("WorldVel.z: " + vis.AsyncState.WorldVel.z);
+
+        UI::Text("Speed: " + (vis.AsyncState.FrontSpeed * 3.6f));
+
+        UI::Text("InputSteer: " + vis.AsyncState.InputSteer);
+
+        UI::Text("WheelAngle: " + vis.AsyncState.FLSteerAngle);
+        
+        UI::Text("InputGasPedal: " + vis.AsyncState.InputGasPedal); 
+        UI::Text("InputBrakePedal: " + vis.AsyncState.InputBrakePedal);
+
+        UI::Text("EngineCurGear: " + vis.AsyncState.CurGear);
+        UI::Text("EngineRpm: " + Vehicle::GetRPM(vis.AsyncState));
+
+        UI::Text("Up.x: " + vis.AsyncState.Up.x);
+        UI::Text("Up.y: " + vis.AsyncState.Up.y);
+        UI::Text("Up.z: " + vis.AsyncState.Up.z);
+
+        UI::Text("Dir.x: " + vis.AsyncState.Dir.x);
+        UI::Text("Dir.y: " + vis.AsyncState.Dir.y);
+        UI::Text("Dir.z: " + vis.AsyncState.Dir.z);
+
+        UI::Text("FLGroundContactMaterial: " + vis.AsyncState.FLGroundContactMaterial);
+        UI::Text("FRGroundContactMaterial: " + vis.AsyncState.FRGroundContactMaterial);
+        UI::Text("RLGroundContactMaterial: " + vis.AsyncState.RLGroundContactMaterial);
+        UI::Text("RRGroundContactMaterial: " + vis.AsyncState.RRGroundContactMaterial);
+        
+        UI::Text("FLSlipCoef: " + vis.AsyncState.FLSlipCoef);
+        UI::Text("FRSlipCoef: " + vis.AsyncState.FRSlipCoef);
+        UI::Text("RLSlipCoef: " + vis.AsyncState.RLSlipCoef);
+        UI::Text("RRSlipCoef: " + vis.AsyncState.RRSlipCoef);
+
+        UI::Text("FLDamperLen: " + vis.AsyncState.FLDamperLen);
+        UI::Text("FRDamperLen: " + vis.AsyncState.FRDamperLen);
+        UI::Text("RLDamperLen: " + vis.AsyncState.RLDamperLen);
+        UI::Text("RRDamperLen: " + vis.AsyncState.RRDamperLen);
+    }
+
+    UI::End();
+}
+
+void RenderInterface() {
+    if (authWindowOpened) {
+        renderAuthWindow();
+    }
+    if (DebugOverlayEnabled) {
+        renderDebugOverlay();
+    }
 }
