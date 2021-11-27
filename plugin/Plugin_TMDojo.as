@@ -331,15 +331,15 @@ class TMDojo
             return;
         }
 
-        if (Enabled && OverlayEnabled) {
-            this.drawOverlay();
-        }
+        
 
         auto playgroundScript = cast<CSmArenaRulesMode>(app.PlaygroundScript);
 
+        bool hudOff = false;
+
         if (app.CurrentPlayground !is null && app.CurrentPlayground.Interface !is null) {
             if (Dev::GetOffsetUint32(app.CurrentPlayground.Interface, 0x1C) == 0) {
-
+                hudOff = true;
                 if (playgroundScript == null) {
                     if (app.Network.PlaygroundClientScriptAPI != null) {
                         auto playgroundClientScriptAPI = cast<CGamePlaygroundClientScriptAPI>(app.Network.PlaygroundClientScriptAPI);
@@ -353,6 +353,10 @@ class TMDojo
             } else {
                 g_dojo.currentRaceTime = sm_script.CurrentRaceTime;
             }
+        }
+
+        if (Enabled && OverlayEnabled && !hudOff) {     
+            this.drawOverlay();
         }
 
         if (!recording && g_dojo.currentRaceTime > -50 && g_dojo.currentRaceTime < 0) {
@@ -472,7 +476,7 @@ void PostRecordedData(ref @handle) {
                             "&endRaceTime=" + endRaceTime +
                             "&raceFinished=" + (finished ? "1" : "0");
         Net::HttpRequest@ req = Net::HttpPost(reqUrl, membuff.ReadToBase64(membuff.GetSize()), "application/octet-stream");
-        if (!req.Finished()) {
+        while (!req.Finished()) {
             yield();
         }
         UI::ShowNotification("TMDojo", "Uploaded replay successfully!");
