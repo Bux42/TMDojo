@@ -42,3 +42,5 @@ jobs:
             --region ${{ secrets.AWS_REGION }} \
             --image-repository ${{ secrets.AWS_SAM_IMAGE_REPOSITORY_URL }} \
             --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
+            --no-confirm-changeset 
+            --no-fail-on-empty-changeset
