@@ -331,11 +331,7 @@ class TMDojo
             return;
         }
 
-        
-
         auto playgroundScript = cast<CSmArenaRulesMode>(app.PlaygroundScript);
-
-        bool hudOff = false;
 
         bool hudOff = false;
 
