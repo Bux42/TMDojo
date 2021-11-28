@@ -134,17 +134,18 @@ export const inputSteerChartOptions = (): any => {
     return options;
 };
 
-export const rpmsAndGearChartOptions = (): any => {
+export const rpmAndGearChartOptions = (): any => {
     const options = chartOptionsTemplate();
     options.yAxis = [{
         ...options.yAxis,
         title: {
-            text: 'RPMs',
+            text: 'RPM',
         },
         labels: {
-            format: '{value} RPMs',
+            format: '{value} RPM',
         },
         lineWidth: 2,
+        height: '50%',
     }, {
         ...options.yAxis,
         title: {
@@ -154,7 +155,9 @@ export const rpmsAndGearChartOptions = (): any => {
             format: 'Gear {value}',
         },
         lineWidth: 2,
-        opposite: true,
+        offset: 0,
+        top: '50%',
+        height: '50%',
     }];
     return options;
 };
@@ -170,6 +173,7 @@ export const accelAndBrakeChartOptions = (): any => {
             format: 'Gaz {value}',
         },
         lineWidth: 2,
+        height: '50%',
     }, {
         ...options.yAxis,
         title: {
@@ -179,7 +183,9 @@ export const accelAndBrakeChartOptions = (): any => {
             format: 'Brake {value}',
         },
         lineWidth: 2,
-        opposite: true,
+        offset: 0,
+        top: '50%',
+        height: '50%',
     }];
     return options;
 };
