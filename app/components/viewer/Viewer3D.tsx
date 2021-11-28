@@ -15,8 +15,9 @@ const BACKGROUND_COLOR = new THREE.Color(0.05, 0.05, 0.05);
 
 interface Props {
     replaysData: ReplayData[];
+    children?: JSX.Element;
 }
-const Viewer3D = ({ replaysData }: Props): JSX.Element => {
+const Viewer3D = ({ replaysData, children }: Props): JSX.Element => {
     const {
         lineType,
         showGearChanges,
@@ -75,6 +76,7 @@ const Viewer3D = ({ replaysData }: Props): JSX.Element => {
                     />
                 </Suspense>
                 {showFPS && <FrameRate />}
+                {children}
             </Canvas>
             <TimeLine
                 replaysData={replaysData}

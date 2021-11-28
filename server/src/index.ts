@@ -2,6 +2,7 @@ import { config } from 'dotenv';
 
 import { Request, Response } from 'express';
 import * as express from 'express';
+import * as http from 'http';
 
 import * as https from 'https';
 import * as fs from 'fs';
@@ -21,6 +22,7 @@ import meRouter from './routes/me';
 import userRouter from './routes/users';
 
 import authMiddleware from './middleware/auth';
+import setupWebSocketServer from './lib/websocket';
 
 config();
 
@@ -57,10 +59,6 @@ app.use(bodyParser.json());
 
 // Cookie Parser middleware
 app.use(cookieParser());
-
-app.listen(defaultPort, () => {
-    console.log(`App listening on port ${defaultPort}`);
-});
 
 // initialize DB connection
 db.initDB();
@@ -99,3 +97,12 @@ app.use('/maps', mapRouter);
 app.use('/users', userRouter);
 app.use('/me', meRouter);
 app.use('/replays', replayRouter);
+
+const server = http.createServer(app);
+
+// initialize the WebSocket server instance
+setupWebSocketServer(server);
+
+server.listen(defaultPort, () => {
+    console.log(`App listening on port ${defaultPort}`);
+});
