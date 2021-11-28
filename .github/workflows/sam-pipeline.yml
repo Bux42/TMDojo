@@ -26,7 +26,7 @@ jobs:
 
       - name: SAM Build
         run: |
-          sam build
+          sam build --use-container
 
       - name: SAM Package
         run: |
