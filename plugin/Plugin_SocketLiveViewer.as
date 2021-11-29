@@ -23,7 +23,7 @@ bool OverlayEnabled = true;
 const string LOCAL_API = "http://localhost";
 const string REMOTE_API = "https://api.tmdojo.com";
 
-int RECORDING_FPS = 60;
+int RECORDING_FPS = 200;
 
 int latestRecordedTime = -6666;
 
@@ -226,48 +226,48 @@ class TMDojo
         sock.Write(vis.AsyncState.Position.y); // f
         sock.Write(vis.AsyncState.Position.z); // f
 
-        sock.Write(vis.AsyncState.WorldVel.x); // f
-        sock.Write(vis.AsyncState.WorldVel.y); // f
-        sock.Write(vis.AsyncState.WorldVel.z); // f
+        // sock.Write(vis.AsyncState.WorldVel.x); // f
+        // sock.Write(vis.AsyncState.WorldVel.y); // f
+        // sock.Write(vis.AsyncState.WorldVel.z); // f
 
-        sock.Write(vis.AsyncState.FrontSpeed * 3.6f); // f
+        // sock.Write(vis.AsyncState.FrontSpeed * 3.6f); // f
 
-        sock.Write(vis.AsyncState.InputSteer);  // f
-        sock.Write(vis.AsyncState.FLSteerAngle);  // f
+        // sock.Write(vis.AsyncState.InputSteer);  // f
+        // sock.Write(vis.AsyncState.FLSteerAngle);  // f
 
-        sock.Write(gazAndBrake);  // i
+        // sock.Write(gazAndBrake);  // i
 
-        sock.Write(Vehicle::GetRPM(vis.AsyncState)); // f
-        sock.Write(vis.AsyncState.CurGear); // i
+        // sock.Write(Vehicle::GetRPM(vis.AsyncState)); // f
+        // sock.Write(vis.AsyncState.CurGear); // i
 
-        sock.Write(vis.AsyncState.Up.x); // f
-        sock.Write(vis.AsyncState.Up.y); // f
-        sock.Write(vis.AsyncState.Up.z); // f
+        // sock.Write(vis.AsyncState.Up.x); // f
+        // sock.Write(vis.AsyncState.Up.y); // f
+        // sock.Write(vis.AsyncState.Up.z); // f
 
-        sock.Write(vis.AsyncState.Dir.x); // f
-        sock.Write(vis.AsyncState.Dir.y); // f
-        sock.Write(vis.AsyncState.Dir.z); // f
+        // sock.Write(vis.AsyncState.Dir.x); // f
+        // sock.Write(vis.AsyncState.Dir.y); // f
+        // sock.Write(vis.AsyncState.Dir.z); // f
 
 
-        uint8 fLGroundContactMaterial = vis.AsyncState.FLGroundContactMaterial;
-        sock.Write(fLGroundContactMaterial); // B
-        sock.Write(vis.AsyncState.FLSlipCoef); // f
-        sock.Write(vis.AsyncState.FLDamperLen); // f
+        // uint8 fLGroundContactMaterial = vis.AsyncState.FLGroundContactMaterial;
+        // sock.Write(fLGroundContactMaterial); // B
+        // sock.Write(vis.AsyncState.FLSlipCoef); // f
+        // sock.Write(vis.AsyncState.FLDamperLen); // f
 
-        uint8 fRGroundContactMaterial = vis.AsyncState.FRGroundContactMaterial;
-        sock.Write(fRGroundContactMaterial); // B
-        sock.Write(vis.AsyncState.FRSlipCoef); // f
-        sock.Write(vis.AsyncState.FRDamperLen); // f
+        // uint8 fRGroundContactMaterial = vis.AsyncState.FRGroundContactMaterial;
+        // sock.Write(fRGroundContactMaterial); // B
+        // sock.Write(vis.AsyncState.FRSlipCoef); // f
+        // sock.Write(vis.AsyncState.FRDamperLen); // f
 
-        uint8 rLGroundContactMaterial = vis.AsyncState.RLGroundContactMaterial;
-        sock.Write(rLGroundContactMaterial); // B
-        sock.Write(vis.AsyncState.RLSlipCoef); // f
-        sock.Write(vis.AsyncState.RLDamperLen); // f
+        // uint8 rLGroundContactMaterial = vis.AsyncState.RLGroundContactMaterial;
+        // sock.Write(rLGroundContactMaterial); // B
+        // sock.Write(vis.AsyncState.RLSlipCoef); // f
+        // sock.Write(vis.AsyncState.RLDamperLen); // f
 
-        uint8 rRGroundContactMaterial = vis.AsyncState.RRGroundContactMaterial;
-        sock.Write(rRGroundContactMaterial); // B
-        sock.Write(vis.AsyncState.RRSlipCoef); // f
-        sock.Write(vis.AsyncState.RRDamperLen); // f
+        // uint8 rRGroundContactMaterial = vis.AsyncState.RRGroundContactMaterial;
+        // sock.Write(rRGroundContactMaterial); // B
+        // sock.Write(vis.AsyncState.RRSlipCoef); // f
+        // sock.Write(vis.AsyncState.RRDamperLen); // f
     }
 
 	void Render()
@@ -436,7 +436,7 @@ void ConnectSocket() {
     socketConnected = false;
     @sock = Net::Socket();
 
-    while (!sock.Connect("localhost", 80) && !stopAll) {
+    while (!sock.Connect("localhost", 1337) && !stopAll) {
         yield();
     }
     

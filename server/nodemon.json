@@ -8,7 +8,7 @@
     "ignore": [],
     "exec": "npm start ./src/index.tsx",
     "events": {
-        "restart": "kill-port 80",
-        "crash": "kill-port 80"
+        "restart": "npx kill-port 80",
+        "crash": "npx kill-port 80"
     }
 }

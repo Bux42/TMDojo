@@ -22,7 +22,7 @@ import meRouter from './routes/me';
 import userRouter from './routes/users';
 
 import authMiddleware from './middleware/auth';
-import setupWebSocketServer from './lib/websocket';
+import startSocketServer from './webSocketServer/startSocketServer';
 
 config();
 
@@ -101,7 +101,7 @@ app.use('/replays', replayRouter);
 const server = http.createServer(app);
 
 // initialize the WebSocket server instance
-setupWebSocketServer(server);
+startSocketServer(server);
 
 server.listen(defaultPort, () => {
     console.log(`App listening on port ${defaultPort}`);
