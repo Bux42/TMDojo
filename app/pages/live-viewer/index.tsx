@@ -2,67 +2,21 @@ import React, { useEffect, useState } from 'react';
 import { Layout } from 'antd';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import * as THREE from 'three';
-import { Socket } from 'net';
 import Viewer3D from '../../components/viewer/Viewer3D';
-import parseBuffer, { LiveSample } from '../../lib/live-viewer/bufferParser';
 
 const positions: THREE.Vector3[] = [];
 const colors: THREE.Color[] = [];
 
-const LiveSocketPoints = ({ lastMessage, newSample, client }:
-    {
-        lastMessage?: MessageEvent<any> | null,
-        newSample?: LiveSample | undefined,
-        client?: Socket
-    }) => {
+interface LiveSocketPointsProps {
+    lastMessage?: MessageEvent<any> | null,
+}
+const LiveSocketPoints = ({ lastMessage }: LiveSocketPointsProps) => {
     const [meshGeom, setMeshGeom] = useState<THREE.BufferGeometry>();
-
-    // console.log('Inside LiveSocketPoints');
-    // useEffect(() => {
-    //     if (client) {
-    //         console.log('Setting client listeners');
-
-    //         client.on('data', (data) => {
-    //             // console.log(`Received: ${data}`);
-    //             const parsed = parseBuffer(data);
-    //             console.log(parsed);
-    //             if (parsed) {
-    //                 addNewPoint(parsed);
-    //             }
-    //         });
-
-    //         client.on('close', () => {
-    //             console.log('Connection closed');
-    //         });
-    //     }
-    // }, [client]);
-
-    const addNewPoint = (point: LiveSample) => {
-        console.log('New sample!');
-
-        // const pos = point.position;
-        // const col = new THREE.Color(1, 0.5, 0.5);
-        // positions.push(pos);
-        // colors.push(col);
-
-        // console.log('New positions added');
-
-        // const newMeshGeom = new THREE.BufferGeometry().setFromPoints(positions);
-
-        // newMeshGeom.setAttribute(
-        //     'color',
-        //     new THREE.Float32BufferAttribute(colors.flatMap((c) => [c.r, c.g, c.b]), 3),
-        // );
-
-        // setMeshGeom(newMeshGeom);
-    };
 
     useEffect(() => {
         if (lastMessage != null) {
             try {
                 const parsedMessage = JSON.parse(lastMessage.data);
-
-                console.log(parsedMessage);
                 if (parsedMessage.position) {
                     const { position } = parsedMessage;
                     const pos = new THREE.Vector3(
@@ -84,16 +38,10 @@ const LiveSocketPoints = ({ lastMessage, newSample, client }:
                     setMeshGeom(newMeshGeom);
                 }
             } catch (e) {
-                // console.log(e);
+                console.log(e);
             }
         }
     }, [lastMessage]);
-
-    useEffect(() => {
-        if (newSample != null) {
-            addNewPoint(newSample);
-        }
-    }, [newSample]);
 
     return (
         <points geometry={meshGeom}>
@@ -107,29 +55,7 @@ const LiveViewer = (): JSX.Element => {
     const [socketUrl, setSocketUrl] = useState('ws://localhost');
     const [messageHistory, setMessageHistory] = useState<any[]>([]);
 
-    const [lastSample, setLastSample] = useState<LiveSample | undefined>();
-    // const [client, setClient] = useState<Socket | undefined>(undefined);
-
-    // useEffect(() => {
-    //     console.log('Connecting...');
-
-    //     try {
-    //         const newClient = new Socket();
-    //         newClient.connect(1337, '127.0.0.1', () => {
-    //             console.log('Connected');
-    //             newClient.write('live-viewer');
-    //             setClient(newClient);
-    //         });
-    //     } catch (e) {
-    //         console.log(e);
-    //     }
-    // }, []);
-
-    const {
-        sendMessage,
-        lastMessage,
-        readyState,
-    } = useWebSocket(socketUrl);
+    const { lastMessage, readyState } = useWebSocket(socketUrl);
 
     const connectionStatus = {
         [ReadyState.CONNECTING]: 'Connecting',
@@ -149,18 +75,14 @@ const LiveViewer = (): JSX.Element => {
         <>
             <Layout>
                 <span>
-                    The WebSocket is currently
-                    {' '}
-                    {connectionStatus}
+                    {`The WebSocket is currently ${connectionStatus}`}
                 </span>
-                {lastMessage ? (
-                    <span>
-                        Last message:
-                        {' '}
-                        {lastMessage.data}
-                    </span>
-                ) : null}
-                {messageHistory.length}
+                <span>
+                    {lastMessage && `Last message: ${lastMessage.data}`}
+                </span>
+                <span>
+                    {`Messages received: ${messageHistory.length}`}
+                </span>
                 <Layout.Content>
                     <Viewer3D
                         replaysData={[]}
