@@ -473,10 +473,20 @@ void PostRecordedData(ref @handle) {
                             "&webId=" + network.PlayerInfo.WebServicesUserId +
                             "&endRaceTime=" + endRaceTime +
                             "&raceFinished=" + (finished ? "1" : "0");
-        Net::HttpRequest@ req = Net::HttpPost(reqUrl, membuff.ReadToBase64(membuff.GetSize()), "application/octet-stream");
+        // build up request instance
+        Net::HttpRequest req;
+        req.Method = Net::HttpMethod::Post;
+        req.Url = reqUrl;
+        req.Body = membuff.ReadToBase64(membuff.GetSize());
+        dictionary@ Headers = dictionary();
+        Headers["Authorization"] = "dojo " + SessionId;
+        Headers["Content-Type"] = "application/octet-stream";
+        @req.Headers = Headers;
+        req.Start();
         while (!req.Finished()) {
             yield();
         }
+        // TODO: handle upload errors
         UI::ShowNotification("TMDojo", "Uploaded replay successfully!");
     }
     recording = false;

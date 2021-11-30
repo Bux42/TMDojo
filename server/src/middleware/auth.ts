@@ -8,12 +8,18 @@ import { getUserBySessionId } from '../lib/db';
  * Sets req.user to undefined if no user is logged in
  */
 const authMiddleware = async (req: Request, res: Response, next: Function) => {
-    const { sessionId } = req.cookies;
+    let { sessionId } = req.cookies;
 
-    // Check for missing parameters
     if (sessionId === undefined || typeof sessionId !== 'string') {
-        req.user = undefined;
-        return next();
+        // check for Auth header (used by plugin) - format is "dojo <sessionId>"
+        const authHeader = req.headers.authorization;
+        if (authHeader && authHeader.startsWith('dojo ')) {
+            [, sessionId] = authHeader.split(' ');
+        } else {
+            // no sessionId and no auth header, so no user
+            req.user = undefined;
+            return next();
+        }
     }
 
     // Get user by session secret
