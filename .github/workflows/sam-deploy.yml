@@ -9,6 +9,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      # Installing python is required for setting up AWS SAM
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "3.8"
+
       - name: Setup AWS SAM CLI
         uses: aws-actions/setup-sam@v1
 
@@ -21,20 +26,24 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: SAM Validate
+        working-directory: ./server
         run: |
           sam validate
 
       - name: SAM Build
+        working-directory: ./server
         run: |
           sam build --use-container
 
       - name: SAM Package
+        working-directory: ./server
         run: |
           sam package \
             --output-template-file packaged-template.yaml \
             --image-repository ${{ secrets.AWS_SAM_IMAGE_REPOSITORY_URL }}
 
       - name: SAM Deploy
+        working-directory: ./server
         run: |
           sam deploy 
             --template-file ./packaged-template.yaml \
