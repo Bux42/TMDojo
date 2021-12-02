@@ -1,10 +1,10 @@
-name: AWS SAM Validate, Build, Deploy
+name: AWS SAM Deploy
 on:
   push:
     branches: [ main ]
 
 jobs:
-  sam-validate-build-package-deploy:
+  sam-deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

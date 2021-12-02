@@ -1,0 +1,18 @@
+name: AWS SAM Build
+on: pull_request
+jobs:
+  sam-validate-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup AWS SAM CLI
+        uses: aws-actions/setup-sam@v1
+
+      - name: SAM Validate
+        run: |
+          sam validate
+
+      - name: SAM Build
+        run: |
+          sam build --use-container
