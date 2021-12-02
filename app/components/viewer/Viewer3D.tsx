@@ -10,14 +10,15 @@ import FrameRate from './FrameRate';
 import ReplayCars from './ReplayCars';
 import GlobalTimeLineInfos from '../../lib/singletons/timeLineInfos';
 import TimeLine from './TimeLine';
+import { LiveSocketPoints } from '../../pages/live-viewer';
 
 const BACKGROUND_COLOR = new THREE.Color(0.05, 0.05, 0.05);
 
 interface Props {
     replaysData: ReplayData[];
-    children?: JSX.Element;
+    isLiveViewer?: boolean;
 }
-const Viewer3D = ({ replaysData, children }: Props): JSX.Element => {
+const Viewer3D = ({ replaysData, isLiveViewer }: Props): JSX.Element => {
     const {
         lineType,
         showGearChanges,
@@ -76,7 +77,12 @@ const Viewer3D = ({ replaysData, children }: Props): JSX.Element => {
                     />
                 </Suspense>
                 {showFPS && <FrameRate />}
-                {children}
+                {isLiveViewer
+                        && (
+                            <Suspense fallback={null}>
+                                <LiveSocketPoints orbitControlsRef={orbitControlsRef} />
+                            </Suspense>
+                        )}
             </Canvas>
             <TimeLine
                 replaysData={replaysData}
