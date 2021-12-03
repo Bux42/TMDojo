@@ -11,7 +11,7 @@ import { ReplayDataPoint } from '../../lib/replays/replayData';
 import vecToQuat from '../../lib/utils/math';
 import { CameraMode } from '../../lib/contexts/SettingsContext';
 import InputOverlay from './InputOverlay';
-import getSampleNearTime from '../../lib/utils/replay';
+import { getSampleNearTime } from '../../lib/utils/replay';
 import GlobalTimeLineInfos from '../../lib/singletons/timeLineInfos';
 
 const BACK_WHEEL_Y = 35.232017517089844;
