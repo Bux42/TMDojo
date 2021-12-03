@@ -1,6 +1,7 @@
 import { MongoClient, ObjectId, Db } from 'mongodb';
 import { config } from 'dotenv';
 import { v4 as uuid } from 'uuid';
+import * as mongoose from 'mongoose';
 import { playerLoginFromWebId } from './authorize';
 
 config();
@@ -11,19 +12,30 @@ let db: Db = null;
 
 export type Rejector = (_1: Error) => void;
 
-export const initDB = () => {
+export const initDB = async () => {
+    // Initialize normal MongoDB database connection (will be removed once mongoose if fully setup)
     const mongoClient = new MongoClient(process.env.MONGO_URL, {
         useUnifiedTopology: true,
     } as any);
 
     mongoClient.connect((err: Error) => {
         if (err) {
-            console.error('initDB: Could not connect to DB, shutting down');
+            console.error('initDB: MongoDB could not connect to DB, shutting down');
             process.exit();
         }
-        console.log('initDB: Connected successfully to DB');
+        console.log('initDB: MongoDB connected successfully to DB');
         db = mongoClient.db(DB_NAME);
     });
+
+    // Initialize Mongoose
+    try {
+        // Make sure MONGO_URL has the database (/dojo) specified at the end of the URL
+        await mongoose.connect(process.env.MONGO_URL);
+        console.log('initDB: Mongoose successfully connected to DB');
+    } catch (e) {
+        console.error('initDB: Mongoose could not connect to DB, shutting down');
+        process.exit();
+    }
 };
 
 export const createUser = (
