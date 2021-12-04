@@ -8,6 +8,7 @@ import {
 import Highcharts, { AxisSetExtremesEventObject } from 'highcharts/highstock';
 import HighchartsReact from 'highcharts-react-official';
 import { CheckboxChangeEvent } from 'antd/lib/checkbox';
+import { CaretUpOutlined, LineChartOutlined } from '@ant-design/icons';
 import { ReplayData } from '../../lib/api/apiRequests';
 import { SettingsContext } from '../../lib/contexts/SettingsContext';
 import { getRaceTimeStr } from '../../lib/utils/time';
@@ -234,10 +235,21 @@ export const ChartsDrawer = ({
                 && (
                     <Button
                         onClick={toggleSidebar}
+                        className="mb-4 py-6 px-2 flex flex-row items-center justify-center"
                         size="large"
-                        className="mb-8"
+                        style={{
+                            backgroundColor: '#1f1f1f',
+                            border: 0,
+                            borderTopRightRadius: Infinity,
+                            borderTopLeftRadius: Infinity,
+                        }}
                     >
-                        Charts
+                        <CaretUpOutlined className="mx-4" />
+                        <div>
+                            <LineChartOutlined className="mx-1" />
+                            Charts
+                        </div>
+                        <CaretUpOutlined className="mx-4" />
                     </Button>
                 )}
             <Drawer

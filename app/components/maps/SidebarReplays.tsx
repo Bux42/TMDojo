@@ -3,7 +3,8 @@ import {
     Button, Drawer, message, Popconfirm, Spin, Table, Tooltip,
 } from 'antd';
 import {
-    DeleteOutlined, QuestionCircleOutlined, ReloadOutlined,
+    CaretRightOutlined,
+    DeleteOutlined, QuestionCircleOutlined, ReloadOutlined, UnorderedListOutlined,
 } from '@ant-design/icons';
 import { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
 import { ColumnType, TableCurrentDataSource } from 'antd/lib/table/interface';
@@ -227,9 +228,23 @@ const SidebarReplays = ({
     };
 
     return (
-        <div className="absolute m-8 z-10">
-            <Button onClick={toggleSidebar} shape="round" size="large">
-                Replay List
+        <div className="absolute mt-12 z-10">
+            <Button
+                onClick={toggleSidebar}
+                className="p-6 flex flex-row items-center"
+                size="large"
+                style={{
+                    backgroundColor: '#1f1f1f',
+                    border: 0,
+                    borderBottomRightRadius: Infinity,
+                    borderTopRightRadius: Infinity,
+                }}
+            >
+                <div className="mr-4">
+                    <UnorderedListOutlined className="mx-2" />
+                    Replay List
+                </div>
+                <CaretRightOutlined />
             </Button>
             <Drawer
                 title="Select replays"
