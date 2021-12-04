@@ -14,7 +14,7 @@ import * as THREE from 'three';
 import { FileResponse, ReplayData } from '../../lib/api/apiRequests';
 import { CameraMode, SettingsContext } from '../../lib/contexts/SettingsContext';
 import GlobalTimeLineInfos from '../../lib/singletons/timeLineInfos';
-import { getRaceTimeStr } from '../../lib/utils/time';
+import { addPlural, getRaceTimeStr } from '../../lib/utils/time';
 
 interface LoadedReplayProps {
     replay: ReplayData;
@@ -168,14 +168,21 @@ const LoadedReplays = ({
             {!visible
             && (
                 <Button
-                    style={{
-                        marginTop: 226,
-                        height: 56,
-                        width: 56,
-                    }}
                     onClick={toggleSidebar}
-                    icon={<CaretLeftOutlined />}
-                />
+                    className="flex flex-row items-center justify-center mt-56 h-14"
+                    size="large"
+                    style={{
+                        backgroundColor: '#1f1f1f',
+                        border: 0,
+                        borderBottomLeftRadius: 9999,
+                        borderTopLeftRadius: 9999,
+                    }}
+                >
+                    <CaretLeftOutlined />
+                    <div className="px-2 ml-2">
+                        {`${replays.length} Replay${addPlural(replays.length)}`}
+                    </div>
+                </Button>
             )}
             <Drawer
                 style={{ height: 400, opacity: 0.9, marginTop: 300 }}
