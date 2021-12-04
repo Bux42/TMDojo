@@ -15,12 +15,7 @@ const MapHeader = ({ mapInfo }: Props): JSX.Element => {
     const router = useRouter();
 
     const hasExchangeId = mapInfo.exchangeid !== undefined && mapInfo.exchangeid !== 0;
-
-    const TmxButton = () => (
-        <Button key="tmx" type="primary" disabled={!hasExchangeId}>
-            TM Exchange
-        </Button>
-    );
+    const hasMapUid = mapInfo.mapUid !== undefined && mapInfo.mapUid !== '';
 
     const tmioURL = `https://trackmania.io/#/leaderboard/${mapInfo.mapUid}`;
     const tmxURL = `https://trackmania.exchange/maps/${mapInfo.exchangeid}`;
@@ -36,21 +31,19 @@ const MapHeader = ({ mapInfo }: Props): JSX.Element => {
                     {/* anchors need duplicate links for keyboard accessibility */}
                     <Link href={tmioURL}>
                         <a target="_blank" rel="noreferrer" href={tmioURL}>
-                            <Button key="tm.io" type="primary">
+                            <Button key="tm.io" type="primary" disabled={!hasMapUid}>
                                 trackmania.io
                             </Button>
                         </a>
                     </Link>
 
-                    {hasExchangeId ? (
-                        <Link href={tmxURL}>
-                            <a target="_blank" rel="noreferrer" href={tmxURL}>
-                                <TmxButton />
-                            </a>
-                        </Link>
-                    ) : (
-                        <TmxButton />
-                    )}
+                    <Link href={tmxURL}>
+                        <a target="_blank" rel="noreferrer" href={tmxURL}>
+                            <Button key="tmx" type="primary" disabled={!hasExchangeId}>
+                                TM Exchange
+                            </Button>
+                        </a>
+                    </Link>
                 </div>
             )}
             extra={<UserDisplay />}
