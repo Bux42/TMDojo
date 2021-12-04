@@ -185,7 +185,7 @@ const LoadedReplays = ({
                 </Button>
             )}
             <Drawer
-                style={{ height: 400, opacity: 0.9, marginTop: 300 }}
+                style={{ height: 400, opacity: 0.9, marginTop: 296 }}
                 mask={false}
                 closeIcon={<CaretRightOutlined />}
                 title={`${replays.length} Loaded Replays`}
