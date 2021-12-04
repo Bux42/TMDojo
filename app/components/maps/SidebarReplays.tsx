@@ -236,8 +236,8 @@ const SidebarReplays = ({
                 style={{
                     backgroundColor: '#1f1f1f',
                     border: 0,
-                    borderBottomRightRadius: Infinity,
-                    borderTopRightRadius: Infinity,
+                    borderBottomRightRadius: 9999,
+                    borderTopRightRadius: 9999,
                 }}
             >
                 <div className="mr-4">

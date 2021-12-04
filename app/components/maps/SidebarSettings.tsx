@@ -45,8 +45,8 @@ const SidebarSettings = (): JSX.Element => {
                 style={{
                     backgroundColor: '#1f1f1f',
                     border: 0,
-                    borderBottomLeftRadius: Infinity,
-                    borderTopLeftRadius: Infinity,
+                    borderBottomLeftRadius: 9999,
+                    borderTopLeftRadius: 9999,
                 }}
             >
                 <CaretLeftOutlined />

@@ -240,8 +240,8 @@ export const ChartsDrawer = ({
                         style={{
                             backgroundColor: '#1f1f1f',
                             border: 0,
-                            borderTopRightRadius: Infinity,
-                            borderTopLeftRadius: Infinity,
+                            borderTopRightRadius: 8,
+                            borderTopLeftRadius: 8,
                         }}
                     >
                         <CaretUpOutlined className="mx-4" />
