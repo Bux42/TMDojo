@@ -32,14 +32,22 @@ const MapHeader = ({ mapInfo }: Props): JSX.Element => {
                     <Link href={tmioURL}>
                         <a target="_blank" rel="noreferrer" href={tmioURL}>
                             <Button key="tm.io" type="primary" disabled={!hasMapUid}>
-                                trackmania.io
+                                Trackmania.io
                             </Button>
                         </a>
                     </Link>
 
                     <Link href={tmxURL}>
                         <a target="_blank" rel="noreferrer" href={tmxURL}>
-                            <Button key="tmx" type="primary" disabled={!hasExchangeId}>
+                            <Button
+                                key="tmx"
+                                type="primary"
+                                disabled={!hasExchangeId}
+                                style={{
+                                    backgroundColor: '#13ae63',
+                                    borderColor: '#13ae63',
+                                }}
+                            >
                                 TM Exchange
                             </Button>
                         </a>
