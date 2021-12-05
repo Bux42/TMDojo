@@ -134,7 +134,7 @@ const SidebarReplays = ({
             title: '',
             key: 'load',
             align: 'center',
-            width: 180,
+            width: 150,
             render: (_, replay) => {
                 const selected = selectedReplayDataIds.indexOf(replay._id) !== -1;
                 return (
