@@ -7,7 +7,7 @@ import { S3 } from '@aws-sdk/client-s3';
 
 const { PREFERRED_STORAGE_TYPE, AWS_S3_BUCKET_NAME, AWS_S3_REGION } = process.env;
 
-enum StorageType {
+export enum StorageType {
     ObjectStorage = 'S3',
     FileStorage = 'FS'
 }
@@ -32,7 +32,7 @@ const compress = (input: string|Buffer): Buffer => zlib.gzipSync(input);
 const decompress = (input: Buffer): Buffer => zlib.unzipSync(input);
 
 // generic helper method for uploading artefacts (includes compression)
-const uploadObject = async (storageType: StorageType, key: string, value: string|Buffer) => {
+export const uploadObject = async (storageType: StorageType, key: string, value: string|Buffer) => {
     if (storageType === StorageType.ObjectStorage) {
         const params = {
             Bucket: AWS_S3_BUCKET_NAME,
@@ -61,7 +61,7 @@ const uploadObject = async (storageType: StorageType, key: string, value: string
 };
 
 // generic helper method for fetching artefacts (includes decompression)
-const retrieveObject = async (storageType: StorageType, key: string) => {
+export const retrieveObject = async (storageType: StorageType, key: string) => {
     try {
         if (storageType === StorageType.ObjectStorage) {
             const params = {

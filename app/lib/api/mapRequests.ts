@@ -1,15 +1,15 @@
-import axios from "axios";
-import { MapBlockData } from "../blocks/blockData";
-import { FileResponse } from "./fileRequests";
+import apiInstance from './apiInstance';
+import { MapBlockData } from '../blocks/blockData';
+import { FileResponse } from './apiRequests';
 
-export const fetchMapBlocks = async (file: FileResponse): Promise<MapBlockData> => {
+const fetchMapBlocks = async (file: FileResponse): Promise<MapBlockData> => {
     const params = {
-        filePath: file.challengeId,
+        mapUId: file.mapUId,
     };
 
-    const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/get-map-blocks`, {
+    const res = await apiInstance.get('/map-blocks', {
         params,
-        responseType: "arraybuffer",
+        responseType: 'arraybuffer',
     });
 
     const { data } = res;
@@ -18,3 +18,5 @@ export const fetchMapBlocks = async (file: FileResponse): Promise<MapBlockData> 
 
     return blockManager;
 };
+
+export default fetchMapBlocks;

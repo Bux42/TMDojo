@@ -66,7 +66,6 @@ void ExtractBlocks()
         }
     }
 
-    print("Starting Upload");
     ref @uploadHandle = UploadHandle();
 
     cast<UploadHandle>(uploadHandle).challengeId = app.PlaygroundScript.Map.EdChallengeId;
@@ -76,20 +75,25 @@ void ExtractBlocks()
 
 void UploadMapData(ref @uploadHandle)
 {
+    print("Starting Upload");
     UploadHandle @uh = cast<UploadHandle>(uploadHandle);
     print("Membuff: " + membuff.GetSize());
+
     membuff.Seek(0);
+    
     Net::HttpRequest req;
     req.Method = Net::HttpMethod::Post;
-    req.Url = "http://localhost/save-map-blocks?challengeId=" + uh.challengeId;
+    req.Url = "http://localhost/map-blocks?mapUId=" + uh.challengeId;
     req.Body = membuff.ReadToBase64(membuff.GetSize());
     dictionary@ Headers = dictionary();
     Headers["Content-Type"] = "application/octet-stream";
+    @req.Headers = Headers;
     
     req.Start();
     while (!req.Finished()) {
         yield();
     }
+    print("Finished Upload");
 
     membuff.Resize(0);
 }

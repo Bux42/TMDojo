@@ -19,6 +19,7 @@ import authorizeRouter from './routes/authorize';
 import logoutRouter from './routes/logout';
 import meRouter from './routes/me';
 import userRouter from './routes/users';
+import mapBlocksRouter from './routes/map-blocks';
 
 import authMiddleware from './middleware/auth';
 
@@ -99,3 +100,4 @@ app.use('/maps', mapRouter);
 app.use('/users', userRouter);
 app.use('/me', meRouter);
 app.use('/replays', replayRouter);
+app.use('/map-blocks', mapBlocksRouter);

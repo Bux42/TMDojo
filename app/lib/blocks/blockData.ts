@@ -1,4 +1,4 @@
-import * as THREE from "three";
+import * as THREE from 'three';
 
 export interface Block {
     blockName: string;
@@ -17,10 +17,12 @@ export class MapBlockData {
     }
 
     readDataView = (dataView: DataView): void => {
+        debugger;
         while (this.offset < dataView.byteLength) {
             try {
+                // const blockNameLen = this.readUint8(dataView);
                 const blockNameLen = this.readUint8(dataView);
-                let blockName = "";
+                let blockName = '';
                 for (let i = 0; i < blockNameLen; i++) {
                     const letter = this.readUint8(dataView);
                     blockName += String.fromCharCode(letter);
@@ -38,12 +40,14 @@ export class MapBlockData {
                     blockOffsets.push(offset);
                 }
 
-                const block = { blockName, dir, baseCoord, blockOffsets };
+                const block = {
+                    blockName, dir, baseCoord, blockOffsets,
+                };
 
                 this.blocks.push(block);
             } catch (e) {
                 if (!(e instanceof RangeError)) {
-                    console.log("Error while reading dataview", { dataView, error: e });
+                    console.log('Error while reading dataview', { dataView, error: e });
                 }
             }
         }

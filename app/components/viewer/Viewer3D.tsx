@@ -4,6 +4,7 @@ import React, {
 import * as THREE from 'three';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Sky } from '@react-three/drei';
+import { message } from 'antd';
 import { ReplayData } from '../../lib/api/apiRequests';
 import { ReplayLines } from './ReplayLines';
 import { Grid, DEFAULT_GRID_POS } from './Grid';
@@ -12,9 +13,9 @@ import FrameRate from './FrameRate';
 import ReplayCars from './ReplayCars';
 import GlobalTimeLineInfos from '../../lib/singletons/timeLineInfos';
 import TimeLine from './TimeLine';
-import { fetchMapBlocks } from '../../lib/api/mapRequests';
+import fetchMapBlocks from '../../lib/api/mapRequests';
 import { MapBlockData } from '../../lib/blocks/blockData';
-import { MapBlocks } from './MapBlocks';
+import MapBlocks from './MapBlocks';
 
 const BACKGROUND_COLOR = new THREE.Color(0.05, 0.05, 0.05);
 
@@ -48,15 +49,14 @@ const Viewer3D = ({ replaysData }: Props): JSX.Element => {
 
     useEffect(() => {
         const f = async () => {
-            if (replaysData.length > 0) {
-                try {
-                    const blocks = await fetchMapBlocks(replaysData[0]);
-                    setMapBlockData(blocks);
-                } catch (e) {
-                    // TODO: Either store that this map is unavailable, or just do nothing, like now
+            try {
+                const blocks = await fetchMapBlocks(replaysData[0]);
+                setMapBlockData(blocks);
+            } catch (e) {
+                // TODO: Either store that this map is unavailable, or just do nothing, like now
+                if (showBlocks) {
+                    message.error('Could not retrieve map blocks...');
                 }
-            } else {
-                setMapBlockData(undefined);
             }
         };
         f();

@@ -1,8 +1,8 @@
-import React from "react";
-import * as THREE from "three";
-import { Block, MapBlockData } from "../../lib/blocks/blockData";
-import { BasicBlock, BasicBlockWithOffsets } from "./blocks/BasicBlocks";
-import { CpBlock } from "./blocks/CpBlocks";
+import React from 'react';
+import * as THREE from 'three';
+import { Block, MapBlockData } from '../../lib/blocks/blockData';
+import { BasicBlock, BasicBlockWithOffsets } from './blocks/BasicBlocks';
+import { CpBlock } from './blocks/CpBlocks';
 
 // Block colors
 const BASE_COLOR = new THREE.Color(0.1, 0.1, 0.1);
@@ -26,7 +26,7 @@ const MapBlock = ({ block }: MapBlockProps) => {
     const meshCoord = new THREE.Vector3(baseCoord.x, baseCoord.y - 8, baseCoord.z);
 
     // Start block
-    if (blockName.includes("TechStart")) {
+    if (blockName.includes('TechStart')) {
         return (
             <BasicBlock
                 meshCoord={meshCoord}
@@ -36,7 +36,7 @@ const MapBlock = ({ block }: MapBlockProps) => {
     }
 
     // Finish blocks
-    if (blockName.includes("TechFinish")) {
+    if (blockName.includes('TechFinish')) {
         return (
             <BasicBlock
                 meshCoord={meshCoord}
@@ -46,7 +46,7 @@ const MapBlock = ({ block }: MapBlockProps) => {
     }
 
     // Checkpoint blocks
-    if (blockName.includes("Checkpoint")) {
+    if (blockName.includes('Checkpoint')) {
         return (
             <CpBlock
                 block={block}
@@ -65,44 +65,40 @@ const MapBlock = ({ block }: MapBlockProps) => {
     );
 };
 
-const filterBlocks = (blocks: Block[]): Block[] => {
-    return blocks.filter((block) => {
-        const { blockName, baseCoord } = block;
+const filterBlocks = (blocks: Block[]): Block[] => blocks.filter((block) => {
+    const { blockName, baseCoord } = block;
 
-        if (baseCoord.y == 12 && blockName.includes("Grass")) {
-            return false;
-        }
+    if (baseCoord.y == 12 && blockName.includes('Grass')) {
+        return false;
+    }
 
-        const blockBlacklist = [
-            "Pillar",
-            "Deco",
-            "Stage",
-            "Light",
-            "Technics",
-            "Structure",
-            "PlatformGrassWallOutCurve",
-            "TrackWallCurve",
-        ];
+    const blockBlacklist = [
+        'Pillar',
+        'Deco',
+        'Stage',
+        'Light',
+        'Technics',
+        'Structure',
+        'PlatformGrassWallOutCurve',
+        'TrackWallCurve',
+    ];
 
-        const isBlacklisted = blockBlacklist.some((blacklistedBlock) =>
-            blockName.includes(blacklistedBlock)
-        );
+    const isBlacklisted = blockBlacklist.some((blacklistedBlock) => blockName.includes(blacklistedBlock));
 
-        return !isBlacklisted;
-    });
-};
+    return !isBlacklisted;
+});
 
 interface Props {
     mapBlockData: MapBlockData;
 }
-export const MapBlocks = ({ mapBlockData }: Props): JSX.Element => {
+const MapBlocks = ({ mapBlockData }: Props): JSX.Element => {
     const filteredBlocks = filterBlocks(mapBlockData.blocks);
 
     return (
         <>
-            {filteredBlocks.map((block, i) => {
-                return <MapBlock key={i} block={block} />;
-            })}
+            {filteredBlocks.map((block, i) => <MapBlock key={i} block={block} />)}
         </>
     );
 };
+
+export default MapBlocks;
