@@ -1,11 +1,13 @@
 import React, { useContext, useState } from 'react';
 import Title from 'antd/lib/typography/Title';
 import {
-    Button, Checkbox, Drawer, Select, Row, Col, Slider, Radio, RadioChangeEvent,
+    Button, Checkbox, Drawer, Select, Col, Slider,
 } from 'antd';
 import { CheckboxChangeEvent } from 'antd/lib/checkbox';
-import { CameraMode, SettingsContext } from '../../lib/contexts/SettingsContext';
+import { CaretLeftOutlined, SettingOutlined } from '@ant-design/icons';
+import { SettingsContext } from '../../lib/contexts/SettingsContext';
 import { LineTypes } from '../viewer/ReplayLines';
+import SideDrawerExpandButton from '../common/SideDrawerExpandButton';
 
 const SidebarSettings = (): JSX.Element => {
     const [visible, setVisible] = useState(false);
@@ -36,10 +38,17 @@ const SidebarSettings = (): JSX.Element => {
     };
 
     return (
-        <div className="absolute right-0 m-8 z-10">
-            <Button onClick={toggleSidebar} shape="round" size="large">
-                Settings
-            </Button>
+        <div className="absolute right-0 mt-12 z-10">
+            <SideDrawerExpandButton
+                onClick={toggleSidebar}
+                side="right"
+                content={(
+                    <>
+                        Settings
+                        <SettingOutlined className="mx-2" />
+                    </>
+                )}
+            />
             <Drawer
                 title="Settings"
                 placement="right"
