@@ -7,6 +7,7 @@ import { CheckboxChangeEvent } from 'antd/lib/checkbox';
 import { CaretLeftOutlined, SettingOutlined } from '@ant-design/icons';
 import { SettingsContext } from '../../lib/contexts/SettingsContext';
 import { LineTypes } from '../viewer/ReplayLines';
+import SideDrawerExpandButton from '../common/SideDrawerExpandButton';
 
 const SidebarSettings = (): JSX.Element => {
     const [visible, setVisible] = useState(false);
@@ -38,23 +39,16 @@ const SidebarSettings = (): JSX.Element => {
 
     return (
         <div className="absolute right-0 mt-12 z-10">
-            <Button
+            <SideDrawerExpandButton
                 onClick={toggleSidebar}
-                className="p-6 flex flex-row items-center"
-                size="large"
-                style={{
-                    backgroundColor: '#1f1f1f',
-                    border: 0,
-                    borderBottomLeftRadius: 9999,
-                    borderTopLeftRadius: 9999,
-                }}
-            >
-                <CaretLeftOutlined />
-                <div className="ml-4">
-                    Settings
-                    <SettingOutlined className="mx-2" />
-                </div>
-            </Button>
+                side="right"
+                content={(
+                    <>
+                        Settings
+                        <SettingOutlined className="mx-2" />
+                    </>
+                )}
+            />
             <Drawer
                 title="Settings"
                 placement="right"

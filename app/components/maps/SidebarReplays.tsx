@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { deleteReplay, FileResponse } from '../../lib/api/apiRequests';
 import { getRaceTimeStr, timeDifference } from '../../lib/utils/time';
 import { AuthContext } from '../../lib/contexts/AuthContext';
+import SideDrawerExpandButton from '../common/SideDrawerExpandButton';
 
 interface ExtendedFileResponse extends FileResponse {
     readableTime: string;
@@ -229,23 +230,16 @@ const SidebarReplays = ({
 
     return (
         <div className="absolute mt-12 z-10">
-            <Button
+            <SideDrawerExpandButton
                 onClick={toggleSidebar}
-                className="p-6 flex flex-row items-center"
-                size="large"
-                style={{
-                    backgroundColor: '#1f1f1f',
-                    border: 0,
-                    borderBottomRightRadius: 9999,
-                    borderTopRightRadius: 9999,
-                }}
-            >
-                <div className="mr-4">
-                    <UnorderedListOutlined className="mx-2" />
-                    Replay List
-                </div>
-                <CaretRightOutlined />
-            </Button>
+                side="left"
+                content={(
+                    <>
+                        <UnorderedListOutlined className="mr-2" />
+                        Replay List
+                    </>
+                )}
+            />
             <Drawer
                 title="Select replays"
                 placement="left"

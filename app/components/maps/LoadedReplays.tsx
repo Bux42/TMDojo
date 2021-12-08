@@ -15,6 +15,7 @@ import { FileResponse, ReplayData } from '../../lib/api/apiRequests';
 import { CameraMode, SettingsContext } from '../../lib/contexts/SettingsContext';
 import GlobalTimeLineInfos from '../../lib/singletons/timeLineInfos';
 import { addPlural, getRaceTimeStr } from '../../lib/utils/time';
+import SideDrawerExpandButton from '../common/SideDrawerExpandButton';
 
 interface LoadedReplayProps {
     replay: ReplayData;
@@ -164,25 +165,17 @@ const LoadedReplays = ({
     timeLineGlobal.hoveredReplay = hovered;
 
     return (
-        <div className="absolute right-0 z-10">
-            {!visible
-            && (
-                <Button
+        <div className="absolute right-0 z-10 mt-56">
+            {!visible && (
+                <SideDrawerExpandButton
                     onClick={toggleSidebar}
-                    className="flex flex-row items-center justify-center mt-56 h-14"
-                    size="large"
-                    style={{
-                        backgroundColor: '#1f1f1f',
-                        border: 0,
-                        borderBottomLeftRadius: 9999,
-                        borderTopLeftRadius: 9999,
-                    }}
-                >
-                    <CaretLeftOutlined />
-                    <div className="px-2 ml-2">
-                        {`${replays.length} Replay${addPlural(replays.length)}`}
-                    </div>
-                </Button>
+                    side="right"
+                    content={(
+                        <>
+                            {`${replays.length} Replay${addPlural(replays.length)}`}
+                        </>
+                    )}
+                />
             )}
             <Drawer
                 style={{ height: 400, opacity: 0.9, marginTop: 296 }}
