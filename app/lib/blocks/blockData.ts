@@ -17,7 +17,6 @@ export class MapBlockData {
     }
 
     readDataView = (dataView: DataView): void => {
-        debugger;
         while (this.offset < dataView.byteLength) {
             try {
                 // const blockNameLen = this.readUint8(dataView);
