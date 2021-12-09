@@ -3,9 +3,10 @@ import { Slider } from 'antd';
 import {
     CaretRightOutlined, PauseOutlined,
 } from '@ant-design/icons';
-import { ReplayData } from '../../lib/api/apiRequests';
-import { getRaceTimeStr } from '../../lib/utils/time';
-import GlobalTimeLineInfos from '../../lib/singletons/timeLineInfos';
+import { ReplayData } from '../../../lib/api/apiRequests';
+import { getRaceTimeStr } from '../../../lib/utils/time';
+import GlobalTimeLineInfos from '../../../lib/singletons/timeLineInfos';
+import TimelineSlider from './TimelineSlider';
 
 interface TimeLineViewProps {
     replaysData: ReplayData[];
@@ -32,6 +33,8 @@ const TimeLineView = ({ replaysData }: TimeLineViewProps) => {
 
     timeLineGlobal.isPlaying = playing;
 
+    timeLineGlobal.currentRaceTime = timeLineTime;
+
     if (timeLineGlobal.followedReplay !== null) {
         if (!replaysData.some((replay: ReplayData) => replay._id === timeLineGlobal.followedReplay?._id)) {
             timeLineGlobal.followedReplay = undefined;
@@ -48,8 +51,6 @@ const TimeLineView = ({ replaysData }: TimeLineViewProps) => {
             setPlaying(false);
         }
     }
-
-    timeLineGlobal.currentRaceTime = timeLineTime;
 
     replaysData.forEach((replay) => {
         if (replay.samples[replay.samples.length - 1].currentRaceTime > timeLineGlobal.maxRaceTime) {
@@ -129,48 +130,10 @@ const TimeLineView = ({ replaysData }: TimeLineViewProps) => {
         >
             <div className="flex flex-row items-center gap-4 w-full h-full">
                 <div className="flex-grow h-full py-3 items-center">
-                    <div
-                        className="flex flex-row h-full w-full"
-                        style={{
-                            backgroundColor: '#3f3f3f',
-                        }}
-                    >
-                        {/* Blue background */}
-                        <div
-                            className="h-full"
-                            style={{
-                                backgroundColor: '#007CD6',
-                                width: `${(timeLineTime / timeLineGlobal.maxRaceTime) * 100.0}%`,
-                            }}
-                        />
-
-                        {/* White line */}
-                        <div
-                            className="h-full"
-                            style={{ backgroundColor: '#AAA', width: '2px' }}
-                        />
-
-                        {/* Arrow indicator */}
-                        <div
-                            style={{
-                                position: 'relative',
-                                width: 0,
-                                height: 0,
-                                left: '-7px',
-                                top: '-4px',
-                            }}
-                        >
-                            <div
-                                style={{
-                                    position: 'absolute',
-                                    width: 0,
-                                    borderLeft: '6px solid transparent',
-                                    borderRight: '6px solid transparent',
-                                    borderTop: '6px solid #AAA',
-                                }}
-                            />
-                        </div>
-                    </div>
+                    <TimelineSlider
+                        onChange={onChange}
+                        yDragMargin={20}
+                    />
                 </div>
                 <div className="flex-grow-0 w-24 h-full py-2">
                     <div
