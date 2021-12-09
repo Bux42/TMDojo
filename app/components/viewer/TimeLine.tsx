@@ -1,7 +1,8 @@
 import { useState } from 'react';
+import { Slider } from 'antd';
 import {
-    Slider, InputNumber, Row, Col, Button,
-} from 'antd';
+    CaretRightOutlined, PauseOutlined,
+} from '@ant-design/icons';
 import { ReplayData } from '../../lib/api/apiRequests';
 import { getRaceTimeStr } from '../../lib/utils/time';
 import GlobalTimeLineInfos from '../../lib/singletons/timeLineInfos';
@@ -14,6 +15,9 @@ interface TimeLineViewProps {
 let playInterval: ReturnType<typeof setTimeout>;
 let expectedTime = Date.now();
 const TICK_TIME = 1000 / 60;
+
+const MIN_SPEED = -2;
+const MAX_SPEED = 2;
 
 const TimeLineView = ({ replaysData }: TimeLineViewProps) => {
     const [timeLineTime, setTimeLineTime] = useState<number>(0);
@@ -93,9 +97,9 @@ const TimeLineView = ({ replaysData }: TimeLineViewProps) => {
         playInterval = setTimeout(() => startSteadyLoop(intervalCallback), TICK_TIME);
     };
 
-    const onTogglePlay = () => {
-        setPlaying(!playing);
-        if (playing) {
+    const onTogglePlay = (shouldPlay: boolean = !playing) => {
+        setPlaying(shouldPlay);
+        if (!shouldPlay) {
             // was playing, pause interval
             onChange(timeLineGlobal.currentRaceTime - 1);
             clearInterval(playInterval);
@@ -116,55 +120,110 @@ const TimeLineView = ({ replaysData }: TimeLineViewProps) => {
     const timeFormat = (v: number | undefined) => (v !== undefined ? `${getRaceTimeStr(v)}` : '');
 
     return (
-        <>
-            {replaysData.length > 0
-        && (
-            <Row className="absolute bottom-0 w-full px-10 py-2 z-10" style={{ backgroundColor: 'rgba(20,20,20,1)' }}>
-                <Col span={12}>
-                    <Slider
-                        min={min}
-                        max={timeLineGlobal.maxRaceTime}
-                        onChange={onChange}
-                        value={timeLineTime}
-                        step={0.01}
-                        tipFormatter={timeFormat}
-                    />
-                </Col>
-                <Col span={2}>
-                    <InputNumber
-                        min={min}
-                        max={timeLineGlobal.maxRaceTime}
-                        style={{ margin: '0 16px' }}
-                        step={0.01}
-                        value={timeLineTime}
-                        readOnly
-                        formatter={timeFormat}
-                    />
-                </Col>
-                <Col span={3}>
-                    <Button
-                        type="primary"
-                        onClick={onTogglePlay}
+        <div
+            className="absolute bottom-0 w-full h-14 py-1 px-4 border-t-2 select-none"
+            style={{
+                backgroundColor: '#1f1f1f',
+                borderColor: '#333',
+            }}
+        >
+            <div className="flex flex-row items-center gap-4 w-full h-full">
+                <div className="flex-grow h-full py-3 items-center">
+                    <div
+                        className="flex flex-row h-full w-full"
+                        style={{
+                            backgroundColor: '#3f3f3f',
+                        }}
                     >
-                        {playing ? 'Pause' : 'Play'}
-                    </Button>
-                </Col>
-                <Col span={2}>
-                    <Slider
-                        min={0.25}
-                        max={2}
-                        onChange={onChangeSpeed}
-                        value={timelineSpeed}
-                        step={0.25}
-                        tipFormatter={(value) => `${value}x`}
-                    />
-                </Col>
-                <Col span={2} className="m-1">
-                    {`Speed: ${timelineSpeed}x`}
-                </Col>
-            </Row>
-        )}
-        </>
+                        {/* Blue background */}
+                        <div
+                            className="h-full"
+                            style={{
+                                backgroundColor: '#007CD6',
+                                width: `${(timeLineTime / timeLineGlobal.maxRaceTime) * 100.0}%`,
+                            }}
+                        />
+
+                        {/* White line */}
+                        <div
+                            className="h-full"
+                            style={{ backgroundColor: '#AAA', width: '2px' }}
+                        />
+
+                        {/* Arrow indicator */}
+                        <div
+                            style={{
+                                position: 'relative',
+                                width: 0,
+                                height: 0,
+                                left: '-7px',
+                                top: '-4px',
+                            }}
+                        >
+                            <div
+                                style={{
+                                    position: 'absolute',
+                                    width: 0,
+                                    borderLeft: '6px solid transparent',
+                                    borderRight: '6px solid transparent',
+                                    borderTop: '6px solid #AAA',
+                                }}
+                            />
+                        </div>
+                    </div>
+                </div>
+                <div className="flex-grow-0 w-24 h-full py-2">
+                    <div
+                        className="flex w-full h-full items-center justify-center"
+                        style={{ backgroundColor: '#2C2C2C' }}
+                    >
+                        {timeFormat(timeLineTime)}
+                    </div>
+                </div>
+                <div
+                    className="px-4 text-3xl cursor-pointer"
+                    onClick={() => onTogglePlay()}
+                    onKeyDown={() => onTogglePlay()}
+                    role="button"
+                    tabIndex={0}
+                >
+                    {playing
+                        ? <PauseOutlined />
+                        : <CaretRightOutlined />}
+                </div>
+                <div className="flex flex-col items-center justify-center">
+                    <div className="text-xs">
+                        {`Speed: ${timelineSpeed.toFixed(2)}x`}
+                    </div>
+                    <div className="flex flex-row items-center">
+                        <div className="text-xs">
+                            {MIN_SPEED}
+                            x
+                        </div>
+                        <div className="px-1">
+                            <Slider
+                                style={{
+                                    width: 150,
+                                    padding: '2px',
+                                    marginBottom: 0,
+                                    marginTop: '8px',
+                                }}
+                                min={MIN_SPEED}
+                                max={MAX_SPEED}
+                                onChange={onChangeSpeed}
+                                value={timelineSpeed}
+                                step={0.1}
+                                tooltipVisible={false}
+                            />
+                        </div>
+                        <div className="text-xs">
+                            {MAX_SPEED}
+                            x
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     );
 };
 
