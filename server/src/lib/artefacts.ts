@@ -61,7 +61,7 @@ const uploadObject = async (storageType: StorageType, key: string, value: string
 };
 
 // generic helper method for fetching artefacts (includes decompression)
-const retrieveObject = async (storageType: StorageType, key: string) => {
+const retrieveObject = async (storageType: StorageType, key: string, compressed: boolean = true) => {
     try {
         if (storageType === StorageType.ObjectStorage) {
             const params = {
@@ -69,13 +69,14 @@ const retrieveObject = async (storageType: StorageType, key: string) => {
                 Key: key,
             };
             const data = await S3Client.getObject(params);
-            return decompress(await streamToBuffer(data.Body));
+            const buffer = await streamToBuffer(data.Body);
+            return compressed ? decompress(buffer) : buffer;
         }
 
         if (storageType === StorageType.FileStorage) {
             const fullPath = path.resolve(`${__dirname}/../../${key}`);
             const data = await readFile(fullPath);
-            return decompress(data);
+            return compressed ? decompress(data) : data;
         }
 
         throw new Error(`Invalid storageType ${storageType}`);
@@ -187,7 +188,9 @@ export const retrieveReplay = async (replayMetadata: any) => {
         throw new Error('No object or file in replay');
     }
 
-    return retrieveObject(storageType, key);
+    const compressed = key.endsWith('.gz');
+
+    return retrieveObject(storageType, key, compressed);
 };
 
 /**
