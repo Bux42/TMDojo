@@ -60,7 +60,6 @@ const TimeLineView = ({ replaysData }: TimeLineViewProps) => {
 
     const onChange = (e: number) => {
         setTimeLineTime(Math.round(e));
-        timeLineGlobal.currentRaceTime = Math.round(e);
     };
 
     // from: https://stackoverflow.com/a/29972322

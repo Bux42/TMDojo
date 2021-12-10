@@ -15,36 +15,45 @@ const TimelineSlider = ({
     let mouseDown = false;
     let isDraggingSlider = false;
 
-    const handleMouseDown = useCallback((e: MouseEvent) => {
-        const { clientX, clientY } = e;
-        mouseDown = true;
+    const updateValueUsingMousePos = (mouseX: number) => {
         if (ref.current) {
+            const { x, width } = ref.current.getBoundingClientRect();
+
+            const fraction = Math.min(1, Math.max(0, (mouseX - x) / width));
+            const newValue = fraction * timeLineGlobal.maxRaceTime;
+
+            onChange(newValue);
+            timeLineGlobal.currentRaceTime = Math.round(newValue);
+        }
+    };
+
+    const handleMouseDown = useCallback((e: MouseEvent) => {
+        mouseDown = true;
+
+        if (ref.current) {
+            const { clientX, clientY } = e;
             const {
                 x, y, width, height,
             } = ref.current.getBoundingClientRect();
+
             const dragMargin = yDragMargin || 0;
-            if (clientX >= x
-                && clientX <= x + width
-                && clientY >= y - dragMargin
-                && clientY <= y + height + dragMargin) {
+
+            if (clientX >= x && clientX <= x + width
+                && clientY >= y - dragMargin && clientY <= y + height + dragMargin) {
                 isDraggingSlider = true;
+                updateValueUsingMousePos(clientX);
             }
         }
     }, []);
     const handleMouseMove = useCallback((e: MouseEvent) => {
         if (mouseDown && isDraggingSlider && ref.current) {
-            const {
-                x, width,
-            } = ref.current.getBoundingClientRect();
-            const { clientX } = e;
-
-            const fraction = Math.min(1, Math.max(0, (clientX - x) / width));
-            const newValue = fraction * timeLineGlobal.maxRaceTime;
-
-            onChange(newValue);
+            updateValueUsingMousePos(e.clientX);
         }
     }, []);
     const handleMouseUp = useCallback((e: MouseEvent) => {
+        if (isDraggingSlider) {
+            updateValueUsingMousePos(e.clientX);
+        }
         mouseDown = false;
         isDraggingSlider = false;
     }, []);
