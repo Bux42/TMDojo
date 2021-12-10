@@ -230,7 +230,7 @@ export const ChartsDrawer = ({
     };
 
     return (
-        <div className="absolute right-0 left-0 bottom-0 m-8 mx-auto z-10" style={{ width: '50px' }}>
+        <div className="absolute right-0 left-0 bottom-0 mb-10 mx-auto z-10" style={{ width: '50px' }}>
             {!visible
                 && (
                     <Button
@@ -263,7 +263,7 @@ export const ChartsDrawer = ({
                     overflow: 'auto',
                 }}
                 style={{
-                    bottom: '48px',
+                    bottom: '56px',
                     opacity: 0.8,
                 }}
                 className="ChartDrawer"
