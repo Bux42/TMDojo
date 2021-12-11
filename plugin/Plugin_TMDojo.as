@@ -55,6 +55,9 @@ string red = "\\$f33";
 string green = "\\$9f3";
 string orange = "\\$fb3";
 
+vec4 successColor = vec4(0, 0.4, 0, 1);
+vec4 errorColor = vec4(0.4, 0, 0, 1);
+
 MemoryBuffer membuff = MemoryBuffer(0);
 bool recording = false;
 
@@ -486,8 +489,16 @@ void PostRecordedData(ref @handle) {
         while (!req.Finished()) {
             yield();
         }
-        // TODO: handle upload errors
-        UI::ShowNotification("TMDojo", "Uploaded replay successfully!");
+
+        // Handle error status codes
+        int status = req.ResponseCode();
+        if (status == 401) {
+            UI::ShowNotification("TMDojo", "Upload failed. Not authorized, please log in if you are not logged in.", errorColor);
+        } else if (status != 200) {
+            UI::ShowNotification("TMDojo", "Upload failed, status code: " + status, errorColor);
+        } else {
+            UI::ShowNotification("TMDojo", "Uploaded replay successfully!", successColor);
+        }
     }
     recording = false;
     latestRecordedTime = -6666;
@@ -562,10 +573,16 @@ void logout() {
         yield();
         sleep(50);
     }
-    UI::ShowNotification("TMDojo", "Plugin logged out!", vec4(0, 0.4, 0, 1));
-    SessionId = "";
-    pluginAuthed = false;
-    checkServer();  
+
+    int status = req.ResponseCode();
+    if (status == 200) {
+        UI::ShowNotification("TMDojo", "Plugin logged out!", successColor);
+        SessionId = "";
+        pluginAuthed = false;
+        checkServer();
+    } else {
+        UI::ShowNotification("TMDojo", "Failed to logout, please try again!", errorColor);
+    }
 }
 
 void getPluginAuth() {
@@ -581,7 +598,7 @@ void getPluginAuth() {
         try {
             Json::Value json = Json::Parse(auth.String());
             SessionId = json["sessionId"];
-            UI::ShowNotification("TMDojo", "Plugin is authenticated!", vec4(0, 0.4, 0, 1), 10000);
+            UI::ShowNotification("TMDojo", "Plugin is authenticated!", successColor, 10000);
             pluginAuthed = true;
             ClientCode = "";
             break;
@@ -591,7 +608,7 @@ void getPluginAuth() {
     }
     isAuthenticating = false;
     if (checkSessionIdCount >= maxCheckSessionId) {
-        UI::ShowNotification("TMDojo", "Plugin authentication took too long, please try again", vec4(0.4, 0, 0, 1), 10000);
+        UI::ShowNotification("TMDojo", "Plugin authentication took too long, please try again", errorColor, 10000);
     }
 }
 
@@ -629,10 +646,10 @@ void checkServer() {
             }
             if (json.HasKey("authSuccess")) {
                 pluginAuthed = true;
-                UI::ShowNotification("TMDojo", "Plugin is authenticated!", vec4(0, 0.4, 0, 1));
+                UI::ShowNotification("TMDojo", "Plugin is authenticated!", successColor);
             }
         } else {
-            UI::ShowNotification("TMDojo", "checkServer() Error: Json response is null", vec4(0.4, 0, 0, 1));
+            UI::ShowNotification("TMDojo", "checkServer() Error: Json response is null", errorColor);
             error("checkServer server response is not json");
         }
         
