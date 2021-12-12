@@ -5,7 +5,7 @@ import {
 } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 
-import { ReloadOutlined } from '@ant-design/icons';
+import { PieChartOutlined, ReloadOutlined } from '@ant-design/icons';
 import { AvailableMap, getAvailableMaps } from '../lib/api/apiRequests';
 import InfoCard from '../components/landing/InfoCard';
 import { timeDifference } from '../lib/utils/time';
@@ -48,6 +48,20 @@ const Home = (): JSX.Element => {
             },
             sorter: (a, b) => a.mapName.localeCompare(b.mapName),
             width: '65%',
+        },
+        {
+            title: '',
+            render: (_, map) => {
+                const statsRef = `/maps/${map.mapUId}/stats`;
+                return (
+                    <Button href={statsRef} size="small" className="flex items-center">
+                        <PieChartOutlined />
+                        {' '}
+                        Stats
+                    </Button>
+                );
+            },
+            width: 0,
         },
         {
             title: 'Last updated',
@@ -97,7 +111,6 @@ const Home = (): JSX.Element => {
                             size="small"
                             showSorterTooltip={false}
                             pagination={{ defaultPageSize: 10, hideOnSinglePage: true }}
-                            bordered
                         />
                     </Spin>
                 </Card>
