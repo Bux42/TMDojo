@@ -12,6 +12,7 @@ import { cleanTMFormatting } from '../../../lib/utils/formatting';
 import MapHeader from '../../../components/maps/MapHeader';
 import ReplayTimesHistogram from '../../../components/mapStats/ReplayTimesHistogram';
 import AggregateMapStats from '../../../components/mapStats/AggregateMapStats';
+import FastestTimeProgression from '../../../components/mapStats/FastestTimeProgression';
 
 const MapStats = () => {
     const [replays, setReplays] = useState<FileResponse[]>([]);
@@ -61,7 +62,7 @@ const MapStats = () => {
     return (
         <>
             <HeadTitle title={getTitle()} />
-            <Layout>
+            <Layout className="h-full">
                 <MapHeader mapInfo={mapData || {}} />
                 {mapData
                     && (
@@ -69,7 +70,7 @@ const MapStats = () => {
                             <Card
                                 title={`Map: ${cleanTMFormatting(mapData?.name || '')}`}
                             >
-                                <div className="flex flex-col gap-4">
+                                <div className="flex flex-col h-full gap-4">
                                     <Card
                                         title="Replays"
                                         type="inner"
@@ -86,6 +87,15 @@ const MapStats = () => {
                                         <Skeleton loading={loadingReplays} active>
                                             {binSize
                                                 && <ReplayTimesHistogram replays={replays} binSize={binSize} />}
+                                        </Skeleton>
+                                    </Card>
+
+                                    <Card
+                                        title="Fastest time progression"
+                                        type="inner"
+                                    >
+                                        <Skeleton loading={loadingReplays} active>
+                                            <FastestTimeProgression replays={replays} />
                                         </Skeleton>
                                     </Card>
                                 </div>
