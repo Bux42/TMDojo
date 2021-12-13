@@ -140,7 +140,6 @@ const FastestTimeProgression = ({ replays } : FastestTimeProgressionProps) => {
             name: 'Other Times',
             data: allDataPoints,
             color: 'gray',
-            visible: false,
         }],
     };
 
