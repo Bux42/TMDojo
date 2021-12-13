@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import Highcharts from 'highcharts';
+import Highcharts, { some } from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { getRaceTimeStr } from '../../lib/utils/time';
 import { FileResponse } from '../../lib/api/apiRequests';
@@ -27,15 +27,27 @@ const FastestTimeProgression = ({ replays } : FastestTimeProgressionProps) => {
     interface ChartDataPoint {
         x: number;
         y: number;
+        replay: FileResponse;
     }
 
-    const data: ChartDataPoint[] = useMemo(
-        () => calculateFastestTimeProgressions().map((replay) => ({
-            x: replay.date,
-            y: replay.endRaceTime,
-            player: replay.playerName,
-        })),
+    const replaysToDataPoints = (replays_: FileResponse[]): ChartDataPoint[] => replays_.map((replay) => ({
+        x: replay.date,
+        y: replay.endRaceTime,
+        replay,
+    }));
+
+    const timeProgressionData: ChartDataPoint[] = useMemo(
+        () => replaysToDataPoints(calculateFastestTimeProgressions()),
         [replays],
+    );
+
+    const allDataPoints: ChartDataPoint[] = useMemo(
+        () => replaysToDataPoints(
+            replays.filter(
+                (r1) => !some(timeProgressionData, (r2: FileResponse) => r1._id === r2._id, null),
+            ),
+        ),
+        [replays, timeProgressionData],
     );
 
     const columnOptions = {
@@ -43,12 +55,11 @@ const FastestTimeProgression = ({ replays } : FastestTimeProgressionProps) => {
             enabled: false,
         },
         chart: {
-            type: 'line',
             backgroundColor: 'transparent',
             style: {
                 color: 'white',
             },
-            zoomType: 'x',
+            zoomType: 'xy',
         },
         title: {
             text: '',
@@ -83,16 +94,24 @@ const FastestTimeProgression = ({ replays } : FastestTimeProgressionProps) => {
         legend: {
             itemStyle: {
                 color: 'white',
+                textDecoration: 'none',
+            },
+            itemHiddenStyle: {
+                color: 'gray',
+                textDecoration: 'line-through',
+            },
+            itemHoverStyle: {
+                color: 'lightgray',
             },
         },
         tooltip: {
-            headerFormat: '<span style="font-size:12px">{point.key}</span><table>',
+            headerFormat: '<span style="font-size:12px">Date: {point.key}</span><table>',
             pointFormat: '<tr>'
-            + '<td style="color:{series.color};padding:0"><b>{series.name}: </b></td>'
-            + '<td style="padding:0"><b>{point.y}ms</b></td></tr>'
+            + '<td style="color:{series.color};padding:0"><b>Time:</b></td>'
+            + '<td style="padding:0 4px"><b>{point.y}ms</b></td></tr>'
             + '<tr>'
-            + '<td style="color:{series.color};padding:0"><b>Player: </b></td>'
-            + '<td style="padding:0"><b>{point.player}ms</b></td></tr>',
+            + '<td style="color:{series.color};padding:0"><b>Player:</b></td>'
+            + '<td style="padding:0 4px"><b>{point.replay.playerName}</b></td></tr>',
             footerFormat: '</table>',
             shared: true,
             useHTML: true,
@@ -103,7 +122,7 @@ const FastestTimeProgression = ({ replays } : FastestTimeProgressionProps) => {
                     enabled: true,
                     formatter: function dataLabelFormatter(this: any) {
                         // eslint-disable-next-line react/no-this-in-sfc
-                        return `[${this.point.player}] ${getRaceTimeStr(this.y)}`;
+                        return `[${this.point.replay.playerName}] ${getRaceTimeStr(this.y)}`;
                     },
                     color: 'white',
                     shadow: false,
@@ -112,9 +131,16 @@ const FastestTimeProgression = ({ replays } : FastestTimeProgressionProps) => {
             },
         },
         series: [{
-            name: 'Time',
-            data,
+            type: 'line',
+            name: 'Best Times',
+            data: timeProgressionData,
             step: 'left',
+        }, {
+            type: 'scatter',
+            name: 'Other Times',
+            data: allDataPoints,
+            color: 'gray',
+            visible: false,
         }],
     };
 
