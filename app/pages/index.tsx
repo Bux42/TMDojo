@@ -54,11 +54,13 @@ const Home = (): JSX.Element => {
             render: (_, map) => {
                 const statsRef = `/maps/${map.mapUId}/stats`;
                 return (
-                    <Button href={statsRef} size="small" className="flex items-center">
-                        <PieChartOutlined />
-                        {' '}
-                        Stats
-                    </Button>
+                    <div className="flex gap-2 pr-2">
+                        <Button href={statsRef} size="small" className="flex items-center">
+                            <PieChartOutlined />
+                            {' '}
+                            Stats
+                        </Button>
+                    </div>
                 );
             },
             width: 0,
