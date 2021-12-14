@@ -85,7 +85,7 @@ const Home = (): JSX.Element => {
         <>
             <HeadTitle title={getTitle()} />
             <Layout>
-                <MapHeader mapInfo={mapData} />
+                <MapHeader mapInfo={mapData} title="Replay viewer" />
                 <Layout.Content>
                     <SidebarReplays
                         mapUId={`${mapUId}`}

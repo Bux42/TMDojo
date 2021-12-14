@@ -62,7 +62,7 @@ const MapStats = () => {
     return (
         <div className="min-h-screen" style={{ backgroundColor: '#1F1F1F' }}>
             <HeadTitle title={getTitle()} />
-            <MapHeader mapInfo={mapData || {}} />
+            <MapHeader mapInfo={mapData || {}} title="Map statistics" />
             {mapData && (
                 <div className="flex justify-center py-8">
                     <Card
