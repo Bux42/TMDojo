@@ -1,7 +1,10 @@
+// Disable this rule for highchart callback functions
+/* eslint-disable react/no-this-in-sfc */
+
 import React, { useMemo } from 'react';
 import Highcharts, { some } from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
-import Link from 'next/link';
+import dayjs from 'dayjs';
 import { getRaceTimeStr, timeDifference } from '../../lib/utils/time';
 import { FileResponse } from '../../lib/api/apiRequests';
 import PlayerLink from '../common/PlayerLink';
@@ -52,7 +55,7 @@ const FastestTimeProgression = ({ replays } : FastestTimeProgressionProps) => {
         [replays, timeProgressionData],
     );
 
-    const columnOptions = {
+    const options = {
         credits: {
             enabled: false,
         },
@@ -109,17 +112,25 @@ const FastestTimeProgression = ({ replays } : FastestTimeProgressionProps) => {
                 color: 'lightgray',
             },
         },
-        // TODO: create better tooltip with correct date and time formatting
         tooltip: {
-            headerFormat: '<span style="font-size:12px">Date: {point.key}</span><table>',
-            pointFormat: '<tr>'
-            + '<td style="color:{series.color};padding:0"><b>Time:</b></td>'
-            + '<td style="padding:0 4px"><b>{point.y}ms</b></td></tr>'
-            + '<tr>'
-            + '<td style="color:{series.color};padding:0"><b>Player:</b></td>'
-            + '<td style="padding:0 4px"><b>{point.replay.playerName}</b></td></tr>',
-            footerFormat: '</table>',
-            shared: true,
+            // Highchart only accepts string tooltips, that's why this returns a HTML string
+            formatter: function tooltipFormatter(this: any) {
+                return `
+                    <span style="font-size: 10px">
+                        ${dayjs(this.key).format('MMM D YYYY, HH:MM:ss')}
+                    </span>
+                    </br>
+                    <span style="font-size: 13px">
+                        ${timeDifference(new Date().getTime(), this.point.replay.date)}
+                    </span>
+                    </br>
+                    <span style="font-size: 13px">
+                        <b>${getRaceTimeStr(this.point.replay.endRaceTime)}</b>
+                        ${' by '}
+                        <b>${this.point.replay.playerName}</b>
+                    </span>
+                `;
+            },
             useHTML: true,
         },
         plotOptions: {
@@ -169,7 +180,7 @@ const FastestTimeProgression = ({ replays } : FastestTimeProgressionProps) => {
             </div>
             <HighchartsReact
                 highcharts={Highcharts}
-                options={columnOptions}
+                options={options}
             />
         </>
     );
