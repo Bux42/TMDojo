@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
 import Highcharts, { some } from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
-import { getRaceTimeStr } from '../../lib/utils/time';
+import Link from 'next/link';
+import { getRaceTimeStr, timeDifference } from '../../lib/utils/time';
 import { FileResponse } from '../../lib/api/apiRequests';
 
 interface FastestTimeProgressionProps {
@@ -44,7 +45,7 @@ const FastestTimeProgression = ({ replays } : FastestTimeProgressionProps) => {
     const allDataPoints: ChartDataPoint[] = useMemo(
         () => replaysToDataPoints(
             replays.filter(
-                (r1) => !some(timeProgressionData, (r2: FileResponse) => r1._id === r2._id, null),
+                (r1) => !some(timeProgressionData, (r2: ChartDataPoint) => r1._id === r2.replay._id, null),
             ),
         ),
         [replays, timeProgressionData],
@@ -69,6 +70,9 @@ const FastestTimeProgression = ({ replays } : FastestTimeProgressionProps) => {
         },
         xAxis: {
             type: 'datetime',
+            title: {
+                text: 'Date',
+            },
             crosshair: true,
             labels: {
                 style: {
@@ -78,7 +82,7 @@ const FastestTimeProgression = ({ replays } : FastestTimeProgressionProps) => {
         },
         yAxis: {
             title: {
-                text: '',
+                text: 'Time',
             },
             labels: {
                 style: {
@@ -104,6 +108,7 @@ const FastestTimeProgression = ({ replays } : FastestTimeProgressionProps) => {
                 color: 'lightgray',
             },
         },
+        // TODO: create better tooltip with correct date and time formatting
         tooltip: {
             headerFormat: '<span style="font-size:12px">Date: {point.key}</span><table>',
             pointFormat: '<tr>'
@@ -122,11 +127,12 @@ const FastestTimeProgression = ({ replays } : FastestTimeProgressionProps) => {
                     enabled: true,
                     formatter: function dataLabelFormatter(this: any) {
                         // eslint-disable-next-line react/no-this-in-sfc
-                        return `[${this.point.replay.playerName}] ${getRaceTimeStr(this.y)}`;
+                        return `${this.point.replay.playerName} - ${getRaceTimeStr(this.y)}`;
                     },
                     color: 'white',
                     shadow: false,
                     allowOverlap: true,
+                    y: 25,
                 },
             },
         },
@@ -143,12 +149,39 @@ const FastestTimeProgression = ({ replays } : FastestTimeProgressionProps) => {
         }],
     };
 
-    return (
+    const fastestTime = timeProgressionData[timeProgressionData.length - 1];
 
-        <HighchartsReact
-            highcharts={Highcharts}
-            options={columnOptions}
-        />
+    // TODO: extract to common PlayerLink component
+    interface PlayerLinkProps {
+        webId: string; name: string
+    }
+    const PlayerLink = ({ webId, name }: PlayerLinkProps) => (
+        <Link href={`/users/${webId}`}>
+            <a target="_blank" rel="noreferrer" href={`/users/${webId}`}>
+                {name}
+            </a>
+        </Link>
+    );
+
+    return (
+        <>
+            <div className="flex flex-col items-center w-full mb-6">
+                <div className="text-xs italic mb-4">
+                    Note: All these times are from TMDojo data only.
+                    It does not represent a WR progression, but a progression of the best times stored on TMDojo.
+                </div>
+                <div><b>Fastest Time</b></div>
+                <div className="text-xl mb-1">
+                    {`${getRaceTimeStr(fastestTime.replay.endRaceTime)} by `}
+                    <PlayerLink webId={fastestTime.replay.webId} name={fastestTime.replay.playerName} />
+                </div>
+                <div className="text-xs">{timeDifference(new Date().getTime(), fastestTime.replay.date)}</div>
+            </div>
+            <HighchartsReact
+                highcharts={Highcharts}
+                options={columnOptions}
+            />
+        </>
     );
 };
 
