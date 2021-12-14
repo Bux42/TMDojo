@@ -60,7 +60,7 @@ const MapStats = () => {
     const binSize = calcBinSize();
 
     return (
-        <div style={{ backgroundColor: '#1F1F1F' }}>
+        <div className="min-h-screen" style={{ backgroundColor: '#1F1F1F' }}>
             <HeadTitle title={getTitle()} />
             <MapHeader mapInfo={mapData || {}} />
             {mapData && (
