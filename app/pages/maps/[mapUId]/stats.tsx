@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import {
-    Layout, Card, Spin, Skeleton,
-} from 'antd';
-import { isNumber } from 'util';
+import { Card, Skeleton } from 'antd';
 import {
     FileResponse, getMapInfo, getReplays, MapInfo,
 } from '../../../lib/api/apiRequests';

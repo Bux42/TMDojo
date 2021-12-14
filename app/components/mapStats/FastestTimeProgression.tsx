@@ -4,6 +4,7 @@ import HighchartsReact from 'highcharts-react-official';
 import Link from 'next/link';
 import { getRaceTimeStr, timeDifference } from '../../lib/utils/time';
 import { FileResponse } from '../../lib/api/apiRequests';
+import PlayerLink from '../common/PlayerLink';
 
 interface FastestTimeProgressionProps {
     replays: FileResponse[];
@@ -151,18 +152,6 @@ const FastestTimeProgression = ({ replays } : FastestTimeProgressionProps) => {
 
     const fastestTime = timeProgressionData[timeProgressionData.length - 1];
 
-    // TODO: extract to common PlayerLink component
-    interface PlayerLinkProps {
-        webId: string; name: string
-    }
-    const PlayerLink = ({ webId, name }: PlayerLinkProps) => (
-        <Link href={`/users/${webId}`}>
-            <a target="_blank" rel="noreferrer" href={`/users/${webId}`}>
-                {name}
-            </a>
-        </Link>
-    );
-
     return (
         <>
             <div className="flex flex-col items-center w-full mb-6">
@@ -172,7 +161,8 @@ const FastestTimeProgression = ({ replays } : FastestTimeProgressionProps) => {
                 </div>
                 <div><b>Fastest Time</b></div>
                 <div className="text-xl mb-1">
-                    {`${getRaceTimeStr(fastestTime.replay.endRaceTime)} by `}
+                    {getRaceTimeStr(fastestTime.replay.endRaceTime)}
+                    {' by '}
                     <PlayerLink webId={fastestTime.replay.webId} name={fastestTime.replay.playerName} />
                 </div>
                 <div className="text-xs">{timeDifference(new Date().getTime(), fastestTime.replay.date)}</div>

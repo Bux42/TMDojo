@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
-    Layout, Input, Table, Tooltip, Button, Card, Spin,
+    Input, Table, Tooltip, Button, Card, Spin,
 } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 
