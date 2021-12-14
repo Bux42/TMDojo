@@ -60,50 +60,49 @@ const MapStats = () => {
     const binSize = calcBinSize();
 
     return (
-        <>
+        <div style={{ backgroundColor: '#1F1F1F' }}>
             <HeadTitle title={getTitle()} />
-            <Layout className="h-full">
-                <MapHeader mapInfo={mapData || {}} />
-                {mapData
-                    && (
-                        <Layout.Content className="w-3/5 m-auto h-full pt-8">
+            <MapHeader mapInfo={mapData || {}} />
+            {mapData && (
+                <div className="flex justify-center py-8">
+                    <Card
+                        className="w-3/5"
+                        title={`Map: ${cleanTMFormatting(mapData?.name || '')}`}
+                    >
+                        <div className="flex flex-col h-full gap-4">
                             <Card
-                                title={`Map: ${cleanTMFormatting(mapData?.name || '')}`}
+                                title="Replays"
+                                type="inner"
                             >
-                                <div className="flex flex-col h-full gap-4">
-                                    <Card
-                                        title="Replays"
-                                        type="inner"
-                                    >
-                                        <Skeleton loading={loadingReplays} active title={false}>
-                                            <AggregateMapStats replays={replays} />
-                                        </Skeleton>
-                                    </Card>
-
-                                    <Card
-                                        title={`Finish Time Histogram ${binSize ? `(${binSize}ms bins)` : ''}`}
-                                        type="inner"
-                                    >
-                                        <Skeleton loading={loadingReplays} active>
-                                            {binSize
-                                                && <ReplayTimesHistogram replays={replays} binSize={binSize} />}
-                                        </Skeleton>
-                                    </Card>
-
-                                    <Card
-                                        title="Fastest time progression"
-                                        type="inner"
-                                    >
-                                        <Skeleton loading={loadingReplays} active>
-                                            <FastestTimeProgression replays={replays} />
-                                        </Skeleton>
-                                    </Card>
-                                </div>
+                                <Skeleton loading={loadingReplays} active title={false}>
+                                    <AggregateMapStats replays={replays} />
+                                </Skeleton>
                             </Card>
-                        </Layout.Content>
-                    )}
-            </Layout>
-        </>
+
+                            <Card
+                                title={`Finish Time Histogram ${binSize ? `(${binSize}ms bins)` : ''}`}
+                                type="inner"
+                            >
+                                <Skeleton loading={loadingReplays} active>
+                                    {binSize
+                                                && <ReplayTimesHistogram replays={replays} binSize={binSize} />}
+                                </Skeleton>
+                            </Card>
+
+                            <Card
+                                title="Fastest time progression"
+                                type="inner"
+                            >
+                                <Skeleton loading={loadingReplays} active>
+                                    <FastestTimeProgression replays={replays} />
+                                </Skeleton>
+                            </Card>
+                        </div>
+                    </Card>
+                </div>
+
+            )}
+        </div>
     );
 };
 
