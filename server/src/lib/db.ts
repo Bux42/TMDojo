@@ -74,11 +74,20 @@ export const getUniqueMapNames = async (
 ): Promise<any> => {
     const replays = db.collection('replays');
     const queryPipeline = [
+        {
+            $group: {
+                _id: '$mapRef',
+                count: {
+                    $sum: 1,
+                },
+                lastUpdate: { $max: '$date' }, // pass the highest date (i.e. latest replay's timestamp)
+            },
+        },
         // populate map references to count occurrences
         {
             $lookup: {
                 from: 'maps',
-                localField: 'mapRef',
+                localField: '_id',
                 foreignField: '_id',
                 as: 'map',
             },
@@ -87,19 +96,9 @@ export const getUniqueMapNames = async (
             $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ['$map', 0] }, '$$ROOT'] } },
         },
         {
-            $group: {
-                _id: '$mapUId',
-                mapName: { $first: '$mapName' }, // pass the first instance of mapUId (since it'll always be the same)
-                count: {
-                    $sum: 1,
-                },
-                lastUpdate: { $max: '$date' }, // pass the highest date (i.e. latest replay's timestamp)
-            },
-        },
-        {
             $project: {
                 _id: false,
-                mapUId: '$_id',
+                mapUId: { $toString: '$_id' },
                 mapName: true,
                 count: '$count',
                 lastUpdate: true,
