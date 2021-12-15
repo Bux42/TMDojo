@@ -98,7 +98,7 @@ export const getUniqueMapNames = async (
         {
             $project: {
                 _id: false,
-                mapUId: { $toString: '$_id' },
+                mapUId: true,
                 mapName: true,
                 count: '$count',
                 lastUpdate: true,
