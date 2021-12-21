@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Layout } from 'antd';
 import { useRouter } from 'next/router';
 
-import SidebarReplays from '../../components/maps/SidebarReplays';
-import SidebarSettings from '../../components/maps/SidebarSettings';
-import MapHeader from '../../components/maps/MapHeader';
-import Viewer3D from '../../components/viewer/Viewer3D';
+import SidebarReplays from '../../../components/maps/SidebarReplays';
+import SidebarSettings from '../../../components/maps/SidebarSettings';
+import MapHeader from '../../../components/maps/MapHeader';
+import Viewer3D from '../../../components/viewer/Viewer3D';
 import {
     getReplays,
     getMapInfo,
@@ -13,11 +13,11 @@ import {
     fetchReplayData,
     ReplayData,
     MapInfo,
-} from '../../lib/api/apiRequests';
-import HeadTitle from '../../components/common/HeadTitle';
-import { ChartsDrawer } from '../../components/maps/ChartsDrawer';
-import { cleanTMFormatting } from '../../lib/utils/formatting';
-import LoadedReplays from '../../components/maps/LoadedReplays';
+} from '../../../lib/api/apiRequests';
+import HeadTitle from '../../../components/common/HeadTitle';
+import { ChartsDrawer } from '../../../components/maps/ChartsDrawer';
+import { cleanTMFormatting } from '../../../lib/utils/formatting';
+import LoadedReplays from '../../../components/maps/LoadedReplays';
 
 const Home = (): JSX.Element => {
     const [replays, setReplays] = useState<FileResponse[]>([]);
@@ -85,7 +85,7 @@ const Home = (): JSX.Element => {
         <>
             <HeadTitle title={getTitle()} />
             <Layout>
-                <MapHeader mapInfo={mapData} />
+                <MapHeader mapInfo={mapData} title="Replay viewer" />
                 <Layout.Content>
                     <SidebarReplays
                         mapUId={`${mapUId}`}

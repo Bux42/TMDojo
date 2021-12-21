@@ -9,9 +9,10 @@ import UserDisplay from '../common/UserDisplay';
 
 interface Props {
     mapInfo: MapInfo;
+    title: string;
 }
 
-const MapHeader = ({ mapInfo }: Props): JSX.Element => {
+const MapHeader = ({ mapInfo, title }: Props): JSX.Element => {
     const router = useRouter();
 
     const hasExchangeId = mapInfo.exchangeid !== undefined && mapInfo.exchangeid !== 0;
@@ -23,7 +24,7 @@ const MapHeader = ({ mapInfo }: Props): JSX.Element => {
     return (
         <PageHeader
             onBack={() => router.push('/')}
-            title="Replay viewer"
+            title={title}
             subTitle={(
                 <div className="flex flex-row gap-4 items-baseline">
                     {cleanTMFormatting(mapInfo.name || '')}

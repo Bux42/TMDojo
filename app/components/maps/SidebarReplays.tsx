@@ -13,6 +13,7 @@ import { deleteReplay, FileResponse } from '../../lib/api/apiRequests';
 import { getRaceTimeStr, timeDifference } from '../../lib/utils/time';
 import { AuthContext } from '../../lib/contexts/AuthContext';
 import SideDrawerExpandButton from '../common/SideDrawerExpandButton';
+import PlayerLink from '../common/PlayerLink';
 
 interface ExtendedFileResponse extends FileResponse {
     readableTime: string;
@@ -89,12 +90,8 @@ const SidebarReplays = ({
             dataIndex: 'playerName',
             filters: getUniqueFilters((replay) => replay.playerName),
             onFilter: (value, record) => record.playerName === value,
-            render: (text, replay) => (
-                <Link href={`${userProfileUrl}${replay.webId}`}>
-                    <a target="_blank" rel="noreferrer" href={`${userProfileUrl}${replay.webId}`}>
-                        {replay.playerName}
-                    </a>
-                </Link>
+            render: (_, replay) => (
+                <PlayerLink webId={replay.webId} name={replay.playerName} />
             ),
         },
         {
