@@ -13,9 +13,13 @@ interface FastestTimeProgressionProps {
     replays: FileResponse[];
 }
 const FastestTimeProgression = ({ replays } : FastestTimeProgressionProps) => {
-    const calculateFastestTimeProgressions = (): FileResponse[] => {
+    const calculateFastestTimeProgressions = (replayList: FileResponse[]): FileResponse[] => {
+        if (replayList.length === 0) {
+            return [];
+        }
+
         const fastestTimeProgressions: FileResponse[] = [];
-        const sortedReplays = replays.sort((a, b) => a.date - b.date);
+        const sortedReplays = replayList.sort((a, b) => a.date - b.date);
 
         fastestTimeProgressions.push(sortedReplays[0]);
         for (let i = 1; i < sortedReplays.length; i++) {
@@ -35,6 +39,8 @@ const FastestTimeProgression = ({ replays } : FastestTimeProgressionProps) => {
         replay: FileResponse;
     }
 
+    const fastestTimeProgressions = useMemo(() => calculateFastestTimeProgressions(replays), [replays]);
+
     const replaysToDataPoints = (replays_: FileResponse[]): ChartDataPoint[] => replays_.map((replay) => ({
         x: replay.date,
         y: replay.endRaceTime,
@@ -42,8 +48,8 @@ const FastestTimeProgression = ({ replays } : FastestTimeProgressionProps) => {
     }));
 
     const timeProgressionData: ChartDataPoint[] = useMemo(
-        () => replaysToDataPoints(calculateFastestTimeProgressions()),
-        [replays],
+        () => replaysToDataPoints(fastestTimeProgressions),
+        [fastestTimeProgressions],
     );
 
     const allDataPoints: ChartDataPoint[] = useMemo(
@@ -161,28 +167,32 @@ const FastestTimeProgression = ({ replays } : FastestTimeProgressionProps) => {
         }],
     };
 
-    const fastestTime = timeProgressionData[timeProgressionData.length - 1];
+    const fastestTime = timeProgressionData.length > 0
+        ? timeProgressionData[timeProgressionData.length - 1]
+        : undefined;
 
     return (
-        <>
-            <div className="flex flex-col items-center w-full mb-6">
-                <div className="text-xs italic mb-4">
-                    Note: All these times are from TMDojo data only.
-                    It does not represent a WR progression, but a progression of the best times stored on TMDojo.
+        fastestTime ? (
+            <>
+                <div className="flex flex-col items-center w-full mb-6">
+                    <div className="text-xs italic mb-4">
+                        Note: All these times are from TMDojo data only.
+                        It does not represent a WR progression, but a progression of the best times stored on TMDojo.
+                    </div>
+                    <div><b>Fastest Time</b></div>
+                    <div className="text-xl mb-1">
+                        {getRaceTimeStr(fastestTime.replay.endRaceTime)}
+                        {' by '}
+                        <PlayerLink webId={fastestTime.replay.webId} name={fastestTime.replay.playerName} />
+                    </div>
+                    <div className="text-xs">{timeDifference(new Date().getTime(), fastestTime.replay.date)}</div>
                 </div>
-                <div><b>Fastest Time</b></div>
-                <div className="text-xl mb-1">
-                    {getRaceTimeStr(fastestTime.replay.endRaceTime)}
-                    {' by '}
-                    <PlayerLink webId={fastestTime.replay.webId} name={fastestTime.replay.playerName} />
-                </div>
-                <div className="text-xs">{timeDifference(new Date().getTime(), fastestTime.replay.date)}</div>
-            </div>
-            <HighchartsReact
-                highcharts={Highcharts}
-                options={options}
-            />
-        </>
+                <HighchartsReact
+                    highcharts={Highcharts}
+                    options={options}
+                />
+            </>
+        ) : null
     );
 };
 
