@@ -1,4 +1,6 @@
-import React, { useCallback, useContext, useMemo } from 'react';
+import React, {
+    useCallback, useMemo, useRef,
+} from 'react';
 import * as THREE from 'three';
 import { ReplayData } from '../../lib/api/apiRequests';
 import {
@@ -12,6 +14,7 @@ import {
 import ReplayChartHoverLocation from './ReplayChartHoverLocation';
 import ReplayDnf from './ReplayDnf';
 import ReplayGears from './ReplayGears';
+import ReplayLineHover from './ReplayLineHover';
 
 export interface LineType {
     name: string;
@@ -34,6 +37,8 @@ interface ReplayLineProps {
 const ReplayLine = ({
     replay, lineType, replayLineOpacity,
 }: ReplayLineProps) => {
+    const lineRef = useRef<THREE.Line | any>(null);
+
     const points = useMemo(() => replay.samples.map((sample) => sample.position), [replay.samples]);
     const colorBuffer = useMemo(() => lineType.colorsCallback(replay), [replay, lineType, replay.color]);
 
@@ -46,17 +51,23 @@ const ReplayLine = ({
     );
 
     return (
-        <line>
-            <bufferGeometry onUpdate={onUpdate} />
-            <lineBasicMaterial
-                linewidth={10}
-                transparent
-                opacity={replayLineOpacity}
-                linecap="round"
-                linejoin="round"
-                vertexColors
+        <>
+            <line ref={lineRef}>
+                <bufferGeometry onUpdate={onUpdate} />
+                <lineBasicMaterial
+                    linewidth={10}
+                    transparent
+                    opacity={replayLineOpacity}
+                    linecap="round"
+                    linejoin="round"
+                    vertexColors
+                />
+            </line>
+            <ReplayLineHover
+                replay={replay}
+                lineRef={lineRef}
             />
-        </line>
+        </>
     );
 };
 
