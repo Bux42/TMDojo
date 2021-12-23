@@ -9,18 +9,14 @@ import UserDisplay from '../common/UserDisplay';
 
 interface Props {
     mapInfo: MapInfo;
+    title: string;
 }
 
-const MapHeader = ({ mapInfo }: Props): JSX.Element => {
+const MapHeader = ({ mapInfo, title }: Props): JSX.Element => {
     const router = useRouter();
 
     const hasExchangeId = mapInfo.exchangeid !== undefined && mapInfo.exchangeid !== 0;
-
-    const TmxButton = () => (
-        <Button key="tmx" type="primary" disabled={!hasExchangeId}>
-            TM Exchange
-        </Button>
-    );
+    const hasMapUid = mapInfo.mapUid !== undefined && mapInfo.mapUid !== '';
 
     const tmioURL = `https://trackmania.io/#/leaderboard/${mapInfo.mapUid}`;
     const tmxURL = `https://trackmania.exchange/maps/${mapInfo.exchangeid}`;
@@ -28,7 +24,7 @@ const MapHeader = ({ mapInfo }: Props): JSX.Element => {
     return (
         <PageHeader
             onBack={() => router.push('/')}
-            title="Replay viewer"
+            title={title}
             subTitle={(
                 <div className="flex flex-row gap-4 items-baseline">
                     {cleanTMFormatting(mapInfo.name || '')}
@@ -36,21 +32,27 @@ const MapHeader = ({ mapInfo }: Props): JSX.Element => {
                     {/* anchors need duplicate links for keyboard accessibility */}
                     <Link href={tmioURL}>
                         <a target="_blank" rel="noreferrer" href={tmioURL}>
-                            <Button key="tm.io" type="primary">
-                                trackmania.io
+                            <Button key="tm.io" type="primary" disabled={!hasMapUid}>
+                                Trackmania.io
                             </Button>
                         </a>
                     </Link>
 
-                    {hasExchangeId ? (
-                        <Link href={tmxURL}>
-                            <a target="_blank" rel="noreferrer" href={tmxURL}>
-                                <TmxButton />
-                            </a>
-                        </Link>
-                    ) : (
-                        <TmxButton />
-                    )}
+                    <Link href={tmxURL}>
+                        <a target="_blank" rel="noreferrer" href={tmxURL}>
+                            <Button
+                                key="tmx"
+                                type="primary"
+                                disabled={!hasExchangeId}
+                                style={{
+                                    backgroundColor: '#13ae63',
+                                    borderColor: '#13ae63',
+                                }}
+                            >
+                                TM Exchange
+                            </Button>
+                        </a>
+                    </Link>
                 </div>
             )}
             extra={<UserDisplay />}

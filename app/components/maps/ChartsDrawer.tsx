@@ -8,6 +8,7 @@ import {
 import Highcharts, { AxisSetExtremesEventObject } from 'highcharts/highstock';
 import HighchartsReact from 'highcharts-react-official';
 import { CheckboxChangeEvent } from 'antd/lib/checkbox';
+import { CaretUpOutlined, LineChartOutlined } from '@ant-design/icons';
 import { ReplayData } from '../../lib/api/apiRequests';
 import { SettingsContext } from '../../lib/contexts/SettingsContext';
 import { getRaceTimeStr } from '../../lib/utils/time';
@@ -229,15 +230,26 @@ export const ChartsDrawer = ({
     };
 
     return (
-        <div className="absolute right-0 left-0 bottom-0 m-8 mx-auto z-10" style={{ width: '50px' }}>
+        <div className="absolute right-0 left-0 bottom-0 mb-10 mx-auto z-10" style={{ width: '50px' }}>
             {!visible
                 && (
                     <Button
                         onClick={toggleSidebar}
+                        className="mb-4 py-6 px-2 flex flex-row items-center justify-center"
                         size="large"
-                        className="mb-8"
+                        style={{
+                            backgroundColor: '#1f1f1f',
+                            border: 0,
+                            borderTopRightRadius: 8,
+                            borderTopLeftRadius: 8,
+                        }}
                     >
-                        Charts
+                        <CaretUpOutlined className="mx-4" />
+                        <div>
+                            <LineChartOutlined className="mx-1" />
+                            Charts
+                        </div>
+                        <CaretUpOutlined className="mx-4" />
                     </Button>
                 )}
             <Drawer
@@ -251,7 +263,7 @@ export const ChartsDrawer = ({
                     overflow: 'auto',
                 }}
                 style={{
-                    bottom: '48px',
+                    bottom: '56px',
                     opacity: 0.8,
                 }}
                 className="ChartDrawer"

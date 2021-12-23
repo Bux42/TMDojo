@@ -9,7 +9,7 @@ import { SettingsContext } from '../../lib/contexts/SettingsContext';
 import FrameRate from './FrameRate';
 import ReplayCars from './ReplayCars';
 import GlobalTimeLineInfos from '../../lib/singletons/timeLineInfos';
-import TimeLine from './TimeLine';
+import TimeLine from './timeline/TimeLine';
 
 const BACKGROUND_COLOR = new THREE.Color(0.05, 0.05, 0.05);
 

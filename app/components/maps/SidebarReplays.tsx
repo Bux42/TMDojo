@@ -3,7 +3,8 @@ import {
     Button, Drawer, message, Popconfirm, Spin, Table, Tooltip,
 } from 'antd';
 import {
-    DeleteOutlined, QuestionCircleOutlined, ReloadOutlined,
+    CaretRightOutlined,
+    DeleteOutlined, QuestionCircleOutlined, ReloadOutlined, UnorderedListOutlined,
 } from '@ant-design/icons';
 import { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
 import { ColumnType, TableCurrentDataSource } from 'antd/lib/table/interface';
@@ -11,6 +12,8 @@ import Link from 'next/link';
 import { deleteReplay, FileResponse } from '../../lib/api/apiRequests';
 import { getRaceTimeStr, timeDifference } from '../../lib/utils/time';
 import { AuthContext } from '../../lib/contexts/AuthContext';
+import SideDrawerExpandButton from '../common/SideDrawerExpandButton';
+import PlayerLink from '../common/PlayerLink';
 
 interface ExtendedFileResponse extends FileResponse {
     readableTime: string;
@@ -87,12 +90,8 @@ const SidebarReplays = ({
             dataIndex: 'playerName',
             filters: getUniqueFilters((replay) => replay.playerName),
             onFilter: (value, record) => record.playerName === value,
-            render: (text, replay) => (
-                <Link href={`${userProfileUrl}${replay.webId}`}>
-                    <a target="_blank" rel="noreferrer" href={`${userProfileUrl}${replay.webId}`}>
-                        {replay.playerName}
-                    </a>
-                </Link>
+            render: (_, replay) => (
+                <PlayerLink webId={replay.webId} name={replay.playerName} />
             ),
         },
         {
@@ -134,7 +133,7 @@ const SidebarReplays = ({
             title: '',
             key: 'load',
             align: 'center',
-            width: 180,
+            width: 150,
             render: (_, replay) => {
                 const selected = selectedReplayDataIds.indexOf(replay._id) !== -1;
                 return (
@@ -227,10 +226,17 @@ const SidebarReplays = ({
     };
 
     return (
-        <div className="absolute m-8 z-10">
-            <Button onClick={toggleSidebar} shape="round" size="large">
-                Replay List
-            </Button>
+        <div className="absolute mt-12 z-10">
+            <SideDrawerExpandButton
+                onClick={toggleSidebar}
+                side="left"
+                content={(
+                    <>
+                        <UnorderedListOutlined className="mr-2" />
+                        Replay List
+                    </>
+                )}
+            />
             <Drawer
                 title="Select replays"
                 placement="left"
