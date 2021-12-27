@@ -5,15 +5,16 @@ import {
     Spin,
     Statistic,
     Table,
-    TablePaginationConfig,
 } from 'antd';
-import { ColumnsType, TableCurrentDataSource } from 'antd/lib/table/interface';
+import { ColumnsType } from 'antd/lib/table/interface';
 import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
-import api from '../../lib/api/apiWrapper';
+import React, { useMemo } from 'react';
+import useUserReplays from '../../lib/api/hooks/query/users';
 import { ReplayInfo } from '../../lib/api/requests/replays';
 import { UserInfo } from '../../lib/api/requests/users';
 import { getRaceTimeStr, msToTime, timeDifference } from '../../lib/utils/time';
+
+const DEFAULT_PAGE_SIZE = 10;
 
 interface ExtendedFileResponse extends ReplayInfo {
     readableTime: string;
@@ -26,26 +27,21 @@ interface Props {
 }
 
 const UserReplays = ({ userInfo }: Props): JSX.Element => {
-    const [userReplays, setUserReplays] = useState<ReplayInfo[]>([]);
-    const [loadingReplays, setLoadingReplays] = useState<boolean>(true);
-    const [visibleReplays, setVisibleReplays] = useState<ReplayInfo[]>([]);
-    const defaultPageSize = 10;
+    const {
+        data: userReplaysResult,
+        isLoading: isLoadingUserReplays,
+    } = useUserReplays(userInfo.webId);
 
-    const fetchAndSetUserReplays = async (userId: string) => {
-        setLoadingReplays(true);
-        const { replays } = await api.users.getUserReplays(userId);
-        setUserReplays(replays);
-        setLoadingReplays(false);
+    const userReplays = useMemo(
+        () => userReplaysResult?.replays || [],
+        [userReplaysResult],
+    );
+
+    const calculateTotalTime = (replays: ExtendedFileResponse[]): string => {
+        const totalRecordedTime = replays.reduce((a, b) => a + b.endRaceTime, 0);
+        const totalRecordedTimeStr = msToTime(totalRecordedTime);
+        return totalRecordedTimeStr;
     };
-
-    const totalRecordedTime = userReplays.reduce((a, b) => a + b.endRaceTime, 0);
-    const totalRecordedTimeStr = msToTime(totalRecordedTime);
-
-    useEffect(() => {
-        if (userInfo !== undefined && userInfo.webId) {
-            fetchAndSetUserReplays(`${userInfo.webId}`);
-        }
-    }, []);
 
     const addReplayInfo = (replayList: ReplayInfo[]): ExtendedFileResponse[] => {
         const now = new Date().getTime();
@@ -57,30 +53,6 @@ const UserReplays = ({ userInfo }: Props): JSX.Element => {
             relativeDate: timeDifference(now, replay.date),
             finished: replay.raceFinished === 1,
         }));
-    };
-
-    const onReplayTableChange = (
-        pagination: TablePaginationConfig,
-        currentPageData: TableCurrentDataSource<ExtendedFileResponse>,
-    ) => {
-        const { current, pageSize } = pagination;
-
-        if (current === undefined || pageSize === undefined) {
-            return;
-        }
-
-        const curPageIndex = current - 1;
-
-        const replaysOnPage = [];
-        for (
-            let i = curPageIndex * pageSize;
-            i < Math.min((curPageIndex + 1) * pageSize, currentPageData.currentDataSource.length);
-            i++
-        ) {
-            replaysOnPage.push(currentPageData.currentDataSource[i]);
-        }
-
-        setVisibleReplays(replaysOnPage);
     };
 
     const getUniqueFilters = (replayFieldCallback: (replay: ReplayInfo) => string) => {
@@ -141,9 +113,11 @@ const UserReplays = ({ userInfo }: Props): JSX.Element => {
         },
     ];
 
+    const dataSource = useMemo(() => addReplayInfo(userReplays), [userReplays]);
+
     return (
         <>
-            <Spin spinning={loadingReplays}>
+            <Spin spinning={isLoadingUserReplays}>
                 <Card
                     title="Replays"
                 >
@@ -152,20 +126,20 @@ const UserReplays = ({ userInfo }: Props): JSX.Element => {
                             <Statistic title="Count" value={userReplays ? userReplays.length : 0} />
                         </Col>
                         <Col span={12}>
-                            <Statistic title="Total Time" value={totalRecordedTimeStr} />
+                            <Statistic
+                                title="Total Time"
+                                value={calculateTotalTime(dataSource)}
+                            />
                         </Col>
                     </Row>
                 </Card>
                 <Card>
                     <Table
-                        onChange={(pagination, filters, sorter, currentPageData) => {
-                            onReplayTableChange(pagination, currentPageData);
-                        }}
-                        dataSource={addReplayInfo(userReplays)}
+                        dataSource={dataSource}
                         columns={columns}
                         size="small"
                         pagination={{
-                            pageSize: defaultPageSize,
+                            pageSize: DEFAULT_PAGE_SIZE,
                             position: ['bottomCenter'],
                         }}
                         scroll={{ scrollToFirstRowOnChange: true }}
