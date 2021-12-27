@@ -9,24 +9,20 @@ import AggregateMapStats from '../../../components/mapStats/AggregateMapStats';
 import FastestTimeProgression from '../../../components/mapStats/FastestTimeProgression';
 import api from '../../../lib/api/apiWrapper';
 import { MapInfo } from '../../../lib/api/requests/maps';
-import { ReplayInfo } from '../../../lib/api/requests/replays';
+import useMapReplays from '../../../lib/api/hooks/query/replays';
 
 const MapStats = () => {
-    const [replays, setReplays] = useState<ReplayInfo[]>([]);
-    const [loadingReplays, setLoadingReplays] = useState<boolean>(true);
     const [mapData, setMapData] = useState<MapInfo>();
 
     const router = useRouter();
     const { mapUId } = router.query;
 
-    const fetchAndSetReplays = async () => {
-        setLoadingReplays(true);
+    const {
+        data,
+        isLoading: isLoadingReplays,
+    } = useMapReplays(typeof mapUId === 'string' ? mapUId : undefined);
 
-        const { replays: fetchedReplays } = await api.replays.fetchReplays({ mapUId: `${mapUId}` });
-        setReplays(fetchedReplays);
-
-        setLoadingReplays(false);
-    };
+    const replays = data?.replays || [];
 
     useEffect(() => {
         const fetchMapData = async (mapId: string) => {
@@ -34,7 +30,6 @@ const MapStats = () => {
             setMapData(mapInfo);
         };
         if (mapUId !== undefined) {
-            fetchAndSetReplays();
             fetchMapData(`${mapUId}`);
         }
     }, [mapUId]);
@@ -71,7 +66,7 @@ const MapStats = () => {
                                 title="Replays"
                                 type="inner"
                             >
-                                <Skeleton loading={loadingReplays} active title={false}>
+                                <Skeleton loading={isLoadingReplays} active title={false}>
                                     <AggregateMapStats replays={replays} />
                                 </Skeleton>
                             </Card>
@@ -80,9 +75,9 @@ const MapStats = () => {
                                 title={`Finish Time Histogram ${binSize ? `(${binSize}ms bins)` : ''}`}
                                 type="inner"
                             >
-                                <Skeleton loading={loadingReplays} active>
+                                <Skeleton loading={isLoadingReplays} active>
                                     {binSize
-                                                && <ReplayTimesHistogram replays={replays} binSize={binSize} />}
+                                        && <ReplayTimesHistogram replays={replays} binSize={binSize} />}
                                 </Skeleton>
                             </Card>
 
@@ -90,7 +85,7 @@ const MapStats = () => {
                                 title="Fastest time progression"
                                 type="inner"
                             >
-                                <Skeleton loading={loadingReplays} active>
+                                <Skeleton loading={isLoadingReplays} active>
                                     <FastestTimeProgression replays={replays} />
                                 </Skeleton>
                             </Card>
