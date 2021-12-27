@@ -8,18 +8,18 @@ import UserDisplay from '../common/UserDisplay';
 import { MapInfo } from '../../lib/api/requests/maps';
 
 interface Props {
-    mapInfo: MapInfo;
+    mapInfo?: MapInfo;
     title: string;
 }
 
 const MapHeader = ({ mapInfo, title }: Props): JSX.Element => {
     const router = useRouter();
 
-    const hasExchangeId = mapInfo.exchangeid !== undefined && mapInfo.exchangeid !== 0;
-    const hasMapUid = mapInfo.mapUid !== undefined && mapInfo.mapUid !== '';
+    const hasExchangeId = mapInfo?.exchangeid !== undefined && mapInfo.exchangeid !== 0;
+    const hasMapUid = mapInfo?.mapUid !== undefined && mapInfo.mapUid !== '';
 
-    const tmioURL = `https://trackmania.io/#/leaderboard/${mapInfo.mapUid}`;
-    const tmxURL = `https://trackmania.exchange/maps/${mapInfo.exchangeid}`;
+    const tmioURL = `https://trackmania.io/#/leaderboard/${mapInfo?.mapUid}`;
+    const tmxURL = `https://trackmania.exchange/maps/${mapInfo?.exchangeid}`;
 
     return (
         <PageHeader
@@ -27,7 +27,7 @@ const MapHeader = ({ mapInfo, title }: Props): JSX.Element => {
             title={title}
             subTitle={(
                 <div className="flex flex-row gap-4 items-baseline">
-                    {cleanTMFormatting(mapInfo.name || '')}
+                    {cleanTMFormatting(mapInfo?.name || '')}
 
                     {/* anchors need duplicate links for keyboard accessibility */}
                     <Link href={tmioURL}>

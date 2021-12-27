@@ -10,7 +10,7 @@ import { useQueryClient } from 'react-query';
 import { Map } from '../lib/api/requests/maps';
 import InfoCard from '../components/landing/InfoCard';
 import { timeDifference } from '../lib/utils/time';
-import useAllMaps from '../lib/api/hooks/query/maps';
+import { useAllMaps } from '../lib/api/hooks/query/maps';
 import QUERY_KEYS from '../lib/utils/reactQuery/reactQueryKeys';
 
 interface MapWithKey extends Map {

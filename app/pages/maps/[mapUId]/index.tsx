@@ -16,29 +16,24 @@ import { ReplayInfo, ReplayData } from '../../../lib/api/requests/replays';
 import { MapInfo } from '../../../lib/api/requests/maps';
 import useMapReplays from '../../../lib/api/hooks/query/replays';
 import QUERY_KEYS from '../../../lib/utils/reactQuery/reactQueryKeys';
+import { useMapInfo } from '../../../lib/api/hooks/query/maps';
 
 const Home = (): JSX.Element => {
     const [selectedReplayData, setSelectedReplayData] = useState<ReplayData[]>([]);
-    const [mapData, setMapData] = useState<MapInfo>({});
 
     const router = useRouter();
     const { mapUId } = router.query;
 
     const queryClient = useQueryClient();
+
     const {
         data: replays,
         isLoading: isLoadingReplays,
     } = useMapReplays(typeof mapUId === 'string' ? mapUId : undefined);
 
-    useEffect(() => {
-        const fetchMapData = async (mapId: string) => {
-            const mapInfo = await api.maps.getMapInfo(mapId); // TODO: what happens if the map can't be found?
-            setMapData(mapInfo);
-        };
-        if (mapUId !== undefined) {
-            fetchMapData(`${mapUId}`);
-        }
-    }, [mapUId]);
+    const {
+        data: mapInfo,
+    } = useMapInfo(typeof mapUId === 'string' ? mapUId : undefined);
 
     const onLoadReplay = async (replay: ReplayInfo) => {
         const replayData = await api.replays.fetchReplayData(replay);
@@ -70,13 +65,15 @@ const Home = (): JSX.Element => {
         setSelectedReplayData(replayDataFiltered);
     };
 
-    const getTitle = () => (mapData?.name ? `${cleanTMFormatting(mapData.name)} - TMDojo` : 'TMDojo');
+    const title = mapInfo?.name
+        ? `${cleanTMFormatting(mapInfo.name)} - TMDojo`
+        : 'TMDojo';
 
     return (
         <>
-            <HeadTitle title={getTitle()} />
+            <HeadTitle title={title} />
             <Layout>
-                <MapHeader mapInfo={mapData} title="Replay viewer" />
+                <MapHeader mapInfo={mapInfo} title="Replay viewer" />
                 <Layout.Content>
                     <SidebarReplays
                         mapUId={`${mapUId}`}
