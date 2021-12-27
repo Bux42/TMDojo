@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Layout } from 'antd';
 import { useRouter } from 'next/router';
 
+import { useQueryClient } from 'react-query';
 import SidebarReplays from '../../../components/maps/SidebarReplays';
 import SidebarSettings from '../../../components/maps/SidebarSettings';
 import MapHeader from '../../../components/maps/MapHeader';
@@ -13,28 +14,23 @@ import LoadedReplays from '../../../components/maps/LoadedReplays';
 import api from '../../../lib/api/apiWrapper';
 import { ReplayInfo, ReplayData } from '../../../lib/api/requests/replays';
 import { MapInfo } from '../../../lib/api/requests/maps';
+import useMapReplays from '../../../lib/api/hooks/query/replays';
+import QUERY_KEYS from '../../../lib/utils/reactQuery/reactQueryKeys';
 
 const Home = (): JSX.Element => {
-    const [replays, setReplays] = useState<ReplayInfo[]>([]);
-    const [loadingReplays, setLoadingReplays] = useState<boolean>(true);
     const [selectedReplayData, setSelectedReplayData] = useState<ReplayData[]>([]);
     const [mapData, setMapData] = useState<MapInfo>({});
 
     const router = useRouter();
     const { mapUId } = router.query;
 
-    const fetchAndSetReplays = async () => {
-        setLoadingReplays(true);
-        const { replays: fetchedReplays } = await api.replays.fetchReplays({ mapUId: `${mapUId}` });
-        setReplays(fetchedReplays);
-        setLoadingReplays(false);
-    };
+    const queryClient = useQueryClient();
+    const {
+        data: replays,
+        isLoading: isLoadingReplays,
+    } = useMapReplays(typeof mapUId === 'string' ? mapUId : undefined);
 
     useEffect(() => {
-        if (mapUId !== undefined) {
-            fetchAndSetReplays();
-        }
-
         const fetchMapData = async (mapId: string) => {
             const mapInfo = await api.maps.getMapInfo(mapId); // TODO: what happens if the map can't be found?
             setMapData(mapInfo);
@@ -84,14 +80,14 @@ const Home = (): JSX.Element => {
                 <Layout.Content>
                     <SidebarReplays
                         mapUId={`${mapUId}`}
-                        replays={replays}
-                        loadingReplays={loadingReplays}
+                        replays={replays?.replays || []}
+                        loadingReplays={isLoadingReplays}
                         onLoadReplay={onLoadReplay}
                         onRemoveReplay={onRemoveReplay}
                         onLoadAllVisibleReplays={onLoadAllVisibleReplays}
                         onRemoveAllReplays={onRemoveAllReplays}
                         selectedReplayDataIds={selectedReplayData.map((replay) => replay._id)}
-                        onRefreshReplays={fetchAndSetReplays}
+                        onRefreshReplays={() => queryClient.invalidateQueries(QUERY_KEYS.mapReplays(mapUId as string))}
                     />
                     {
                         selectedReplayData.length > 0
