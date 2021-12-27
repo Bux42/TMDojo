@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import {
     Input, Table, Tooltip, Button, Card, Spin,
@@ -6,34 +6,27 @@ import {
 import { ColumnsType } from 'antd/lib/table';
 
 import { PieChartOutlined, ReloadOutlined } from '@ant-design/icons';
+import { useQueryClient } from 'react-query';
 import { Map } from '../lib/api/requests/maps';
 import InfoCard from '../components/landing/InfoCard';
 import { timeDifference } from '../lib/utils/time';
-import api from '../lib/api/apiWrapper';
+import useAllMaps from '../lib/api/hooks/query/maps';
+import QUERY_KEYS from '../lib/utils/reactQuery/reactQueryKeys';
 
 interface MapWithKey extends Map {
     key: string;
 }
 
 const Home = (): JSX.Element => {
-    const [maps, setMaps] = useState<MapWithKey[]>([]);
-    const [loadingReplays, setLoadingReplays] = useState<boolean>(true);
     const [searchString, setSearchString] = useState<string>('');
 
-    const fetchMaps = async () => {
-        setLoadingReplays(true);
-        const fetchedMaps = await api.maps.getAllMaps(searchString);
-        const preparedMaps = fetchedMaps.map((fetchedMap) => ({
-            ...fetchedMap,
-            key: fetchedMap.mapUId,
-        }));
-        setMaps(preparedMaps);
-        setLoadingReplays(false);
-    };
+    const queryClient = useQueryClient();
+    const { data: allMaps, isLoading } = useAllMaps(searchString);
 
-    useEffect(() => {
-        fetchMaps();
-    }, [searchString]);
+    const tableData: MapWithKey[] | undefined = allMaps?.map((map: Map) => ({
+        ...map,
+        key: map.mapUId,
+    }));
 
     const columns: ColumnsType<MapWithKey> = [
         {
@@ -91,8 +84,7 @@ const Home = (): JSX.Element => {
                 <InfoCard />
                 <div className="w-full">
                     <Card>
-                        <Spin spinning={loadingReplays}>
-
+                        <Spin spinning={isLoading}>
                             <div className="flex flex-row items-center mb-2 gap-4">
                                 <Input.Search
                                     placeholder="Search for a map"
@@ -103,14 +95,14 @@ const Home = (): JSX.Element => {
                                         shape="circle"
                                         className="mr-2"
                                         icon={<ReloadOutlined />}
-                                        onClick={fetchMaps}
+                                        onClick={() => queryClient.invalidateQueries(QUERY_KEYS.allMaps())}
                                     />
                                 </Tooltip>
                             </div>
 
                             <Table
                                 className="dojo-map-search-table"
-                                dataSource={maps}
+                                dataSource={tableData}
                                 columns={columns}
                                 size="small"
                                 showSorterTooltip={false}
