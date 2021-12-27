@@ -9,7 +9,7 @@ import {
 import { ColumnsType } from 'antd/lib/table/interface';
 import Link from 'next/link';
 import React, { useMemo } from 'react';
-import useUserReplays from '../../lib/api/hooks/query/users';
+import { useUserReplays } from '../../lib/api/hooks/query/users';
 import { ReplayInfo } from '../../lib/api/requests/replays';
 import { UserInfo } from '../../lib/api/requests/users';
 import { getRaceTimeStr, msToTime, timeDifference } from '../../lib/utils/time';
