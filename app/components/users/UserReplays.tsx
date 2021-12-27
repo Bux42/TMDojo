@@ -10,7 +10,9 @@ import {
 import { ColumnsType, TableCurrentDataSource } from 'antd/lib/table/interface';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
-import { FileResponse, getUserReplays, UserInfo } from '../../lib/api/apiRequests';
+import { FileResponse } from '../../lib/api/apiRequests';
+import api from '../../lib/api/apiWrapper';
+import { UserInfo } from '../../lib/api/requests/users';
 import { getRaceTimeStr, msToTime, timeDifference } from '../../lib/utils/time';
 
 interface ExtendedFileResponse extends FileResponse {
@@ -31,7 +33,7 @@ const UserReplays = ({ userInfo }: Props): JSX.Element => {
 
     const fetchAndSetUserReplays = async (userId: string) => {
         setLoadingReplays(true);
-        const { files } = await getUserReplays(userId);
+        const { files } = await api.users.getUserReplays(userId);
         setUserReplays(files);
         setLoadingReplays(false);
     };

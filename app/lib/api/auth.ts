@@ -45,11 +45,11 @@ export const authorizeWithAccessCode = async (
     return data;
 };
 
-export interface UserInfo {
+export interface AuthUserInfo {
     displayName: string;
     accountId: string;
 }
-export const fetchLoggedInUser = async (): Promise<UserInfo | undefined> => {
+export const fetchLoggedInUser = async (): Promise<AuthUserInfo | undefined> => {
     const hasSessionCookie = document.cookie
         .split(';')
         .filter((cookie) => cookie.trim().startsWith('sessionId='))

@@ -3,13 +3,13 @@ import React, {
     createContext, useCallback, useEffect, useState,
 } from 'react';
 import {
-    authorizeWithAccessCode, fetchLoggedInUser, generateAuthUrl, logout, UserInfo,
+    authorizeWithAccessCode, fetchLoggedInUser, generateAuthUrl, logout, AuthUserInfo,
 } from '../api/auth';
 import openAuthWindow from '../utils/authPopup';
 
 export interface AuthContextProps {
-    user?: UserInfo,
-    setUser: (user?: UserInfo) => void,
+    user?: AuthUserInfo,
+    setUser: (user?: AuthUserInfo) => void,
     loginUser: (code: string, state?: string) => Promise<void>,
     logoutUser: () => Promise<void>
     startAuthFlow: () => void
@@ -17,14 +17,14 @@ export interface AuthContextProps {
 
 export const AuthContext = createContext<AuthContextProps>({
     user: undefined,
-    setUser: (user?: UserInfo) => {},
+    setUser: (user?: AuthUserInfo) => {},
     loginUser: async (code: string, state?: string) => {},
     logoutUser: async () => {},
     startAuthFlow: () => {},
 });
 
 export const AuthProvider = ({ children }: any): JSX.Element => {
-    const [user, setUser] = useState<UserInfo>();
+    const [user, setUser] = useState<AuthUserInfo>();
     const { asPath } = useRouter();
 
     useEffect(() => {

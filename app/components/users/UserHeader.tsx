@@ -2,7 +2,7 @@ import { Button, PageHeader } from 'antd';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React from 'react';
-import { UserInfo } from '../../lib/api/apiRequests';
+import { UserInfo } from '../../lib/api/requests/users';
 import UserDisplay from '../common/UserDisplay';
 
 interface Props {

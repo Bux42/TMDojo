@@ -2,12 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Card, Layout } from 'antd';
 import HeadTitle from '../../components/common/HeadTitle';
-import {
-    getUserInfo,
-    UserInfo,
-} from '../../lib/api/apiRequests';
 import UserHeader from '../../components/users/UserHeader';
 import UserReplays from '../../components/users/UserReplays';
+import { UserInfo } from '../../lib/api/requests/users';
+import api from '../../lib/api/apiWrapper';
 
 const Home = (): JSX.Element => {
     const router = useRouter();
@@ -16,7 +14,7 @@ const Home = (): JSX.Element => {
     const getTitle = () => (userInfos ? `${userInfos.playerName} - TMDojo` : 'TMDojo');
 
     const fetchAndSetUser = async (_webId: string) => {
-        const user: UserInfo = await getUserInfo(_webId);
+        const user: UserInfo = await api.users.getUserInfo(_webId);
         setUserInfos(user);
     };
 
