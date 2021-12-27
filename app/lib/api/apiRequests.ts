@@ -67,38 +67,6 @@ export const fetchReplayData = async (file: FileResponse): Promise<ReplayData> =
     };
 };
 
-export type MapInfo = {
-    mapUid?: string;
-    name?: string;
-    authorScore?: number;
-    goldScore?: number;
-    silverScore?: number;
-    bronzeScore?: number;
-    authordisplayname?: string;
-    exchangeid?: number;
-};
-
-export const getMapInfo = async (mapUId: string): Promise<MapInfo> => {
-    const res = await apiInstance.get(`/maps/${mapUId}/info`);
-    return res.data;
-};
-
-export type AvailableMap = {
-    mapName: string;
-    mapUId: string;
-    count: number;
-    lastUpdate: number;
-};
-
-export const getAvailableMaps = async (searchString: string): Promise<AvailableMap[]> => {
-    const res = await apiInstance.get('/maps', {
-        params: {
-            mapName: searchString,
-        },
-    });
-    return res.data;
-};
-
 export const deleteReplay = async (replay: FileResponse) => {
     await apiInstance.delete(`/replays/${replay._id}`);
 };

@@ -8,16 +8,16 @@ import MapHeader from '../../../components/maps/MapHeader';
 import Viewer3D from '../../../components/viewer/Viewer3D';
 import {
     getReplays,
-    getMapInfo,
     FileResponse,
     fetchReplayData,
     ReplayData,
-    MapInfo,
 } from '../../../lib/api/apiRequests';
 import HeadTitle from '../../../components/common/HeadTitle';
 import { ChartsDrawer } from '../../../components/maps/ChartsDrawer';
 import { cleanTMFormatting } from '../../../lib/utils/formatting';
 import LoadedReplays from '../../../components/maps/LoadedReplays';
+import api from '../../../lib/api/apiWrapper';
+import { MapInfo } from '../../../lib/api/requests/maps';
 
 const Home = (): JSX.Element => {
     const [replays, setReplays] = useState<FileResponse[]>([]);
@@ -41,7 +41,7 @@ const Home = (): JSX.Element => {
         }
 
         const fetchMapData = async (mapId: string) => {
-            const mapInfo = await getMapInfo(mapId); // TODO: what happens if the map can't be found?
+            const mapInfo = await api.maps.getMapInfo(mapId); // TODO: what happens if the map can't be found?
             setMapData(mapInfo);
         };
         if (mapUId !== undefined) {

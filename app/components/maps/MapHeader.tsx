@@ -3,9 +3,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { PageHeader, Button } from 'antd';
 
-import { MapInfo } from '../../lib/api/apiRequests';
 import { cleanTMFormatting } from '../../lib/utils/formatting';
 import UserDisplay from '../common/UserDisplay';
+import { MapInfo } from '../../lib/api/requests/maps';
 
 interface Props {
     mapInfo: MapInfo;

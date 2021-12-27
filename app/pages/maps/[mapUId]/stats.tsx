@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Card, Skeleton } from 'antd';
 import {
-    FileResponse, getMapInfo, getReplays, MapInfo,
+    FileResponse, getReplays,
 } from '../../../lib/api/apiRequests';
 import HeadTitle from '../../../components/common/HeadTitle';
 import { cleanTMFormatting } from '../../../lib/utils/formatting';
@@ -10,6 +10,8 @@ import MapHeader from '../../../components/maps/MapHeader';
 import ReplayTimesHistogram from '../../../components/mapStats/ReplayTimesHistogram';
 import AggregateMapStats from '../../../components/mapStats/AggregateMapStats';
 import FastestTimeProgression from '../../../components/mapStats/FastestTimeProgression';
+import api from '../../../lib/api/apiWrapper';
+import { MapInfo } from '../../../lib/api/requests/maps';
 
 const MapStats = () => {
     const [replays, setReplays] = useState<FileResponse[]>([]);
@@ -30,7 +32,7 @@ const MapStats = () => {
 
     useEffect(() => {
         const fetchMapData = async (mapId: string) => {
-            const mapInfo = await getMapInfo(mapId); // TODO: what happens if the map can't be found?
+            const mapInfo = await api.maps.getMapInfo(mapId); // TODO: what happens if the map can't be found?
             setMapData(mapInfo);
         };
         if (mapUId !== undefined) {

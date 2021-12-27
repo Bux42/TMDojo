@@ -6,22 +6,23 @@ import {
 import { ColumnsType } from 'antd/lib/table';
 
 import { PieChartOutlined, ReloadOutlined } from '@ant-design/icons';
-import { AvailableMap, getAvailableMaps } from '../lib/api/apiRequests';
+import { Map } from '../lib/api/requests/maps';
 import InfoCard from '../components/landing/InfoCard';
 import { timeDifference } from '../lib/utils/time';
+import api from '../lib/api/apiWrapper';
 
-interface ExtendedAvailableMap extends AvailableMap {
+interface MapWithKey extends Map {
     key: string;
 }
 
 const Home = (): JSX.Element => {
-    const [maps, setMaps] = useState<ExtendedAvailableMap[]>([]);
+    const [maps, setMaps] = useState<MapWithKey[]>([]);
     const [loadingReplays, setLoadingReplays] = useState<boolean>(true);
     const [searchString, setSearchString] = useState<string>('');
 
     const fetchMaps = async () => {
         setLoadingReplays(true);
-        const fetchedMaps = await getAvailableMaps(searchString);
+        const fetchedMaps = await api.maps.getAllMaps(searchString);
         const preparedMaps = fetchedMaps.map((fetchedMap) => ({
             ...fetchedMap,
             key: fetchedMap.mapUId,
@@ -34,7 +35,7 @@ const Home = (): JSX.Element => {
         fetchMaps();
     }, [searchString]);
 
-    const columns: ColumnsType<ExtendedAvailableMap> = [
+    const columns: ColumnsType<MapWithKey> = [
         {
             title: 'Map name',
             dataIndex: 'mapName',
