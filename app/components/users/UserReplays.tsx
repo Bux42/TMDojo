@@ -10,12 +10,12 @@ import {
 import { ColumnsType, TableCurrentDataSource } from 'antd/lib/table/interface';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
-import { FileResponse } from '../../lib/api/apiRequests';
 import api from '../../lib/api/apiWrapper';
+import { ReplayInfo } from '../../lib/api/requests/replays';
 import { UserInfo } from '../../lib/api/requests/users';
 import { getRaceTimeStr, msToTime, timeDifference } from '../../lib/utils/time';
 
-interface ExtendedFileResponse extends FileResponse {
+interface ExtendedFileResponse extends ReplayInfo {
     readableTime: string;
     relativeDate: string;
     finished: boolean;
@@ -26,15 +26,15 @@ interface Props {
 }
 
 const UserReplays = ({ userInfo }: Props): JSX.Element => {
-    const [userReplays, setUserReplays] = useState<FileResponse[]>([]);
+    const [userReplays, setUserReplays] = useState<ReplayInfo[]>([]);
     const [loadingReplays, setLoadingReplays] = useState<boolean>(true);
-    const [visibleReplays, setVisibleReplays] = useState<FileResponse[]>([]);
+    const [visibleReplays, setVisibleReplays] = useState<ReplayInfo[]>([]);
     const defaultPageSize = 10;
 
     const fetchAndSetUserReplays = async (userId: string) => {
         setLoadingReplays(true);
-        const { files } = await api.users.getUserReplays(userId);
-        setUserReplays(files);
+        const { replays } = await api.users.getUserReplays(userId);
+        setUserReplays(replays);
         setLoadingReplays(false);
     };
 
@@ -47,7 +47,7 @@ const UserReplays = ({ userInfo }: Props): JSX.Element => {
         }
     }, []);
 
-    const addReplayInfo = (replayList: FileResponse[]): ExtendedFileResponse[] => {
+    const addReplayInfo = (replayList: ReplayInfo[]): ExtendedFileResponse[] => {
         const now = new Date().getTime();
 
         return replayList.map((replay) => ({
@@ -83,7 +83,7 @@ const UserReplays = ({ userInfo }: Props): JSX.Element => {
         setVisibleReplays(replaysOnPage);
     };
 
-    const getUniqueFilters = (replayFieldCallback: (replay: FileResponse) => string) => {
+    const getUniqueFilters = (replayFieldCallback: (replay: ReplayInfo) => string) => {
         const uniques = Array.from(new Set(userReplays.map(replayFieldCallback)));
         return uniques.sort().map((val) => ({ text: val, value: val }));
     };

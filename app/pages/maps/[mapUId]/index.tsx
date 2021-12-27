@@ -6,21 +6,16 @@ import SidebarReplays from '../../../components/maps/SidebarReplays';
 import SidebarSettings from '../../../components/maps/SidebarSettings';
 import MapHeader from '../../../components/maps/MapHeader';
 import Viewer3D from '../../../components/viewer/Viewer3D';
-import {
-    getReplays,
-    FileResponse,
-    fetchReplayData,
-    ReplayData,
-} from '../../../lib/api/apiRequests';
 import HeadTitle from '../../../components/common/HeadTitle';
 import { ChartsDrawer } from '../../../components/maps/ChartsDrawer';
 import { cleanTMFormatting } from '../../../lib/utils/formatting';
 import LoadedReplays from '../../../components/maps/LoadedReplays';
 import api from '../../../lib/api/apiWrapper';
+import { ReplayInfo, ReplayData } from '../../../lib/api/requests/replays';
 import { MapInfo } from '../../../lib/api/requests/maps';
 
 const Home = (): JSX.Element => {
-    const [replays, setReplays] = useState<FileResponse[]>([]);
+    const [replays, setReplays] = useState<ReplayInfo[]>([]);
     const [loadingReplays, setLoadingReplays] = useState<boolean>(true);
     const [selectedReplayData, setSelectedReplayData] = useState<ReplayData[]>([]);
     const [mapData, setMapData] = useState<MapInfo>({});
@@ -30,8 +25,8 @@ const Home = (): JSX.Element => {
 
     const fetchAndSetReplays = async () => {
         setLoadingReplays(true);
-        const { files } = await getReplays({ mapUId: `${mapUId}` });
-        setReplays(files);
+        const { replays: fetchedReplays } = await api.replays.fetchReplays({ mapUId: `${mapUId}` });
+        setReplays(fetchedReplays);
         setLoadingReplays(false);
     };
 
@@ -49,12 +44,12 @@ const Home = (): JSX.Element => {
         }
     }, [mapUId]);
 
-    const onLoadReplay = async (replay: FileResponse) => {
-        const replayData = await fetchReplayData(replay);
+    const onLoadReplay = async (replay: ReplayInfo) => {
+        const replayData = await api.replays.fetchReplayData(replay);
         setSelectedReplayData([...selectedReplayData, replayData]);
     };
 
-    const onRemoveReplay = async (replayToRemove: FileResponse) => {
+    const onRemoveReplay = async (replayToRemove: ReplayInfo) => {
         const replayDataFiltered = selectedReplayData.filter(
             (replay) => replay._id !== replayToRemove._id,
         );
@@ -62,19 +57,19 @@ const Home = (): JSX.Element => {
     };
 
     const onLoadAllVisibleReplays = async (
-        allReplays: FileResponse[],
+        allReplays: ReplayInfo[],
         selectedReplayDataIds: string[],
     ) => {
         const filtered = allReplays.filter(
             (replay) => selectedReplayDataIds.indexOf(replay._id) === -1,
         );
         const fetchedReplays = await Promise.all(
-            filtered.map((replay) => fetchReplayData(replay)),
+            filtered.map((replay) => api.replays.fetchReplayData(replay)),
         );
         setSelectedReplayData([...selectedReplayData, ...fetchedReplays]);
     };
 
-    const onRemoveAllReplays = async (replaysToRemove: FileResponse[]) => {
+    const onRemoveAllReplays = async (replaysToRemove: ReplayInfo[]) => {
         const replayDataFiltered = selectedReplayData.filter((el) => replaysToRemove.includes(el));
         setSelectedReplayData(replayDataFiltered);
     };

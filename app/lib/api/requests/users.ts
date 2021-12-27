@@ -1,5 +1,5 @@
 import apiInstance from '../apiInstance';
-import { FilesResult } from '../apiRequests';
+import { AllReplaysResult } from './replays';
 
 export type UserInfo = {
     webId?: string;
@@ -8,11 +8,14 @@ export type UserInfo = {
     _id?: number;
 };
 export const getUserInfo = async (webId: string): Promise<UserInfo> => {
-    const res = await apiInstance.get(`/users/${webId}/info`);
-    return res.data;
+    const { data } = await apiInstance.get(`/users/${webId}/info`);
+    return data;
 };
 
-export const getUserReplays = async (webId: string): Promise<FilesResult> => {
-    const res = await apiInstance.get(`/users/${webId}/replays`);
-    return res.data;
+export const getUserReplays = async (webId: string): Promise<AllReplaysResult> => {
+    const { data } = await apiInstance.get(`/users/${webId}/replays`);
+    return {
+        replays: data.files,
+        totalResults: data.totalResults,
+    };
 };

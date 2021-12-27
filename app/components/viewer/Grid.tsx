@@ -1,7 +1,7 @@
 import React from 'react';
 import * as THREE from 'three';
 import { Vector3 } from 'three';
-import { ReplayData } from '../../lib/api/apiRequests';
+import { ReplayData } from '../../lib/api/requests/replays';
 import { BLOCK_SIZE } from '../../lib/constants/block';
 
 const GRID_COLOR = new THREE.Color(0, 0, 0);

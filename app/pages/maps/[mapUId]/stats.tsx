@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Card, Skeleton } from 'antd';
-import {
-    FileResponse, getReplays,
-} from '../../../lib/api/apiRequests';
 import HeadTitle from '../../../components/common/HeadTitle';
 import { cleanTMFormatting } from '../../../lib/utils/formatting';
 import MapHeader from '../../../components/maps/MapHeader';
@@ -12,9 +9,10 @@ import AggregateMapStats from '../../../components/mapStats/AggregateMapStats';
 import FastestTimeProgression from '../../../components/mapStats/FastestTimeProgression';
 import api from '../../../lib/api/apiWrapper';
 import { MapInfo } from '../../../lib/api/requests/maps';
+import { ReplayInfo } from '../../../lib/api/requests/replays';
 
 const MapStats = () => {
-    const [replays, setReplays] = useState<FileResponse[]>([]);
+    const [replays, setReplays] = useState<ReplayInfo[]>([]);
     const [loadingReplays, setLoadingReplays] = useState<boolean>(true);
     const [mapData, setMapData] = useState<MapInfo>();
 
@@ -24,8 +22,8 @@ const MapStats = () => {
     const fetchAndSetReplays = async () => {
         setLoadingReplays(true);
 
-        const { files } = await getReplays({ mapUId: `${mapUId}` });
-        setReplays(files);
+        const { replays: fetchedReplays } = await api.replays.fetchReplays({ mapUId: `${mapUId}` });
+        setReplays(fetchedReplays);
 
         setLoadingReplays(false);
     };

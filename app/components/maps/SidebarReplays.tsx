@@ -3,19 +3,18 @@ import {
     Button, Drawer, message, Popconfirm, Spin, Table, Tooltip,
 } from 'antd';
 import {
-    CaretRightOutlined,
     DeleteOutlined, QuestionCircleOutlined, ReloadOutlined, UnorderedListOutlined,
 } from '@ant-design/icons';
 import { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
 import { ColumnType, TableCurrentDataSource } from 'antd/lib/table/interface';
-import Link from 'next/link';
-import { deleteReplay, FileResponse } from '../../lib/api/apiRequests';
 import { getRaceTimeStr, timeDifference } from '../../lib/utils/time';
 import { AuthContext } from '../../lib/contexts/AuthContext';
 import SideDrawerExpandButton from '../common/SideDrawerExpandButton';
 import PlayerLink from '../common/PlayerLink';
+import { ReplayInfo } from '../../lib/api/requests/replays';
+import api from '../../lib/api/apiWrapper';
 
-interface ExtendedFileResponse extends FileResponse {
+interface ExtendedReplayInfo extends ReplayInfo {
     readableTime: string;
     relativeDate: string;
     finished: boolean;
@@ -23,12 +22,12 @@ interface ExtendedFileResponse extends FileResponse {
 
 interface Props {
     mapUId: string;
-    replays: FileResponse[];
+    replays: ReplayInfo[];
     loadingReplays: boolean;
-    onLoadReplay: (replay: FileResponse) => void;
-    onRemoveReplay: (replay: FileResponse) => void;
-    onLoadAllVisibleReplays: (replays: FileResponse[], selectedReplayDataIds: string[]) => void;
-    onRemoveAllReplays: (replays: FileResponse[]) => void;
+    onLoadReplay: (replay: ReplayInfo) => void;
+    onRemoveReplay: (replay: ReplayInfo) => void;
+    onLoadAllVisibleReplays: (replays: ReplayInfo[], selectedReplayDataIds: string[]) => void;
+    onRemoveAllReplays: (replays: ReplayInfo[]) => void;
     onRefreshReplays: () => Promise<void>;
     selectedReplayDataIds: string[];
 }
@@ -46,12 +45,12 @@ const SidebarReplays = ({
 }: Props): JSX.Element => {
     const defaultPageSize = 14;
 
-    const showFinishedColumn = replays.some((replay: FileResponse) => !replay.raceFinished);
+    const showFinishedColumn = replays.some((replay: ReplayInfo) => !replay.raceFinished);
 
     const userProfileUrl = '/users/';
 
     const [visible, setVisible] = useState(true);
-    const [visibleReplays, setVisibleReplays] = useState<FileResponse[]>([]);
+    const [visibleReplays, setVisibleReplays] = useState<ReplayInfo[]>([]);
 
     const { user } = useContext(AuthContext);
 
@@ -69,14 +68,14 @@ const SidebarReplays = ({
         setVisible(!visible);
     };
 
-    const getUniqueFilters = (replayFieldCallback: (replay: FileResponse) => string) => {
+    const getUniqueFilters = (replayFieldCallback: (replay: ReplayInfo) => string) => {
         const uniques = Array.from(new Set(replays.map(replayFieldCallback)));
         return uniques.sort().map((val) => ({ text: val, value: val }));
     };
 
-    const deleteReplayFile = async (replay: ExtendedFileResponse) => {
+    const deleteReplayFile = async (replay: ExtendedReplayInfo) => {
         try {
-            await deleteReplay(replay);
+            await api.replays.deleteReplay(replay);
             await onRefreshReplays();
             message.success('Replay deleted!');
         } catch (e) {
@@ -84,7 +83,7 @@ const SidebarReplays = ({
         }
     };
 
-    let columns: ColumnsType<ExtendedFileResponse> = [
+    let columns: ColumnsType<ExtendedReplayInfo> = [
         {
             title: 'Player',
             dataIndex: 'playerName',
@@ -186,10 +185,10 @@ const SidebarReplays = ({
     ];
 
     if (!showFinishedColumn) {
-        columns = columns.filter((column: ColumnType<ExtendedFileResponse>) => column.dataIndex !== 'finished');
+        columns = columns.filter((column: ColumnType<ExtendedReplayInfo>) => column.dataIndex !== 'finished');
     }
 
-    const addReplayInfo = (replayList: FileResponse[]): ExtendedFileResponse[] => {
+    const addReplayInfo = (replayList: ReplayInfo[]): ExtendedReplayInfo[] => {
         const now = new Date().getTime();
 
         return replayList.map((replay) => ({
@@ -203,7 +202,7 @@ const SidebarReplays = ({
 
     const onReplayTableChange = (
         pagination: TablePaginationConfig,
-        currentPageData: TableCurrentDataSource<ExtendedFileResponse>,
+        currentPageData: TableCurrentDataSource<ExtendedReplayInfo>,
     ) => {
         const { current, pageSize } = pagination;
 

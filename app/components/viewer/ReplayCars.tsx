@@ -6,13 +6,13 @@ import React, {
     useRef, useState,
 } from 'react';
 import { useFBX } from '@react-three/drei';
-import { ReplayData } from '../../lib/api/apiRequests';
 import { ReplayDataPoint } from '../../lib/replays/replayData';
 import vecToQuat from '../../lib/utils/math';
 import { CameraMode } from '../../lib/contexts/SettingsContext';
 import InputOverlay from './InputOverlay';
 import getSampleNearTime from '../../lib/utils/replay';
 import GlobalTimeLineInfos from '../../lib/singletons/timeLineInfos';
+import { ReplayData } from '../../lib/api/requests/replays';
 
 const BACK_WHEEL_Y = 35.232017517089844;
 const FRONT_WHEEL_Y = 35.24349594116211;

@@ -1,10 +1,10 @@
 import { Col, Row, Statistic } from 'antd';
 import React from 'react';
-import { FileResponse } from '../../lib/api/apiRequests';
+import { ReplayInfo } from '../../lib/api/requests/replays';
 import { msToTime } from '../../lib/utils/time';
 
 interface AggregateMapStatsProps {
-    replays: FileResponse[];
+    replays: ReplayInfo[];
 }
 const AggregateMapStats = ({ replays }: AggregateMapStatsProps) => {
     const totalRecordedTime = replays.reduce((a, b) => a + b.endRaceTime, 0);

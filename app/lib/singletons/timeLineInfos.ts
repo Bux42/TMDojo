@@ -1,11 +1,11 @@
-import { ReplayData } from '../api/apiRequests';
+import { ReplayData } from '../api/requests/replays';
 import Singleton from './singleton';
 
 class TimeLineInfos {
     currentRaceTime: number;
     maxRaceTime: number;
-    followedReplay: ReplayData | undefined;
-    hoveredReplay: ReplayData | undefined;
+    followedReplay?: ReplayData;
+    hoveredReplay?: ReplayData;
     isPlaying: boolean;
     constructor() {
         this.currentRaceTime = 0;

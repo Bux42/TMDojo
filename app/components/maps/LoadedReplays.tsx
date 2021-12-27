@@ -1,17 +1,17 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import {
-    CaretLeftOutlined, CaretRightOutlined, EyeOutlined,
+    CaretRightOutlined, EyeOutlined,
 } from '@ant-design/icons';
 import {
-    Button, Drawer, Row, Col, Radio, RadioChangeEvent, List, Divider,
+    Drawer, Row, Col, Radio, RadioChangeEvent, List, Divider,
 } from 'antd';
 import React, {
     useContext, useState,
 } from 'react';
 import * as ReactColor from 'react-color';
 import * as THREE from 'three';
-import { FileResponse, ReplayData } from '../../lib/api/apiRequests';
+import { ReplayData } from '../../lib/api/requests/replays';
 import { CameraMode, SettingsContext } from '../../lib/contexts/SettingsContext';
 import GlobalTimeLineInfos from '../../lib/singletons/timeLineInfos';
 import { addPlural, getRaceTimeStr } from '../../lib/utils/time';

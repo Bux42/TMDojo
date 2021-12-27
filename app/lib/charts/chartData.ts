@@ -1,4 +1,4 @@
-import { ReplayData } from '../api/apiRequests';
+import { ReplayData } from '../api/requests/replays';
 import { ReplayDataPoint } from '../replays/replayData';
 import { getRaceTimeStr } from '../utils/time';
 import { ChartDataInfo } from './chartTypes';

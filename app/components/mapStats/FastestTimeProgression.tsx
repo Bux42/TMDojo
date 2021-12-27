@@ -6,19 +6,19 @@ import Highcharts, { some } from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import dayjs from 'dayjs';
 import { getRaceTimeStr, timeDifference } from '../../lib/utils/time';
-import { FileResponse } from '../../lib/api/apiRequests';
 import PlayerLink from '../common/PlayerLink';
+import { ReplayInfo } from '../../lib/api/requests/replays';
 
 interface FastestTimeProgressionProps {
-    replays: FileResponse[];
+    replays: ReplayInfo[];
 }
 const FastestTimeProgression = ({ replays } : FastestTimeProgressionProps) => {
-    const calculateFastestTimeProgressions = (replayList: FileResponse[]): FileResponse[] => {
+    const calculateFastestTimeProgressions = (replayList: ReplayInfo[]): ReplayInfo[] => {
         if (replayList.length === 0) {
             return [];
         }
 
-        const fastestTimeProgressions: FileResponse[] = [];
+        const fastestTimeProgressions: ReplayInfo[] = [];
         const sortedReplays = replayList.sort((a, b) => a.date - b.date);
 
         fastestTimeProgressions.push(sortedReplays[0]);
@@ -36,12 +36,12 @@ const FastestTimeProgression = ({ replays } : FastestTimeProgressionProps) => {
     interface ChartDataPoint {
         x: number;
         y: number;
-        replay: FileResponse;
+        replay: ReplayInfo;
     }
 
     const fastestTimeProgressions = useMemo(() => calculateFastestTimeProgressions(replays), [replays]);
 
-    const replaysToDataPoints = (replays_: FileResponse[]): ChartDataPoint[] => replays_.map((replay) => ({
+    const replaysToDataPoints = (replays_: ReplayInfo[]): ChartDataPoint[] => replays_.map((replay) => ({
         x: replay.date,
         y: replay.endRaceTime,
         replay,

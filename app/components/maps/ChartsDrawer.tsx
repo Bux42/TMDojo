@@ -9,7 +9,6 @@ import Highcharts, { AxisSetExtremesEventObject } from 'highcharts/highstock';
 import HighchartsReact from 'highcharts-react-official';
 import { CheckboxChangeEvent } from 'antd/lib/checkbox';
 import { CaretUpOutlined, LineChartOutlined } from '@ant-design/icons';
-import { ReplayData } from '../../lib/api/apiRequests';
 import { SettingsContext } from '../../lib/contexts/SettingsContext';
 import { getRaceTimeStr } from '../../lib/utils/time';
 import { ReplayDataPoint } from '../../lib/replays/replayData';
@@ -17,6 +16,7 @@ import GlobalTimeLineInfos from '../../lib/singletons/timeLineInfos';
 import { ChartType, ChartTypes } from '../../lib/charts/chartTypes';
 import { globalChartOptions } from '../../lib/charts/chartOptions';
 import { metricChartData } from '../../lib/charts/chartData';
+import { ReplayData } from '../../lib/api/requests/replays';
 
 export interface RangeUpdateInfos {
     event: AxisSetExtremesEventObject,

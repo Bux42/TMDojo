@@ -1,6 +1,6 @@
 /* eslint-disable no-lonely-if */
 import * as THREE from 'three';
-import { ReplayData } from '../api/apiRequests';
+import { ReplayData } from '../api/requests/replays';
 import { ColorMap, getColorFromMap } from '../utils/colormaps';
 import { ReplayDataPoint } from './replayData';
 

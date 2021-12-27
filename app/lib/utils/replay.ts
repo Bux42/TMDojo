@@ -1,4 +1,4 @@
-import { ReplayData } from '../api/apiRequests';
+import { ReplayData } from '../api/requests/replays';
 import { ReplayDataPoint } from '../replays/replayData';
 
 const getSampleNearTime = (replay: ReplayData, raceTime: number): ReplayDataPoint => {

@@ -1,6 +1,6 @@
 import Highcharts, { AxisOptions, AxisSetExtremesEventObject } from 'highcharts/highstock';
 import { RangeUpdateInfos } from '../../components/maps/ChartsDrawer';
-import { ReplayData } from '../api/apiRequests';
+import { ReplayData } from '../api/requests/replays';
 import GlobalChartsDataSingleton from '../singletons/globalChartData';
 import { getRaceTimeStr } from '../utils/time';
 import { ChartType } from './chartTypes';

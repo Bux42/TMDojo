@@ -2,10 +2,10 @@ import React, { useMemo } from 'react';
 import * as THREE from 'three';
 import { Billboard, Sphere, Text } from '@react-three/drei';
 import { DoubleSide } from 'three';
-import { ReplayData } from '../../lib/api/apiRequests';
 import { ReplayDataPoint } from '../../lib/replays/replayData';
 import { getColorFromMap } from '../../lib/utils/colormaps';
 import { COLOR_MAP_GEARS } from '../../lib/replays/replayLineColors';
+import { ReplayData } from '../../lib/api/requests/replays';
 
 interface GearIndicatorProps {
     gearChange: GearChange;
