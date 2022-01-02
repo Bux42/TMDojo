@@ -25,8 +25,6 @@ const TimeLineView = ({ replaysData }: TimeLineViewProps) => {
     const [timelineSpeed, setTimelineSpeed] = useState<number>(1);
     const [playing, setPlaying] = useState<boolean>(false);
 
-    const min = 0;
-
     const timeLineGlobal = GlobalTimeLineInfos.getInstance();
 
     timeLineGlobal.maxRaceTime = 0;
@@ -87,8 +85,10 @@ const TimeLineView = ({ replaysData }: TimeLineViewProps) => {
         const intervalCallback = () => {
             const raceTimeIncrement = TICK_TIME * speed;
             const nextRaceTime = timeLineGlobal.currentRaceTime + raceTimeIncrement;
-            if (nextRaceTime > timeLineGlobal.maxRaceTime) {
-                onChange(min);
+            if (nextRaceTime > timeLineGlobal.maxRaceTime || nextRaceTime < 0) {
+                // Loop time back to 0 if time is past the max
+                //  and ensure time stays at least 0
+                onChange(0);
             } else {
                 onChange(nextRaceTime);
             }
@@ -101,7 +101,7 @@ const TimeLineView = ({ replaysData }: TimeLineViewProps) => {
         setPlaying(shouldPlay);
         if (!shouldPlay) {
             // was playing, pause interval
-            onChange(timeLineGlobal.currentRaceTime - 1);
+            onChange(timeLineGlobal.currentRaceTime);
             clearInterval(playInterval);
         } else {
             // was not playing, start playing
