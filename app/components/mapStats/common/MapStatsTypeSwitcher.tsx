@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { Button, Card } from 'antd';
 import { MapInfo } from '../../../lib/api/apiRequests';
 import { AuthContext } from '../../../lib/contexts/AuthContext';
+import { cleanTMFormatting } from '../../../lib/utils/formatting';
 
 export enum MapStatsType {
     GLOBAL = 'Global',
@@ -31,7 +32,7 @@ export const MapStatsTypeSwitcher = ({ mapStatsType, mapData, toggleMapStatsType
                     <>
                         {'for '}
                         <b>
-                            {mapData.name}
+                            {cleanTMFormatting(mapData.name)}
                         </b>
                     </>
                 )}

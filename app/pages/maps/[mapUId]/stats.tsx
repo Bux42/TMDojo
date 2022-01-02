@@ -14,6 +14,7 @@ import AggregateMapStats from '../../../components/mapStats/statistics/Aggregate
 import FastestTimeProgression from '../../../components/mapStats/statistics/FastestTimeProgression';
 import { AuthContext } from '../../../lib/contexts/AuthContext';
 import { MapStatsType, MapStatsTypeSwitcher } from '../../../components/mapStats/common/MapStatsTypeSwitcher';
+import { UserInfo } from '../../../lib/api/auth';
 
 const MapStats = () => {
     const { user } = useContext(AuthContext);
@@ -81,19 +82,19 @@ const MapStats = () => {
         }
     };
 
-    const filterReplaysUsingMapStatsType = (inputReplays: FileResponse[], statsType: MapStatsType) => {
-        const finishedReplays = inputReplays.filter((r) => r.raceFinished === 1);
+    const allReplaysFilteredByCurrentUser = useMemo(
+        () => {
+            const finishedReplays = replays.filter((r) => r.raceFinished === 1);
 
-        if (statsType === MapStatsType.GLOBAL || user === undefined) {
-            return finishedReplays;
-        }
+            if (mapStatsType === MapStatsType.GLOBAL || user === undefined) {
+                return finishedReplays;
+            }
 
-        return finishedReplays.filter((r) => r.webId === user.accountId);
-    };
+            const filteredReplays = finishedReplays.filter((r) => r.webId === user.accountId);
 
-    const filteredReplays = useMemo(
-        () => filterReplaysUsingMapStatsType(replays, mapStatsType),
-        [replays, mapStatsType],
+            return filteredReplays;
+        },
+        [user, replays, mapStatsType],
     );
 
     return (
@@ -116,7 +117,7 @@ const MapStats = () => {
                         title={`Map: ${cleanTMFormatting(mapData?.name || '')}`}
                     >
                         <div className="flex flex-col h-full gap-4">
-                            {filteredReplays.length === 0
+                            {allReplaysFilteredByCurrentUser.length === 0
                                 ? (
                                     <Empty
                                         image={Empty.PRESENTED_IMAGE_SIMPLE}
@@ -129,7 +130,7 @@ const MapStats = () => {
                                             type="inner"
                                         >
                                             <Skeleton loading={loadingReplays} active title={false}>
-                                                <AggregateMapStats replays={filteredReplays} />
+                                                <AggregateMapStats replays={allReplaysFilteredByCurrentUser} />
                                             </Skeleton>
                                         </Card>
 
@@ -138,8 +139,12 @@ const MapStats = () => {
                                             type="inner"
                                         >
                                             <Skeleton loading={loadingReplays} active>
-                                                {binSize
-                                        && <ReplayTimesHistogram replays={filteredReplays} binSize={binSize} />}
+                                                {binSize && (
+                                                    <ReplayTimesHistogram
+                                                        replays={allReplaysFilteredByCurrentUser}
+                                                        binSize={binSize}
+                                                    />
+                                                )}
                                             </Skeleton>
                                         </Card>
 
@@ -148,7 +153,11 @@ const MapStats = () => {
                                             type="inner"
                                         >
                                             <Skeleton loading={loadingReplays} active>
-                                                <FastestTimeProgression replays={filteredReplays} />
+                                                <FastestTimeProgression
+                                                    replays={allReplaysFilteredByCurrentUser}
+                                                    userToShowProgression={user}
+                                                    onlyShowUserProgression={mapStatsType === MapStatsType.PERSONAL}
+                                                />
                                             </Skeleton>
                                         </Card>
                                     </>
