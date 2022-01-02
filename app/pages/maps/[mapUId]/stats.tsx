@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, {
+    useContext, useEffect, useMemo, useState,
+} from 'react';
 import { useRouter } from 'next/router';
 import { Card, Skeleton } from 'antd';
 import {
@@ -7,14 +9,20 @@ import {
 import HeadTitle from '../../../components/common/HeadTitle';
 import { cleanTMFormatting } from '../../../lib/utils/formatting';
 import MapHeader from '../../../components/maps/MapHeader';
-import ReplayTimesHistogram from '../../../components/mapStats/ReplayTimesHistogram';
-import AggregateMapStats from '../../../components/mapStats/AggregateMapStats';
-import FastestTimeProgression from '../../../components/mapStats/FastestTimeProgression';
+import ReplayTimesHistogram from '../../../components/mapStats/statistics/ReplayTimesHistogram';
+import AggregateMapStats from '../../../components/mapStats/statistics/AggregateMapStats';
+import FastestTimeProgression from '../../../components/mapStats/statistics/FastestTimeProgression';
+import { AuthContext } from '../../../lib/contexts/AuthContext';
+import { MapStatsType, MapStatsTypeSwitcher } from '../../../components/mapStats/common/MapStatsTypeSwitcher';
 
 const MapStats = () => {
+    const { user } = useContext(AuthContext);
+
     const [replays, setReplays] = useState<FileResponse[]>([]);
     const [loadingReplays, setLoadingReplays] = useState<boolean>(true);
     const [mapData, setMapData] = useState<MapInfo>();
+
+    const [mapStatsType, setMapStatsType] = useState(MapStatsType.GLOBAL);
 
     const router = useRouter();
     const { mapUId } = router.query;
@@ -39,29 +47,70 @@ const MapStats = () => {
         }
     }, [mapUId]);
 
+    // If user object changes, set the according map stats type
+    useEffect(() => {
+        if (user === undefined) {
+            setMapStatsType(MapStatsType.GLOBAL);
+        } else {
+            setMapStatsType(MapStatsType.PERSONAL);
+        }
+    }, [user]);
+
     const getTitle = () => (mapData?.name ? `${cleanTMFormatting(mapData.name)} - TMDojo` : 'TMDojo');
 
-    const calcBinSize = () => {
-        if (replays.length === 0) {
+    const calcBinSize = (inputReplays: FileResponse[]) => {
+        if (inputReplays.length === 0) {
             return undefined;
         }
 
-        const minTime = Math.min(...replays.map((r) => r.endRaceTime));
-        const maxTime = Math.max(...replays.map((r) => r.endRaceTime));
+        const minTime = Math.min(...inputReplays.map((r) => r.endRaceTime));
+        const maxTime = Math.max(...inputReplays.map((r) => r.endRaceTime));
 
         // WIP method for determining bin size using the min and max times
         const binSize = 10 ** (Math.floor(Math.log10(maxTime - minTime)) - 1);
         return binSize;
     };
 
-    const binSize = calcBinSize();
+    const binSize = useMemo(() => calcBinSize(replays), [replays]);
+
+    const toggleMapStatsType = () => {
+        if (mapStatsType === MapStatsType.GLOBAL) {
+            setMapStatsType(MapStatsType.PERSONAL);
+        } else {
+            setMapStatsType(MapStatsType.GLOBAL);
+        }
+    };
+
+    const filterReplaysUsingMapStatsType = (inputReplays: FileResponse[], statsType: MapStatsType) => {
+        const finishedReplays = inputReplays.filter((r) => r.raceFinished === 1);
+
+        if (statsType === MapStatsType.GLOBAL || user === undefined) {
+            return finishedReplays;
+        }
+
+        return finishedReplays.filter((r) => r.webId === user.accountId);
+    };
+
+    const filteredReplays = useMemo(
+        () => filterReplaysUsingMapStatsType(replays, mapStatsType),
+        [replays, mapStatsType],
+    );
 
     return (
         <div className="min-h-screen" style={{ backgroundColor: '#1F1F1F' }}>
             <HeadTitle title={getTitle()} />
             <MapHeader mapInfo={mapData || {}} title="Map statistics" />
             {mapData && (
-                <div className="flex justify-center py-8">
+                <div className="flex flex-col items-center py-8">
+                    <Card
+                        className="w-3/5 mb-8"
+                    >
+                        <MapStatsTypeSwitcher
+                            mapStatsType={mapStatsType}
+                            mapData={mapData}
+                            toggleMapStatsType={toggleMapStatsType}
+                        />
+                    </Card>
                     <Card
                         className="w-3/5"
                         title={`Map: ${cleanTMFormatting(mapData?.name || '')}`}
@@ -72,7 +121,7 @@ const MapStats = () => {
                                 type="inner"
                             >
                                 <Skeleton loading={loadingReplays} active title={false}>
-                                    <AggregateMapStats replays={replays} />
+                                    <AggregateMapStats replays={filteredReplays} />
                                 </Skeleton>
                             </Card>
 
@@ -82,7 +131,7 @@ const MapStats = () => {
                             >
                                 <Skeleton loading={loadingReplays} active>
                                     {binSize
-                                                && <ReplayTimesHistogram replays={replays} binSize={binSize} />}
+                                        && <ReplayTimesHistogram replays={filteredReplays} binSize={binSize} />}
                                 </Skeleton>
                             </Card>
 
@@ -91,7 +140,7 @@ const MapStats = () => {
                                 type="inner"
                             >
                                 <Skeleton loading={loadingReplays} active>
-                                    <FastestTimeProgression replays={replays} />
+                                    <FastestTimeProgression replays={filteredReplays} />
                                 </Skeleton>
                             </Card>
                         </div>

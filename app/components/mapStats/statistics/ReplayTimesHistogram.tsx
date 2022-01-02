@@ -2,8 +2,8 @@ import React from 'react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import bellcurve from 'highcharts/modules/histogram-bellcurve';
-import { getRaceTimeStr } from '../../lib/utils/time';
-import { FileResponse } from '../../lib/api/apiRequests';
+import { getRaceTimeStr } from '../../../lib/utils/time';
+import { FileResponse } from '../../../lib/api/apiRequests';
 
 if (typeof Highcharts === 'object') {
     bellcurve(Highcharts);

@@ -5,9 +5,9 @@ import React, { useMemo } from 'react';
 import Highcharts, { some } from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import dayjs from 'dayjs';
-import { getRaceTimeStr, timeDifference } from '../../lib/utils/time';
-import { FileResponse } from '../../lib/api/apiRequests';
-import PlayerLink from '../common/PlayerLink';
+import { getRaceTimeStr, timeDifference } from '../../../lib/utils/time';
+import { FileResponse } from '../../../lib/api/apiRequests';
+import PlayerLink from '../../common/PlayerLink';
 
 interface FastestTimeProgressionProps {
     replays: FileResponse[];
