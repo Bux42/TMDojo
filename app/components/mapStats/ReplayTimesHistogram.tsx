@@ -1,3 +1,5 @@
+// Disable warning, used in highcharts tooltips using callback function
+/* eslint-disable react/no-this-in-sfc */
 import React from 'react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
@@ -78,11 +80,24 @@ const ReplayTimesHistogram = ({ replays, binSize } : ReplayTimesHistogramProps) 
             },
         },
         tooltip: {
-            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>'
-            + '<td style="padding:0"><b>{point.y:.1f} replays</b></td></tr>',
-            footerFormat: '</table>',
-            shared: true,
+            // Highchart only accepts string tooltips, that's why this returns a HTML string
+            formatter: function tooltipFormatter(this: any) {
+                console.log(typeof this);
+
+                const raceTime = parseFloat(this.x) * 1000;
+
+                return `
+                    <span style="font-size: 10px">
+                        ${getRaceTimeStr(raceTime)} - ${getRaceTimeStr(raceTime + binSize)}
+                    </span>
+                    </br>
+                    <span style="font-size: 13px">
+                        <b>
+                            <span style=color:${this.series.color}>Replays: </span>
+                            ${this.point.y}</b>
+                    </span>
+                `;
+            },
             useHTML: true,
         },
         plotOptions: {
