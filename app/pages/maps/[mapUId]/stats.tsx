@@ -2,7 +2,7 @@ import React, {
     useContext, useEffect, useMemo, useState,
 } from 'react';
 import { useRouter } from 'next/router';
-import { Card, Skeleton } from 'antd';
+import { Card, Empty, Skeleton } from 'antd';
 import {
     FileResponse, getMapInfo, getReplays, MapInfo,
 } from '../../../lib/api/apiRequests';
@@ -116,33 +116,43 @@ const MapStats = () => {
                         title={`Map: ${cleanTMFormatting(mapData?.name || '')}`}
                     >
                         <div className="flex flex-col h-full gap-4">
-                            <Card
-                                title="Replays"
-                                type="inner"
-                            >
-                                <Skeleton loading={loadingReplays} active title={false}>
-                                    <AggregateMapStats replays={filteredReplays} />
-                                </Skeleton>
-                            </Card>
+                            {filteredReplays.length === 0
+                                ? (
+                                    <Empty
+                                        image={Empty.PRESENTED_IMAGE_SIMPLE}
+                                        description="No finished replays"
+                                    />
+                                ) : (
+                                    <>
+                                        <Card
+                                            title="Replays"
+                                            type="inner"
+                                        >
+                                            <Skeleton loading={loadingReplays} active title={false}>
+                                                <AggregateMapStats replays={filteredReplays} />
+                                            </Skeleton>
+                                        </Card>
 
-                            <Card
-                                title={`Finish Time Histogram ${binSize ? `(${binSize}ms bins)` : ''}`}
-                                type="inner"
-                            >
-                                <Skeleton loading={loadingReplays} active>
-                                    {binSize
+                                        <Card
+                                            title={`Finish Time Histogram ${binSize ? `(${binSize}ms bins)` : ''}`}
+                                            type="inner"
+                                        >
+                                            <Skeleton loading={loadingReplays} active>
+                                                {binSize
                                         && <ReplayTimesHistogram replays={filteredReplays} binSize={binSize} />}
-                                </Skeleton>
-                            </Card>
+                                            </Skeleton>
+                                        </Card>
 
-                            <Card
-                                title="Fastest time progression"
-                                type="inner"
-                            >
-                                <Skeleton loading={loadingReplays} active>
-                                    <FastestTimeProgression replays={filteredReplays} />
-                                </Skeleton>
-                            </Card>
+                                        <Card
+                                            title="Fastest time progression"
+                                            type="inner"
+                                        >
+                                            <Skeleton loading={loadingReplays} active>
+                                                <FastestTimeProgression replays={filteredReplays} />
+                                            </Skeleton>
+                                        </Card>
+                                    </>
+                                )}
                         </div>
                     </Card>
                 </div>
