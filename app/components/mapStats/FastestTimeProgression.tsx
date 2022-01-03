@@ -78,6 +78,9 @@ const FastestTimeProgression = ({ replays } : FastestTimeProgressionProps) => {
         subtitle: {
             text: '',
         },
+        time: {
+            useUTC: false,
+        },
         xAxis: {
             type: 'datetime',
             title: {
@@ -123,7 +126,7 @@ const FastestTimeProgression = ({ replays } : FastestTimeProgressionProps) => {
             formatter: function tooltipFormatter(this: any) {
                 return `
                     <span style="font-size: 10px">
-                        ${dayjs(this.key).format('MMM D YYYY, HH:MM:ss')}
+                        ${dayjs(this.key).format('MMM D YYYY, HH:mm:ss')}
                     </span>
                     </br>
                     <span style="font-size: 13px">
