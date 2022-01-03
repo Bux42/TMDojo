@@ -59,7 +59,7 @@ const FastestTimeProgression = ({
             const filteredReplays = filterReplaysByUser(userToShowProgression, finishedReplays);
             return replaysToProgressionDataPoints(filteredReplays);
         },
-        [finishedReplays],
+        [userToShowProgression, finishedReplays],
     );
 
     const allDataPoints: ChartDataPoint[] = useMemo(

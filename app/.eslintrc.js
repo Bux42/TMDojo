@@ -3,7 +3,11 @@ module.exports = {
         browser: true,
         es2021: true,
     },
-    extends: ['plugin:react/recommended', 'airbnb'],
+    extends: [
+        'plugin:react/recommended',
+        'airbnb',
+        'plugin:react-hooks/recommended',
+    ],
     globals: {
         React: true,
         JSX: true,
