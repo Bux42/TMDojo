@@ -121,7 +121,7 @@ const MapStats = () => {
                                 ? (
                                     <Empty
                                         image={Empty.PRESENTED_IMAGE_SIMPLE}
-                                        description="No finished replays"
+                                        description="No finished replays yet"
                                     />
                                 ) : (
                                     <>
