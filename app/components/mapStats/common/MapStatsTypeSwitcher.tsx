@@ -9,6 +9,13 @@ export enum MapStatsType {
     PERSONAL = 'Personal'
 }
 
+const oppositeType = (type: MapStatsType) => {
+    if (type === MapStatsType.GLOBAL) {
+        return MapStatsType.PERSONAL;
+    }
+    return MapStatsType.GLOBAL;
+};
+
 interface MapStatsTypeSwitcherProps {
     mapStatsType: MapStatsType;
     mapData: MapInfo;
@@ -20,20 +27,13 @@ export const MapStatsTypeSwitcher = ({ mapStatsType, mapData, toggleMapStatsType
     return (
         <div className="flex flex-col gap-4 items-center">
             <div className="text-xl">
-                You are currently viewing
-                {' '}
-                {mapStatsType === MapStatsType.GLOBAL ? 'the' : 'your'}
-                {' '}
+                {`You are currently viewing ${mapStatsType === MapStatsType.GLOBAL ? 'the' : 'your'} `}
                 <b>{mapStatsType}</b>
-                {' '}
-                statistics
-                {' '}
+                {' statistics'}
                 {mapData.name && (
                     <>
-                        {'for '}
-                        <b>
-                            {cleanTMFormatting(mapData.name)}
-                        </b>
+                        {' for '}
+                        <b>{cleanTMFormatting(mapData.name)}</b>
                     </>
                 )}
             </div>
@@ -43,13 +43,7 @@ export const MapStatsTypeSwitcher = ({ mapStatsType, mapData, toggleMapStatsType
                         type="ghost"
                         onClick={toggleMapStatsType}
                     >
-                        Switch to
-                        {' '}
-                        {mapStatsType === MapStatsType.GLOBAL
-                            ? MapStatsType.PERSONAL
-                            : MapStatsType.GLOBAL}
-                        {' '}
-                        statistics
+                        {`Switch to ${oppositeType(mapStatsType)} statistics`}
                     </Button>
                 ) : (
                     <Button
