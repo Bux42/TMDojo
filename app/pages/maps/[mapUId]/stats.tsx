@@ -50,12 +50,19 @@ const MapStats = () => {
 
     // If user object changes, set the according map stats type
     useEffect(() => {
-        if (user === undefined) {
-            setMapStatsType(MapStatsType.GLOBAL);
-        } else {
-            setMapStatsType(MapStatsType.PERSONAL);
+        if (replays) {
+            if (user === undefined) {
+                setMapStatsType(MapStatsType.GLOBAL);
+            } else {
+                const userReplays = replays.filter((r) => r.webId === user.accountId);
+                if (userReplays.length > 0) {
+                    setMapStatsType(MapStatsType.PERSONAL);
+                } else {
+                    setMapStatsType(MapStatsType.GLOBAL);
+                }
+            }
         }
-    }, [user]);
+    }, [replays, user]);
 
     const getTitle = () => (mapData?.name ? `${cleanTMFormatting(mapData.name)} - TMDojo` : 'TMDojo');
 
