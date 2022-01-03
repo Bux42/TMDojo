@@ -3,7 +3,11 @@ module.exports = {
         browser: true,
         es2021: true,
     },
-    extends: ['plugin:react/recommended', 'airbnb'],
+    extends: [
+        'plugin:react/recommended',
+        'airbnb',
+        'plugin:react-hooks/recommended',
+    ],
     globals: {
         React: true,
         JSX: true,
@@ -49,6 +53,8 @@ module.exports = {
         'no-plusplus': 'off',
         'max-len': ['error', 120],
         'lines-between-class-members': 'off',
+        'no-shadow': 'off',
+        '@typescript-eslint/no-shadow': 'error',
     },
     settings: {
         'import/resolver': {
