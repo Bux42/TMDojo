@@ -5,60 +5,80 @@ import React, { useMemo } from 'react';
 import Highcharts, { some } from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import dayjs from 'dayjs';
-import { getRaceTimeStr, timeDifference } from '../../lib/utils/time';
-import { FileResponse } from '../../lib/api/apiRequests';
-import PlayerLink from '../common/PlayerLink';
+import { getRaceTimeStr, timeDifference } from '../../../lib/utils/time';
+import { FileResponse } from '../../../lib/api/apiRequests';
+import calculateFastestTimeProgressions from '../../../lib/utils/fastestTimeProgression';
+import PlayerLink from '../../common/PlayerLink';
+import { UserInfo } from '../../../lib/api/auth';
+
+interface ChartDataPoint {
+    x: number;
+    y: number;
+    replay: FileResponse;
+}
+
+const replaysToDataPoints = (replays_: FileResponse[]): ChartDataPoint[] => replays_.map((replay) => ({
+    x: replay.date,
+    y: replay.endRaceTime,
+    replay,
+}));
+
+const replaysToProgressionDataPoints = (replays: FileResponse[]) => {
+    const progression = calculateFastestTimeProgressions(replays);
+    const dataPoints = replaysToDataPoints(progression);
+    return dataPoints;
+};
+
+const filterReplaysByUser = (loggedInUser: UserInfo, inputReplays: FileResponse[]) => {
+    const filtered = inputReplays.filter((r) => r.webId === loggedInUser.accountId);
+    return filtered;
+};
 
 interface FastestTimeProgressionProps {
     replays: FileResponse[];
+    onlyShowUserProgression: boolean;
+    userToShowProgression?: UserInfo;
 }
-const FastestTimeProgression = ({ replays } : FastestTimeProgressionProps) => {
-    const calculateFastestTimeProgressions = (replayList: FileResponse[]): FileResponse[] => {
-        if (replayList.length === 0) {
-            return [];
-        }
-
-        const fastestTimeProgressions: FileResponse[] = [];
-        const sortedReplays = replayList.sort((a, b) => a.date - b.date);
-
-        fastestTimeProgressions.push(sortedReplays[0]);
-        for (let i = 1; i < sortedReplays.length; i++) {
-            const currentReplay = sortedReplays[i];
-            const latestFastestReplay = fastestTimeProgressions[fastestTimeProgressions.length - 1];
-            if (currentReplay.raceFinished
-                && currentReplay.endRaceTime < latestFastestReplay.endRaceTime) {
-                fastestTimeProgressions.push(currentReplay);
-            }
-        }
-        return fastestTimeProgressions;
-    };
-
-    interface ChartDataPoint {
-        x: number;
-        y: number;
-        replay: FileResponse;
-    }
-
-    const fastestTimeProgressions = useMemo(() => calculateFastestTimeProgressions(replays), [replays]);
-
-    const replaysToDataPoints = (replays_: FileResponse[]): ChartDataPoint[] => replays_.map((replay) => ({
-        x: replay.date,
-        y: replay.endRaceTime,
-        replay,
-    }));
+const FastestTimeProgression = ({
+    replays,
+    onlyShowUserProgression,
+    userToShowProgression,
+} : FastestTimeProgressionProps) => {
+    const finishedReplays = useMemo(() => replays.filter((r) => r.raceFinished === 1), [replays]);
 
     const timeProgressionData: ChartDataPoint[] = useMemo(
-        () => replaysToDataPoints(fastestTimeProgressions),
-        [fastestTimeProgressions],
+        () => replaysToProgressionDataPoints(replays),
+        [replays],
+    );
+
+    const personalTimeProgressionData: ChartDataPoint[] | undefined = useMemo(
+        () => {
+            if (userToShowProgression === undefined) {
+                return undefined;
+            }
+            const filteredReplays = filterReplaysByUser(userToShowProgression, finishedReplays);
+            return replaysToProgressionDataPoints(filteredReplays);
+        },
+        [userToShowProgression, finishedReplays],
     );
 
     const allDataPoints: ChartDataPoint[] = useMemo(
-        () => replaysToDataPoints(
-            replays.filter(
+        () => {
+            let filteredReplays = finishedReplays;
+
+            filteredReplays = filteredReplays.filter(
                 (r1) => !some(timeProgressionData, (r2: ChartDataPoint) => r1._id === r2.replay._id, null),
-            ),
-        ),
-        [replays, timeProgressionData],
+            );
+
+            if (personalTimeProgressionData) {
+                filteredReplays = filteredReplays.filter(
+                    (r1) => !some(personalTimeProgressionData, (r2: ChartDataPoint) => r1._id === r2.replay._id, null),
+                );
+            }
+
+            return replaysToDataPoints(filteredReplays);
+        },
+        [finishedReplays, timeProgressionData, personalTimeProgressionData],
     );
 
     const options = {
@@ -160,8 +180,16 @@ const FastestTimeProgression = ({ replays } : FastestTimeProgressionProps) => {
         series: [{
             type: 'line',
             name: 'Best Times',
-            data: timeProgressionData,
+            // Set timeProgressionData to undefined to disable the line when only showing user progression
+            data: onlyShowUserProgression ? undefined : timeProgressionData,
             step: 'left',
+            color: 'green',
+        }, {
+            type: 'line',
+            name: 'Personal Best Times',
+            data: personalTimeProgressionData,
+            step: 'left',
+            color: 'orange',
         }, {
             type: 'scatter',
             name: 'Other Times',
@@ -170,9 +198,18 @@ const FastestTimeProgression = ({ replays } : FastestTimeProgressionProps) => {
         }],
     };
 
-    const fastestTime = timeProgressionData.length > 0
+    // Filter series for which the data is undefined
+    options.series = options.series.filter((s) => s.data !== undefined);
+
+    const allFastestTime = timeProgressionData && timeProgressionData.length > 0
         ? timeProgressionData[timeProgressionData.length - 1]
         : undefined;
+
+    const personalFastestTime = personalTimeProgressionData !== undefined && personalTimeProgressionData.length > 0
+        ? personalTimeProgressionData[personalTimeProgressionData.length - 1]
+        : undefined;
+
+    const fastestTime = allFastestTime || personalFastestTime;
 
     return (
         fastestTime ? (
