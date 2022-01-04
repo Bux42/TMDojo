@@ -85,6 +85,16 @@ router.get('/:replayId', async (req: Request, res: Response, next: Function) => 
  */
 // eslint-disable-next-line consistent-return
 router.post('/', (req: Request, res: Response, next: Function): any => {
+    if (
+        !req.user
+        || req.user.playerName !== req.query.playerName
+        || req.user.webId !== req.query.webId
+        || req.user.playerLogin !== req.query.playerLogin
+    ) {
+        // reject replay uploads by unauthenticated users
+        return res.status(401).send('Authentication required to submit replay.');
+    }
+
     const paramNames = [
         'authorName', 'mapName', 'mapUId', 'endRaceTime', 'raceFinished', 'playerName', 'playerLogin', 'webId',
     ];
@@ -97,7 +107,7 @@ router.post('/', (req: Request, res: Response, next: Function): any => {
         }
     });
     if (!requestValid) {
-        return res.status(400).send({ message: 'Request is missing one or more parameters' });
+        return res.status(400).send('Request is missing one or more parameters');
     }
 
     const secureMapName = decodeURIComponent(req.query.mapName as string);
@@ -151,6 +161,37 @@ router.post('/', (req: Request, res: Response, next: Function): any => {
     });
 
     req.on('error', (err) => next(err));
+});
+
+/**
+ * DELETE /replays/:replayId
+ * Deletes a replay file
+ */
+router.delete('/:replayId', async (req, res) => {
+    // Fetch replay
+    const replay = await db.getReplayById(req.params.replayId);
+    const replayUser = await db.getUserById(replay.userRef);
+
+    // Check user
+    const { user } = req;
+    if (user === undefined || user.webId !== replayUser.webId) {
+        res.status(401).send('Authentication required to delete replay.');
+        return;
+    }
+
+    await db.deleteReplayById(replay._id);
+
+    try {
+        await artefacts.deleteReplay(replay);
+    } catch (err) {
+        // If deletion failed, add the replay back into the DB
+        await db.saveReplayMetadata(replay);
+
+        res.status(500).send('Failed to delete replay file.');
+        return;
+    }
+
+    res.send();
 });
 
 export default router;

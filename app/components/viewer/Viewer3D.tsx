@@ -1,23 +1,22 @@
 import React, { Suspense, useContext, useRef } from 'react';
 import * as THREE from 'three';
-import { Canvas, useLoader, useThree } from '@react-three/fiber';
+import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Sky } from '@react-three/drei';
 import { ReplayData } from '../../lib/api/apiRequests';
 import { ReplayLines } from './ReplayLines';
-import { TimeLine, TimeLineInfos } from './TimeLine';
 import { Grid, DEFAULT_GRID_POS } from './Grid';
 import { SettingsContext } from '../../lib/contexts/SettingsContext';
 import FrameRate from './FrameRate';
 import ReplayCars from './ReplayCars';
+import GlobalTimeLineInfos from '../../lib/singletons/timeLineInfos';
+import TimeLine from './timeline/TimeLine';
 
 const BACKGROUND_COLOR = new THREE.Color(0.05, 0.05, 0.05);
 
 interface Props {
     replaysData: ReplayData[];
-    timeLineGlobal: TimeLineInfos;
 }
-
-const Viewer3D = ({ replaysData, timeLineGlobal }: Props): JSX.Element => {
+const Viewer3D = ({ replaysData }: Props): JSX.Element => {
     const {
         lineType,
         showGearChanges,
@@ -28,7 +27,9 @@ const Viewer3D = ({ replaysData, timeLineGlobal }: Props): JSX.Element => {
         cameraMode,
         numColorChange,
     } = useContext(SettingsContext);
+
     const orbitControlsRef = useRef<any>();
+    const timeLineGlobal = GlobalTimeLineInfos.getInstance();
 
     let orbitDefaultTarget = DEFAULT_GRID_POS;
     if (timeLineGlobal.currentRaceTime === 0 && replaysData.length > 0) {
@@ -67,7 +68,6 @@ const Viewer3D = ({ replaysData, timeLineGlobal }: Props): JSX.Element => {
                 <Suspense fallback={null}>
                     <ReplayCars
                         replaysData={replaysData}
-                        timeLineGlobal={timeLineGlobal}
                         orbitControlsRef={orbitControlsRef}
                         showInputOverlay={showInputOverlay}
                         replayCarOpacity={replayCarOpacity}
@@ -78,7 +78,6 @@ const Viewer3D = ({ replaysData, timeLineGlobal }: Props): JSX.Element => {
             </Canvas>
             <TimeLine
                 replaysData={replaysData}
-                timeLineGlobal={timeLineGlobal}
             />
         </div>
     );

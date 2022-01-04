@@ -1,25 +1,24 @@
 import {
-    extend, useFrame, Canvas, useThree, useLoader, Camera,
+    useFrame, useThree, Camera,
 } from '@react-three/fiber';
 import * as THREE from 'three';
 import React, {
     useRef, useState,
 } from 'react';
-import { useFBX, useGLTF } from '@react-three/drei';
+import { useFBX } from '@react-three/drei';
 import { ReplayData } from '../../lib/api/apiRequests';
 import { ReplayDataPoint } from '../../lib/replays/replayData';
-import { getRaceTimeStr } from '../../lib/utils/time';
 import vecToQuat from '../../lib/utils/math';
 import { CameraMode } from '../../lib/contexts/SettingsContext';
 import InputOverlay from './InputOverlay';
-import { TimeLineInfos } from './TimeLine';
+import getSampleNearTime from '../../lib/utils/replay';
+import GlobalTimeLineInfos from '../../lib/singletons/timeLineInfos';
 
 const BACK_WHEEL_Y = 35.232017517089844;
 const FRONT_WHEEL_Y = 35.24349594116211;
 
 interface ReplayCarProps {
     replay: ReplayData;
-    timeLineGlobal: TimeLineInfos;
     camera: Camera;
     orbitControlsRef: any;
     showInputOverlay: boolean;
@@ -29,7 +28,7 @@ interface ReplayCarProps {
 }
 
 const ReplayCar = ({
-    replay, timeLineGlobal, camera, orbitControlsRef, showInputOverlay, fbx, replayCarOpacity, cameraMode,
+    replay, camera, orbitControlsRef, showInputOverlay, fbx, replayCarOpacity, cameraMode,
 }: ReplayCarProps) => {
     const mesh = useRef<THREE.Mesh>();
     const stadiumCarMesh = useRef<THREE.Mesh>();
@@ -37,7 +36,9 @@ const ReplayCar = ({
 
     const currentSampleRef = useRef<ReplayDataPoint>(replay.samples[0]);
 
-    let sampleIndex = 0;
+    const timeLineGlobal = GlobalTimeLineInfos.getInstance();
+
+    let curSample = replay.samples[0];
 
     // Get own material from loaded car model
     const carMesh: THREE.Mesh = fbx.children[0] as THREE.Mesh;
@@ -62,20 +63,7 @@ const ReplayCar = ({
             const hovered = timeLineGlobal.hoveredReplay != null && timeLineGlobal.hoveredReplay._id === replay._id;
 
             // Get closest sample to TimeLine.currentRaceTime
-            sampleIndex = Math.round(timeLineGlobal.currentRaceTime / replay.intervalMedian);
-            if (sampleIndex > replay.samples.length - 1) {
-                sampleIndex = replay.samples.length - 1;
-            }
-            while (sampleIndex > 0
-                && replay.samples[sampleIndex].currentRaceTime > timeLineGlobal.currentRaceTime) {
-                sampleIndex--;
-            }
-            while (sampleIndex + 1 < replay.samples.length
-                && replay.samples[sampleIndex].currentRaceTime < timeLineGlobal.currentRaceTime) {
-                sampleIndex++;
-            }
-
-            const curSample = replay.samples[sampleIndex];
+            curSample = getSampleNearTime(replay, timeLineGlobal.currentRaceTime);
             currentSampleRef.current = curSample;
 
             // Get car rotation
@@ -148,9 +136,9 @@ const ReplayCar = ({
         <>
             <mesh
                 position={[
-                    replay.samples[sampleIndex].position.x,
-                    replay.samples[sampleIndex].position.y,
-                    replay.samples[sampleIndex].position.z]}
+                    curSample.position.x,
+                    curSample.position.y,
+                    curSample.position.z]}
                 ref={mesh}
                 scale={1}
             >
@@ -180,7 +168,6 @@ const ReplayCar = ({
 
 interface ReplayCarsProps {
     replaysData: ReplayData[];
-    timeLineGlobal: TimeLineInfos;
     orbitControlsRef: any;
     showInputOverlay: boolean;
     replayCarOpacity: number;
@@ -189,7 +176,6 @@ interface ReplayCarsProps {
 
 const ReplayCars = ({
     replaysData,
-    timeLineGlobal,
     orbitControlsRef,
     showInputOverlay,
     replayCarOpacity,
@@ -204,7 +190,6 @@ const ReplayCars = ({
                 <ReplayCar
                     key={`replay-${replay._id}-car`}
                     replay={replay}
-                    timeLineGlobal={timeLineGlobal}
                     camera={camera}
                     orbitControlsRef={orbitControlsRef}
                     showInputOverlay={showInputOverlay}

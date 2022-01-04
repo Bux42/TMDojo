@@ -1,4 +1,4 @@
-import { MongoClient, ObjectId } from 'mongodb';
+import { MongoClient, ObjectId, Db } from 'mongodb';
 import { config } from 'dotenv';
 import { v4 as uuid } from 'uuid';
 import { playerLoginFromWebId } from './authorize';
@@ -7,7 +7,7 @@ config();
 
 const DB_NAME = 'dojo';
 
-let db: any = null;
+let db: Db = null;
 
 export type Rejector = (_1: Error) => void;
 
@@ -68,16 +68,25 @@ export const createUser = (
         });
 });
 
-export const getUniqueMapNames = (
+export const getUniqueMapNames = async (
     mapName ?: string,
-): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
+): Promise<any> => {
     const replays = db.collection('replays');
     const queryPipeline = [
+        {
+            $group: {
+                _id: '$mapRef',
+                count: {
+                    $sum: 1,
+                },
+                lastUpdate: { $max: '$date' }, // pass the highest date (i.e. latest replay's timestamp)
+            },
+        },
         // populate map references to count occurrences
         {
             $lookup: {
                 from: 'maps',
-                localField: 'mapRef',
+                localField: '_id',
                 foreignField: '_id',
                 as: 'map',
             },
@@ -86,19 +95,9 @@ export const getUniqueMapNames = (
             $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ['$map', 0] }, '$$ROOT'] } },
         },
         {
-            $group: {
-                _id: '$mapUId',
-                mapName: { $first: '$mapName' }, // pass the first instance of mapUId (since it'll always be the same)
-                count: {
-                    $sum: 1,
-                },
-                lastUpdate: { $max: '$date' }, // pass the highest date (i.e. latest replay's timestamp)
-            },
-        },
-        {
             $project: {
                 _id: false,
-                mapUId: '$_id',
+                mapUId: true,
                 mapName: true,
                 count: '$count',
                 lastUpdate: true,
@@ -114,18 +113,11 @@ export const getUniqueMapNames = (
             },
         } as any);
     }
-    replays.aggregate(queryPipeline, async (aggregateErr: Error, cursor: any) => {
-        if (aggregateErr) {
-            return reject(aggregateErr);
-        }
-        try {
-            const data = await cursor.toArray();
-            return resolve(data);
-        } catch (arrayErr) {
-            return reject(arrayErr);
-        }
-    });
-});
+
+    const cursor = replays.aggregate(queryPipeline);
+    const data = await cursor.toArray();
+    return data;
+};
 
 export const getMapByUId = (mapUId ?: string): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
     const maps = db.collection('maps');
@@ -143,6 +135,14 @@ export const saveMap = (mapData ?: any): Promise<any> => new Promise((resolve: F
         .then((operation: any) => resolve({ _id: operation.insertedId }))
         .catch((error: Error) => reject(error));
 });
+
+// Gets a user by the _id field in the db
+export const getUserById = async (id: string) => {
+    const users = db.collection('users');
+    return users.findOne({
+        _id: new ObjectId(id),
+    });
+};
 
 export const getUserByWebId = (
     webId ?: string,
@@ -166,9 +166,9 @@ export const saveUser = (
         .catch((error: Error) => reject(error));
 });
 
-export const geReplaysByUserRef = (
+export const getReplaysByUserRef = async (
     userRef: string,
-): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
+): Promise<any> => {
     const replays = db.collection('replays');
 
     const pipeline = [
@@ -188,30 +188,33 @@ export const geReplaysByUserRef = (
         },
     ];
 
-    replays.aggregate(pipeline, async (aggregateErr: Error, cursor: any) => {
-        if (aggregateErr) {
-            return reject(aggregateErr);
-        }
-        try {
-            const data = await cursor.toArray();
-            return resolve({ files: data, totalResults: data.length });
-        } catch (arrayErr) {
-            return reject(arrayErr);
-        }
-    });
-});
+    const cursor = replays.aggregate(pipeline);
+    const data = await cursor.toArray();
+    return { files: data, totalResults: data.length };
+};
 
-export const getReplays = (
+export const getReplays = async (
     mapName ?: string,
     playerName ?: string,
     mapUId ?: string,
     raceFinished ?: string,
     orderBy ?: string,
     maxResults: string = '1000',
-): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
+): Promise<any> => {
     const replays = db.collection('replays');
 
-    const pipeline = [
+    const pipeline = [];
+
+    const map = await getMapByUId(mapUId);
+    if (map && map._id) {
+        pipeline.push({
+            $match: {
+                mapRef: map._id,
+            },
+        });
+    }
+
+    pipeline.push(...[
         // populate user references
         {
             $lookup: {
@@ -236,7 +239,7 @@ export const getReplays = (
         {
             $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ['$map', 0] }, '$$ROOT'] } },
         },
-    ];
+    ]);
 
     const addRegexFilter = (property ?: string, propertyName ?: string) => {
         if (property) {
@@ -250,11 +253,8 @@ export const getReplays = (
             } as any);
         }
     };
-
-    // apply filters
     addRegexFilter(mapName, 'mapName');
     addRegexFilter(playerName, 'playerName');
-    addRegexFilter(mapUId, 'mapUId');
 
     if (raceFinished && raceFinished !== '-1') {
         pipeline.push({
@@ -290,23 +290,15 @@ export const getReplays = (
         },
     } as any);
 
-    replays.aggregate(pipeline, async (aggregateErr: Error, cursor: any) => {
-        if (aggregateErr) {
-            return reject(aggregateErr);
-        }
-        try {
-            const data = await cursor.toArray();
-            return resolve({ files: data, totalResults: data.length });
-        } catch (arrayErr) {
-            return reject(arrayErr);
-        }
-    });
-});
+    const cursor = replays.aggregate(pipeline);
+    const data = await cursor.toArray();
+    return { files: data, totalResults: data.length };
+};
 
-export const getReplayById = (
+export const getReplayById = async (
     replayId ?: string,
     populate ?: boolean,
-): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
+): Promise<any> => {
     const replays = db.collection('replays');
 
     let pipeline = [
@@ -351,18 +343,17 @@ export const getReplayById = (
         ] as any[]);
     }
 
-    replays.aggregate(pipeline, async (aggregateErr: Error, cursor: any) => {
-        if (aggregateErr) {
-            return reject(aggregateErr);
-        }
-        try {
-            const data = await cursor.toArray();
-            return resolve(data[0]);
-        } catch (arrayErr) {
-            return reject(arrayErr);
-        }
+    const cursor = replays.aggregate(pipeline);
+    const data = await cursor.toArray();
+    return data[0];
+};
+
+export const deleteReplayById = async (replayId: any) => {
+    const replays = db.collection('replays');
+    await replays.deleteOne({
+        _id: new ObjectId(replayId),
     });
-});
+};
 
 export const getReplayByFilePath = (
     filePath ?: string,
@@ -381,7 +372,7 @@ export const saveReplayMetadata = (
 ): Promise<{_id: string}> => new Promise((resolve: Function, reject: Rejector) => {
     const replays = db.collection('replays');
     replays.insertOne(metadata)
-        .then(({ insertedId }: {insertedId: string}) => resolve({ _id: insertedId }))
+        .then(({ insertedId }: {insertedId: ObjectId}) => resolve({ _id: insertedId }))
         .catch((error: Error) => reject(error));
 });
 

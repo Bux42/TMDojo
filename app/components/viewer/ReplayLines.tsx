@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useContext, useMemo } from 'react';
 import * as THREE from 'three';
 import { ReplayData } from '../../lib/api/apiRequests';
 import {
@@ -9,6 +9,7 @@ import {
     speedReplayColors,
     inputReplayColors,
 } from '../../lib/replays/replayLineColors';
+import ReplayChartHoverLocation from './ReplayChartHoverLocation';
 import ReplayDnf from './ReplayDnf';
 import ReplayGears from './ReplayGears';
 
@@ -21,7 +22,7 @@ export const LineTypes: { [name: string]: LineType } = {
     speed: { name: 'Speed', colorsCallback: speedReplayColors },
     acceleration: { name: 'Acceleration', colorsCallback: accelerationReplayColors },
     gear: { name: 'Gear', colorsCallback: gearReplayColors },
-    rpm: { name: 'RPMs', colorsCallback: rpmReplayColors },
+    rpm: { name: 'RPM', colorsCallback: rpmReplayColors },
     inputs: { name: 'Inputs', colorsCallback: inputReplayColors },
 };
 
@@ -30,8 +31,10 @@ interface ReplayLineProps {
     lineType: LineType;
     replayLineOpacity: number;
 }
-const ReplayLine = ({ replay, lineType, replayLineOpacity }: ReplayLineProps) => {
-    const points = useMemo(() => replay.samples.map((sample) => sample.position), [replay]);
+const ReplayLine = ({
+    replay, lineType, replayLineOpacity,
+}: ReplayLineProps) => {
+    const points = useMemo(() => replay.samples.map((sample) => sample.position), [replay.samples]);
     const colorBuffer = useMemo(() => lineType.colorsCallback(replay), [replay, lineType, replay.color]);
 
     const onUpdate = useCallback(
@@ -77,6 +80,10 @@ export const ReplayLines = ({
                     replay={replay}
                     lineType={lineType}
                     replayLineOpacity={replayLineOpacity}
+                />
+                <ReplayChartHoverLocation
+                    key={`replay-${replay._id}-chart-hover`}
+                    replay={replay}
                 />
                 {showGearChanges && (
                     <ReplayGears key={`replay-${replay._id}-gears`} replay={replay} />

@@ -1,20 +1,21 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import {
-    CaretLeftOutlined, CaretRightOutlined, EyeOutlined, LeftCircleFilled,
+    CaretLeftOutlined, CaretRightOutlined, EyeOutlined,
 } from '@ant-design/icons';
 import {
-    Button, Checkbox, Drawer, Select, Row, Col, Slider, Radio, RadioChangeEvent, List, Divider,
+    Button, Drawer, Row, Col, Radio, RadioChangeEvent, List, Divider,
 } from 'antd';
 import React, {
-    Dispatch, SetStateAction, useContext, useState,
+    useContext, useState,
 } from 'react';
 import * as ReactColor from 'react-color';
 import * as THREE from 'three';
 import { FileResponse, ReplayData } from '../../lib/api/apiRequests';
 import { CameraMode, SettingsContext } from '../../lib/contexts/SettingsContext';
-import { getRaceTimeStr } from '../../lib/utils/time';
-import { TimeLineInfos } from '../viewer/TimeLine';
+import GlobalTimeLineInfos from '../../lib/singletons/timeLineInfos';
+import { addPlural, getRaceTimeStr } from '../../lib/utils/time';
+import SideDrawerExpandButton from '../common/SideDrawerExpandButton';
 
 interface LoadedReplayProps {
     replay: ReplayData;
@@ -25,7 +26,6 @@ interface LoadedReplayProps {
 
 interface LoadedReplaysProps {
     replays: ReplayData[];
-    timeLineGlobal: TimeLineInfos;
 }
 
 const LoadedReplay = ({
@@ -137,12 +137,14 @@ const LoadedReplay = ({
 };
 
 const LoadedReplays = ({
-    replays, timeLineGlobal,
+    replays,
 }: LoadedReplaysProps): JSX.Element => {
-    const [visible, setVisible] = useState(false);
+    const [visible, setVisible] = useState(true);
     const [followed, setFollowed] = useState<ReplayData>();
     const [hovered, setHovered] = useState<ReplayData>();
-    const { numColorChange, cameraMode, setCameraMode } = useContext(SettingsContext);
+    const { cameraMode, setCameraMode } = useContext(SettingsContext);
+
+    const timeLineGlobal = GlobalTimeLineInfos.getInstance();
 
     const toggleSidebar = () => {
         setVisible(!visible);
@@ -163,21 +165,20 @@ const LoadedReplays = ({
     timeLineGlobal.hoveredReplay = hovered;
 
     return (
-        <div className="absolute right-0 z-10">
-            {!visible
-            && (
-                <Button
-                    style={{
-                        marginTop: 226,
-                        height: 56,
-                        width: 56,
-                    }}
+        <div className="absolute right-0 z-10 mt-56">
+            {!visible && (
+                <SideDrawerExpandButton
                     onClick={toggleSidebar}
-                    icon={<CaretLeftOutlined />}
+                    side="right"
+                    content={(
+                        <>
+                            {`${replays.length} Replay${addPlural(replays.length)}`}
+                        </>
+                    )}
                 />
             )}
             <Drawer
-                style={{ height: 400, opacity: 0.9, marginTop: 300 }}
+                style={{ height: 400, opacity: 0.9, marginTop: 296 }}
                 mask={false}
                 closeIcon={<CaretRightOutlined />}
                 title={`${replays.length} Loaded Replays`}

@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Layout } from 'antd';
 import { useRouter } from 'next/router';
 
-import SidebarReplays from '../../components/maps/SidebarReplays';
-import SidebarSettings from '../../components/maps/SidebarSettings';
-import MapHeader from '../../components/maps/MapHeader';
-import Viewer3D from '../../components/viewer/Viewer3D';
+import SidebarReplays from '../../../components/maps/SidebarReplays';
+import SidebarSettings from '../../../components/maps/SidebarSettings';
+import MapHeader from '../../../components/maps/MapHeader';
+import Viewer3D from '../../../components/viewer/Viewer3D';
 import {
     getReplays,
     getMapInfo,
@@ -13,16 +13,15 @@ import {
     fetchReplayData,
     ReplayData,
     MapInfo,
-} from '../../lib/api/apiRequests';
-import HeadTitle from '../../components/common/HeadTitle';
-import { cleanTMFormatting } from '../../lib/utils/formatting';
-import LoadedReplays from '../../components/maps/LoadedReplays';
-import { TimeLineInfos } from '../../components/viewer/TimeLine';
-
-const timeLineGlobal = new TimeLineInfos();
+} from '../../../lib/api/apiRequests';
+import HeadTitle from '../../../components/common/HeadTitle';
+import { ChartsDrawer } from '../../../components/maps/ChartsDrawer';
+import { cleanTMFormatting } from '../../../lib/utils/formatting';
+import LoadedReplays from '../../../components/maps/LoadedReplays';
 
 const Home = (): JSX.Element => {
     const [replays, setReplays] = useState<FileResponse[]>([]);
+    const [loadingReplays, setLoadingReplays] = useState<boolean>(true);
     const [selectedReplayData, setSelectedReplayData] = useState<ReplayData[]>([]);
     const [mapData, setMapData] = useState<MapInfo>({});
 
@@ -30,8 +29,10 @@ const Home = (): JSX.Element => {
     const { mapUId } = router.query;
 
     const fetchAndSetReplays = async () => {
+        setLoadingReplays(true);
         const { files } = await getReplays({ mapUId: `${mapUId}` });
         setReplays(files);
+        setLoadingReplays(false);
     };
 
     useEffect(() => {
@@ -84,11 +85,12 @@ const Home = (): JSX.Element => {
         <>
             <HeadTitle title={getTitle()} />
             <Layout>
-                <MapHeader mapInfo={mapData} />
+                <MapHeader mapInfo={mapData} title="Replay viewer" />
                 <Layout.Content>
                     <SidebarReplays
                         mapUId={`${mapUId}`}
                         replays={replays}
+                        loadingReplays={loadingReplays}
                         onLoadReplay={onLoadReplay}
                         onRemoveReplay={onRemoveReplay}
                         onLoadAllVisibleReplays={onLoadAllVisibleReplays}
@@ -96,12 +98,22 @@ const Home = (): JSX.Element => {
                         selectedReplayDataIds={selectedReplayData.map((replay) => replay._id)}
                         onRefreshReplays={fetchAndSetReplays}
                     />
+                    {
+                        selectedReplayData.length > 0
+                        && <LoadedReplays replays={selectedReplayData} />
+                    }
                     <SidebarSettings />
                     {
                         selectedReplayData.length > 0
-                    && <LoadedReplays replays={selectedReplayData} timeLineGlobal={timeLineGlobal} />
+                        && (
+                            <ChartsDrawer
+                                replaysData={selectedReplayData}
+                            />
+                        )
                     }
-                    <Viewer3D replaysData={selectedReplayData} timeLineGlobal={timeLineGlobal} />
+                    <Viewer3D
+                        replaysData={selectedReplayData}
+                    />
                 </Layout.Content>
             </Layout>
         </>
