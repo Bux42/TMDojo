@@ -70,7 +70,7 @@ app.use((req: Request, res: Response, next: Function) => {
     res.end = (data: any) => {
     // data contains the response body
         console.log(`[${getDateStr()}] RES: ${req.method} ${req.originalUrl} - ${res.statusCode}`);
-        oldEnd.apply(res, [data]);
+        return oldEnd.apply(res, [data]);
     };
 
     next();
