@@ -60,6 +60,7 @@ router.get('/:replayId', async (req: Request, res: Response, next: Function) => 
             throw new Error('Object not found');
         }
         const replayData = await artefacts.retrieveReplay(replay);
+        res.setHeader('Content-Type', 'application/octet-stream');
         res.send(replayData);
     } catch (err) {
         if (err?.message === 'Object not found') {

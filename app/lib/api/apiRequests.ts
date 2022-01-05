@@ -54,6 +54,9 @@ export const getReplays = async (filters: FilterParams = DEFAULT_FILTERS): Promi
 export interface ReplayData extends FileResponse, DataViewResult {}
 export const fetchReplayData = async (file: FileResponse): Promise<ReplayData> => {
     const res = await apiInstance.get(`/replays/${file._id}`, {
+        headers: {
+            Accept: 'application/octet-stream',
+        },
         responseType: 'arraybuffer',
     });
 
