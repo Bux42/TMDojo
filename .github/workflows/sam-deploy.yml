@@ -45,11 +45,11 @@ jobs:
       - name: SAM Deploy
         working-directory: ./server
         run: |
-          sam deploy 
+          sam deploy \
             --template-file ./packaged-template.yaml \
             --stack-name ${{ secrets.AWS_SAM_STACK_NAME }} \
             --region ${{ secrets.AWS_REGION }} \
             --image-repository ${{ secrets.AWS_SAM_IMAGE_REPOSITORY_URL }} \
-            --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
-            --no-confirm-changeset 
+            --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
+            --no-confirm-changeset \
             --no-fail-on-empty-changeset
