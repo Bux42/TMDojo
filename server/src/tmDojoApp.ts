@@ -96,8 +96,4 @@ app.use('/users', userRouter);
 app.use('/me', meRouter);
 app.use('/replays', replayRouter);
 
-app.use('/testRoute', (_: Request, res: Response) => {
-    res.send({ message: 'Deployed Successfully!' });
-});
-
 export default app;
