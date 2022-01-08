@@ -32,9 +32,11 @@ Having set everything up, you can start the server using `npm run dev`. The serv
 
 ## AWS SAM
 
-The server is also available as a AWS Lambda function, AWS SAM is a tool that allows you to easily deploy the server as a function. The AWS SAM template is located in `server/aws-sam-template.yml`.
+The server is also available as a AWS Lambda function, AWS SAM is a tool that allows you to easily deploy the server as a function. The AWS SAM template is located in `server/template.yml`.
 
-Note: to run any AWS SAM commands locally, you need to have the [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html) and [Docker](https://docs.docker.com/get-docker/) installed. 
+Note: to run any AWS SAM commands locally, you need to have the [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html) and [Docker](https://docs.docker.com/get-docker/) installed.
+
+Deployment is done by running `sam build` and `sam deploy` using the correct parameters. In practice, these commands should never need to be run manually apart from the first deploy, which is why these parameters are not included here. All following deployments are done using GitHub actions, so if you want to find the parameters to build and deploy, check out the `sam-build.yml` and `sam-deploy.yml` GitHub actions.
 
 ## Deployment
 
