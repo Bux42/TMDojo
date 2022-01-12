@@ -75,7 +75,8 @@ const MapStats = () => {
         const maxTime = Math.max(...inputReplays.map((r) => r.endRaceTime));
 
         // WIP method for determining bin size using the min and max times
-        const binSize = 10 ** (Math.floor(Math.log10(maxTime - minTime)) - 1);
+        let binSize = 10 ** (Math.floor(Math.log10(maxTime - minTime)) - 1);
+        binSize = Math.max(binSize, 1); // Make sure the bin size is at least 1 millisecond
         return binSize;
     };
 
