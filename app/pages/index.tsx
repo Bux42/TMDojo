@@ -95,7 +95,7 @@ const Home = (): JSX.Element => (
             className="flex flex-row mt-20 px-10 items-center justify-end w-full h-20 shadow-md"
             style={{ backgroundColor: '#2C2C2C' }}
         >
-            <div className="flex flex-row gap-3 items-center bg-red-500">
+            <div className="flex flex-row gap-3 items-center">
                 <img
                     src="/images/tmdojo_logo.png"
                     className="h-8 w-8 object-cover drop-shadow-sm"
