@@ -46,8 +46,8 @@ const Home = (): JSX.Element => (
                         </span>
                         <CleanButton
                             size="large"
-                            textColor="hsl(235, 86%,  65%)"
-                            backColor="hsl(235, 100%, 95%)"
+                            textColor="hsl(235, 86%,  60%)"
+                            backColor="hsl(235, 100%, 92%)"
                             url={DISCORD_URL}
                             openInNewTab
                             darkenOnHover={false}
@@ -71,8 +71,8 @@ const Home = (): JSX.Element => (
                         </span>
                         <CleanButton
                             size="large"
-                            textColor="hsl(328, 49%,  58%)"
-                            backColor="hsl(328, 100%, 95%)"
+                            textColor="hsl(328, 49%,  50%)"
+                            backColor="hsl(328, 100%, 92%)"
                             url={SPONSOR_URL}
                             openInNewTab
                             darkenOnHover={false}
