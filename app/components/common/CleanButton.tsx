@@ -1,4 +1,4 @@
-import React, { CSSProperties, useState } from 'react';
+import React, { CSSProperties, useMemo, useState } from 'react';
 import { Button } from 'antd';
 import parse from 'parse-color';
 import Link from 'next/link';
@@ -43,7 +43,6 @@ const ButtonComponent = ({
     url,
     openInNewTab,
     hoverAnimation = true,
-    useTextColorForShadow,
     disabled,
     darkenOnHover = true,
 }: CleanButtonProps) => {
@@ -70,7 +69,7 @@ const ButtonComponent = ({
         hover: {
             backgroundColor: darkenOnHover ? darkenedBackColor : backColor,
             transform: 'translate(0px, -2px)',
-            boxShadow: `0px 2px 2px 0px ${useTextColorForShadow ? cssTextColor : 'rgba(0,0,0, 0.25)'}`,
+            boxShadow: '0px 2px 2px 0px rgba(0,0,0, 0.25)',
         },
     };
 
@@ -111,11 +110,10 @@ const CleanButton = ({
     url,
     openInNewTab,
     hoverAnimation,
-    useTextColorForShadow,
     disabled,
     darkenOnHover,
 }: CleanButtonProps) => {
-    const button = (
+    const button = useMemo(() => (
         <ButtonComponent
             onClick={onClick}
             style={style}
@@ -126,13 +124,13 @@ const CleanButton = ({
             size={size}
             openInNewTab={openInNewTab}
             hoverAnimation={hoverAnimation}
-            useTextColorForShadow={useTextColorForShadow}
             disabled={disabled}
             darkenOnHover={darkenOnHover}
         >
             {children}
         </ButtonComponent>
-    );
+    ), [children, onClick, style, backColor, textColor, type, url, size,
+        openInNewTab, hoverAnimation, disabled, darkenOnHover]);
 
     return (
         <>

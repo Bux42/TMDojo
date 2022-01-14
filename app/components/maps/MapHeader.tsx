@@ -43,30 +43,24 @@ const MapHeader = ({ mapInfo, title }: Props): JSX.Element => {
                     {cleanTMFormatting(mapInfo.name || '')}
                 </span>
 
-                {/* anchors need duplicate links for keyboard accessibility */}
-                <Link href={tmioURL}>
-                    <a target="_blank" rel="noreferrer" href={tmioURL}>
-                        <CleanButton
-                            key="tm.io"
-                            type="primary"
-                            disabled={!hasMapUid}
-                        >
-                            Trackmania.io
-                        </CleanButton>
-                    </a>
-                </Link>
-                <Link href={tmxURL}>
-                    <a target="_blank" rel="noreferrer" href={tmxURL}>
-                        <CleanButton
-                            key="tmx"
-                            type="primary"
-                            disabled={!hasExchangeId}
-                            backColor="#13ae63"
-                        >
-                            TM Exchange
-                        </CleanButton>
-                    </a>
-                </Link>
+                <CleanButton
+                    key="tm.io"
+                    disabled={!hasMapUid}
+                    backColor="hsl(0, 0%, 15%)"
+                    url={tmioURL}
+                    openInNewTab
+                >
+                    TM.io
+                </CleanButton>
+                <CleanButton
+                    key="tmx"
+                    disabled={!hasExchangeId}
+                    backColor="hsl(0, 0%, 15%)"
+                    url={tmxURL}
+                    openInNewTab
+                >
+                    TMX
+                </CleanButton>
             </div>
 
             <div className="flex flex-grow items-center justify-end w-0">
