@@ -123,7 +123,7 @@ const MapStats = () => {
                         title={`Map: ${cleanTMFormatting(mapData?.name || '')}`}
                     >
                         <div className="flex flex-col h-full gap-4">
-                            {allReplaysFilteredByCurrentUser.length !== 0
+                            {allReplaysFilteredByCurrentUser.length === 0
                                 ? (
                                     <Empty
                                         image={Empty.PRESENTED_IMAGE_SIMPLE}
