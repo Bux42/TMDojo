@@ -1,17 +1,24 @@
-import React, { CSSProperties, useMemo, useState } from 'react';
+import React, { CSSProperties, useState } from 'react';
 import { Button } from 'antd';
 import parse from 'parse-color';
 import Link from 'next/link';
 import { SizeType } from 'antd/lib/config-provider/SizeContext';
+import { ButtonType } from 'antd/lib/button';
 
 interface CleanButtonProps {
     children?: React.ReactNode;
-    onClick?: React.MouseEventHandler<HTMLElement>,
     style?: CSSProperties;
-    color?: string;
-    url?: string;
+    onClick?: React.MouseEventHandler<HTMLElement>,
     size?: SizeType;
+    backColor?: string;
+    textColor?: string;
+    type?: ButtonType;
+    url?: string;
     openInNewTab?: boolean;
+    hoverAnimation?: boolean;
+    useTextColorForShadow?: boolean;
+    disabled?: boolean;
+    darkenOnHover?: boolean;
 }
 
 const getButtonPadding = (size: SizeType) => {
@@ -27,23 +34,33 @@ const getButtonPadding = (size: SizeType) => {
 
 const ButtonComponent = ({
     children,
-    onClick,
     style,
-    color = 'hsl(0, 90%, 50%)',
+    onClick,
+    size = 'middle',
+    backColor,
+    textColor,
+    type = 'primary',
     url,
-    size,
     openInNewTab,
+    hoverAnimation = true,
+    useTextColorForShadow,
+    disabled,
+    darkenOnHover = true,
 }: CleanButtonProps) => {
     const [hover, setHover] = useState(false);
 
-    const parsedColor = parse(color);
+    const parsedBackColor = backColor && parse(backColor);
 
-    const backColor = `hsl(${parsedColor.hsl[0]}, 100%, 95%)`;
+    const darkenedBackColor = backColor && parsedBackColor
+        && `hsl(${parsedBackColor.hsl[0]}, ${parsedBackColor.hsl[1]}%, ${parsedBackColor.hsl[2] * 0.8}%)`;
+
+    const cssTextColor = textColor
+        || 'rgba(255, 255, 255, 0.85)';
 
     const buttonStyle = {
         default: {
             backgroundColor: backColor,
-            color,
+            color: cssTextColor,
             borderRadius: '6px',
             fontWeight: 600,
             border: 0,
@@ -51,14 +68,15 @@ const ButtonComponent = ({
             transition: 'all .15s',
         },
         hover: {
+            backgroundColor: darkenOnHover ? darkenedBackColor : backColor,
             transform: 'translate(0px, -2px)',
-            boxShadow: '0px 2px 3px 0px',
+            boxShadow: `0px 2px 2px 0px ${useTextColorForShadow ? cssTextColor : 'rgba(0,0,0, 0.25)'}`,
         },
     };
 
     return (
         <Button
-            type="primary"
+            type={type}
             size={size}
             onClick={onClick}
             onMouseEnter={() => {
@@ -69,10 +87,11 @@ const ButtonComponent = ({
             }}
             style={{
                 ...buttonStyle.default,
-                ...(hover ? buttonStyle.hover : {}),
+                ...(hover && hoverAnimation ? buttonStyle.hover : {}),
                 ...style,
             }}
             href={!openInNewTab && url ? url : undefined}
+            disabled={disabled}
         >
             <div className="flex flex-row gap-4 items-center">
                 {children}
@@ -83,42 +102,51 @@ const ButtonComponent = ({
 
 const CleanButton = ({
     children,
-    onClick,
     style,
-    color = 'hsl(0, 90%, 50%)',
+    onClick,
+    size,
+    backColor,
+    textColor,
+    type,
     url,
-    size = 'middle',
     openInNewTab,
-}: CleanButtonProps) => (
-    <>
-        {url && openInNewTab ? (
-            <Link href={url}>
-                <a target="_blank" rel="noreferrer" href={url}>
-                    <ButtonComponent
-                        onClick={onClick}
-                        style={style}
-                        color={color}
-                        url={url}
-                        size={size}
-                        openInNewTab={openInNewTab}
-                    >
-                        {children}
-                    </ButtonComponent>
-                </a>
-            </Link>
-        ) : (
-            <ButtonComponent
-                onClick={onClick}
-                style={style}
-                color={color}
-                url={url}
-                size={size}
-                openInNewTab={openInNewTab}
-            >
-                {children}
-            </ButtonComponent>
-        )}
-    </>
-);
+    hoverAnimation,
+    useTextColorForShadow,
+    disabled,
+    darkenOnHover,
+}: CleanButtonProps) => {
+    const button = (
+        <ButtonComponent
+            onClick={onClick}
+            style={style}
+            backColor={backColor}
+            textColor={textColor}
+            type={type}
+            url={url}
+            size={size}
+            openInNewTab={openInNewTab}
+            hoverAnimation={hoverAnimation}
+            useTextColorForShadow={useTextColorForShadow}
+            disabled={disabled}
+            darkenOnHover={darkenOnHover}
+        >
+            {children}
+        </ButtonComponent>
+    );
+
+    return (
+        <>
+            {url && openInNewTab ? (
+                <Link href={url}>
+                    <a target="_blank" rel="noreferrer" href={url}>
+                        {button}
+                    </a>
+                </Link>
+            ) : (
+                button
+            )}
+        </>
+    );
+};
 
 export default CleanButton;

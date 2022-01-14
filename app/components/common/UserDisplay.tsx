@@ -6,7 +6,7 @@ import CleanButton from './CleanButton';
 const LoginButton = ({ onClick } :{onClick: () => void}) => (
     <CleanButton
         onClick={onClick}
-        color="#1B65D3"
+        backColor="#1B65D3"
     >
         Login with Ubisoft
     </CleanButton>
@@ -15,7 +15,7 @@ const LoginButton = ({ onClick } :{onClick: () => void}) => (
 const LogoutButton = ({ onClick } :{onClick: () => void}) => (
     <CleanButton
         onClick={onClick}
-        color="#B41616"
+        backColor="#B41616"
     >
         Logout
     </CleanButton>
@@ -30,7 +30,7 @@ const ProfileButton = ({ webId }: ProfileButtonProps) => {
     return (
         <CleanButton
             url={userProfileUrl}
-            color="#1B65D3"
+            backColor="#1B65D3"
         >
             Profile
         </CleanButton>

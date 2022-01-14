@@ -44,7 +44,15 @@ const Home = (): JSX.Element => (
                             Join our Discord!
                             <br />
                         </span>
-                        <CleanButton size="large" color="#5865F2" url={DISCORD_URL} openInNewTab>
+                        <CleanButton
+                            size="large"
+                            textColor="hsl(235, 86%,  65%)"
+                            backColor="hsl(235, 100%, 95%)"
+                            url={DISCORD_URL}
+                            openInNewTab
+                            darkenOnHover={false}
+                            useTextColorForShadow
+                        >
                             <img
                                 src="/images/discord_icon.svg"
                                 width={18}
@@ -61,7 +69,15 @@ const Home = (): JSX.Element => (
                             Sponsor us on GitHub!
                             <br />
                         </span>
-                        <CleanButton size="large" color="#C96198" url={SPONSOR_URL} openInNewTab>
+                        <CleanButton
+                            size="large"
+                            textColor="hsl(328, 49%,  58%)"
+                            backColor="hsl(328, 100%, 95%)"
+                            url={SPONSOR_URL}
+                            openInNewTab
+                            darkenOnHover={false}
+                            useTextColorForShadow
+                        >
                             <img
                                 src="/images/github_sponsor_icon.svg"
                                 width={18}

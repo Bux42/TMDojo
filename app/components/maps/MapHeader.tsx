@@ -7,6 +7,7 @@ import { ArrowLeftOutlined } from '@ant-design/icons';
 import { MapInfo } from '../../lib/api/apiRequests';
 import { cleanTMFormatting } from '../../lib/utils/formatting';
 import UserDisplay from '../common/UserDisplay';
+import CleanButton from '../common/CleanButton';
 
 interface Props {
     mapInfo: MapInfo;
@@ -45,24 +46,25 @@ const MapHeader = ({ mapInfo, title }: Props): JSX.Element => {
                 {/* anchors need duplicate links for keyboard accessibility */}
                 <Link href={tmioURL}>
                     <a target="_blank" rel="noreferrer" href={tmioURL}>
-                        <Button key="tm.io" type="primary" disabled={!hasMapUid}>
+                        <CleanButton
+                            key="tm.io"
+                            type="primary"
+                            disabled={!hasMapUid}
+                        >
                             Trackmania.io
-                        </Button>
+                        </CleanButton>
                     </a>
                 </Link>
                 <Link href={tmxURL}>
                     <a target="_blank" rel="noreferrer" href={tmxURL}>
-                        <Button
+                        <CleanButton
                             key="tmx"
                             type="primary"
                             disabled={!hasExchangeId}
-                            style={{
-                                backgroundColor: '#13ae63',
-                                borderColor: '#13ae63',
-                            }}
+                            backColor="#13ae63"
                         >
                             TM Exchange
-                        </Button>
+                        </CleanButton>
                     </a>
                 </Link>
             </div>

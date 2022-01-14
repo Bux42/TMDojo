@@ -56,7 +56,7 @@ const MapReplayTableWithSearchbar = () => {
                         <CleanButton
                             size="small"
                             url={statsRef}
-                            color="#1857B7"
+                            backColor="hsl(0, 0%, 15%)"
                             // Stop onClick propagation to avoid duplicate onClick events with Row onClick
                             onClick={(e) => {
                                 e.stopPropagation();
