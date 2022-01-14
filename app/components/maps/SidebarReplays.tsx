@@ -106,6 +106,7 @@ const SidebarReplays = ({
             dataIndex: 'relativeDate',
             align: 'right',
             width: 130,
+            defaultSortOrder: 'descend',
             sorter: (a, b) => a.date - b.date,
         },
         {
