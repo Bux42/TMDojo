@@ -86,7 +86,7 @@ const ExplanationInfo = (): JSX.Element => {
                             transition: 'all 0.15s ease-out',
                             transform: key === infoTab ? 'translate(0px,2px)' : '',
                         }}
-                        className={`py-2 px-4 rounded-md cursor-pointer select-none text-center ${key === infoTab ? 'shadow' : ''}`}
+                        className={`flex items-center justify-center py-2 px-4 rounded-md cursor-pointer select-none text-center ${key === infoTab ? 'shadow' : ''}`}
                         onClick={() => setInfoTab(key)}
                         role="button"
                         tabIndex={0}

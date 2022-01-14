@@ -48,10 +48,11 @@ const ButtonComponent = ({
             fontWeight: 600,
             border: 0,
             padding: getButtonPadding(size),
-            transition: 'transform .15s cubic-bezier(0.34, 1.56, 0.64, 1) 0s',
+            transition: 'all .15s',
         },
         hover: {
-            transform: 'scale(1.05)',
+            transform: 'translate(0px, -2px)',
+            boxShadow: '0px 2px 3px 0px',
         },
     };
 
