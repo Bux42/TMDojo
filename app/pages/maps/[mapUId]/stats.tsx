@@ -106,26 +106,24 @@ const MapStats = () => {
     );
 
     return (
-        <div className="min-h-screen" style={{ backgroundColor: '#1F1F1F' }}>
+        <div className="flex flex-col items-center min-h-screen bg-gray-850">
             <HeadTitle title={getTitle()} />
             <MapHeader mapInfo={mapData || {}} title="Map statistics" />
             {mapData && (
-                <div className="flex flex-col items-center py-8">
-                    <Card
-                        className="w-3/5 mb-8"
-                    >
+                <div className="flex flex-col justify-self-center items-center py-8 w-3/5">
+                    <div className="w-full mb-8 bg-gray-750 rounded-md p-8">
                         <MapStatsTypeSwitcher
                             mapStatsType={mapStatsType}
                             mapData={mapData}
                             toggleMapStatsType={toggleMapStatsType}
                         />
-                    </Card>
-                    <Card
-                        className="w-3/5"
+                    </div>
+                    <div
+                        className="w-full p-8 bg-gray-750 rounded-md"
                         title={`Map: ${cleanTMFormatting(mapData?.name || '')}`}
                     >
                         <div className="flex flex-col h-full gap-4">
-                            {allReplaysFilteredByCurrentUser.length === 0
+                            {allReplaysFilteredByCurrentUser.length !== 0
                                 ? (
                                     <Empty
                                         image={Empty.PRESENTED_IMAGE_SIMPLE}
@@ -136,6 +134,7 @@ const MapStats = () => {
                                         <Card
                                             title="Replays"
                                             type="inner"
+                                            className="bg-gray-850"
                                         >
                                             <Skeleton loading={loadingReplays} active title={false}>
                                                 <AggregateMapStats replays={allReplaysFilteredByCurrentUser} />
@@ -145,6 +144,7 @@ const MapStats = () => {
                                         <Card
                                             title={`Finish Time Histogram ${binSize ? `(${binSize}ms bins)` : ''}`}
                                             type="inner"
+                                            className="bg-gray-850"
                                         >
                                             <Skeleton loading={loadingReplays} active>
                                                 {binSize && (
@@ -159,6 +159,7 @@ const MapStats = () => {
                                         <Card
                                             title="Fastest time progression"
                                             type="inner"
+                                            className="bg-gray-850"
                                         >
                                             <Skeleton loading={loadingReplays} active>
                                                 <FastestTimeProgression
@@ -171,7 +172,7 @@ const MapStats = () => {
                                     </>
                                 )}
                         </div>
-                    </Card>
+                    </div>
                 </div>
 
             )}

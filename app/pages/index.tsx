@@ -1,18 +1,15 @@
 import CleanButton from '../components/common/CleanButton';
 import UserDisplay from '../components/common/UserDisplay';
 import ExplanationInfo from '../components/landing/ExplanationInfo';
-import InfoCard from '../components/landing/InfoCard';
 import MapReplayTableWithSearchbar from '../components/landing/MapReplayTableWithSearchbar';
 
 const DISCORD_URL = 'https://discord.gg/RPbZHvxNRG';
 const SPONSOR_URL = 'https://github.com/sponsors/tm-dojo';
 
 const Home = (): JSX.Element => (
-    <div className="flex flex-col items-center min-h-screen" style={{ backgroundColor: '#1F1F1F' }}>
-
+    <div className="flex flex-col items-center min-h-screen bg-gray-850">
         <div
-            className="sticky flex flex-row justify-between w-full h-20 shadow-md"
-            style={{ backgroundColor: '#2C2C2C' }}
+            className="sticky top-0 z-10 flex flex-row justify-between w-full h-20 shadow-md bg-gray-750"
         >
             <div className="flex-grow pl-10" />
             <div className="flex flex-row gap-4 place-self-center items-center">
@@ -30,18 +27,15 @@ const Home = (): JSX.Element => (
 
         <div className="flex flex-col w-2/3 mt-20">
             <div className="flex flex-row gap-8">
-
                 <div
-                    className="flex flex-col flex-grow w-3/4 pt-4 pb-6 px-8 rounded-md gap-6"
-                    style={{ backgroundColor: '#2C2C2C' }}
+                    className="flex flex-col w-3/4 pt-4 pb-6 px-8 rounded-md gap-6 bg-gray-750"
                 >
-
                     <ExplanationInfo />
                 </div>
 
                 <div
-                    className="flex flex-col items-center justify-center gap-10 rounded-md py-12 px-4"
-                    style={{ backgroundColor: '#2C2C2C' }}
+                    className="flex flex-col flex-grow items-center
+                        justify-center gap-10 rounded-md py-12 px-4 bg-gray-750"
                 >
                     <div className="flex flex-col items-center gap-4 text-base font-semibold">
                         <span className="flex flex-col text-center">
@@ -81,8 +75,7 @@ const Home = (): JSX.Element => (
             </div>
 
             <div
-                className="flex flex-col gap-8 w-full mt-10 pt-6 pb-4 px-4 rounded-md"
-                style={{ backgroundColor: '#2C2C2C' }}
+                className="flex flex-col gap-8 w-full mt-10 p-6 rounded-md bg-gray-750"
             >
                 <div className="self-center text-2xl font-bold">
                     Maps
@@ -92,8 +85,7 @@ const Home = (): JSX.Element => (
         </div>
 
         <div
-            className="flex flex-row mt-20 px-10 items-center justify-end w-full h-20 shadow-md"
-            style={{ backgroundColor: '#2C2C2C' }}
+            className="flex flex-row mt-20 px-10 items-center justify-end w-full h-20 shadow-md bg-gray-750"
         >
             <div className="flex flex-row gap-3 items-center">
                 <img

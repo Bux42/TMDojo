@@ -3,18 +3,18 @@
 import React, { useState } from 'react';
 import DiscordButton from '../common/DiscordButton';
 
-type Tab = 'whatIsTMDojo'|'howDoIUseIt'|'howDoesItWork';
+type Tab = 'whatIsThis'|'howDoIUseIt'|'howDoesItWork';
 
 const ExplanationInfo = (): JSX.Element => {
-    const [infoTab, setInfoTab] = useState<Tab>('whatIsTMDojo');
+    const [infoTab, setInfoTab] = useState<Tab>('whatIsThis');
     interface TabItem {
         key: Tab,
         title: string
     }
     const tabList: TabItem[] = [
         {
-            key: 'whatIsTMDojo',
-            title: 'What is TMDojo?',
+            key: 'whatIsThis',
+            title: 'What is this?',
         },
         {
             key: 'howDoIUseIt',
@@ -26,7 +26,7 @@ const ExplanationInfo = (): JSX.Element => {
         },
     ];
 
-    const whatIsTMDojo = [
+    const whatIsThis = [
         <div className="w-full text-base text-center font-bold">
             This is TMDojo - our platform to analyze Trackmania runs!
         </div>,
@@ -64,8 +64,8 @@ const ExplanationInfo = (): JSX.Element => {
     );
 
     const tabContent = {
-        whatIsTMDojo: (
-            <div>{transformTextToDOM(whatIsTMDojo)}</div>
+        whatIsThis: (
+            <div>{transformTextToDOM(whatIsThis)}</div>
         ),
         howDoIUseIt: (
             <div>{transformTextToDOM(howDoIUseIt)}</div>
@@ -84,7 +84,7 @@ const ExplanationInfo = (): JSX.Element => {
                         style={{
                             backgroundColor: key === infoTab ? '#171717' : '#1F1F1F',
                             transition: 'all 0.15s ease-out',
-                            transform: key === infoTab ? 'translate(0px,2px)' : '',
+                            transform: key === infoTab ? 'translate(0px, 4px)' : '',
                         }}
                         className={`flex items-center justify-center py-2 px-4 rounded-md cursor-pointer select-none text-center ${key === infoTab ? 'shadow' : ''}`}
                         onClick={() => setInfoTab(key)}

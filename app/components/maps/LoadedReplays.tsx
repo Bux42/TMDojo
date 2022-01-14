@@ -186,6 +186,12 @@ const LoadedReplays = ({
                 width={360}
                 onClose={onClose}
                 visible={visible}
+                headerStyle={{
+                    backgroundColor: '#2C2C2C',
+                }}
+                bodyStyle={{
+                    backgroundColor: '#1F1F1F',
+                }}
             >
                 Camera Mode
                 <Radio.Group

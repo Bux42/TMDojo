@@ -81,13 +81,13 @@ const MapReplayTableWithSearchbar = () => {
             },
             sorter: (a, b) => a.lastUpdate - b.lastUpdate,
             defaultSortOrder: 'descend',
-            width: '20%',
+            width: '15%',
         },
         {
             title: 'Replays',
             dataIndex: 'count',
             sorter: (a, b) => a.count - b.count,
-            width: '10%',
+            width: '15%',
         },
     ];
 
@@ -129,7 +129,6 @@ const MapReplayTableWithSearchbar = () => {
                         onClick: () => {
                             navigateToMap(map);
                         },
-
                     })}
                     showSorterTooltip={false}
                     pagination={{

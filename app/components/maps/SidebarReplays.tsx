@@ -244,6 +244,12 @@ const SidebarReplays = ({
                 onClose={onClose}
                 visible={visible}
                 className="h-screen"
+                headerStyle={{
+                    backgroundColor: '#2C2C2C',
+                }}
+                bodyStyle={{
+                    backgroundColor: '#1F1F1F',
+                }}
             >
                 <Spin spinning={loadingReplays}>
                     <div className="flex flex-row justify-between items-center mb-4 mx-4">
