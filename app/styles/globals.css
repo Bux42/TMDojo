@@ -16,35 +16,6 @@
     background-color: #1f1f1f;
 }
 
-/* alignment fixes - TODO: find out why they even happen */
-.ant-table-column-sorters {
-    line-height: 1 !important;
-}
-
-.ant-input-search-button {
-    line-height: 0.8 !important;
-}
-
-.ant-page-header-back {
-    line-height: 0.5 !important;
-}
-
-.ant-drawer-close {
-    line-height: 0.5 !important;
-}
-
-.ant-btn {
-    line-height: 0.5 !important;
-}
-
-.ant-pagination-item-link {
-    line-height: 0.8 !important;
-}
-
-.ant-btn>.anticon {
-    line-height: 0 !important;
-}
-
 .dojo-info-card {
     height: 300px;
 }

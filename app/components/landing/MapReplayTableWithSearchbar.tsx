@@ -8,6 +8,7 @@ import { ColumnsType } from 'antd/lib/table';
 import { PieChartOutlined, ReloadOutlined } from '@ant-design/icons';
 import { AvailableMap, getAvailableMaps } from '../../lib/api/apiRequests';
 import { timeDifference } from '../../lib/utils/time';
+import CleanButton from '../common/CleanButton';
 
 interface ExtendedAvailableMap extends AvailableMap {
     key: string;
@@ -53,12 +54,13 @@ const MapReplayTableWithSearchbar = () => {
             render: (_, map) => {
                 const statsRef = `/maps/${map.mapUId}/stats`;
                 return (
-                    <div className="flex gap-2 pr-2">
-                        <Button href={statsRef} size="small" className="flex items-center">
-                            <PieChartOutlined />
-                            {' '}
-                            Stats
-                        </Button>
+                    <div className="flex pr-2">
+                        <CleanButton size="small" url={statsRef} color="#1857B7">
+                            <div className="flex gap-2 items-center">
+                                <PieChartOutlined />
+                                Stats
+                            </div>
+                        </CleanButton>
                     </div>
                 );
             },
@@ -89,7 +91,9 @@ const MapReplayTableWithSearchbar = () => {
 
             <div className="flex flex-row items-center mb-2 gap-4">
                 <Input.Search
-                    placeholder="Search for a map"
+                    className="rounded-md"
+                    placeholder="Search"
+                    size="large"
                     onSearch={(searchVal) => setSearchString(searchVal)}
                 />
                 <Tooltip title="Refresh">
@@ -103,12 +107,18 @@ const MapReplayTableWithSearchbar = () => {
             </div>
 
             <Table
-                className="dojo-map-search-table"
+                className="dojo-map-search-table rounded-md"
                 dataSource={maps}
                 columns={columns}
-                size="small"
+                onHeaderRow={() => ({ style: { fontSize: '16px' } })}
                 showSorterTooltip={false}
-                pagination={{ defaultPageSize: 10, hideOnSinglePage: true }}
+                pagination={{
+                    pageSize: 10,
+                    hideOnSinglePage: true,
+                    simple: true,
+                    position: ['bottomCenter'],
+                    showLessItems: true,
+                }}
             />
         </Spin>
     );

@@ -1,23 +1,24 @@
 import React, { useContext } from 'react';
-import { Button, message } from 'antd';
-import Link from 'next/link';
+import { message } from 'antd';
 import { AuthContext } from '../../lib/contexts/AuthContext';
+import CleanButton from './CleanButton';
 
 const LoginButton = ({ onClick } :{onClick: () => void}) => (
-    <Button type="primary" onClick={onClick}>
+    <CleanButton
+        onClick={onClick}
+        color="#1B65D3"
+    >
         Login with Ubisoft
-    </Button>
+    </CleanButton>
 );
 
 const LogoutButton = ({ onClick } :{onClick: () => void}) => (
-    <Button
-        type="primary"
-        danger
-        style={{ marginLeft: '10px' }}
+    <CleanButton
         onClick={onClick}
+        color="#B41616"
     >
         Logout
-    </Button>
+    </CleanButton>
 );
 
 interface ProfileButtonProps {
@@ -25,18 +26,14 @@ interface ProfileButtonProps {
 }
 
 const ProfileButton = ({ webId }: ProfileButtonProps) => {
-    const userProfileUrl = '/users/';
+    const userProfileUrl = `/users/${webId}`;
     return (
-        <Button
-            type="primary"
-            style={{ marginLeft: '10px' }}
+        <CleanButton
+            url={userProfileUrl}
+            color="#1B65D3"
         >
-            <Link href={`${userProfileUrl}${webId}`}>
-                <a target="_blank" rel="noreferrer" href={`${userProfileUrl}${webId}`}>
-                    Profile
-                </a>
-            </Link>
-        </Button>
+            Profile
+        </CleanButton>
     );
 };
 
@@ -54,7 +51,7 @@ const UserDisplay = () => {
     return user === undefined
         ? <LoginButton onClick={startAuthFlow} />
         : (
-            <div className="flex flex-row items-center">
+            <div className="flex flex-row gap-6 items-center text-base">
                 {`Welcome, ${user.displayName}!`}
                 <ProfileButton webId={user.accountId} />
                 <LogoutButton
