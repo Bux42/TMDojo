@@ -3,17 +3,16 @@ import {
     Button, Drawer, message, Popconfirm, Spin, Table, Tooltip,
 } from 'antd';
 import {
-    CaretRightOutlined,
     DeleteOutlined, QuestionCircleOutlined, ReloadOutlined, UnorderedListOutlined,
 } from '@ant-design/icons';
 import { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
 import { ColumnType, TableCurrentDataSource } from 'antd/lib/table/interface';
-import Link from 'next/link';
 import { deleteReplay, FileResponse } from '../../lib/api/apiRequests';
 import { getRaceTimeStr, timeDifference } from '../../lib/utils/time';
 import { AuthContext } from '../../lib/contexts/AuthContext';
 import SideDrawerExpandButton from '../common/SideDrawerExpandButton';
 import PlayerLink from '../common/PlayerLink';
+import CleanButton from '../common/CleanButton';
 
 interface ExtendedFileResponse extends FileResponse {
     readableTime: string;
@@ -140,24 +139,20 @@ const SidebarReplays = ({
                 return (
                     <div className="flex flex-row gap-4 items-center">
                         {!selected ? (
-                            <Button
-                                size="middle"
-                                type="primary"
+                            <CleanButton
                                 onClick={() => onLoadReplay(replay)}
                                 className="w-full"
                             >
                                 Load
-                            </Button>
+                            </CleanButton>
                         ) : (
-                            <Button
-                                size="middle"
-                                type="primary"
-                                danger
-                                className="w-full"
+                            <CleanButton
                                 onClick={() => onRemoveReplay(replay)}
+                                className="w-full"
+                                backColor="#B41616"
                             >
                                 Remove
-                            </Button>
+                            </CleanButton>
                         )}
                         {user && user.accountId === replay.webId && (
                             <Popconfirm
@@ -255,19 +250,17 @@ const SidebarReplays = ({
                 <Spin spinning={loadingReplays}>
                     <div className="flex flex-row justify-between items-center mb-4 mx-4">
                         <div className="flex flex-row gap-4">
-                            <Button
-                                type="primary"
+                            <CleanButton
                                 onClick={() => onLoadAllVisibleReplays(visibleReplays, selectedReplayDataIds)}
                             >
                                 Load all visible
-                            </Button>
-                            <Button
-                                type="primary"
-                                danger
+                            </CleanButton>
+                            <CleanButton
                                 onClick={() => onRemoveAllReplays(visibleReplays)}
+                                backColor="#B41616"
                             >
                                 Unload all
-                            </Button>
+                            </CleanButton>
                         </div>
                         <div className="mr-6">
                             <Tooltip title="Refresh">

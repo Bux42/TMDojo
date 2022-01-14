@@ -16,9 +16,9 @@ interface CleanButtonProps {
     url?: string;
     openInNewTab?: boolean;
     hoverAnimation?: boolean;
-    useTextColorForShadow?: boolean;
     disabled?: boolean;
     darkenOnHover?: boolean;
+    className?: string;
 }
 
 const getButtonPadding = (size: SizeType) => {
@@ -45,6 +45,7 @@ const ButtonComponent = ({
     hoverAnimation = true,
     disabled,
     darkenOnHover = true,
+    className,
 }: CleanButtonProps) => {
     const [hover, setHover] = useState(false);
 
@@ -65,6 +66,7 @@ const ButtonComponent = ({
             border: 0,
             padding: getButtonPadding(size),
             transition: 'all .15s',
+            alignText: 'center',
         },
         hover: {
             backgroundColor: darkenOnHover ? darkenedBackColor : backColor,
@@ -91,8 +93,9 @@ const ButtonComponent = ({
             }}
             href={!openInNewTab && url ? url : undefined}
             disabled={disabled}
+            className={className}
         >
-            <div className="flex flex-row gap-4 items-center">
+            <div className="flex flex-row gap-4 items-center justify-center">
                 {children}
             </div>
         </Button>
@@ -112,6 +115,7 @@ const CleanButton = ({
     hoverAnimation,
     disabled,
     darkenOnHover,
+    className,
 }: CleanButtonProps) => {
     const button = useMemo(() => (
         <ButtonComponent
@@ -126,11 +130,12 @@ const CleanButton = ({
             hoverAnimation={hoverAnimation}
             disabled={disabled}
             darkenOnHover={darkenOnHover}
+            className={className}
         >
             {children}
         </ButtonComponent>
     ), [children, onClick, style, backColor, textColor, type, url, size,
-        openInNewTab, hoverAnimation, disabled, darkenOnHover]);
+        openInNewTab, hoverAnimation, disabled, darkenOnHover, className]);
 
     return (
         <>
