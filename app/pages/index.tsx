@@ -46,12 +46,10 @@ const Home = (): JSX.Element => (
                         </span>
                         <CleanButton
                             size="large"
-                            textColor="hsl(235, 86%,  60%)"
-                            backColor="hsl(235, 100%, 92%)"
+                            backColor="#5865F2"
                             url={DISCORD_URL}
                             openInNewTab
                             darkenOnHover={false}
-                            useTextColorForShadow
                         >
                             <img
                                 src="/images/discord_icon.svg"
@@ -71,12 +69,10 @@ const Home = (): JSX.Element => (
                         </span>
                         <CleanButton
                             size="large"
-                            textColor="hsl(328, 49%,  50%)"
-                            backColor="hsl(328, 100%, 92%)"
+                            backColor="#C96198"
                             url={SPONSOR_URL}
                             openInNewTab
                             darkenOnHover={false}
-                            useTextColorForShadow
                         >
                             <img
                                 src="/images/github_sponsor_icon.svg"
