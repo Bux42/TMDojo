@@ -55,7 +55,7 @@ const ButtonComponent = ({
         && `hsl(${parsedBackColor.hsl[0]}, ${parsedBackColor.hsl[1]}%, ${parsedBackColor.hsl[2] * 0.8}%)`;
 
     const cssTextColor = textColor
-        || 'rgba(255, 255, 255, 0.85)';
+        || 'rgba(255, 255, 255, 0.95)';
 
     const buttonStyle = {
         default: {
