@@ -64,7 +64,7 @@ router.get('/:mapUID/info', async (req: Request, res: Response) => {
         const tmioData = tmxRes.data;
         mapData = { ...mapData, ...tmioData };
     } catch (error) {
-        console.log('/maps/:mapUID/info: tm.io request failed with error ', error.toString());
+        req.log.error(`mapsRouter: tm.io request failed with error ${error.toString()}`);
     }
 
     res.send(mapData);
@@ -83,6 +83,7 @@ router.post('/:mapUID', (req: Request, res: Response, next: Function) => {
 
     req.on('end', async () => {
         try {
+            req.log.info('mapsRouter: Received map data, uploading');
             const buff = Buffer.from(completeData);
             await artefacts.uploadMap(req.params.mapUID, buff);
             res.send();

@@ -27,13 +27,14 @@ router.post('/', async (req: Request, res: Response, next: Function) => {
         // Check if the session exists
         const session = await findSessionBySecret(sessionId);
         if (session === null || session === undefined) {
+            req.log.info('logoutRouter: Session not found, deleting session cookie anyway');
             setExpiredSessionCookie(req, res);
             res.status(401).send({ message: 'No session found for this secret.' });
             return;
         }
 
+        req.log.info('logoutRouter: Deleting session and session cookie');
         await deleteSession(sessionId);
-
         setExpiredSessionCookie(req, res);
 
         res.status(200).end();

@@ -57,9 +57,11 @@ router.get('/:replayId', async (req: Request, res: Response, next: Function) => 
     try {
         const replay = await db.getReplayById(req.params.replayId);
         if (!replay) {
+            req.log.error(`replaysRouter: Replay with id "${req.params.replayId}" not found in the database`);
             throw new Error('Object not found');
         }
         const replayData = await artefacts.retrieveReplay(replay);
+        req.log.info('replaysRouter: Replay data retrieved');
         res.send(replayData);
     } catch (err) {
         if (err?.message === 'Object not found') {
@@ -92,6 +94,7 @@ router.post('/', (req: Request, res: Response, next: Function): any => {
         || req.user.playerLogin !== req.query.playerLogin
     ) {
         // reject replay uploads by unauthenticated users
+        req.log.error('replaysRouter: Unauthenticated replay upload attempt');
         return res.status(401).send('Authentication required to submit replay.');
     }
 
@@ -107,6 +110,7 @@ router.post('/', (req: Request, res: Response, next: Function): any => {
         }
     });
     if (!requestValid) {
+        req.log.error('replaysRouter: Missing required parameters');
         return res.status(400).send('Request is missing one or more parameters');
     }
 
@@ -118,14 +122,17 @@ router.post('/', (req: Request, res: Response, next: Function): any => {
     });
 
     req.on('end', async () => {
+        req.log.info('replaysRouter: Received replay data');
         try {
             const fileName = `${req.query.endRaceTime}_${req.query.playerName}_${Date.now()}`;
             const filePath = `${req.query.authorName}/${req.query.mapName}/${fileName}`;
             const storedReplay = await artefacts.uploadReplay(filePath, completeData);
+            req.log.info('replaysRouter: Replay data stored');
 
             // check if map already exists
             let map = await db.getMapByUId(`${req.query.mapUId}`);
             if (!map) {
+                req.log.info('replaysRouter: Map does not exist in database, creating new map');
                 map = await db.saveMap({
                     mapName: secureMapName,
                     mapUId: req.query.mapUId,
@@ -136,6 +143,7 @@ router.post('/', (req: Request, res: Response, next: Function): any => {
             // check if user already exists
             let user = await db.getUserByWebId(`${req.query.webId}`);
             if (!user) {
+                req.log.info('replaysRouter: User does not exist in database, creating new user');
                 user = await db.saveUser({
                     playerName: req.query.playerName,
                     playerLogin: req.query.playerLogin,
@@ -152,8 +160,9 @@ router.post('/', (req: Request, res: Response, next: Function): any => {
                 endRaceTime: parseInt(`${req.query.endRaceTime}`, 10),
                 ...storedReplay,
             };
-
+            req.log.info('replaysRouter: Saving replay metadata');
             await db.saveReplayMetadata(metadata);
+
             return res.send();
         } catch (err) {
             return next(err);
@@ -175,6 +184,7 @@ router.delete('/:replayId', async (req, res) => {
     // Check user
     const { user } = req;
     if (user === undefined || user.webId !== replayUser.webId) {
+        req.log.error('replaysRouter: Unauthenticated replay delete attempt');
         res.status(401).send('Authentication required to delete replay.');
         return;
     }
@@ -182,8 +192,10 @@ router.delete('/:replayId', async (req, res) => {
     await db.deleteReplayById(replay._id);
 
     try {
+        req.log.info('replaysRouter: Deleted replay metadata, now deleting replay file');
         await artefacts.deleteReplay(replay);
     } catch (err) {
+        req.log.error('replaysRouter: Failed to delete replay file, restoring metadata in database');
         // If deletion failed, add the replay back into the DB
         await db.saveReplayMetadata(replay);
 
