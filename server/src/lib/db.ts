@@ -1,7 +1,9 @@
 import { MongoClient, ObjectId, Db } from 'mongodb';
 import { config } from 'dotenv';
 import { v4 as uuid } from 'uuid';
+import { Request } from 'express';
 import { playerLoginFromWebId } from './authorize';
+import { logError, logInfo } from './logger';
 
 config();
 
@@ -18,10 +20,10 @@ export const initDB = () => {
 
     mongoClient.connect((err: Error) => {
         if (err) {
-            console.error('initDB: Could not connect to DB, shutting down');
+            logError('initDB: Could not connect to DB, shutting down');
             process.exit();
         }
-        console.log('initDB: Connected successfully to DB');
+        logInfo('initDB: Connected successfully to DB');
         db = mongoClient.db(DB_NAME);
     });
 };
@@ -381,14 +383,13 @@ export const saveReplayMetadata = (
  * Creates session using a webId.
  * Returns session secret or undefined if something went wrong
  */
-export const createSession = async (userInfo: any, clientCode?: any) => {
+export const createSession = async (req: Request, userInfo: any, clientCode?: any) => {
     // Find user
     let user = await getUserByWebId(userInfo.account_id);
     if (user === undefined || user === null) {
-        const playerLogin = playerLoginFromWebId(userInfo.account_id);
+        const playerLogin = playerLoginFromWebId(req, userInfo.account_id);
 
         if (playerLogin === undefined) {
-            console.log(`Failed to create session, generated playerLogin is not valid: ${playerLogin}`);
             return undefined;
         }
 
@@ -399,7 +400,6 @@ export const createSession = async (userInfo: any, clientCode?: any) => {
                 playerName: userInfo.display_name,
             });
         } else {
-            console.log(`Could not create user for webId: ${userInfo.account_id}`);
             return undefined;
         }
     }

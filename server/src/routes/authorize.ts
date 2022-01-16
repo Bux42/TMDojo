@@ -32,14 +32,14 @@ router.post('/', async (req: Request, res: Response, next: Function) => {
         }
 
         // Exchange access code for access token from Trackmania API
-        const accessToken = await exchangeCodeForAccessToken(code, redirectUri);
+        const accessToken = await exchangeCodeForAccessToken(req, code, redirectUri);
         if (accessToken === undefined || typeof accessToken !== 'string') {
             res.status(500).send({ message: 'Could not get access token from trackmania API.' });
             return;
         }
 
         // Fetch user info using access token
-        const userInfo = await fetchUserInfo(accessToken);
+        const userInfo = await fetchUserInfo(req, accessToken);
         if (userInfo === undefined || userInfo.account_id === undefined || userInfo.display_name === undefined) {
             res.status(500).send({ message: 'Could not retrieve user info from trackmania API.' });
             return;
@@ -47,7 +47,7 @@ router.post('/', async (req: Request, res: Response, next: Function) => {
 
         // Create UI session
         // TODO: if clientCode exists (i.e. if this is plugin auth), only create a new UI session if there isn't one yet
-        const sessionId = await createSession(userInfo);
+        const sessionId = await createSession(req, userInfo);
         if (sessionId === undefined) {
             res.status(500).send({ message: 'Failed to create login session.' });
             return;
@@ -59,16 +59,17 @@ router.post('/', async (req: Request, res: Response, next: Function) => {
         // first, check the user doc for the clientCode
         const userDoc = await getUserByWebId(userInfo.account_id);
         if (clientCode && userDoc.clientCode === clientCode) {
+            req.log.debug('authorizeRouter: clientCode exists, creating plugin session');
             // remove clientCode from user
             delete userDoc.clientCode;
             await saveUser(userDoc);
 
             // create a new plugin session including the clientCode
-            await createSession(userInfo, clientCode);
+            await createSession(req, userInfo, clientCode);
         } else {
             // looks like a different client/the UI initiated this login - don't create a plugin session
-            console.log(
-                '/authorize: User\'s clientCode does not match the OAuth state, no plugin session will be created',
+            req.log.debug(
+                'authorizeRouter: No clientCode/it does not match the OAuth state, no plugin session will be created',
             );
         }
 

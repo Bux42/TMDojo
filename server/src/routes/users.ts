@@ -22,9 +22,12 @@ const router = express.Router();
  */
 router.get('/:webId/info', async (req: Request, res: Response, next: Function) => {
     try {
-        console.log('/:webId/info', req.params);
         const userInfos = await db.getUserByWebId(req.params.webId);
-        console.log('userInfos', userInfos);
+        if (!userInfos) {
+            req.log.error(`usersRouter: User with webId "${req.params.webId}" not found`);
+            res.status(404).send();
+            return;
+        }
         res.send(userInfos);
     } catch (err) {
         next(err);

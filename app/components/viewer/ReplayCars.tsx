@@ -55,6 +55,11 @@ const ReplayCar = ({
     fbx.children.forEach((child: any) => {
         child.material = matClone;
     });
+    fbx.traverse((children: THREE.Object3D) => {
+        if (children instanceof THREE.Mesh) {
+            children.castShadow = true;
+        }
+    });
 
     const smoothPos: THREE.Vector3 = new THREE.Vector3();
 
