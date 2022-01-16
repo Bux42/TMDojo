@@ -10,6 +10,7 @@ import FrameRate from './FrameRate';
 import ReplayCars from './ReplayCars';
 import GlobalTimeLineInfos from '../../lib/singletons/timeLineInfos';
 import TimeLine from './timeline/TimeLine';
+import SceneDirectionalLight from './SceneDirectionalLight';
 
 const BACKGROUND_COLOR = new THREE.Color(0.05, 0.05, 0.05);
 
@@ -47,10 +48,13 @@ const Viewer3D = ({ replaysData }: Props): JSX.Element => {
                     near: 0.1,
                     far: 50000,
                 }}
+                shadows
             >
-                <ambientLight />
-                <pointLight position={[10, 10, 10]} power={1} />
+                <ambientLight intensity={0.01} />
                 <Sky distance={100000000} inclination={0} turbidity={0} rayleigh={10} />
+
+                <SceneDirectionalLight replays={replaysData} />
+
                 <OrbitControls
                     ref={orbitControlsRef}
                     dampingFactor={0.2}
