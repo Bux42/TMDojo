@@ -1,6 +1,8 @@
 import { Request } from 'express';
 import * as dayjs from 'dayjs';
-import { createLogger, format, transports } from 'winston';
+import {
+    createLogger, format, transports, Logger,
+} from 'winston';
 
 const logLevels = {
     info: 'info',
@@ -22,16 +24,8 @@ const logFormat = format.printf(
     },
 );
 
-const logger = createLogger({
-    level: logLevels.debug,
-    format: format.combine(
-        format.timestamp(),
-        logFormat,
-    ),
-    transports: [
-        new transports.Console(),
-    ],
-});
+// logger gets configured at startup in initLogger
+let logger: Logger;
 
 // main logger utility
 const log = (message: string|object, level: string, req?: Request) => {
@@ -87,3 +81,24 @@ export const getRequestLogger = (req: Request) => ({
     error: (message: string|object) => log(message, logLevels.error, req),
     debug: (message: string|object) => log(message, logLevels.debug, req),
 });
+
+export const initLogger = (logLevel: string) => {
+    let defaultLogLevel = logLevel;
+    if (!Object.values(logLevels).includes(defaultLogLevel)) {
+        // default level is debug if not overridden by another valid level
+        defaultLogLevel = logLevels.debug;
+    }
+
+    logger = createLogger({
+        level: defaultLogLevel,
+        format: format.combine(
+            format.timestamp(),
+            logFormat,
+        ),
+        transports: [
+            new transports.Console(),
+        ],
+    });
+
+    logInfo(`Logger initialized with level "${defaultLogLevel}"`);
+};

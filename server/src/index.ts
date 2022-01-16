@@ -11,7 +11,9 @@ import * as cookieParser from 'cookie-parser';
 import { v4 as uuid } from 'uuid';
 
 import * as db from './lib/db';
-import { getRequestLogger, logError, logInfo } from './lib/logger';
+import {
+    getRequestLogger, logError, logInfo, initLogger,
+} from './lib/logger';
 
 import authRouter from './routes/auth';
 import mapRouter from './routes/maps';
@@ -24,6 +26,9 @@ import userRouter from './routes/users';
 import authMiddleware from './middleware/auth';
 
 config();
+
+// initialize the logger with the provided level first
+initLogger(process.env.LOG_LEVEL);
 
 const app = express();
 app.use(
