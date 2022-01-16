@@ -4,12 +4,12 @@ import {
     createLogger, format, transports, Logger,
 } from 'winston';
 
-const logLevels = {
-    info: 'info',
-    warn: 'warn',
-    error: 'error',
-    debug: 'debug',
-};
+enum LogLevel {
+    info = 'info',
+    warn = 'warn',
+    error = 'error',
+    debug = 'debug',
+}
 
 interface LogFormat {
     level: string;
@@ -28,7 +28,7 @@ const logFormat = format.printf(
 let logger: Logger;
 
 // main logger utility
-const log = (message: string|object, level: string, req?: Request) => {
+const log = (message: string|object, level: LogLevel, req?: Request) => {
     let logMessage = '';
 
     // add request elements
@@ -56,37 +56,37 @@ const log = (message: string|object, level: string, req?: Request) => {
         }
     }
 
-    if (level === logLevels.error) {
+    if (level === LogLevel.error) {
         return logger.error(logMessage);
     }
-    if (level === logLevels.warn) {
+    if (level === LogLevel.warn) {
         return logger.warn(logMessage);
     }
-    if (level === logLevels.debug) {
+    if (level === LogLevel.debug) {
         return logger.debug(logMessage);
     }
     return logger.info(logMessage);
 };
 
 // global log helpers for when there is no request object available
-export const logInfo = (message: string|object) => log(message, logLevels.info);
-export const logWarn = (message: string|object) => log(message, logLevels.warn);
-export const logError = (message: string|object) => log(message, logLevels.error);
-export const logDebug = (message: string|object) => log(message, logLevels.debug);
+export const logInfo = (message: string|object) => log(message, LogLevel.info);
+export const logWarn = (message: string|object) => log(message, LogLevel.warn);
+export const logError = (message: string|object) => log(message, LogLevel.error);
+export const logDebug = (message: string|object) => log(message, LogLevel.debug);
 
 // helper function to assign logger to request object
 export const getRequestLogger = (req: Request) => ({
-    info: (message: string|object) => log(message, logLevels.info, req),
-    warn: (message: string|object) => log(message, logLevels.warn, req),
-    error: (message: string|object) => log(message, logLevels.error, req),
-    debug: (message: string|object) => log(message, logLevels.debug, req),
+    info: (message: string|object) => log(message, LogLevel.info, req),
+    warn: (message: string|object) => log(message, LogLevel.warn, req),
+    error: (message: string|object) => log(message, LogLevel.error, req),
+    debug: (message: string|object) => log(message, LogLevel.debug, req),
 });
 
 export const initLogger = (logLevel: string) => {
     let defaultLogLevel = logLevel;
-    if (!Object.values(logLevels).includes(defaultLogLevel)) {
+    if (!Object.values(LogLevel).includes(defaultLogLevel as LogLevel)) {
         // default level is debug if not overridden by another valid level
-        defaultLogLevel = logLevels.debug;
+        defaultLogLevel = LogLevel.debug;
     }
 
     logger = createLogger({
