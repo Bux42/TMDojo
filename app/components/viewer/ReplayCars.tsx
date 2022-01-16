@@ -11,7 +11,7 @@ import { ReplayDataPoint } from '../../lib/replays/replayData';
 import vecToQuat from '../../lib/utils/math';
 import { CameraMode } from '../../lib/contexts/SettingsContext';
 import InputOverlay from './InputOverlay';
-import getSampleNearTime from '../../lib/utils/replay';
+import { setInterpolatedPosition, getSampleNearTime } from '../../lib/utils/replay';
 import GlobalTimeLineInfos from '../../lib/singletons/timeLineInfos';
 
 const BACK_WHEEL_Y = 35.232017517089844;
@@ -35,6 +35,7 @@ const ReplayCar = ({
     const camPosRef = useRef<THREE.Mesh>();
 
     const currentSampleRef = useRef<ReplayDataPoint>(replay.samples[0]);
+    const prevSampleRef = useRef<ReplayDataPoint>(replay.samples[0]);
 
     const timeLineGlobal = GlobalTimeLineInfos.getInstance();
 
@@ -55,6 +56,8 @@ const ReplayCar = ({
         child.material = matClone;
     });
 
+    const smoothPos: THREE.Vector3 = new THREE.Vector3();
+
     useFrame((state, delta) => {
         if (mesh.current
             && stadiumCarMesh.current
@@ -64,7 +67,16 @@ const ReplayCar = ({
 
             // Get closest sample to TimeLine.currentRaceTime
             curSample = getSampleNearTime(replay, timeLineGlobal.currentRaceTime);
+
             currentSampleRef.current = curSample;
+            prevSampleRef.current = replay.samples[replay.samples.indexOf(curSample) - 1];
+
+            setInterpolatedPosition(
+                smoothPos,
+                prevSampleRef.current,
+                curSample,
+                timeLineGlobal.currentRaceTime,
+            );
 
             // Get car rotation
             const carRotation: THREE.Quaternion = vecToQuat(
@@ -73,7 +85,8 @@ const ReplayCar = ({
             );
 
             // Move & rotate 3D car from current sample rot & pos
-            mesh.current.position.lerp(curSample.position, 0.4);
+            mesh.current.position.set(smoothPos.x, smoothPos.y, smoothPos.z);
+
             stadiumCarMesh.current.rotation.setFromQuaternion(carRotation);
 
             // Set front wheels rotation
@@ -89,7 +102,8 @@ const ReplayCar = ({
             // Camera target replay if selected
             if (followed) {
                 if (orbitControlsRef && orbitControlsRef.current) {
-                    orbitControlsRef.current.target.lerp(curSample.position, 0.2);
+                    orbitControlsRef.current.target.lerp(smoothPos, 0.2);
+
                     if (cameraMode === CameraMode.Follow) {
                         // move camPosMesh to Follow position
                         camPosRef.current.rotation.setFromQuaternion(carRotation);

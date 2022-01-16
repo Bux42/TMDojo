@@ -1,7 +1,8 @@
+import { Vector3 } from 'three';
 import { ReplayData } from '../api/apiRequests';
 import { ReplayDataPoint } from '../replays/replayData';
 
-const getSampleNearTime = (replay: ReplayData, raceTime: number): ReplayDataPoint => {
+export const getSampleNearTime = (replay: ReplayData, raceTime: number): ReplayDataPoint => {
     // First sample index guess based on median data point interval
     let sampleIndex = Math.round(raceTime / replay.intervalMedian);
     sampleIndex = Math.min(Math.max(0, sampleIndex), replay.samples.length - 1);
@@ -20,4 +21,21 @@ const getSampleNearTime = (replay: ReplayData, raceTime: number): ReplayDataPoin
     return replay.samples[sampleIndex];
 };
 
-export default getSampleNearTime;
+const posDiff: Vector3 = new Vector3();
+
+export const setInterpolatedPosition = (
+    smoothPos: Vector3,
+    prevSample: ReplayDataPoint,
+    curSample: ReplayDataPoint,
+    currentRaceTime: number,
+) => {
+    smoothPos.set(prevSample.position.x, prevSample.position.y, prevSample.position.z);
+    posDiff.set(curSample.position.x, curSample.position.y, curSample.position.z);
+    posDiff.sub(prevSample.position);
+
+    const diffDivider = curSample.currentRaceTime - prevSample.currentRaceTime;
+    posDiff.divideScalar(diffDivider);
+    smoothPos.add(
+        posDiff.multiplyScalar(currentRaceTime - prevSample.currentRaceTime),
+    );
+};
