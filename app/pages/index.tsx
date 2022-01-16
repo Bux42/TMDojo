@@ -1,4 +1,5 @@
 import CleanButton from '../components/common/CleanButton';
+import Footer from '../components/common/Footer';
 import UserDisplay from '../components/common/UserDisplay';
 import ExplanationInfo from '../components/landing/ExplanationInfo';
 import MapReplayTableWithSearchbar from '../components/landing/MapReplayTableWithSearchbar';
@@ -96,18 +97,7 @@ const Home = (): JSX.Element => (
             </div>
         </div>
 
-        <div
-            className="flex flex-row mt-20 px-10 items-center justify-end w-full h-20 shadow-md bg-gray-750"
-        >
-            <div className="flex flex-row gap-3 items-center">
-                <img
-                    src="/images/tmdojo_logo.png"
-                    className="h-8 w-8 object-cover drop-shadow-sm"
-                    alt="TMDojo Logo"
-                />
-                <span className="text-xl font-bold">TMDojo</span>
-            </div>
-        </div>
+        <Footer />
     </div>
 );
 

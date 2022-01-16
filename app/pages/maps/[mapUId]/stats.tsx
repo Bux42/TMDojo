@@ -14,7 +14,6 @@ import AggregateMapStats from '../../../components/mapStats/statistics/Aggregate
 import FastestTimeProgression from '../../../components/mapStats/statistics/FastestTimeProgression';
 import { AuthContext } from '../../../lib/contexts/AuthContext';
 import { MapStatsType, MapStatsTypeSwitcher } from '../../../components/mapStats/common/MapStatsTypeSwitcher';
-import { UserInfo } from '../../../lib/api/auth';
 
 const MapStats = () => {
     const { user } = useContext(AuthContext);
@@ -120,7 +119,6 @@ const MapStats = () => {
                     </div>
                     <div
                         className="w-full p-8 bg-gray-750 rounded-md"
-                        title={`Map: ${cleanTMFormatting(mapData?.name || '')}`}
                     >
                         <div className="flex flex-col h-full gap-4">
                             {allReplaysFilteredByCurrentUser.length === 0

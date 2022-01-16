@@ -106,7 +106,7 @@ export const deleteReplay = async (replay: FileResponse) => {
 export type UserInfo = {
     webId?: string;
     playerLogin?: string;
-    playerName?: number;
+    playerName?: string;
     _id?: number;
 };
 

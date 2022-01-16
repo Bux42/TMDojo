@@ -43,7 +43,7 @@ const UserReplays = ({ userInfo }: Props): JSX.Element => {
         if (userInfo !== undefined && userInfo.webId) {
             fetchAndSetUserReplays(`${userInfo.webId}`);
         }
-    }, []);
+    }, [userInfo]);
 
     const addReplayInfo = (replayList: FileResponse[]): ExtendedFileResponse[] => {
         const now = new Date().getTime();
@@ -142,33 +142,50 @@ const UserReplays = ({ userInfo }: Props): JSX.Element => {
     return (
         <>
             <Spin spinning={loadingReplays}>
-                <Card
-                    title="Replays"
-                >
-                    <Row gutter={16}>
-                        <Col span={12}>
-                            <Statistic title="Count" value={userReplays ? userReplays.length : 0} />
-                        </Col>
-                        <Col span={12}>
-                            <Statistic title="Total Time" value={totalRecordedTimeStr} />
-                        </Col>
-                    </Row>
-                </Card>
-                <Card>
-                    <Table
-                        onChange={(pagination, filters, sorter, currentPageData) => {
-                            onReplayTableChange(pagination, currentPageData);
-                        }}
-                        dataSource={addReplayInfo(userReplays)}
-                        columns={columns}
-                        size="small"
-                        pagination={{
-                            pageSize: defaultPageSize,
-                            position: ['bottomCenter'],
-                        }}
-                        scroll={{ scrollToFirstRowOnChange: true }}
-                    />
-                </Card>
+                <div className="flex flex-col w-full gap-6">
+                    <Card
+                        title="Replays"
+                        className="bg-gray-850"
+                    >
+                        <Row gutter={16}>
+                            <Col span={12}>
+                                <Statistic title="Count" value={userReplays ? userReplays.length : 0} />
+                            </Col>
+                            <Col span={12}>
+                                <Statistic title="Total Time" value={totalRecordedTimeStr} />
+                            </Col>
+                        </Row>
+                    </Card>
+                    <Card
+                        className="bg-gray-850"
+                    >
+                        <Table
+                            onChange={(pagination, filters, sorter, currentPageData) => {
+                                onReplayTableChange(pagination, currentPageData);
+                            }}
+                            dataSource={addReplayInfo(userReplays)}
+                            columns={columns}
+                            size="small"
+                            onHeaderRow={() => ({
+                                style: {
+                                    backgroundColor: '#1F1F1F',
+                                    fontSize: '1rem',
+                                },
+                            })}
+                            onRow={() => ({
+                                style: {
+                                    backgroundColor: '#1F1F1F',
+                                },
+                            })}
+                            pagination={{
+                                pageSize: defaultPageSize,
+                                position: ['bottomCenter'],
+                            }}
+                            scroll={{ scrollToFirstRowOnChange: true }}
+                        />
+                    </Card>
+
+                </div>
             </Spin>
 
         </>
