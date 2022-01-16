@@ -83,7 +83,7 @@ router.post('/:mapUID', (req: Request, res: Response, next: Function) => {
 
     req.on('end', async () => {
         try {
-            req.log.info('mapsRouter: Received map data, uploading');
+            req.log.debug('mapsRouter: Received map data, uploading');
             const buff = Buffer.from(completeData);
             await artefacts.uploadMap(req.params.mapUID, buff);
             res.send();

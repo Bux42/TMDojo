@@ -59,7 +59,7 @@ router.post('/', async (req: Request, res: Response, next: Function) => {
         // first, check the user doc for the clientCode
         const userDoc = await getUserByWebId(userInfo.account_id);
         if (clientCode && userDoc.clientCode === clientCode) {
-            req.log.info('authorizeRouter: clientCode exists, creating plugin session');
+            req.log.debug('authorizeRouter: clientCode exists, creating plugin session');
             // remove clientCode from user
             delete userDoc.clientCode;
             await saveUser(userDoc);
@@ -68,7 +68,7 @@ router.post('/', async (req: Request, res: Response, next: Function) => {
             await createSession(req, userInfo, clientCode);
         } else {
             // looks like a different client/the UI initiated this login - don't create a plugin session
-            req.log.info(
+            req.log.debug(
                 'authorizeRouter: No clientCode/it does not match the OAuth state, no plugin session will be created',
             );
         }

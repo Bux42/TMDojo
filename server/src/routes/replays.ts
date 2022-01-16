@@ -61,7 +61,7 @@ router.get('/:replayId', async (req: Request, res: Response, next: Function) => 
             throw new Error('Object not found');
         }
         const replayData = await artefacts.retrieveReplay(replay);
-        req.log.info('replaysRouter: Replay data retrieved');
+        req.log.debug('replaysRouter: Replay data retrieved');
         res.send(replayData);
     } catch (err) {
         if (err?.message === 'Object not found') {
@@ -122,17 +122,17 @@ router.post('/', (req: Request, res: Response, next: Function): any => {
     });
 
     req.on('end', async () => {
-        req.log.info('replaysRouter: Received replay data');
+        req.log.debug('replaysRouter: Received replay data');
         try {
             const fileName = `${req.query.endRaceTime}_${req.query.playerName}_${Date.now()}`;
             const filePath = `${req.query.authorName}/${req.query.mapName}/${fileName}`;
             const storedReplay = await artefacts.uploadReplay(filePath, completeData);
-            req.log.info('replaysRouter: Replay data stored');
+            req.log.debug('replaysRouter: Replay data stored');
 
             // check if map already exists
             let map = await db.getMapByUId(`${req.query.mapUId}`);
             if (!map) {
-                req.log.info('replaysRouter: Map does not exist in database, creating new map');
+                req.log.debug('replaysRouter: Map does not exist in database, creating new map');
                 map = await db.saveMap({
                     mapName: secureMapName,
                     mapUId: req.query.mapUId,
@@ -143,7 +143,7 @@ router.post('/', (req: Request, res: Response, next: Function): any => {
             // check if user already exists
             let user = await db.getUserByWebId(`${req.query.webId}`);
             if (!user) {
-                req.log.info('replaysRouter: User does not exist in database, creating new user');
+                req.log.debug('replaysRouter: User does not exist in database, creating new user');
                 user = await db.saveUser({
                     playerName: req.query.playerName,
                     playerLogin: req.query.playerLogin,
@@ -160,7 +160,7 @@ router.post('/', (req: Request, res: Response, next: Function): any => {
                 endRaceTime: parseInt(`${req.query.endRaceTime}`, 10),
                 ...storedReplay,
             };
-            req.log.info('replaysRouter: Saving replay metadata');
+            req.log.debug('replaysRouter: Saving replay metadata');
             await db.saveReplayMetadata(metadata);
 
             return res.send();
@@ -192,10 +192,10 @@ router.delete('/:replayId', async (req, res) => {
     await db.deleteReplayById(replay._id);
 
     try {
-        req.log.info('replaysRouter: Deleted replay metadata, now deleting replay file');
+        req.log.debug('replaysRouter: Deleted replay metadata, now deleting replay file');
         await artefacts.deleteReplay(replay);
     } catch (err) {
-        req.log.error('replaysRouter: Failed to delete replay file, restoring metadata in database');
+        req.log.warn('replaysRouter: Failed to delete replay file, restoring metadata in database');
         // If deletion failed, add the replay back into the DB
         await db.saveReplayMetadata(replay);
 
