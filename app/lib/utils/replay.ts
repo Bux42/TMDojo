@@ -21,21 +21,23 @@ export const getSampleNearTime = (replay: ReplayData, raceTime: number): ReplayD
     return replay.samples[sampleIndex];
 };
 
-const posDiff: Vector3 = new Vector3();
+const vecDiff: Vector3 = new Vector3();
 
-export const setInterpolatedPosition = (
-    smoothPos: Vector3,
-    prevSample: ReplayDataPoint,
-    curSample: ReplayDataPoint,
+export const setInterpolatedVector = (
+    smoothVec: Vector3,
+    prevVec: Vector3,
+    nextVec: Vector3,
+    prevTime: number,
+    nextTime: number,
     currentRaceTime: number,
 ) => {
-    smoothPos.set(prevSample.position.x, prevSample.position.y, prevSample.position.z);
-    posDiff.set(curSample.position.x, curSample.position.y, curSample.position.z);
-    posDiff.sub(prevSample.position);
+    smoothVec.set(prevVec.x, prevVec.y, prevVec.z);
+    vecDiff.set(nextVec.x, nextVec.y, nextVec.z);
+    vecDiff.sub(prevVec);
 
-    const diffDivider = curSample.currentRaceTime - prevSample.currentRaceTime;
-    posDiff.divideScalar(diffDivider);
-    smoothPos.add(
-        posDiff.multiplyScalar(currentRaceTime - prevSample.currentRaceTime),
+    const diffDivider = nextTime - prevTime;
+    vecDiff.divideScalar(diffDivider);
+    smoothVec.add(
+        vecDiff.multiplyScalar(currentRaceTime - prevTime),
     );
 };

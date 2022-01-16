@@ -11,7 +11,7 @@ import { ReplayDataPoint } from '../../lib/replays/replayData';
 import vecToQuat from '../../lib/utils/math';
 import { CameraMode } from '../../lib/contexts/SettingsContext';
 import InputOverlay from './InputOverlay';
-import { setInterpolatedPosition, getSampleNearTime } from '../../lib/utils/replay';
+import { getSampleNearTime, setInterpolatedVector } from '../../lib/utils/replay';
 import GlobalTimeLineInfos from '../../lib/singletons/timeLineInfos';
 
 const BACK_WHEEL_Y = 35.232017517089844;
@@ -62,6 +62,10 @@ const ReplayCar = ({
     });
 
     const smoothPos: THREE.Vector3 = new THREE.Vector3();
+    const smoothVelocity: THREE.Vector3 = new THREE.Vector3();
+
+    const smoothDir: THREE.Vector3 = new THREE.Vector3();
+    const smoothUp: THREE.Vector3 = new THREE.Vector3();
 
     useFrame((state, delta) => {
         if (mesh.current
@@ -76,17 +80,46 @@ const ReplayCar = ({
             currentSampleRef.current = curSample;
             prevSampleRef.current = replay.samples[replay.samples.indexOf(curSample) - 1];
 
-            setInterpolatedPosition(
+            setInterpolatedVector(
                 smoothPos,
-                prevSampleRef.current,
-                curSample,
+                prevSampleRef.current.position,
+                curSample.position,
+                prevSampleRef.current.currentRaceTime,
+                curSample.currentRaceTime,
+                timeLineGlobal.currentRaceTime,
+            );
+
+            setInterpolatedVector(
+                smoothVelocity,
+                prevSampleRef.current.velocity,
+                curSample.velocity,
+                prevSampleRef.current.currentRaceTime,
+                curSample.currentRaceTime,
+                timeLineGlobal.currentRaceTime,
+            );
+
+            setInterpolatedVector(
+                smoothDir,
+                prevSampleRef.current.dir,
+                curSample.dir,
+                prevSampleRef.current.currentRaceTime,
+                curSample.currentRaceTime,
+                timeLineGlobal.currentRaceTime,
+            );
+
+            setInterpolatedVector(
+                smoothUp,
+                prevSampleRef.current.up,
+                curSample.up,
+                prevSampleRef.current.currentRaceTime,
+                curSample.currentRaceTime,
                 timeLineGlobal.currentRaceTime,
             );
 
             // Get car rotation
             const carRotation: THREE.Quaternion = vecToQuat(
-                curSample.dir,
-                curSample.up,
+                smoothDir,
+                smoothUp,
             );
 
             // Move & rotate 3D car from current sample rot & pos
@@ -114,9 +147,9 @@ const ReplayCar = ({
                         camPosRef.current.rotation.setFromQuaternion(carRotation);
                         // move toward where the car is heading
                         camPosRef.current.position.set(
-                            -curSample.velocity.x / 5,
-                            -curSample.velocity.y / 5,
-                            -curSample.velocity.z / 5,
+                            -smoothVelocity.x / 5,
+                            -smoothVelocity.y / 5,
+                            -smoothVelocity.z / 5,
                         );
                         camPosRef.current.translateZ(-7 - (curSample.speed / 30));
                         camPosRef.current.translateY(2 + (curSample.speed / 200));
