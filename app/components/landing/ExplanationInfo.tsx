@@ -1,9 +1,8 @@
 /* eslint-disable react/no-array-index-key */
 /* eslint-disable max-len */
 import React, { useState } from 'react';
-import DiscordButton from '../common/DiscordButton';
 
-type Tab = 'whatIsThis'|'howDoIUseIt'|'howDoesItWork';
+type Tab = 'whatIsThis'|'howDoIRecord'|'whereDoIAnalyze';
 
 const ExplanationInfo = (): JSX.Element => {
     const [infoTab, setInfoTab] = useState<Tab>('whatIsThis');
@@ -17,12 +16,12 @@ const ExplanationInfo = (): JSX.Element => {
             title: 'What is this?',
         },
         {
-            key: 'howDoIUseIt',
-            title: 'How do I use it?',
+            key: 'howDoIRecord',
+            title: 'How do I record?',
         },
         {
-            key: 'howDoesItWork',
-            title: 'How does it work?',
+            key: 'whereDoIAnalyze',
+            title: 'Where do I analyze?',
         },
     ];
 
@@ -41,22 +40,20 @@ const ExplanationInfo = (): JSX.Element => {
         '',
         'TMDojo is still in development, so new features will always be in the works...',
     ];
-    const howDoIUseIt = [
-        'Simply pick a map from the table and open it.',
-        '',
-        'In the map view, open the replay menu on the left and load the replays you want to inspect.',
-        'Now you can change the display settings to different modes using the menu on the right.',
-        '',
-        'To navigate around the 3D view, use right mouse button to move and left to rotate - scroll wheel zooms in and out.',
-    ];
-    const howDoesItWork = [
+    const howDoIRecord = [
         'We\'re planning on supporting several ways for you to submit runs:',
-        '1. If you\'re using Openplanet, you can use our plugin to automatically upload your runs - only your PBs if you want.',
-        '2. You can also upload a replay yourself, and we\'ll extract all the useful data.',
+        '1. If you\'re using Openplanet, you can use our plugin to automatically upload your runs while playing.',
+        '2. Later, you\'ll be able to upload a replay file yourself, and we\'ll extract all the useful data.',
         '3. To make it even easier, we might also support fetching a time straight off the leaderboards - so you don\'t have to download it yourself.',
         '',
-        'At the moment we\'re not ready for everyone\'s runs yet.',
-        'If you\'re interested in testing stuff for us in the future, check out \'Get involved\'!',
+        'At the moment we only support recording through the TMDojo plugin. This plugin is not publicly available on the Openplanet plugin manger yet. However, if you\'re still interested to test out the plugin, check out our Discord for early releases and more information.',
+    ];
+    const whereDoIAnalyze = [
+        'This website is the main hub for all your analysis - simply click a map to open the 3D viewer for that map.',
+        'You will be able to load replays, adjust settings, follow replays, and view graphs of various recorded data points of the replays.',
+        '',
+        'If you want to see some more global statistics about replays on a certain map, check out the statistics page of a map by clicking the Stats button. This will show you various aggregate statistics about all replays for this map.',
+        'And if you are logged in with your Ubisoft account, you will see more personalized statistics, like your personal best progression.',
     ];
 
     const transformTextToDOM = (textArray: (string | JSX.Element)[]) => textArray.map(
@@ -67,11 +64,11 @@ const ExplanationInfo = (): JSX.Element => {
         whatIsThis: (
             <div>{transformTextToDOM(whatIsThis)}</div>
         ),
-        howDoIUseIt: (
-            <div>{transformTextToDOM(howDoIUseIt)}</div>
+        howDoIRecord: (
+            <div>{transformTextToDOM(howDoIRecord)}</div>
         ),
-        howDoesItWork: (
-            <div>{transformTextToDOM(howDoesItWork)}</div>
+        whereDoIAnalyze: (
+            <div>{transformTextToDOM(whereDoIAnalyze)}</div>
         ),
     };
 
