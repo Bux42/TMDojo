@@ -82,7 +82,15 @@ const ReplayTimesHistogram = ({ replays, binSize } : ReplayTimesHistogramProps) 
         tooltip: {
             // Highchart only accepts string tooltips, that's why this returns a HTML string
             formatter: function tooltipFormatter(this: any) {
-                const raceTime = parseFloat(this.x) * 1000;
+                const { points } = this;
+
+                if (points !== undefined && points.length < 1) {
+                    return '';
+                }
+
+                const dataPoint = points[0];
+
+                const raceTime = parseFloat(dataPoint.x) * 1000;
 
                 return `
                     <span style="font-size: 10px">
@@ -91,12 +99,13 @@ const ReplayTimesHistogram = ({ replays, binSize } : ReplayTimesHistogramProps) 
                     </br>
                     <span style="font-size: 13px">
                         <b>
-                            <span style=color:${this.series.color}>Replays: </span>
-                            ${this.point.y}</b>
+                            <span style=color:${dataPoint.series.color}>Replays: </span>
+                            ${dataPoint.point.y}</b>
                     </span>
                 `;
             },
             useHTML: true,
+            shared: true,
         },
         plotOptions: {
             column: {
