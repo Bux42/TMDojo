@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react';
 
 const getWindowDimensions = () => {
+    // Catch window is undefined during NextJS build
+    if (typeof window === 'undefined') {
+        return { width: 0, height: 0 };
+    }
+
     const { innerWidth: width, innerHeight: height } = window;
     return {
         width,
