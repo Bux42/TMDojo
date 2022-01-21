@@ -2,7 +2,7 @@
 /* eslint-disable max-len */
 import React, { useState } from 'react';
 
-type Tab = 'whatIsThis'|'howDoIRecord'|'whereDoIAnalyze';
+type Tab = 'whatIsThis' | 'howDoIRecord' | 'whereDoIAnalyze';
 
 const ExplanationInfo = (): JSX.Element => {
     const [infoTab, setInfoTab] = useState<Tab>('whatIsThis');
@@ -57,7 +57,7 @@ const ExplanationInfo = (): JSX.Element => {
     ];
 
     const transformTextToDOM = (textArray: (string | JSX.Element)[]) => textArray.map(
-        (text:string|JSX.Element, i:number) => <p key={`${text}_${i}`}>{text === '' ? <br /> : text}</p>,
+        (text: string | JSX.Element, i: number) => <p key={`${text}_${i}`}>{text === '' ? <br /> : text}</p>,
     );
 
     const tabContent = {
@@ -74,10 +74,10 @@ const ExplanationInfo = (): JSX.Element => {
 
     return (
         <>
-            <div className="w-full flex justify-center gap-12 text-lg font-bold">
+            <div className="w-full flex justify-center gap-4 md:gap-12 text-md lg:text-lg font-bold">
                 {tabList.map(({ key, title }) => (
                     <div
-                        id={key}
+                        key={key}
                         style={{
                             backgroundColor: key === infoTab ? '#171717' : '#1F1F1F',
                             transition: 'all 0.15s ease-out',

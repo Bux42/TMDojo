@@ -10,10 +10,14 @@ const SPONSOR_URL = 'https://github.com/sponsors/tm-dojo';
 const Home = (): JSX.Element => (
     <div className="flex flex-col items-center min-h-screen bg-gray-850">
         <div
-            className="sticky top-0 z-10 flex flex-row justify-between w-full h-20 shadow-md bg-gray-750"
+            className="lg:sticky top-0 z-10
+                flex flex-col lg:flex-row items-center lg:justify-between gap-4 lg:gap-0
+                w-full lg:h-20 h-full
+                py-4 lg:py-0 mb-10 lg:mb-20
+                shadow-md bg-gray-750"
         >
-            <div className="flex-grow pl-10" />
-            <div className="flex flex-row gap-4 place-self-center items-center">
+            <div className="flex-grow pl-10 hidden lg:block" />
+            <div className="flex flex-row gap-4 place-self-center items-center lg:pb-0">
                 <img
                     src="/images/tmdojo_logo.png"
                     className="h-10 w-10 object-cover drop-shadow-sm"
@@ -21,24 +25,24 @@ const Home = (): JSX.Element => (
                 />
                 <span className="text-3xl font-bold">TMDojo</span>
             </div>
-            <div className="flex flex-grow items-center justify-end w-0 pr-10">
+            <div className="flex flex-grow items-center justify-end lg:w-0 lg:pr-10">
                 <UserDisplay />
             </div>
         </div>
 
-        <div className="flex flex-col w-2/3 mt-20">
-            <div className="flex flex-row gap-8">
+        <div className="flex flex-col w-full lg:w-4/5 xl:w-2/3">
+            <div className="flex flex-col md:flex-row gap-8">
                 <div
-                    className="flex flex-col w-3/4 pt-4 pb-6 px-8 rounded-md gap-6 bg-gray-750"
+                    className="flex flex-col w-full md:w-3/4 pt-4 pb-6 px-4 sm:px-8 rounded-md gap-6 bg-gray-750"
                 >
                     <ExplanationInfo />
                 </div>
 
                 <div
-                    className="flex flex-col flex-grow items-center
-                        justify-center gap-10 rounded-md py-12 px-4 bg-gray-750"
+                    className="flex md:flex-col flex-grow items-center
+                        justify-center gap-10 rounded-md py-6 md:py-12 px-4 bg-gray-750"
                 >
-                    <div className="flex flex-col items-center gap-4 text-base font-semibold">
+                    <div className="flex flex-col items-center gap-4 text-sm md:text-base font-semibold">
                         <span className="flex flex-col text-center">
                             Want more information?
                             <br />
@@ -61,7 +65,7 @@ const Home = (): JSX.Element => (
                             Discord
                         </CleanButton>
                     </div>
-                    <div className="flex flex-col items-center gap-4 text-base font-semibold">
+                    <div className="flex flex-col items-center gap-4 text-sm md:text-base font-semibold">
                         <span className="flex flex-col text-center">
                             Want to support development?
                             <br />
@@ -88,7 +92,7 @@ const Home = (): JSX.Element => (
             </div>
 
             <div
-                className="flex flex-col gap-8 w-full mt-10 p-6 rounded-md bg-gray-750"
+                className="flex flex-col gap-8 w-full mt-10 px-2 py-6 md:px-6 rounded-md bg-gray-750"
             >
                 <div className="self-center text-2xl font-bold">
                     Maps

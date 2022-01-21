@@ -8,7 +8,7 @@ interface PageHeaderBarProps {
     title: string,
     children?: React.ReactNode
 }
-const PageHeaderBar = ({ title, children } : PageHeaderBarProps) => {
+const PageHeaderBar = ({ title, children }: PageHeaderBarProps) => {
     const router = useRouter();
 
     return (
@@ -30,7 +30,7 @@ const PageHeaderBar = ({ title, children } : PageHeaderBarProps) => {
                 {children}
             </div>
 
-            <div className="flex items-center justify-end w-0">
+            <div className="flex items-center justify-end">
                 <UserDisplay />
             </div>
         </div>

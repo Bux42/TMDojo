@@ -8,9 +8,11 @@ import { CaretLeftOutlined, SettingOutlined } from '@ant-design/icons';
 import { SettingsContext } from '../../lib/contexts/SettingsContext';
 import { LineTypes } from '../viewer/ReplayLines';
 import SideDrawerExpandButton from '../common/SideDrawerExpandButton';
+import useWindowDimensions from '../../lib/utils/useWindowDimensions';
 
 const SidebarSettings = (): JSX.Element => {
     const [visible, setVisible] = useState(false);
+    const windowDimensions = useWindowDimensions();
     const {
         lineType, changeLineType,
         showGearChanges, setShowGearChanges,
@@ -52,7 +54,7 @@ const SidebarSettings = (): JSX.Element => {
             <Drawer
                 title="Settings"
                 placement="right"
-                width={400}
+                width={Math.min(400, windowDimensions.width)}
                 onClose={onClose}
                 visible={visible}
             >

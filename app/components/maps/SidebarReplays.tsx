@@ -13,6 +13,7 @@ import { AuthContext } from '../../lib/contexts/AuthContext';
 import SideDrawerExpandButton from '../common/SideDrawerExpandButton';
 import PlayerLink from '../common/PlayerLink';
 import CleanButton from '../common/CleanButton';
+import useWindowDimensions from '../../lib/utils/useWindowDimensions';
 
 interface ExtendedFileResponse extends FileResponse {
     readableTime: string;
@@ -51,6 +52,7 @@ const SidebarReplays = ({
 
     const [visible, setVisible] = useState(true);
     const [visibleReplays, setVisibleReplays] = useState<FileResponse[]>([]);
+    const windowDimensions = useWindowDimensions();
 
     const { user } = useContext(AuthContext);
 
@@ -236,7 +238,7 @@ const SidebarReplays = ({
             <Drawer
                 title="Select replays"
                 placement="left"
-                width={750}
+                width={Math.min(750, windowDimensions.width)}
                 onClose={onClose}
                 visible={visible}
                 className="h-screen"

@@ -3,7 +3,7 @@ import { message } from 'antd';
 import { AuthContext } from '../../lib/contexts/AuthContext';
 import CleanButton from './CleanButton';
 
-const LoginButton = ({ onClick } :{onClick: () => void}) => (
+const LoginButton = ({ onClick }: { onClick: () => void }) => (
     <CleanButton
         onClick={onClick}
         backColor="#1B65D3"
@@ -12,7 +12,7 @@ const LoginButton = ({ onClick } :{onClick: () => void}) => (
     </CleanButton>
 );
 
-const LogoutButton = ({ onClick } :{onClick: () => void}) => (
+const LogoutButton = ({ onClick }: { onClick: () => void }) => (
     <CleanButton
         onClick={onClick}
         backColor="#B41616"
@@ -51,12 +51,12 @@ const UserDisplay = () => {
     return user === undefined
         ? <LoginButton onClick={startAuthFlow} />
         : (
-            <div className="flex flex-row gap-6 items-center text-base">
+            <div className="flex flex-col md:flex-row gap-1 md:gap-6 items-center text-sm md:text-base text-right">
                 {`Welcome, ${user.displayName}!`}
-                <ProfileButton webId={user.accountId} />
-                <LogoutButton
-                    onClick={onLogout}
-                />
+                <div className="flex gap-4">
+                    <ProfileButton webId={user.accountId} />
+                    <LogoutButton onClick={onLogout} />
+                </div>
             </div>
         );
 };

@@ -14,6 +14,7 @@ import AggregateMapStats from '../../../components/mapStats/statistics/Aggregate
 import FastestTimeProgression from '../../../components/mapStats/statistics/FastestTimeProgression';
 import { AuthContext } from '../../../lib/contexts/AuthContext';
 import { MapStatsType, MapStatsTypeSwitcher } from '../../../components/mapStats/common/MapStatsTypeSwitcher';
+import Footer from '../../../components/common/Footer';
 
 const MapStats = () => {
     const { user } = useContext(AuthContext);
@@ -109,7 +110,7 @@ const MapStats = () => {
             <HeadTitle title={getTitle()} />
             <MapHeader mapInfo={mapData || {}} title="Map statistics" />
             {mapData && (
-                <div className="flex flex-col justify-self-center items-center py-8 w-3/5">
+                <div className="flex flex-col justify-self-center items-center py-8 w-full lg:w-4/5 xl:w-3/5">
                     <div className="w-full mb-8 bg-gray-750 rounded-md p-8">
                         <MapStatsTypeSwitcher
                             mapStatsType={mapStatsType}
@@ -174,6 +175,7 @@ const MapStats = () => {
                 </div>
 
             )}
+            <Footer />
         </div>
     );
 };

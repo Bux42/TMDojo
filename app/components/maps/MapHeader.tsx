@@ -34,6 +34,7 @@ const MapHeader = ({ mapInfo, title }: Props): JSX.Element => {
                 backColor="hsl(0, 0%, 15%)"
                 url={tmioURL}
                 openInNewTab
+                className="hidden lg:block"
             >
                 TM.io
             </CleanButton>
@@ -43,6 +44,7 @@ const MapHeader = ({ mapInfo, title }: Props): JSX.Element => {
                 backColor="hsl(0, 0%, 15%)"
                 url={tmxURL}
                 openInNewTab
+                className="hidden lg:block"
             >
                 TMX
             </CleanButton>
