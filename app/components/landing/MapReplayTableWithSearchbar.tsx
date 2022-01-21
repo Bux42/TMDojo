@@ -113,7 +113,7 @@ const MapReplayTableWithSearchbar = () => {
                 </div>
 
                 <Table
-                    className="overflow-x-scroll"
+                    className="overflow-x-auto"
                     dataSource={maps}
                     columns={columns}
                     onHeaderRow={() => ({
