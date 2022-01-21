@@ -17,6 +17,7 @@
     "@three-ts/orbit-controls": "^1.4.7",
     "@types/highcharts": "^7.0.0",
     "@types/three": "^0.127.1",
+    "@types/ua-parser-js": "^0.7.36",
     "antd": "^4.15.2",
     "axios": "^0.21.1",
     "dayjs": "^1.10.7",
@@ -30,7 +31,8 @@
     "tailwindcss": "^2.1.2",
     "three": "^0.128.0",
     "three-stdlib": "^2.3.0",
-    "troika-three-text": "^0.38.1"
+    "troika-three-text": "^0.38.1",
+    "ua-parser-js": "^1.0.2"
   },
   "devDependencies": {
     "@babel/plugin-proposal-decorators": "^7.13.5",

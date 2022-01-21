@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Layout } from 'antd';
+import { Layout, Modal } from 'antd';
 import { useRouter } from 'next/router';
 
 import { PieChartOutlined } from '@ant-design/icons';
+import dayjs from 'dayjs';
 import SidebarReplays from '../../../components/maps/SidebarReplays';
 import SidebarSettings from '../../../components/maps/SidebarSettings';
 import MapHeader from '../../../components/maps/MapHeader';
@@ -20,6 +21,7 @@ import { ChartsDrawer } from '../../../components/maps/ChartsDrawer';
 import { cleanTMFormatting } from '../../../lib/utils/formatting';
 import LoadedReplays from '../../../components/maps/LoadedReplays';
 import CleanButton from '../../../components/common/CleanButton';
+import useIsMobileDevice from '../../../lib/hooks/useIsMobileDevice';
 
 const Home = (): JSX.Element => {
     const [replays, setReplays] = useState<FileResponse[]>([]);
@@ -29,6 +31,29 @@ const Home = (): JSX.Element => {
 
     const router = useRouter();
     const { mapUId } = router.query;
+
+    const isMobile = useIsMobileDevice();
+
+    useEffect(() => {
+        const shownMobileWarning = localStorage.getItem('mobileViewerWarningShown') !== null;
+
+        if (isMobile && !shownMobileWarning) {
+            Modal.warning({
+                title: 'You\'re on mobile!',
+                // eslint-disable-next-line max-len
+                content: 'The 3D viewer is not designed for mobile use - if you want the best experience, visit the 3D viewer on a desktop.',
+                centered: true,
+                okText: 'Dismiss',
+                okType: 'ghost',
+                okButtonProps: {
+                    size: 'large',
+                },
+            });
+
+            // Set date of showing warning to today
+            localStorage.setItem('mobileViewerWarningShown', dayjs().unix().toString());
+        }
+    }, [isMobile]);
 
     const fetchAndSetReplays = async () => {
         setLoadingReplays(true);
