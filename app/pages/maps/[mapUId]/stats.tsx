@@ -3,6 +3,7 @@ import React, {
 } from 'react';
 import { useRouter } from 'next/router';
 import { Card, Empty, Skeleton } from 'antd';
+import { PlaySquareOutlined } from '@ant-design/icons';
 import {
     FileResponse, getMapInfo, getReplays, MapInfo,
 } from '../../../lib/api/apiRequests';
@@ -15,6 +16,7 @@ import FastestTimeProgression from '../../../components/mapStats/statistics/Fast
 import { AuthContext } from '../../../lib/contexts/AuthContext';
 import { MapStatsType, MapStatsTypeSwitcher } from '../../../components/mapStats/common/MapStatsTypeSwitcher';
 import Footer from '../../../components/common/Footer';
+import CleanButton from '../../../components/common/CleanButton';
 
 const MapStats = () => {
     const { user } = useContext(AuthContext);
@@ -108,7 +110,18 @@ const MapStats = () => {
     return (
         <div className="flex flex-col items-center min-h-screen bg-gray-850">
             <HeadTitle title={getTitle()} />
-            <MapHeader mapInfo={mapData || {}} title="Map statistics" />
+            <MapHeader mapInfo={mapData || {}} title="Map statistics">
+                <CleanButton
+                    url={`/maps/${mapData?.mapUid}`}
+                    backColor="hsl(0, 0%, 15%)"
+                    disabled={mapData === undefined}
+                >
+                    <div className="flex gap-2 items-center">
+                        <PlaySquareOutlined />
+                        3D Viewer
+                    </div>
+                </CleanButton>
+            </MapHeader>
             {mapData && (
                 <div className="flex flex-col justify-self-center items-center py-8 w-full lg:w-4/5 xl:w-3/5">
                     <div className="w-full mb-8 bg-gray-750 rounded-md p-8">

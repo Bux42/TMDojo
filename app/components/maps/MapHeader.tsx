@@ -1,21 +1,17 @@
 import React from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/router';
-import { Button, PageHeader } from 'antd';
 
-import { ArrowLeftOutlined } from '@ant-design/icons';
 import { MapInfo } from '../../lib/api/apiRequests';
 import { cleanTMFormatting } from '../../lib/utils/formatting';
-import UserDisplay from '../common/UserDisplay';
 import CleanButton from '../common/CleanButton';
 import PageHeaderBar from '../common/PageHeaderBar';
 
 interface Props {
     mapInfo: MapInfo;
     title: string;
+    children?: React.ReactNode
 }
 
-const MapHeader = ({ mapInfo, title }: Props): JSX.Element => {
+const MapHeader = ({ mapInfo, title, children }: Props): JSX.Element => {
     const hasExchangeId = mapInfo.exchangeid !== undefined && mapInfo.exchangeid !== 0;
     const hasMapUid = mapInfo.mapUid !== undefined && mapInfo.mapUid !== '';
 
@@ -48,6 +44,9 @@ const MapHeader = ({ mapInfo, title }: Props): JSX.Element => {
             >
                 TMX
             </CleanButton>
+
+            {children}
+
         </PageHeaderBar>
     );
 };

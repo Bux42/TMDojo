@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Layout } from 'antd';
 import { useRouter } from 'next/router';
 
+import { PieChartOutlined } from '@ant-design/icons';
 import SidebarReplays from '../../../components/maps/SidebarReplays';
 import SidebarSettings from '../../../components/maps/SidebarSettings';
 import MapHeader from '../../../components/maps/MapHeader';
@@ -18,6 +19,7 @@ import HeadTitle from '../../../components/common/HeadTitle';
 import { ChartsDrawer } from '../../../components/maps/ChartsDrawer';
 import { cleanTMFormatting } from '../../../lib/utils/formatting';
 import LoadedReplays from '../../../components/maps/LoadedReplays';
+import CleanButton from '../../../components/common/CleanButton';
 
 const Home = (): JSX.Element => {
     const [replays, setReplays] = useState<FileResponse[]>([]);
@@ -85,7 +87,18 @@ const Home = (): JSX.Element => {
         <>
             <HeadTitle title={getTitle()} />
             <Layout>
-                <MapHeader mapInfo={mapData} title="Replay viewer" />
+                <MapHeader mapInfo={mapData} title="Replay viewer">
+                    <CleanButton
+                        url={`/maps/${mapData?.mapUid}/stats`}
+                        backColor="hsl(0, 0%, 15%)"
+                        disabled={mapData === undefined}
+                    >
+                        <div className="flex gap-2 items-center">
+                            <PieChartOutlined />
+                            Stats
+                        </div>
+                    </CleanButton>
+                </MapHeader>
                 <Layout.Content>
                     <SidebarReplays
                         mapUId={`${mapUId}`}
