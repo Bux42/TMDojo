@@ -15,7 +15,7 @@ interface ReplayTimesHistogramProps {
     replays: FileResponse[];
     binSize: number;
 }
-const ReplayTimesHistogram = ({ replays, binSize } : ReplayTimesHistogramProps) => {
+const ReplayTimesHistogram = ({ replays, binSize }: ReplayTimesHistogramProps) => {
     const histogramBuckets = {} as { [key: number]: number };
 
     replays.forEach((replay) => {
@@ -54,7 +54,7 @@ const ReplayTimesHistogram = ({ replays, binSize } : ReplayTimesHistogramProps) 
             text: '',
         },
         xAxis: {
-            categories: axisValues.map((value) => `${getRaceTimeStr(value)}`),
+            categories: axisValues.map((value) => getRaceTimeStr(value)),
             crosshair: true,
             labels: {
                 style: {
@@ -90,7 +90,19 @@ const ReplayTimesHistogram = ({ replays, binSize } : ReplayTimesHistogramProps) 
 
                 const dataPoint = points[0];
 
-                const raceTime = parseFloat(dataPoint.x) * 1000;
+                // Parse time format that doesn't always contain minutes: 50:43.849 or 43.849
+                const split = dataPoint.key.split(':');
+                let minutes = 0;
+                let seconds = 0;
+
+                if (split.length === 1) {
+                    seconds = parseFloat(split[0]);
+                } else {
+                    minutes = parseFloat(split[0]);
+                    seconds = parseFloat(split[1]);
+                }
+
+                const raceTime = minutes * 1000 * 60 + seconds * 1000;
 
                 return `
                     <span style="font-size: 10px">
