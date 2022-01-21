@@ -33,24 +33,24 @@ export const createUser = (
     login: any,
     name: any,
     clientCode: any,
-): Promise<void> => new Promise((resolve: () => void, reject: Rejector) => {
+): Promise<{insertedId: any}> => new Promise((resolve: (updateInfo: any) => void, reject: Rejector) => {
     const users = db.collection('users');
     users
         .find({
             webId,
         })
-        .toArray((err: Error, docs: any) => {
+        .toArray(async (err: Error, docs: any) => {
             if (err) {
                 reject(err);
             } else if (!docs.length) {
-                users.insertOne({
+                const insertedUserData = await users.insertOne({
                     webId,
                     playerLogin: login,
                     playerName: name,
                     last_active: Date.now(),
                     clientCode: clientCode || null,
                 });
-                resolve();
+                resolve(insertedUserData);
             } else {
                 const updatedUser = {
                     $set: {
@@ -60,13 +60,13 @@ export const createUser = (
                         clientCode: clientCode || null,
                     },
                 };
-                users.updateOne(
+                const insertedUserData = await users.updateOne(
                     {
                         webId,
                     },
                     updatedUser,
                 );
-                resolve();
+                resolve(insertedUserData);
             }
         });
 });
@@ -157,22 +157,6 @@ export const getUserByWebId = (
         }
         return resolve(user);
     });
-});
-
-export const saveUser = (
-    userData: any,
-): Promise<{_id: string}> => new Promise((resolve: Function, reject: Rejector) => {
-    const users = db.collection('users');
-    const cleanUserData = { ...userData };
-
-    // if _id is not valid, remove it to be certain the db doesn't try to use it
-    if (!cleanUserData._id) {
-        delete cleanUserData._id;
-    }
-
-    users.replaceOne({ _id: cleanUserData._id }, cleanUserData, { upsert: true })
-        .then(({ insertedId }: {insertedId: string}) => resolve({ _id: insertedId }))
-        .catch((error: Error) => reject(error));
 });
 
 export const getReplaysByUserRef = async (
@@ -391,7 +375,8 @@ export const saveReplayMetadata = (
  */
 export const createSession = async (req: Request, userInfo: any, clientCode?: any) => {
     // Find user
-    let user = await getUserByWebId(userInfo.account_id);
+    const user = await getUserByWebId(userInfo.account_id);
+    let userID = user?._id;
     if (user === undefined || user === null) {
         const playerLogin = playerLoginFromWebId(req, userInfo.account_id);
 
@@ -400,11 +385,10 @@ export const createSession = async (req: Request, userInfo: any, clientCode?: an
         }
 
         if (userInfo.account_id !== undefined && userInfo.display_name !== undefined) {
-            user = await saveUser({
-                webId: userInfo.account_id,
-                playerLogin,
-                playerName: userInfo.display_name,
-            });
+            const updatedUserInfo = await createUser(
+                userInfo.account_id, playerLogin, userInfo.display_name, null,
+            );
+            userID = updatedUserInfo.insertedId;
         } else {
             return undefined;
         }
@@ -416,7 +400,7 @@ export const createSession = async (req: Request, userInfo: any, clientCode?: an
     await sessions.insertOne({
         sessionId,
         clientCode: clientCode || null,
-        userRef: user._id,
+        userRef: userID,
     });
 
     return sessionId;

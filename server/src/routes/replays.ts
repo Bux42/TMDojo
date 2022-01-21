@@ -141,20 +141,20 @@ router.post('/', (req: Request, res: Response, next: Function): any => {
             }
 
             // check if user already exists
-            let user = await db.getUserByWebId(`${req.query.webId}`);
+            const user = await db.getUserByWebId(`${req.query.webId}`);
+            let userID = user?._id;
             if (!user) {
                 req.log.debug('replaysRouter: User does not exist in database, creating new user');
-                user = await db.saveUser({
-                    playerName: req.query.playerName,
-                    playerLogin: req.query.playerLogin,
-                    webId: req.query.webId,
-                });
+                const updatedUserInfo = await db.createUser(
+                    req.query.webId, req.query.playerLogin, req.query.playerName, null,
+                );
+                userID = updatedUserInfo.insertedId;
             }
 
             const metadata = {
                 // reference map and user docs
                 mapRef: map._id,
-                userRef: user._id,
+                userRef: userID,
                 date: Date.now(),
                 raceFinished: parseInt(`${req.query.raceFinished}`, 10),
                 endRaceTime: parseInt(`${req.query.endRaceTime}`, 10),
