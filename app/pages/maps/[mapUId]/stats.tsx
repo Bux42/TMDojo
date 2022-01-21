@@ -122,72 +122,74 @@ const MapStats = () => {
                     </div>
                 </CleanButton>
             </MapHeader>
-            {mapData && (
-                <div className="flex flex-col justify-self-center items-center py-8 w-full lg:w-4/5 xl:w-3/5">
-                    <div className="w-full mb-8 bg-gray-750 rounded-md p-8">
-                        <MapStatsTypeSwitcher
-                            mapStatsType={mapStatsType}
-                            mapData={mapData}
-                            toggleMapStatsType={toggleMapStatsType}
-                        />
-                    </div>
-                    <div
-                        className="w-full p-8 bg-gray-750 rounded-md"
-                    >
-                        <div className="flex flex-col h-full gap-4">
-                            {allReplaysFilteredByCurrentUser.length === 0
-                                ? (
-                                    <Empty
-                                        image={Empty.PRESENTED_IMAGE_SIMPLE}
-                                        description="No finished replays yet"
-                                    />
-                                ) : (
-                                    <>
-                                        <Card
-                                            title="Replays"
-                                            type="inner"
-                                            className="bg-gray-850"
-                                        >
-                                            <Skeleton loading={loadingReplays} active title={false}>
-                                                <AggregateMapStats replays={allReplaysFilteredByCurrentUser} />
-                                            </Skeleton>
-                                        </Card>
+            <div className="flex flex-col flex-grow justify-self-center items-center py-8 w-full lg:w-4/5 xl:w-3/5">
+                <div className="w-full mb-8 bg-gray-750 rounded-md p-8">
+                    {mapData === undefined
+                        ? (
+                            <Skeleton loading active title={false} />)
+                        : (
+                            <MapStatsTypeSwitcher
+                                mapStatsType={mapStatsType}
+                                mapData={mapData}
+                                toggleMapStatsType={toggleMapStatsType}
+                            />
+                        )}
+                </div>
+                <div
+                    className="w-full p-8 bg-gray-750 rounded-md"
+                >
+                    <div className="flex flex-col h-full gap-4">
+                        {mapData !== undefined && allReplaysFilteredByCurrentUser.length === 0
+                            ? (
+                                <Empty
+                                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                                    description="No finished replays yet"
+                                />
+                            ) : (
+                                <>
+                                    <Card
+                                        title="Replays"
+                                        type="inner"
+                                        className="bg-gray-850"
+                                    >
+                                        <Skeleton loading={loadingReplays} active title={false}>
+                                            <AggregateMapStats replays={allReplaysFilteredByCurrentUser} />
+                                        </Skeleton>
+                                    </Card>
 
-                                        <Card
-                                            title={`Finish Time Histogram ${binSize ? `(${binSize}ms bins)` : ''}`}
-                                            type="inner"
-                                            className="bg-gray-850"
-                                        >
-                                            <Skeleton loading={loadingReplays} active>
-                                                {binSize && (
-                                                    <ReplayTimesHistogram
-                                                        replays={allReplaysFilteredByCurrentUser}
-                                                        binSize={binSize}
-                                                    />
-                                                )}
-                                            </Skeleton>
-                                        </Card>
-
-                                        <Card
-                                            title="Fastest time progression"
-                                            type="inner"
-                                            className="bg-gray-850"
-                                        >
-                                            <Skeleton loading={loadingReplays} active>
-                                                <FastestTimeProgression
+                                    <Card
+                                        title={`Finish Time Histogram ${binSize ? `(${binSize}ms bins)` : ''}`}
+                                        type="inner"
+                                        className="bg-gray-850"
+                                    >
+                                        <Skeleton loading={loadingReplays} active>
+                                            {binSize && (
+                                                <ReplayTimesHistogram
                                                     replays={allReplaysFilteredByCurrentUser}
-                                                    userToShowProgression={user}
-                                                    onlyShowUserProgression={mapStatsType === MapStatsType.PERSONAL}
+                                                    binSize={binSize}
                                                 />
-                                            </Skeleton>
-                                        </Card>
-                                    </>
-                                )}
-                        </div>
+                                            )}
+                                        </Skeleton>
+                                    </Card>
+
+                                    <Card
+                                        title="Fastest time progression"
+                                        type="inner"
+                                        className="bg-gray-850"
+                                    >
+                                        <Skeleton loading={loadingReplays} active>
+                                            <FastestTimeProgression
+                                                replays={allReplaysFilteredByCurrentUser}
+                                                userToShowProgression={user}
+                                                onlyShowUserProgression={mapStatsType === MapStatsType.PERSONAL}
+                                            />
+                                        </Skeleton>
+                                    </Card>
+                                </>
+                            )}
                     </div>
                 </div>
-
-            )}
+            </div>
             <Footer />
         </div>
     );
