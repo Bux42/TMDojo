@@ -148,7 +148,7 @@ router.post('/', (req: Request, res: Response, next: Function): any => {
                 const updatedUserInfo = await db.createUser(
                     req.query.webId, req.query.playerLogin, req.query.playerName, null,
                 );
-                userID = updatedUserInfo.insertedId;
+                userID = updatedUserInfo.userID;
             }
 
             const metadata = {

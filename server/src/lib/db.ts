@@ -33,43 +33,45 @@ export const createUser = (
     login: any,
     name: any,
     clientCode: any,
-): Promise<{insertedId: any}> => new Promise((resolve: (updateInfo: any) => void, reject: Rejector) => {
-    const users = db.collection('users');
-    users
-        .find({
-            webId,
-        })
-        .toArray(async (err: Error, docs: any) => {
-            if (err) {
-                reject(err);
-            } else if (!docs.length) {
-                const insertedUserData = await users.insertOne({
-                    webId,
-                    playerLogin: login,
-                    playerName: name,
-                    last_active: Date.now(),
-                    clientCode: clientCode || null,
-                });
-                resolve(insertedUserData);
-            } else {
-                const updatedUser = {
-                    $set: {
+): Promise<{userID: string}> => new Promise(
+    (resolve: (updateInfo: {userID: string}) => void, reject: Rejector) => {
+        const users = db.collection('users');
+        users
+            .find({
+                webId,
+            })
+            .toArray(async (err: Error, docs: any) => {
+                if (err) {
+                    reject(err);
+                } else if (!docs.length) {
+                    const insertedUserData = await users.insertOne({
+                        webId,
                         playerLogin: login,
                         playerName: name,
                         last_active: Date.now(),
                         clientCode: clientCode || null,
-                    },
-                };
-                const insertedUserData = await users.updateOne(
-                    {
-                        webId,
-                    },
-                    updatedUser,
-                );
-                resolve(insertedUserData);
-            }
-        });
-});
+                    });
+                    resolve({ userID: insertedUserData.insertedId.toString() });
+                } else {
+                    const updatedUser = {
+                        $set: {
+                            playerLogin: login,
+                            playerName: name,
+                            last_active: Date.now(),
+                            clientCode: clientCode || null,
+                        },
+                    };
+                    const updatedUserData = await users.updateOne(
+                        {
+                            webId,
+                        },
+                        updatedUser,
+                    );
+                    resolve({ userID: updatedUserData.upsertedId.toString() });
+                }
+            });
+    },
+);
 
 export const getUniqueMapNames = async (
     mapName ?: string,
@@ -388,7 +390,7 @@ export const createSession = async (req: Request, userInfo: any, clientCode?: an
             const updatedUserInfo = await createUser(
                 userInfo.account_id, playerLogin, userInfo.display_name, null,
             );
-            userID = updatedUserInfo.insertedId;
+            userID = updatedUserInfo.userID;
         } else {
             return undefined;
         }
