@@ -163,8 +163,14 @@ export const saveUser = (
     userData: any,
 ): Promise<{_id: string}> => new Promise((resolve: Function, reject: Rejector) => {
     const users = db.collection('users');
-    // if _id is not defined, the upsert option will ensure a new document is created
-    users.replaceOne({ _id: userData._id }, userData, { upsert: true })
+    const cleanUserData = { ...userData };
+
+    // if _id is not valid, remove it to be certain the db doesn't try to use it
+    if (!cleanUserData._id) {
+        delete cleanUserData._id;
+    }
+
+    users.replaceOne({ _id: cleanUserData._id }, cleanUserData, { upsert: true })
         .then(({ insertedId }: {insertedId: string}) => resolve({ _id: insertedId }))
         .catch((error: Error) => reject(error));
 });
