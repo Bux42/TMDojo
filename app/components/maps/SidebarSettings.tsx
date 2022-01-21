@@ -8,7 +8,7 @@ import { CaretLeftOutlined, SettingOutlined } from '@ant-design/icons';
 import { SettingsContext } from '../../lib/contexts/SettingsContext';
 import { LineTypes } from '../viewer/ReplayLines';
 import SideDrawerExpandButton from '../common/SideDrawerExpandButton';
-import useWindowDimensions from '../../lib/utils/useWindowDimensions';
+import useWindowDimensions from '../../lib/hooks/useWindowDimensions';
 
 const SidebarSettings = (): JSX.Element => {
     const [visible, setVisible] = useState(false);

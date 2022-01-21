@@ -13,7 +13,7 @@ import { AuthContext } from '../../lib/contexts/AuthContext';
 import SideDrawerExpandButton from '../common/SideDrawerExpandButton';
 import PlayerLink from '../common/PlayerLink';
 import CleanButton from '../common/CleanButton';
-import useWindowDimensions from '../../lib/utils/useWindowDimensions';
+import useWindowDimensions from '../../lib/hooks/useWindowDimensions';
 
 interface ExtendedFileResponse extends FileResponse {
     readableTime: string;
