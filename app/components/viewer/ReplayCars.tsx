@@ -77,7 +77,11 @@ const ReplayCar = ({
             currentSampleRef.current = curSample;
             prevSampleRef.current = replay.samples[replay.samples.indexOf(curSample) - 1];
 
-            interpolateSamples(prevSampleRef.current, curSample, smoothSample, timeLineGlobal.currentRaceTime);
+            if (timeLineGlobal.currentRaceTime < replay.endRaceTime) {
+                interpolateSamples(prevSampleRef.current, curSample, smoothSample, timeLineGlobal.currentRaceTime);
+            } else {
+                interpolateSamples(prevSampleRef.current, curSample, smoothSample, curSample.currentRaceTime);
+            }
 
             // Get car rotation
             const carRotation: THREE.Quaternion = vecToQuat(
