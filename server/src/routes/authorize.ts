@@ -2,7 +2,9 @@ import { Request, Response } from 'express';
 import * as express from 'express';
 import { exchangeCodeForAccessToken, fetchUserInfo, setSessionCookie } from '../lib/authorize';
 
-import { createSession, getUserByWebId, saveUser } from '../lib/db';
+import {
+    createSession, createUser, getUserByWebId,
+} from '../lib/db';
 
 const router = express.Router();
 
@@ -62,7 +64,7 @@ router.post('/', async (req: Request, res: Response, next: Function) => {
             req.log.debug('authorizeRouter: clientCode exists, creating plugin session');
             // remove clientCode from user
             delete userDoc.clientCode;
-            await saveUser(userDoc);
+            await createUser(req, userDoc.webId, userDoc.playerLogin, userDoc.playerName, null);
 
             // create a new plugin session including the clientCode
             await createSession(req, userInfo, clientCode);

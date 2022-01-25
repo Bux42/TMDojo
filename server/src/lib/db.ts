@@ -29,47 +29,56 @@ export const initDB = () => {
 };
 
 export const createUser = (
+    req: Request,
     webId: any,
     login: any,
     name: any,
     clientCode: any,
-): Promise<void> => new Promise((resolve: () => void, reject: Rejector) => {
-    const users = db.collection('users');
-    users
-        .find({
-            webId,
-        })
-        .toArray((err: Error, docs: any) => {
-            if (err) {
-                reject(err);
-            } else if (!docs.length) {
-                users.insertOne({
-                    webId,
-                    playerLogin: login,
-                    playerName: name,
-                    last_active: Date.now(),
-                    clientCode: clientCode || null,
-                });
-                resolve();
-            } else {
-                const updatedUser = {
-                    $set: {
+): Promise<{userID: string}> => new Promise(
+    (resolve: (updateInfo: {userID: string}) => void, reject: Rejector) => {
+        const users = db.collection('users');
+        users
+            .find({
+                webId,
+            })
+            .toArray(async (err: Error, docs: any) => {
+                if (err) {
+                    req.log.error(`createUser: Error finding user with webId ${webId}`);
+                    reject(err);
+                } else if (!docs.length) {
+                    const insertedUserData = await users.insertOne({
+                        webId,
                         playerLogin: login,
                         playerName: name,
                         last_active: Date.now(),
                         clientCode: clientCode || null,
-                    },
-                };
-                users.updateOne(
-                    {
-                        webId,
-                    },
-                    updatedUser,
-                );
-                resolve();
-            }
-        });
-});
+                    });
+                    req.log.debug(
+                        `createUser: Created new user "${name}", doc ID: ${insertedUserData.insertedId.toString()}`,
+                    );
+                    resolve({ userID: insertedUserData.insertedId.toString() });
+                } else {
+                    req.log.debug(`createUser: User "${name}" already exists, doc ID: ${docs[0]._id.toString()}`);
+                    const updatedUser = {
+                        $set: {
+                            playerLogin: login,
+                            playerName: name,
+                            last_active: Date.now(),
+                            clientCode: clientCode || null,
+                        },
+                    };
+                    const updatedUserData = await users.updateOne(
+                        {
+                            webId,
+                        },
+                        updatedUser,
+                    );
+                    req.log.debug(`createUser: Updated user "${name}"`);
+                    resolve({ userID: updatedUserData.upsertedId.toString() });
+                }
+            });
+    },
+);
 
 export const getUniqueMapNames = async (
     mapName ?: string,
@@ -157,16 +166,6 @@ export const getUserByWebId = (
         }
         return resolve(user);
     });
-});
-
-export const saveUser = (
-    userData: any,
-): Promise<{_id: string}> => new Promise((resolve: Function, reject: Rejector) => {
-    const users = db.collection('users');
-    // if _id is not defined, the upsert option will ensure a new document is created
-    users.replaceOne({ _id: userData._id }, userData, { upsert: true })
-        .then(({ insertedId }: {insertedId: string}) => resolve({ _id: insertedId }))
-        .catch((error: Error) => reject(error));
 });
 
 export const getReplaysByUserRef = async (
@@ -385,8 +384,9 @@ export const saveReplayMetadata = (
  */
 export const createSession = async (req: Request, userInfo: any, clientCode?: any) => {
     // Find user
-    let user = await getUserByWebId(userInfo.account_id);
-    if (user === undefined || user === null) {
+    const user = await getUserByWebId(userInfo.account_id);
+    let userID = user?._id;
+    if (!userID) {
         const playerLogin = playerLoginFromWebId(req, userInfo.account_id);
 
         if (playerLogin === undefined) {
@@ -394,11 +394,10 @@ export const createSession = async (req: Request, userInfo: any, clientCode?: an
         }
 
         if (userInfo.account_id !== undefined && userInfo.display_name !== undefined) {
-            user = await saveUser({
-                webId: userInfo.account_id,
-                playerLogin,
-                playerName: userInfo.display_name,
-            });
+            const updatedUserInfo = await createUser(
+                req, userInfo.account_id, playerLogin, userInfo.display_name, null,
+            );
+            userID = updatedUserInfo.userID;
         } else {
             return undefined;
         }
@@ -410,7 +409,7 @@ export const createSession = async (req: Request, userInfo: any, clientCode?: an
     await sessions.insertOne({
         sessionId,
         clientCode: clientCode || null,
-        userRef: user._id,
+        userRef: userID,
     });
 
     return sessionId;
