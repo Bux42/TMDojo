@@ -379,7 +379,7 @@ export const createSession = async (req: Request, userInfo: any, clientCode?: an
     // Find user
     const user = await getUserByWebId(userInfo.account_id);
     let userID = user?._id;
-    if (user === undefined || user === null) {
+    if (!userID) {
         const playerLogin = playerLoginFromWebId(req, userInfo.account_id);
 
         if (playerLogin === undefined) {
