@@ -64,7 +64,7 @@ router.post('/', async (req: Request, res: Response, next: Function) => {
             req.log.debug('authorizeRouter: clientCode exists, creating plugin session');
             // remove clientCode from user
             delete userDoc.clientCode;
-            await createUser(userDoc.webId, userDoc.playerLogin, userDoc.playerName, null);
+            await createUser(req, userDoc.webId, userDoc.playerLogin, userDoc.playerName, null);
 
             // create a new plugin session including the clientCode
             await createSession(req, userInfo, clientCode);

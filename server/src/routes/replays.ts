@@ -146,7 +146,7 @@ router.post('/', (req: Request, res: Response, next: Function): any => {
             if (!userID) {
                 req.log.debug('replaysRouter: User does not exist in database, creating new user');
                 const updatedUserInfo = await db.createUser(
-                    req.query.webId, req.query.playerLogin, req.query.playerName, null,
+                    req, req.query.webId, req.query.playerLogin, req.query.playerName, null,
                 );
                 userID = updatedUserInfo.userID;
             }

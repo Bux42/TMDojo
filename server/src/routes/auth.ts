@@ -43,7 +43,7 @@ router.get('/', async (req: Request, res: Response, next: Function) => {
         }
 
         // make sure user exists and store clientCode in user's document
-        await db.createUser(req.query.webid, req.query.login, req.query.name, clientCode);
+        await db.createUser(req, req.query.webid, req.query.login, req.query.name, clientCode);
 
         // generate OAuth URL
         let authURL = 'https://api.trackmania.com/oauth/authorize';

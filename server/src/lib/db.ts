@@ -29,6 +29,7 @@ export const initDB = () => {
 };
 
 export const createUser = (
+    req: Request,
     webId: any,
     login: any,
     name: any,
@@ -42,6 +43,7 @@ export const createUser = (
             })
             .toArray(async (err: Error, docs: any) => {
                 if (err) {
+                    req.log.error(`createUser: Error finding user with webId ${webId}`);
                     reject(err);
                 } else if (!docs.length) {
                     const insertedUserData = await users.insertOne({
@@ -51,8 +53,12 @@ export const createUser = (
                         last_active: Date.now(),
                         clientCode: clientCode || null,
                     });
+                    req.log.debug(
+                        `createUser: Created new user "${name}", doc ID: ${insertedUserData.insertedId.toString()}`,
+                    );
                     resolve({ userID: insertedUserData.insertedId.toString() });
                 } else {
+                    req.log.debug(`createUser: User "${name}" already exists, doc ID: ${docs[0]._id.toString()}`);
                     const updatedUser = {
                         $set: {
                             playerLogin: login,
@@ -67,6 +73,7 @@ export const createUser = (
                         },
                         updatedUser,
                     );
+                    req.log.debug(`createUser: Updated user "${name}"`);
                     resolve({ userID: updatedUserData.upsertedId.toString() });
                 }
             });
@@ -388,7 +395,7 @@ export const createSession = async (req: Request, userInfo: any, clientCode?: an
 
         if (userInfo.account_id !== undefined && userInfo.display_name !== undefined) {
             const updatedUserInfo = await createUser(
-                userInfo.account_id, playerLogin, userInfo.display_name, null,
+                req, userInfo.account_id, playerLogin, userInfo.display_name, null,
             );
             userID = updatedUserInfo.userID;
         } else {
