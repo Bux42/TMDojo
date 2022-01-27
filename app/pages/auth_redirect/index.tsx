@@ -43,7 +43,7 @@ const AuthRedirect = (): JSX.Element => {
     }, [code, state]);
 
     return (
-        <div className="w-screen h-screen bg-gray-850">
+        <div className="w-screen h-screen bg-page-back">
             <PageHeader
                 onBack={() => router.push('/')}
                 title="Back"

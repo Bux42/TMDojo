@@ -57,6 +57,9 @@ const SidebarSettings = (): JSX.Element => {
                 width={Math.min(400, windowDimensions.width)}
                 onClose={onClose}
                 visible={visible}
+                headerStyle={{
+                    backgroundColor: '#2C2C2C',
+                }}
             >
                 <Title level={5}>Line Type</Title>
                 <Select

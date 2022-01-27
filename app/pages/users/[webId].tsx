@@ -27,7 +27,7 @@ const Home = (): JSX.Element => {
     }, [webId]);
 
     return (
-        <div className="flex flex-col items-center min-h-screen w-full bg-gray-850">
+        <div className="flex flex-col items-center min-h-screen w-full bg-page-back">
             <HeadTitle title={getTitle()} />
             <PageHeaderBar title={userInfo?.playerName || ''} />
 

@@ -23,12 +23,12 @@ interface CleanButtonProps {
 
 const getButtonPadding = (size: SizeType) => {
     switch (size) {
-    case 'small':
-        return '0rem 1rem';
-    case 'middle':
-        return '0rem 1.5rem';
-    default:
-        return '0rem 2rem';
+        case 'small':
+            return '0rem 1rem';
+        case 'middle':
+            return '0rem 1.5rem';
+        default:
+            return '0rem 2rem';
     }
 };
 

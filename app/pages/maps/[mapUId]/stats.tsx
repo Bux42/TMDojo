@@ -108,7 +108,7 @@ const MapStats = () => {
     );
 
     return (
-        <div className="flex flex-col items-center min-h-screen bg-gray-850">
+        <div className="flex flex-col items-center min-h-screen bg-page-back">
             <HeadTitle title={getTitle()} />
             <MapHeader mapInfo={mapData || {}} title="Map statistics">
                 <CleanButton

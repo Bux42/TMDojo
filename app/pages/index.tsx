@@ -8,7 +8,7 @@ const DISCORD_URL = 'https://discord.gg/RPbZHvxNRG';
 const SPONSOR_URL = 'https://github.com/sponsors/tm-dojo';
 
 const Home = (): JSX.Element => (
-    <div className="flex flex-col items-center min-h-screen bg-gray-850">
+    <div className="flex flex-col items-center min-h-screen bg-page-back">
         <div
             className="lg:sticky top-0 z-10
                 flex flex-col lg:flex-row items-center lg:justify-between gap-4 lg:gap-0

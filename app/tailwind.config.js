@@ -14,6 +14,7 @@ module.exports = {
                     750: '#2C2C2C',
                     850: '#1F1F1F',
                 },
+                'page-back': colors.trueGray[900],
             },
         },
         colors: {
