@@ -1,6 +1,7 @@
 import CleanButton from '../components/common/CleanButton';
 import Footer from '../components/common/Footer';
 import UserDisplay from '../components/common/UserDisplay';
+import PageContainer from '../components/containers/PageContainer';
 import ExplanationInfo from '../components/landing/ExplanationInfo';
 import MapReplayTableWithSearchbar from '../components/landing/MapReplayTableWithSearchbar';
 
@@ -13,7 +14,7 @@ const Home = (): JSX.Element => (
             className="lg:sticky top-0 z-10
                 flex flex-col lg:flex-row items-center lg:justify-between gap-4 lg:gap-0
                 w-full lg:h-20 h-full
-                py-4 lg:py-0 mb-10 lg:mb-20
+                py-4 lg:py-0
                 shadow-md bg-gray-750"
         >
             <div className="flex-grow pl-10 hidden lg:block" />
@@ -30,7 +31,7 @@ const Home = (): JSX.Element => (
             </div>
         </div>
 
-        <div className="flex flex-col w-full lg:w-4/5 xl:w-2/3">
+        <PageContainer>
             <div className="flex flex-col md:flex-row gap-8">
                 <div
                     className="flex flex-col w-full md:w-3/4 pt-4 pb-6 px-4 sm:px-8 rounded-md gap-6 bg-gray-750"
@@ -99,7 +100,7 @@ const Home = (): JSX.Element => (
                 </div>
                 <MapReplayTableWithSearchbar />
             </div>
-        </div>
+        </PageContainer>
 
         <Footer />
     </div>

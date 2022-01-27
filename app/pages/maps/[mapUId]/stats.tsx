@@ -17,6 +17,7 @@ import { AuthContext } from '../../../lib/contexts/AuthContext';
 import { MapStatsType, MapStatsTypeSwitcher } from '../../../components/mapStats/common/MapStatsTypeSwitcher';
 import Footer from '../../../components/common/Footer';
 import CleanButton from '../../../components/common/CleanButton';
+import PageContainer from '../../../components/containers/PageContainer';
 
 const MapStats = () => {
     const { user } = useContext(AuthContext);
@@ -122,7 +123,8 @@ const MapStats = () => {
                     </div>
                 </CleanButton>
             </MapHeader>
-            <div className="flex flex-col flex-grow justify-self-center items-center py-8 w-full lg:w-4/5 xl:w-3/5">
+
+            <PageContainer>
                 <div className="w-full mb-8 bg-gray-750 rounded-md p-8">
                     {mapData === undefined
                         ? (
@@ -189,7 +191,7 @@ const MapStats = () => {
                             )}
                     </div>
                 </div>
-            </div>
+            </PageContainer>
             <Footer />
         </div>
     );
