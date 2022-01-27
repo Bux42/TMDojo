@@ -8,10 +8,13 @@ import PageHeaderBar from '../common/PageHeaderBar';
 interface Props {
     mapInfo: MapInfo;
     title: string;
+    backUrl?: string;
     children?: React.ReactNode
 }
 
-const MapHeader = ({ mapInfo, title, children }: Props): JSX.Element => {
+const MapHeader = ({
+    mapInfo, title, backUrl, children,
+}: Props): JSX.Element => {
     const hasExchangeId = mapInfo.exchangeid !== undefined && mapInfo.exchangeid !== 0;
     const hasMapUid = mapInfo.mapUid !== undefined && mapInfo.mapUid !== '';
 
@@ -19,7 +22,10 @@ const MapHeader = ({ mapInfo, title, children }: Props): JSX.Element => {
     const tmxURL = `https://trackmania.exchange/maps/${mapInfo.exchangeid}`;
 
     return (
-        <PageHeaderBar title={title}>
+        <PageHeaderBar
+            title={title}
+            backUrl={backUrl}
+        >
             <span className="text-gray-400">
                 {cleanTMFormatting(mapInfo.name || '')}
             </span>

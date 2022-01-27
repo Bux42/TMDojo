@@ -6,10 +6,19 @@ import UserDisplay from './UserDisplay';
 
 interface PageHeaderBarProps {
     title: string,
+    backUrl?: string,
     children?: React.ReactNode
 }
-const PageHeaderBar = ({ title, children }: PageHeaderBarProps) => {
+const PageHeaderBar = ({ title, children, backUrl }: PageHeaderBarProps) => {
     const router = useRouter();
+
+    const onBack = () => {
+        if (backUrl) {
+            router.push(backUrl);
+        } else {
+            router.back();
+        }
+    };
 
     return (
         <div
@@ -20,7 +29,7 @@ const PageHeaderBar = ({ title, children }: PageHeaderBarProps) => {
                 <Button
                     icon={<ArrowLeftOutlined className="text-base" />}
                     type="text"
-                    onClick={() => router.back()}
+                    onClick={onBack}
                 />
 
                 <span className="text-xl font-bold">

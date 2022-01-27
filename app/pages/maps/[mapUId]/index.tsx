@@ -112,7 +112,7 @@ const Home = (): JSX.Element => {
         <>
             <HeadTitle title={getTitle()} />
             <Layout>
-                <MapHeader mapInfo={mapData} title="Replay viewer">
+                <MapHeader mapInfo={mapData} title="Replay viewer" backUrl="/">
                     <CleanButton
                         url={`/maps/${mapData?.mapUid}/stats`}
                         backColor="hsl(0, 0%, 15%)"

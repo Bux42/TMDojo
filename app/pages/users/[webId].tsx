@@ -30,7 +30,7 @@ const Home = (): JSX.Element => {
     return (
         <div className="flex flex-col items-center min-h-screen w-full bg-page-back">
             <HeadTitle title={getTitle()} />
-            <PageHeaderBar title={userInfo?.playerName || ''} />
+            <PageHeaderBar title={userInfo?.playerName || ''} backUrl="/" />
 
             <PageContainer>
                 <div className="w-full mb-8 bg-gray-750 rounded-md p-8 text-center">
