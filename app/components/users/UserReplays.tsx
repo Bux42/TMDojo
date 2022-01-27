@@ -178,8 +178,11 @@ const UserReplays = ({ userInfo }: Props): JSX.Element => {
                                 },
                             })}
                             pagination={{
-                                pageSize: defaultPageSize,
+                                pageSize: 10,
+                                hideOnSinglePage: true,
+                                simple: true,
                                 position: ['bottomCenter'],
+                                showLessItems: true,
                             }}
                             scroll={{ scrollToFirstRowOnChange: true }}
                         />
