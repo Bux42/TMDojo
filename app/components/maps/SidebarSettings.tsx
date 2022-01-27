@@ -61,65 +61,93 @@ const SidebarSettings = (): JSX.Element => {
                     backgroundColor: '#2C2C2C',
                 }}
             >
-                <Title level={5}>Line Type</Title>
-                <Select
-                    className="w-full"
-                    size="large"
-                    value={lineType.name}
-                    onChange={onChangeLineType}
-                >
-                    {Object.keys(LineTypes).map((lineTypeKey) => {
-                        const { name } = LineTypes[lineTypeKey];
-                        return (
-                            <Select.Option key={name} value={lineTypeKey}>
-                                {name}
-                            </Select.Option>
-                        );
-                    })}
-                </Select>
-                <Col>
-                    <Checkbox
-                        className="w-full py-6 select-none"
-                        onChange={(e: CheckboxChangeEvent) => setShowGearChanges(e.target.checked)}
-                        checked={showGearChanges}
-                    >
-                        Show Gear Changes
-                    </Checkbox>
-                </Col>
-                <Col>
-                    <Checkbox
-                        className="w-full py-6 select-none"
-                        onChange={(e: CheckboxChangeEvent) => setShowFPS(e.target.checked)}
-                        checked={showFPS}
-                    >
-                        Show FPS
-                    </Checkbox>
-                </Col>
-                <Col>
-                    <Checkbox
-                        className="w-full py-6 select-none"
-                        onChange={(e: CheckboxChangeEvent) => setShowInputOverlay(e.target.checked)}
-                        checked={showInputOverlay}
-                    >
-                        Show Input Overlay
-                    </Checkbox>
-                </Col>
-                Line Opacity
-                <Slider
-                    min={0}
-                    max={1}
-                    onChange={(e: number) => setReplayLineOpacity(e)}
-                    value={typeof replayLineOpacity === 'number' ? replayLineOpacity : 0}
-                    step={0.1}
-                />
-                Car Opacity
-                <Slider
-                    min={0}
-                    max={1}
-                    onChange={(e: number) => setReplayCarOpacity(e)}
-                    value={typeof replayCarOpacity === 'number' ? replayCarOpacity : 0}
-                    step={0.1}
-                />
+                <div className="flex flex-col w-full h-full gap-10">
+                    <div className="flex flex-col gap-4">
+                        <div className="text-xl font-semibold">Visuals</div>
+                        <div className="flex gap-4 items-center">
+                            <div className="flex-grow">Line Type:</div>
+                            <div className="w-3/5">
+                                <Select
+                                    className="w-full"
+                                    value={lineType.name}
+                                    onChange={onChangeLineType}
+                                >
+                                    {Object.keys(LineTypes).map((lineTypeKey) => {
+                                        const { name } = LineTypes[lineTypeKey];
+                                        return (
+                                            <Select.Option key={name} value={lineTypeKey}>
+                                                {name}
+                                            </Select.Option>
+                                        );
+                                    })}
+                                </Select>
+                            </div>
+                        </div>
+                        <div className="flex items-center">
+                            <div className="flex-grow">Line Opacity:</div>
+                            <div className="w-3/5 px-1">
+                                <Slider
+                                    className="w-full m-0"
+                                    min={0}
+                                    max={1}
+                                    onChange={(e: number) => setReplayLineOpacity(e)}
+                                    value={typeof replayLineOpacity === 'number' ? replayLineOpacity : 0}
+                                    step={0.1}
+                                    dots
+                                />
+                            </div>
+                        </div>
+                        <div className="flex items-center">
+                            <div className="flex-grow">Car Opacity:</div>
+                            <div className="w-3/5 px-1">
+                                <Slider
+                                    className="w-full m-0"
+                                    min={0}
+                                    max={1}
+                                    onChange={(e: number) => setReplayCarOpacity(e)}
+                                    value={typeof replayCarOpacity === 'number' ? replayCarOpacity : 0}
+                                    step={0.1}
+                                    dots
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col gap-4">
+                        <div className="text-xl font-semibold">Overlays</div>
+                        <Col>
+                            <Checkbox
+                                className="w-full select-none"
+                                onChange={(e: CheckboxChangeEvent) => setShowGearChanges(e.target.checked)}
+                                checked={showGearChanges}
+                            >
+                                Show Gear Changes
+                            </Checkbox>
+                        </Col>
+                        <Col>
+                            <Checkbox
+                                className="w-full select-none"
+                                onChange={(e: CheckboxChangeEvent) => setShowInputOverlay(e.target.checked)}
+                                checked={showInputOverlay}
+                            >
+                                Show Input Overlay
+                            </Checkbox>
+                        </Col>
+                    </div>
+
+                    <div className="flex flex-col gap-4">
+                        <div className="text-xl font-semibold">Misc.</div>
+                        <Col>
+                            <Checkbox
+                                className="w-full select-none"
+                                onChange={(e: CheckboxChangeEvent) => setShowFPS(e.target.checked)}
+                                checked={showFPS}
+                            >
+                                Show FPS
+                            </Checkbox>
+                        </Col>
+                    </div>
+                </div>
             </Drawer>
         </div>
     );
