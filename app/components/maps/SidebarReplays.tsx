@@ -48,8 +48,6 @@ const SidebarReplays = ({
 
     const showFinishedColumn = replays.some((replay: FileResponse) => !replay.raceFinished);
 
-    const userProfileUrl = '/users/';
-
     const [visible, setVisible] = useState(true);
     const [visibleReplays, setVisibleReplays] = useState<FileResponse[]>([]);
     const windowDimensions = useWindowDimensions();
@@ -58,7 +56,10 @@ const SidebarReplays = ({
 
     useEffect(() => {
         // initialize visible replays with the first page
-        const initiallyVisibleReplays = replays.slice(0, defaultPageSize);
+        const initiallyVisibleReplays = replays.slice(
+            replays.length - defaultPageSize,
+            replays.length,
+        );
         setVisibleReplays(() => addReplayInfo(initiallyVisibleReplays));
     }, [replays]);
 
