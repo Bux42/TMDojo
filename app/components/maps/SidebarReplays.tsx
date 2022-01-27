@@ -285,7 +285,10 @@ const SidebarReplays = ({
                             size="small"
                             pagination={{
                                 pageSize: defaultPageSize,
+                                hideOnSinglePage: true,
+                                simple: true,
                                 position: ['bottomCenter'],
+                                showLessItems: true,
                             }}
                             scroll={{ scrollToFirstRowOnChange: true }}
                         />
