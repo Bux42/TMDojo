@@ -6,6 +6,7 @@ import {
 import { ColumnsType } from 'antd/lib/table';
 
 import { PieChartOutlined, ReloadOutlined } from '@ant-design/icons';
+import Link from 'next/link';
 import { AvailableMap, getAvailableMaps } from '../../lib/api/apiRequests';
 import { timeDifference } from '../../lib/utils/time';
 import CleanButton from '../common/CleanButton';
@@ -36,31 +37,38 @@ const MapReplayTableWithSearchbar = () => {
         fetchMaps();
     }, [searchString]);
 
-    const navigateToMap = (map: ExtendedAvailableMap) => {
-        router.push(`/maps/${map.mapUId}`);
-    };
-
     const columns: ColumnsType<ExtendedAvailableMap> = [
         {
             title: 'Map name',
             dataIndex: 'mapName',
             sorter: (a, b) => a.mapName.localeCompare(b.mapName),
             width: '60%',
+            onCell: () => ({
+                style: {
+                    padding: 0,
+                },
+            }),
+            render: (_, map) => {
+                const mapRef = `/maps/${map.mapUId}`;
+                return (
+                    <div className="w-full">
+                        <Link href={mapRef}>
+                            <a href={mapRef} className="block p-2 w-full">{map.mapName}</a>
+                        </Link>
+                    </div>
+                );
+            },
         },
         {
             title: '',
             render: (_, map) => {
                 const statsRef = `/maps/${map.mapUId}/stats`;
                 return (
-                    <div className="flex pr-2">
+                    <div className="flex justify-center pr-2">
                         <CleanButton
                             size="small"
                             url={statsRef}
                             backColor="hsl(0, 0%, 9%)"
-                            // Stop onClick propagation to avoid duplicate onClick events with Row onClick
-                            onClick={(e) => {
-                                e.stopPropagation();
-                            }}
                         >
                             <div className="flex gap-2 items-center">
                                 <PieChartOutlined />
@@ -113,7 +121,7 @@ const MapReplayTableWithSearchbar = () => {
                 </div>
 
                 <Table
-                    className="overflow-x-auto"
+                    className="overflow-x-auto select-none"
                     dataSource={maps}
                     columns={columns}
                     onHeaderRow={() => ({
@@ -122,16 +130,13 @@ const MapReplayTableWithSearchbar = () => {
                             fontSize: '1rem',
                         },
                     })}
-                    onRow={(map: ExtendedAvailableMap) => ({
+                    onRow={() => ({
                         style: {
                             backgroundColor: '#1F1F1F',
-                            cursor: 'pointer',
-                        },
-                        onClick: () => {
-                            navigateToMap(map);
                         },
                     })}
                     showSorterTooltip={false}
+                    size="small"
                     pagination={{
                         pageSize: 10,
                         hideOnSinglePage: true,
