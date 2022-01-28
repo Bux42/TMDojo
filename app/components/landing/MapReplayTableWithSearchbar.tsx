@@ -135,9 +135,9 @@ const MapReplayTableWithSearchbar = () => {
                     pagination={{
                         pageSize: 10,
                         hideOnSinglePage: true,
-                        simple: true,
                         position: ['bottomCenter'],
-                        showLessItems: true,
+                        showSizeChanger: false,
+                        size: 'small',
                     }}
                 />
             </div>
