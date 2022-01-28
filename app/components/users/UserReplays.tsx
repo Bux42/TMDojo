@@ -92,12 +92,19 @@ const UserReplays = ({ userInfo }: Props): JSX.Element => {
             dataIndex: 'mapName',
             filters: getUniqueFilters((replay) => replay.mapName),
             onFilter: (value, record) => record.mapName === value,
+            onCell: () => ({
+                style: {
+                    padding: 0,
+                },
+            }),
             render: (_, map) => {
                 const mapRef = `/maps/${map.mapUId}`;
                 return (
-                    <Link href={mapRef}>
-                        <a href={mapRef}>{map.mapName}</a>
-                    </Link>
+                    <div className="w-full">
+                        <Link href={mapRef}>
+                            <a href={mapRef} className="block p-2 w-full">{map.mapName}</a>
+                        </Link>
+                    </div>
                 );
             },
         },
