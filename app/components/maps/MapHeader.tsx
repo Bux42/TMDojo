@@ -24,19 +24,15 @@ const MapHeader = ({
     return (
         <PageHeaderBar
             title={title}
+            subtitle={cleanTMFormatting(mapInfo.name || '')}
             backUrl={backUrl}
         >
-            <span className="text-gray-400">
-                {cleanTMFormatting(mapInfo.name || '')}
-            </span>
-
             <CleanButton
                 key="tm.io"
                 disabled={!hasMapUid}
                 backColor="hsl(0, 0%, 15%)"
                 url={tmioURL}
                 openInNewTab
-                className="hidden lg:block"
             >
                 TM.io
             </CleanButton>
@@ -46,7 +42,6 @@ const MapHeader = ({
                 backColor="hsl(0, 0%, 15%)"
                 url={tmxURL}
                 openInNewTab
-                className="hidden lg:block"
             >
                 TMX
             </CleanButton>
