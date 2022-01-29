@@ -65,6 +65,7 @@ const ReplayCar = ({
     });
 
     useFrame((state, delta) => {
+        timeLineGlobal.tickTime = delta * 1000;
         if (mesh.current
             && stadiumCarMesh.current
             && camPosRef.current) {
