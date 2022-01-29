@@ -154,10 +154,6 @@ const ReplayCar = ({
     return (
         <>
             <mesh
-                position={[
-                    curSample.position.x,
-                    curSample.position.y,
-                    curSample.position.z]}
                 ref={mesh}
                 scale={1}
             >
