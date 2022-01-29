@@ -28,7 +28,7 @@ const setProp = (obj: any, prop: string, value: number) => {
 
 export const interpolateSamples = (
     prevSample: ReplayDataPoint,
-    curSamplee: ReplayDataPoint,
+    curSample: ReplayDataPoint,
     smoothSample: ReplayDataPoint,
     currentRaceTime: number,
 ) => {
@@ -37,9 +37,9 @@ export const interpolateSamples = (
             setInterpolatedVector(
                 readProp(smoothSample, interpolatedValue.name),
                 readProp(prevSample, interpolatedValue.name),
-                readProp(curSamplee, interpolatedValue.name),
+                readProp(curSample, interpolatedValue.name),
                 readProp(prevSample, 'currentRaceTime'),
-                readProp(curSamplee, 'currentRaceTime'),
+                readProp(curSample, 'currentRaceTime'),
                 currentRaceTime,
             );
         } else {
@@ -48,9 +48,9 @@ export const interpolateSamples = (
                 interpolatedValue.name,
                 interpolateFloat(
                     readProp(prevSample, interpolatedValue.name),
-                    readProp(curSamplee, interpolatedValue.name),
+                    readProp(curSample, interpolatedValue.name),
                     readProp(prevSample, 'currentRaceTime'),
-                    readProp(curSamplee, 'currentRaceTime'),
+                    readProp(curSample, 'currentRaceTime'),
                     currentRaceTime,
                 ),
             );
