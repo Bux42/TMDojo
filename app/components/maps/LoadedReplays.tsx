@@ -53,18 +53,21 @@ const LoadedReplay = ({
         setNumColorChange(numColorChange + 1);
     };
 
-    const handleClick = () => {
+    const toggleColorPicker = () => {
         setShowColorPicker(!showColorPicker);
     };
 
     return (
         <Row
             style={{ width: 312 }}
-            className="flex flex-row items-center cursor-pointer select-none"
+            className="flex flex-row items-center select-none"
         >
             <Col
                 span="3"
+                className="cursor-pointer"
                 onClick={onClick}
+                onPointerEnter={() => hoveredReplayChanged(replay)}
+                onPointerLeave={() => hoveredReplayChanged(undefined)}
             >
                 <div className="flex items-center justify-center">
                     <EyeOutlined
@@ -89,7 +92,9 @@ const LoadedReplay = ({
                             display: 'inline-block',
                             cursor: 'pointer',
                         }}
-                        onClick={handleClick}
+                        onClick={toggleColorPicker}
+                        onPointerEnter={() => hoveredReplayChanged(replay)}
+                        onPointerLeave={() => hoveredReplayChanged(undefined)}
                     >
                         <div style={{
                             width: '16px',
@@ -126,11 +131,11 @@ const LoadedReplay = ({
                     <div
                         style={{
                             color: `#${replay.color.getHexString()}`,
-                            cursor: 'pointer',
                         }}
+                        className="cursor-pointer flex-grow"
+                        onClick={onClick}
                         onPointerEnter={() => hoveredReplayChanged(replay)}
                         onPointerLeave={() => hoveredReplayChanged(undefined)}
-                        onClick={onClick}
                     >
                         {replay.playerName}
                     </div>
@@ -138,7 +143,10 @@ const LoadedReplay = ({
             </Col>
             <Col
                 span="6"
+                className="cursor-pointer"
                 onClick={onClick}
+                onPointerEnter={() => hoveredReplayChanged(replay)}
+                onPointerLeave={() => hoveredReplayChanged(undefined)}
             >
                 {getRaceTimeStr(replay.endRaceTime)}
             </Col>
