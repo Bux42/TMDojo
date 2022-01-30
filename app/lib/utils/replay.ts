@@ -1,6 +1,6 @@
-import { Vector3 } from 'three';
 import { ReplayData } from '../api/apiRequests';
 import { ReplayDataPoint } from '../replays/replayData';
+import { interpolateFloat, setInterpolatedVector } from './math';
 
 export const interpolateSamples = (
     prev: ReplayDataPoint,
@@ -41,23 +41,4 @@ export const getSampleNearTime = (replay: ReplayData, raceTime: number): ReplayD
     }
 
     return replay.samples[sampleIndex];
-};
-
-export const interpolateFloat = (
-    a: number,
-    b: number,
-    factor: number,
-): number => a * (1 - factor) + b * factor;
-
-export const setInterpolatedVector = (
-    smoothVec: Vector3,
-    prevVec: Vector3,
-    currentVec: Vector3,
-    factor: number,
-) => {
-    smoothVec.set(
-        interpolateFloat(prevVec.x, currentVec.x, factor),
-        interpolateFloat(prevVec.y, currentVec.y, factor),
-        interpolateFloat(prevVec.z, currentVec.z, factor),
-    );
 };
