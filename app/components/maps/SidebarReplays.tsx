@@ -57,7 +57,7 @@ const SidebarReplays = ({
     useEffect(() => {
         // initialize visible replays with the first page
         const initiallyVisibleReplays = replays.slice(
-            replays.length - defaultPageSize,
+            Math.max(replays.length - defaultPageSize, 0),
             replays.length,
         );
         setVisibleReplays(() => addReplayInfo(initiallyVisibleReplays));
@@ -279,6 +279,10 @@ const SidebarReplays = ({
                     <div>
                         <Table
                             onChange={(pagination, filters, sorter, currentPageData) => {
+                                console.log({
+                                    pagination, filters, sorter, currentPageData,
+                                });
+
                                 onReplayTableChange(pagination, currentPageData);
                             }}
                             dataSource={addReplayInfo(replays)}
