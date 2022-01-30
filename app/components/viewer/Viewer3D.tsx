@@ -26,7 +26,7 @@ const Viewer3D = ({ replaysData }: Props): JSX.Element => {
         replayLineOpacity,
         replayCarOpacity,
         cameraMode,
-        numColorChange,
+        directionalLightEnabled,
     } = useContext(SettingsContext);
 
     const orbitControlsRef = useRef<any>();
@@ -53,7 +53,9 @@ const Viewer3D = ({ replaysData }: Props): JSX.Element => {
                 <ambientLight intensity={0.01} />
                 <Sky distance={100000000} inclination={0} turbidity={0} rayleigh={10} />
 
-                <SceneDirectionalLight replays={replaysData} />
+                {directionalLightEnabled && (
+                    <SceneDirectionalLight replays={replaysData} />
+                )}
 
                 <OrbitControls
                     ref={orbitControlsRef}

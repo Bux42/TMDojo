@@ -20,6 +20,7 @@ const SidebarSettings = (): JSX.Element => {
         showInputOverlay, setShowInputOverlay,
         replayLineOpacity, setReplayLineOpacity,
         replayCarOpacity, setReplayCarOpacity,
+        directionalLightEnabled, setDirectionalLightEnabled,
     } = useContext(
         SettingsContext,
     );
@@ -144,6 +145,15 @@ const SidebarSettings = (): JSX.Element => {
                                 checked={showFPS}
                             >
                                 Show FPS
+                            </Checkbox>
+                        </Col>
+                        <Col>
+                            <Checkbox
+                                className="w-full select-none"
+                                onChange={(e: CheckboxChangeEvent) => setDirectionalLightEnabled(e.target.checked)}
+                                checked={directionalLightEnabled}
+                            >
+                                Enable Light
                             </Checkbox>
                         </Col>
                     </div>
