@@ -47,7 +47,7 @@ const FastestTimeProgression = ({
     const finishedReplays = useMemo(() => replays.filter((r) => r.raceFinished === 1), [replays]);
 
     const timeProgressionData: ChartDataPoint[] = useMemo(
-        () => replaysToProgressionDataPoints(replays),
+        () => replaysToProgressionDataPoints(replays).reverse(),
         [replays],
     );
 
@@ -57,7 +57,7 @@ const FastestTimeProgression = ({
                 return undefined;
             }
             const filteredReplays = filterReplaysByUser(userToShowProgression, finishedReplays);
-            return replaysToProgressionDataPoints(filteredReplays);
+            return replaysToProgressionDataPoints(filteredReplays).reverse();
         },
         [userToShowProgression, finishedReplays],
     );
@@ -90,7 +90,7 @@ const FastestTimeProgression = ({
             style: {
                 color: 'white',
             },
-            zoomType: 'xy',
+            zoomType: 'x',
         },
         title: {
             text: '',
@@ -172,8 +172,8 @@ const FastestTimeProgression = ({
                     },
                     color: 'white',
                     shadow: false,
-                    allowOverlap: true,
-                    y: 25,
+                    padding: 0,
+                    y: 20,
                 },
             },
         },
@@ -194,7 +194,12 @@ const FastestTimeProgression = ({
             type: 'scatter',
             name: 'Other Times',
             data: allDataPoints,
+            visible: false,
             color: 'gray',
+            marker: {
+                symbol: 'circle',
+                radius: 2,
+            },
         }],
     };
 
@@ -202,11 +207,11 @@ const FastestTimeProgression = ({
     options.series = options.series.filter((s) => s.data !== undefined);
 
     const allFastestTime = timeProgressionData && timeProgressionData.length > 0
-        ? timeProgressionData[timeProgressionData.length - 1]
+        ? timeProgressionData[0]
         : undefined;
 
     const personalFastestTime = personalTimeProgressionData !== undefined && personalTimeProgressionData.length > 0
-        ? personalTimeProgressionData[personalTimeProgressionData.length - 1]
+        ? personalTimeProgressionData[0]
         : undefined;
 
     const fastestTime = allFastestTime || personalFastestTime;

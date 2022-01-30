@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
-import { Button, Card } from 'antd';
 import { MapInfo } from '../../../lib/api/apiRequests';
 import { AuthContext } from '../../../lib/contexts/AuthContext';
 import { cleanTMFormatting } from '../../../lib/utils/formatting';
+import CleanButton from '../../common/CleanButton';
 
 export enum MapStatsType {
     GLOBAL = 'Global',
@@ -39,19 +39,19 @@ export const MapStatsTypeSwitcher = ({ mapStatsType, mapData, toggleMapStatsType
             </div>
             {user
                 ? (
-                    <Button
-                        type="ghost"
+                    <CleanButton
+                        backColor="hsl(0, 0%, 12%)"
                         onClick={toggleMapStatsType}
                     >
                         {`Switch to ${oppositeType(mapStatsType)} statistics`}
-                    </Button>
+                    </CleanButton>
                 ) : (
-                    <Button
-                        type="ghost"
+                    <CleanButton
+                        backColor="hsl(0, 0%, 12%)"
                         onClick={startAuthFlow}
                     >
-                        Log in to view your personal statistics
-                    </Button>
+                        Log in for personal statistics
+                    </CleanButton>
                 )}
         </div>
     );

@@ -2,9 +2,11 @@ export const getRaceTimeStr = (raceTime: number): string => {
     const milliseconds = raceTime % 1000;
     const seconds = Math.floor((raceTime / 1000) % 60);
     const minutes = Math.floor((raceTime / (60 * 1000)) % 60);
+    const hours = Math.floor((raceTime / (60 * 60 * 1000)) % 60);
 
     return (
-        `${`${minutes > 0 ? `${minutes}:` : ''}`
+        `${`${hours > 0 ? `${hours}:` : ''}`
+        + `${minutes > 0 ? `${hours > 0 ? String(minutes).padStart(2, '0') : minutes}:` : ''}`
         + `${minutes > 0 ? String(seconds).padStart(2, '0') : seconds}`
         + '.'}${String(milliseconds).padStart(3, '0')}`
     );

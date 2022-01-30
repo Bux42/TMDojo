@@ -15,7 +15,7 @@ interface ReplayTimesHistogramProps {
     replays: FileResponse[];
     binSize: number;
 }
-const ReplayTimesHistogram = ({ replays, binSize } : ReplayTimesHistogramProps) => {
+const ReplayTimesHistogram = ({ replays, binSize }: ReplayTimesHistogramProps) => {
     const histogramBuckets = {} as { [key: number]: number };
 
     replays.forEach((replay) => {
@@ -54,7 +54,7 @@ const ReplayTimesHistogram = ({ replays, binSize } : ReplayTimesHistogramProps) 
             text: '',
         },
         xAxis: {
-            categories: axisValues.map((value) => `${getRaceTimeStr(value)}`),
+            categories: axisValues.map((value) => getRaceTimeStr(value)),
             crosshair: true,
             labels: {
                 style: {
@@ -82,7 +82,32 @@ const ReplayTimesHistogram = ({ replays, binSize } : ReplayTimesHistogramProps) 
         tooltip: {
             // Highchart only accepts string tooltips, that's why this returns a HTML string
             formatter: function tooltipFormatter(this: any) {
-                const raceTime = parseFloat(this.x) * 1000;
+                const { points } = this;
+
+                if (points !== undefined && points.length < 1) {
+                    return '';
+                }
+
+                const dataPoint = points[0];
+
+                // Parse time format that doesn't always contain minutes: 50:43.849 or 43.849
+                const split = dataPoint.key.split(':');
+                let seconds = 0;
+                let minutes = 0;
+                let hours = 0;
+
+                if (split.length === 1) {
+                    seconds = parseFloat(split[0]);
+                } else if (split.length === 2) {
+                    minutes = parseFloat(split[0]);
+                    seconds = parseFloat(split[1]);
+                } else if (split.length === 3) {
+                    hours = parseFloat(split[0]);
+                    minutes = parseFloat(split[1]);
+                    seconds = parseFloat(split[2]);
+                }
+
+                const raceTime = hours * 1000 * 60 * 60 + minutes * 1000 * 60 + seconds * 1000;
 
                 return `
                     <span style="font-size: 10px">
@@ -91,12 +116,13 @@ const ReplayTimesHistogram = ({ replays, binSize } : ReplayTimesHistogramProps) 
                     </br>
                     <span style="font-size: 13px">
                         <b>
-                            <span style=color:${this.series.color}>Replays: </span>
-                            ${this.point.y}</b>
+                            <span style=color:${dataPoint.series.color}>Replays: </span>
+                            ${dataPoint.point.y}</b>
                     </span>
                 `;
             },
             useHTML: true,
+            shared: true,
         },
         plotOptions: {
             column: {

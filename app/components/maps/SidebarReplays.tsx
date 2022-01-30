@@ -3,17 +3,17 @@ import {
     Button, Drawer, message, Popconfirm, Spin, Table, Tooltip,
 } from 'antd';
 import {
-    CaretRightOutlined,
     DeleteOutlined, QuestionCircleOutlined, ReloadOutlined, UnorderedListOutlined,
 } from '@ant-design/icons';
 import { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
 import { ColumnType, TableCurrentDataSource } from 'antd/lib/table/interface';
-import Link from 'next/link';
 import { deleteReplay, FileResponse } from '../../lib/api/apiRequests';
 import { getRaceTimeStr, timeDifference } from '../../lib/utils/time';
 import { AuthContext } from '../../lib/contexts/AuthContext';
 import SideDrawerExpandButton from '../common/SideDrawerExpandButton';
 import PlayerLink from '../common/PlayerLink';
+import CleanButton from '../common/CleanButton';
+import useWindowDimensions from '../../lib/hooks/useWindowDimensions';
 
 interface ExtendedFileResponse extends FileResponse {
     readableTime: string;
@@ -48,16 +48,18 @@ const SidebarReplays = ({
 
     const showFinishedColumn = replays.some((replay: FileResponse) => !replay.raceFinished);
 
-    const userProfileUrl = '/users/';
-
     const [visible, setVisible] = useState(true);
     const [visibleReplays, setVisibleReplays] = useState<FileResponse[]>([]);
+    const windowDimensions = useWindowDimensions();
 
     const { user } = useContext(AuthContext);
 
     useEffect(() => {
         // initialize visible replays with the first page
-        const initiallyVisibleReplays = replays.slice(0, defaultPageSize);
+        const initiallyVisibleReplays = replays.slice(
+            Math.max(replays.length - defaultPageSize, 0),
+            replays.length,
+        );
         setVisibleReplays(() => addReplayInfo(initiallyVisibleReplays));
     }, [replays]);
 
@@ -106,6 +108,7 @@ const SidebarReplays = ({
             dataIndex: 'relativeDate',
             align: 'right',
             width: 130,
+            defaultSortOrder: 'descend',
             sorter: (a, b) => a.date - b.date,
         },
         {
@@ -139,24 +142,20 @@ const SidebarReplays = ({
                 return (
                     <div className="flex flex-row gap-4 items-center">
                         {!selected ? (
-                            <Button
-                                size="middle"
-                                type="primary"
+                            <CleanButton
                                 onClick={() => onLoadReplay(replay)}
                                 className="w-full"
                             >
                                 Load
-                            </Button>
+                            </CleanButton>
                         ) : (
-                            <Button
-                                size="middle"
-                                type="primary"
-                                danger
-                                className="w-full"
+                            <CleanButton
                                 onClick={() => onRemoveReplay(replay)}
+                                className="w-full"
+                                backColor="#B41616"
                             >
                                 Remove
-                            </Button>
+                            </CleanButton>
                         )}
                         {user && user.accountId === replay.webId && (
                             <Popconfirm
@@ -240,27 +239,31 @@ const SidebarReplays = ({
             <Drawer
                 title="Select replays"
                 placement="left"
-                width={750}
+                width={Math.min(750, windowDimensions.width)}
                 onClose={onClose}
                 visible={visible}
                 className="h-screen"
+                headerStyle={{
+                    backgroundColor: '#2C2C2C',
+                }}
+                bodyStyle={{
+                    backgroundColor: '#1F1F1F',
+                }}
             >
                 <Spin spinning={loadingReplays}>
-                    <div className="flex flex-row justify-between items-center mb-4 mx-4">
+                    <div className="flex flex-row justify-between items-center mb-3 mx-4">
                         <div className="flex flex-row gap-4">
-                            <Button
-                                type="primary"
+                            <CleanButton
                                 onClick={() => onLoadAllVisibleReplays(visibleReplays, selectedReplayDataIds)}
                             >
                                 Load all visible
-                            </Button>
-                            <Button
-                                type="primary"
-                                danger
+                            </CleanButton>
+                            <CleanButton
                                 onClick={() => onRemoveAllReplays(visibleReplays)}
+                                backColor="#B41616"
                             >
                                 Unload all
-                            </Button>
+                            </CleanButton>
                         </div>
                         <div className="mr-6">
                             <Tooltip title="Refresh">
@@ -276,6 +279,10 @@ const SidebarReplays = ({
                     <div>
                         <Table
                             onChange={(pagination, filters, sorter, currentPageData) => {
+                                console.log({
+                                    pagination, filters, sorter, currentPageData,
+                                });
+
                                 onReplayTableChange(pagination, currentPageData);
                             }}
                             dataSource={addReplayInfo(replays)}
@@ -283,7 +290,10 @@ const SidebarReplays = ({
                             size="small"
                             pagination={{
                                 pageSize: defaultPageSize,
+                                hideOnSinglePage: true,
                                 position: ['bottomCenter'],
+                                showSizeChanger: false,
+                                size: 'small',
                             }}
                             scroll={{ scrollToFirstRowOnChange: true }}
                         />

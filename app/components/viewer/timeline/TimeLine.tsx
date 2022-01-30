@@ -135,8 +135,7 @@ const TimeLineView = ({ replaysData }: TimeLineViewProps) => {
                 </div>
                 <div className="flex-grow-0 w-24 h-full py-2">
                     <div
-                        className="flex w-full h-full items-center justify-center"
-                        style={{ backgroundColor: '#2C2C2C' }}
+                        className="flex w-full h-full items-center justify-center bg-gray-750"
                     >
                         {timeFormat(timeLineTime)}
                     </div>

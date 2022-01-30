@@ -1,20 +1,20 @@
 import React from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/router';
-import { PageHeader, Button } from 'antd';
 
 import { MapInfo } from '../../lib/api/apiRequests';
 import { cleanTMFormatting } from '../../lib/utils/formatting';
-import UserDisplay from '../common/UserDisplay';
+import CleanButton from '../common/CleanButton';
+import PageHeaderBar from '../common/PageHeaderBar';
 
 interface Props {
     mapInfo: MapInfo;
     title: string;
+    backUrl?: string;
+    children?: React.ReactNode
 }
 
-const MapHeader = ({ mapInfo, title }: Props): JSX.Element => {
-    const router = useRouter();
-
+const MapHeader = ({
+    mapInfo, title, backUrl, children,
+}: Props): JSX.Element => {
     const hasExchangeId = mapInfo.exchangeid !== undefined && mapInfo.exchangeid !== 0;
     const hasMapUid = mapInfo.mapUid !== undefined && mapInfo.mapUid !== '';
 
@@ -22,41 +22,33 @@ const MapHeader = ({ mapInfo, title }: Props): JSX.Element => {
     const tmxURL = `https://trackmania.exchange/maps/${mapInfo.exchangeid}`;
 
     return (
-        <PageHeader
-            onBack={() => router.push('/')}
+        <PageHeaderBar
             title={title}
-            subTitle={(
-                <div className="flex flex-row gap-4 items-baseline">
-                    {cleanTMFormatting(mapInfo.name || '')}
+            subtitle={cleanTMFormatting(mapInfo.name || '')}
+            backUrl={backUrl}
+        >
+            <CleanButton
+                key="tm.io"
+                disabled={!hasMapUid}
+                backColor="hsl(0, 0%, 15%)"
+                url={tmioURL}
+                openInNewTab
+            >
+                TM.io
+            </CleanButton>
+            <CleanButton
+                key="tmx"
+                disabled={!hasExchangeId}
+                backColor="hsl(0, 0%, 15%)"
+                url={tmxURL}
+                openInNewTab
+            >
+                TMX
+            </CleanButton>
 
-                    {/* anchors need duplicate links for keyboard accessibility */}
-                    <Link href={tmioURL}>
-                        <a target="_blank" rel="noreferrer" href={tmioURL}>
-                            <Button key="tm.io" type="primary" disabled={!hasMapUid}>
-                                Trackmania.io
-                            </Button>
-                        </a>
-                    </Link>
+            {children}
 
-                    <Link href={tmxURL}>
-                        <a target="_blank" rel="noreferrer" href={tmxURL}>
-                            <Button
-                                key="tmx"
-                                type="primary"
-                                disabled={!hasExchangeId}
-                                style={{
-                                    backgroundColor: '#13ae63',
-                                    borderColor: '#13ae63',
-                                }}
-                            >
-                                TM Exchange
-                            </Button>
-                        </a>
-                    </Link>
-                </div>
-            )}
-            extra={<UserDisplay />}
-        />
+        </PageHeaderBar>
     );
 };
 
