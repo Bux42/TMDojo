@@ -70,10 +70,10 @@ const SceneDirectionalLight = ({ replays, showDebugLocation }: SceneDirectionalL
                 shadow-mapSize-height={4096}
                 shadow-camera-near={1}
                 shadow-camera-far={50000}
-                shadow-camera-left={-1000}
-                shadow-camera-right={1000}
-                shadow-camera-top={1000}
-                shadow-camera-bottom={-1000}
+                shadow-camera-left={-750}
+                shadow-camera-right={750}
+                shadow-camera-top={750}
+                shadow-camera-bottom={-750}
                 castShadow
             >
                 {/* Debug Location */}
