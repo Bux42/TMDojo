@@ -2,59 +2,26 @@ import { Vector3 } from 'three';
 import { ReplayData } from '../api/apiRequests';
 import { ReplayDataPoint } from '../replays/replayData';
 
-interface InterpolatedValue {
-    name: string;
-    type: string;
-}
-
-const INTERPOLATED_VALUES: InterpolatedValue[] = [
-    { name: 'position', type: 'Vector3' },
-    { name: 'dir', type: 'Vector3' },
-    { name: 'up', type: 'Vector3' },
-    { name: 'fLDamperLen', type: 'float' },
-    { name: 'fRDamperLen', type: 'float' },
-    { name: 'rLDamperLen', type: 'float' },
-    { name: 'rRDamperLen', type: 'float' },
-    { name: 'velocity', type: 'Vector3' },
-    { name: 'wheelAngle', type: 'float' },
-    { name: 'speed', type: 'float' },
-];
-
-const readProp = (obj: any, prop: string) => obj[prop];
-
-const setProp = (obj: any, prop: string, value: number) => {
-    obj[prop] = value;
-};
-
 export const interpolateSamples = (
-    prevSample: ReplayDataPoint,
-    curSample: ReplayDataPoint,
-    smoothSample: ReplayDataPoint,
+    prev: ReplayDataPoint,
+    current: ReplayDataPoint,
+    smooth: ReplayDataPoint,
     currentRaceTime: number,
 ) => {
-    const factor: number = (currentRaceTime - prevSample.currentRaceTime)
-    / (curSample.currentRaceTime - prevSample.currentRaceTime);
+    const factor: number = (currentRaceTime - prev.currentRaceTime) / (current.currentRaceTime - prev.currentRaceTime);
 
-    INTERPOLATED_VALUES.forEach((interpolatedValue) => {
-        if (interpolatedValue.type === 'Vector3') {
-            setInterpolatedVector(
-                readProp(smoothSample, interpolatedValue.name),
-                readProp(prevSample, interpolatedValue.name),
-                readProp(curSample, interpolatedValue.name),
-                factor,
-            );
-        } else {
-            setProp(
-                smoothSample,
-                interpolatedValue.name,
-                interpolateFloat(
-                    readProp(prevSample, interpolatedValue.name),
-                    readProp(curSample, interpolatedValue.name),
-                    factor,
-                ),
-            );
-        }
-    });
+    setInterpolatedVector(smooth.position, prev.position, current.position, factor);
+    setInterpolatedVector(smooth.dir, prev.dir, current.dir, factor);
+    setInterpolatedVector(smooth.up, prev.up, current.up, factor);
+    setInterpolatedVector(smooth.velocity, prev.velocity, current.velocity, factor);
+
+    smooth.fLDamperLen = interpolateFloat(prev.fLDamperLen, current.fLDamperLen, factor);
+    smooth.fRDamperLen = interpolateFloat(prev.fRDamperLen, current.fRDamperLen, factor);
+    smooth.rLDamperLen = interpolateFloat(prev.rLDamperLen, current.rLDamperLen, factor);
+    smooth.rRDamperLen = interpolateFloat(prev.rRDamperLen, current.rRDamperLen, factor);
+
+    smooth.wheelAngle = interpolateFloat(prev.wheelAngle, current.wheelAngle, factor);
+    smooth.speed = interpolateFloat(prev.speed, current.speed, factor);
 };
 
 export const getSampleNearTime = (replay: ReplayData, raceTime: number): ReplayDataPoint => {
@@ -78,19 +45,19 @@ export const getSampleNearTime = (replay: ReplayData, raceTime: number): ReplayD
 
 export const interpolateFloat = (
     prevFloat: number,
-    nextFloat: number,
+    currentFloat: number,
     factor: number,
-): number => prevFloat + factor * (nextFloat - prevFloat);
+): number => prevFloat + factor * (currentFloat - prevFloat);
 
 export const setInterpolatedVector = (
     smoothVec: Vector3,
     prevVec: Vector3,
-    nextVec: Vector3,
+    currentVec: Vector3,
     factor: number,
 ) => {
     smoothVec.set(
-        interpolateFloat(prevVec.x, nextVec.x, factor),
-        interpolateFloat(prevVec.y, nextVec.y, factor),
-        interpolateFloat(prevVec.z, nextVec.z, factor),
+        interpolateFloat(prevVec.x, currentVec.x, factor),
+        interpolateFloat(prevVec.y, currentVec.y, factor),
+        interpolateFloat(prevVec.z, currentVec.z, factor),
     );
 };
