@@ -92,17 +92,22 @@ const ReplayTimesHistogram = ({ replays, binSize }: ReplayTimesHistogramProps) =
 
                 // Parse time format that doesn't always contain minutes: 50:43.849 or 43.849
                 const split = dataPoint.key.split(':');
-                let minutes = 0;
                 let seconds = 0;
+                let minutes = 0;
+                let hours = 0;
 
                 if (split.length === 1) {
                     seconds = parseFloat(split[0]);
-                } else {
+                } else if (split.length === 2) {
                     minutes = parseFloat(split[0]);
                     seconds = parseFloat(split[1]);
+                } else if (split.length === 3) {
+                    hours = parseFloat(split[0]);
+                    minutes = parseFloat(split[1]);
+                    seconds = parseFloat(split[2]);
                 }
 
-                const raceTime = minutes * 1000 * 60 + seconds * 1000;
+                const raceTime = hours * 1000 * 60 * 60 + minutes * 1000 * 60 + seconds * 1000;
 
                 return `
                     <span style="font-size: 10px">
