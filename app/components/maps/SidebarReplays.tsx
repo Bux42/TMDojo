@@ -251,7 +251,7 @@ const SidebarReplays = ({
                 }}
             >
                 <Spin spinning={loadingReplays}>
-                    <div className="flex flex-row justify-between items-center mb-4 mx-4">
+                    <div className="flex flex-row justify-between items-center mb-3 mx-4">
                         <div className="flex flex-row gap-4">
                             <CleanButton
                                 onClick={() => onLoadAllVisibleReplays(visibleReplays, selectedReplayDataIds)}
