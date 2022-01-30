@@ -32,6 +32,9 @@ export const interpolateSamples = (
     smoothSample: ReplayDataPoint,
     currentRaceTime: number,
 ) => {
+    const factor: number = (currentRaceTime - prevSample.currentRaceTime)
+    / (curSample.currentRaceTime - prevSample.currentRaceTime);
+
     INTERPOLATED_VALUES.forEach((interpolatedValue) => {
         if (interpolatedValue.type === 'Vector3') {
             setInterpolatedVector(
@@ -49,9 +52,7 @@ export const interpolateSamples = (
                 interpolateFloat(
                     readProp(prevSample, interpolatedValue.name),
                     readProp(curSample, interpolatedValue.name),
-                    readProp(prevSample, 'currentRaceTime'),
-                    readProp(curSample, 'currentRaceTime'),
-                    currentRaceTime,
+                    factor,
                 ),
             );
         }
@@ -77,23 +78,11 @@ export const getSampleNearTime = (replay: ReplayData, raceTime: number): ReplayD
     return replay.samples[sampleIndex];
 };
 
-let floatDiff: number;
-
 export const interpolateFloat = (
     prevFloat: number,
     nextFloat: number,
-    prevTime: number,
-    nextTime: number,
-    currentRaceTime: number,
-): number => {
-    let smoothFloat = prevFloat;
-    floatDiff = nextFloat - prevFloat;
-
-    const diffDivider = nextTime - prevTime;
-    floatDiff /= diffDivider;
-    smoothFloat += floatDiff * (currentRaceTime - prevTime);
-    return smoothFloat;
-};
+    factor: number,
+): number => prevFloat + factor * (nextFloat - prevFloat);
 
 const vecDiff: Vector3 = new Vector3();
 
