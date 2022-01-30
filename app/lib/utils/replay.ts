@@ -44,10 +44,10 @@ export const getSampleNearTime = (replay: ReplayData, raceTime: number): ReplayD
 };
 
 export const interpolateFloat = (
-    prevFloat: number,
-    currentFloat: number,
+    a: number,
+    b: number,
     factor: number,
-): number => prevFloat + factor * (currentFloat - prevFloat);
+): number => a * (1 - factor) + b * factor;
 
 export const setInterpolatedVector = (
     smoothVec: Vector3,
