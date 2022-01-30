@@ -41,9 +41,7 @@ export const interpolateSamples = (
                 readProp(smoothSample, interpolatedValue.name),
                 readProp(prevSample, interpolatedValue.name),
                 readProp(curSample, interpolatedValue.name),
-                readProp(prevSample, 'currentRaceTime'),
-                readProp(curSample, 'currentRaceTime'),
-                currentRaceTime,
+                factor,
             );
         } else {
             setProp(
@@ -84,23 +82,15 @@ export const interpolateFloat = (
     factor: number,
 ): number => prevFloat + factor * (nextFloat - prevFloat);
 
-const vecDiff: Vector3 = new Vector3();
-
 export const setInterpolatedVector = (
     smoothVec: Vector3,
     prevVec: Vector3,
     nextVec: Vector3,
-    prevTime: number,
-    nextTime: number,
-    currentRaceTime: number,
+    factor: number,
 ) => {
-    smoothVec.set(prevVec.x, prevVec.y, prevVec.z);
-    vecDiff.set(nextVec.x, nextVec.y, nextVec.z);
-    vecDiff.sub(prevVec);
-
-    const diffDivider = nextTime - prevTime;
-    vecDiff.divideScalar(diffDivider);
-    smoothVec.add(
-        vecDiff.multiplyScalar(currentRaceTime - prevTime),
+    smoothVec.set(
+        interpolateFloat(prevVec.x, nextVec.x, factor),
+        interpolateFloat(prevVec.y, nextVec.y, factor),
+        interpolateFloat(prevVec.z, nextVec.z, factor),
     );
 };
