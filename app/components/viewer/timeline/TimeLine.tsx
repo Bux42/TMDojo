@@ -15,7 +15,6 @@ interface TimeLineViewProps {
 // declare setInterval return variable outside to keep persistent reference for clearInterval after render
 let playInterval: ReturnType<typeof setTimeout>;
 let expectedTime = Date.now();
-const TICK_TIME = 1000 / 60;
 
 const MIN_SPEED = -2;
 const MAX_SPEED = 2;
@@ -64,7 +63,7 @@ const TimeLineView = ({ replaysData }: TimeLineViewProps) => {
     const startSteadyLoop = (callback: () => any) => {
         const dt = Date.now() - expectedTime; // the drift (positive for overshooting)
 
-        if (dt > TICK_TIME) {
+        if (dt > timeLineGlobal.tickTime) {
             // something really bad happened. Maybe the browser (tab) was inactive?
             // possibly special handling to avoid futile "catch up" run
         }
@@ -72,18 +71,18 @@ const TimeLineView = ({ replaysData }: TimeLineViewProps) => {
         // Perform actual code callback
         callback();
 
-        expectedTime += TICK_TIME;
+        expectedTime += timeLineGlobal.tickTime;
 
         // Stop timeout loop if you stop playing
-        const timeToWait = Math.max(0, TICK_TIME - dt);
+        const timeToWait = Math.max(0, timeLineGlobal.tickTime - dt);
         playInterval = setTimeout(() => startSteadyLoop(callback), timeToWait); // take into account drift
     };
 
     const initInterval = (speed: number) => {
-        expectedTime = Date.now() + TICK_TIME;
+        expectedTime = Date.now() + timeLineGlobal.tickTime;
 
         const intervalCallback = () => {
-            const raceTimeIncrement = TICK_TIME * speed;
+            const raceTimeIncrement = timeLineGlobal.tickTime * speed;
             const nextRaceTime = timeLineGlobal.currentRaceTime + raceTimeIncrement;
             if (nextRaceTime > timeLineGlobal.maxRaceTime || nextRaceTime < 0) {
                 // Loop time back to 0 if time is past the max
@@ -94,7 +93,7 @@ const TimeLineView = ({ replaysData }: TimeLineViewProps) => {
             }
         };
 
-        playInterval = setTimeout(() => startSteadyLoop(intervalCallback), TICK_TIME);
+        playInterval = setTimeout(() => startSteadyLoop(intervalCallback), timeLineGlobal.tickTime);
     };
 
     const onTogglePlay = (shouldPlay: boolean = !playing) => {
