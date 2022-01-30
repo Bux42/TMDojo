@@ -66,14 +66,14 @@ const SceneDirectionalLight = ({ replays, showDebugLocation }: SceneDirectionalL
             <directionalLight
                 ref={ref}
                 intensity={1}
-                shadow-mapSize-width={16384}
-                shadow-mapSize-height={16384}
+                shadow-mapSize-width={4096}
+                shadow-mapSize-height={4096}
                 shadow-camera-near={1}
                 shadow-camera-far={50000}
-                shadow-camera-left={-2000}
-                shadow-camera-right={2000}
-                shadow-camera-top={2000}
-                shadow-camera-bottom={-2000}
+                shadow-camera-left={-750}
+                shadow-camera-right={750}
+                shadow-camera-top={750}
+                shadow-camera-bottom={-750}
                 castShadow
             >
                 {/* Debug Location */}
