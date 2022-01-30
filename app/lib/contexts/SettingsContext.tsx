@@ -25,8 +25,6 @@ export interface SettingsContextProps {
     setCameraMode: (setCameraMode: CameraMode) => void;
     numColorChange: number;
     setNumColorChange: (numColorChange: number) => void;
-    directionalLightEnabled: boolean;
-    setDirectionalLightEnabled: (directionalLightEnabled: boolean) => void;
 }
 
 export const SettingsContext = createContext<SettingsContextProps>({
@@ -46,8 +44,6 @@ export const SettingsContext = createContext<SettingsContextProps>({
     setCameraMode: () => { },
     numColorChange: 0,
     setNumColorChange: () => { },
-    directionalLightEnabled: false,
-    setDirectionalLightEnabled: () => { },
 });
 
 export const SettingsProvider = ({ children }: any): JSX.Element => {
@@ -59,7 +55,6 @@ export const SettingsProvider = ({ children }: any): JSX.Element => {
     const [replayCarOpacity, setReplayCarOpacity] = useState(0.5);
     const [cameraMode, setCameraMode] = useState(CameraMode.Follow);
     const [numColorChange, setNumColorChange] = useState(0);
-    const [directionalLightEnabled, setDirectionalLightEnabled] = useState(false);
 
     const changeLineType = (type: LineType) => {
         setLineType(type);
@@ -84,8 +79,6 @@ export const SettingsProvider = ({ children }: any): JSX.Element => {
                 setCameraMode,
                 numColorChange,
                 setNumColorChange,
-                directionalLightEnabled,
-                setDirectionalLightEnabled,
             }}
         >
             {children}
