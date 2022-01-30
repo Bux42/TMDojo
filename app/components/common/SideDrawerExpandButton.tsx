@@ -13,7 +13,7 @@ const SideDrawerExpandButton = ({ onClick, content, side }: SideDrawerExpandButt
         className="p-6 flex flex-row items-center"
         size="large"
         style={{
-            backgroundColor: '#1f1f1f',
+            backgroundColor: '#2C2C2C',
             border: 0,
             borderBottomRightRadius: side === 'left' ? 9999 : 0,
             borderTopRightRadius: side === 'left' ? 9999 : 0,

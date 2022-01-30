@@ -11,7 +11,9 @@ import { ReplayDataPoint } from '../../lib/replays/replayData';
 import vecToQuat from '../../lib/utils/math';
 import { CameraMode } from '../../lib/contexts/SettingsContext';
 import InputOverlay from './InputOverlay';
-import getSampleNearTime from '../../lib/utils/replay';
+import {
+    getSampleNearTime, interpolateSamples,
+} from '../../lib/utils/replay';
 import GlobalTimeLineInfos from '../../lib/singletons/timeLineInfos';
 
 const BACK_WHEEL_Y = 35.232017517089844;
@@ -35,10 +37,12 @@ const ReplayCar = ({
     const camPosRef = useRef<THREE.Mesh>();
 
     const currentSampleRef = useRef<ReplayDataPoint>(replay.samples[0]);
+    const prevSampleRef = useRef<ReplayDataPoint>(replay.samples[0]);
 
     const timeLineGlobal = GlobalTimeLineInfos.getInstance();
 
     let curSample = replay.samples[0];
+    const smoothSample: ReplayDataPoint = { ...replay.samples[0] };
 
     // Get own material from loaded car model
     const carMesh: THREE.Mesh = fbx.children[0] as THREE.Mesh;
@@ -54,8 +58,14 @@ const ReplayCar = ({
     fbx.children.forEach((child: any) => {
         child.material = matClone;
     });
+    fbx.traverse((children: THREE.Object3D) => {
+        if (children instanceof THREE.Mesh) {
+            children.castShadow = true;
+        }
+    });
 
     useFrame((state, delta) => {
+        timeLineGlobal.tickTime = delta * 1000;
         if (mesh.current
             && stadiumCarMesh.current
             && camPosRef.current) {
@@ -64,43 +74,53 @@ const ReplayCar = ({
 
             // Get closest sample to TimeLine.currentRaceTime
             curSample = getSampleNearTime(replay, timeLineGlobal.currentRaceTime);
+
             currentSampleRef.current = curSample;
+            prevSampleRef.current = replay.samples[replay.samples.indexOf(curSample) - 1];
+
+            if (timeLineGlobal.currentRaceTime < replay.endRaceTime) {
+                interpolateSamples(prevSampleRef.current, curSample, smoothSample, timeLineGlobal.currentRaceTime);
+            } else {
+                interpolateSamples(prevSampleRef.current, curSample, smoothSample, curSample.currentRaceTime);
+            }
 
             // Get car rotation
             const carRotation: THREE.Quaternion = vecToQuat(
-                curSample.dir,
-                curSample.up,
+                smoothSample.dir,
+                smoothSample.up,
             );
 
             // Move & rotate 3D car from current sample rot & pos
-            mesh.current.position.lerp(curSample.position, 0.4);
+            mesh.current.position.set(smoothSample.position.x, smoothSample.position.y, smoothSample.position.z);
+
             stadiumCarMesh.current.rotation.setFromQuaternion(carRotation);
 
             // Set front wheels rotation
-            stadiumCarMesh.current.children[2].rotation.y = curSample.wheelAngle; // FL
-            stadiumCarMesh.current.children[4].rotation.y = curSample.wheelAngle; // FR
+            stadiumCarMesh.current.children[2].rotation.y = smoothSample.wheelAngle; // FL
+            stadiumCarMesh.current.children[4].rotation.y = smoothSample.wheelAngle; // FR
 
             // Set wheel suspensions
-            stadiumCarMesh.current.children[1].position.setY(BACK_WHEEL_Y - (curSample.rRDamperLen * 100)); // RR
-            stadiumCarMesh.current.children[2].position.setY(FRONT_WHEEL_Y - (curSample.fLDamperLen * 100)); // FL
-            stadiumCarMesh.current.children[3].position.setY(BACK_WHEEL_Y - (curSample.rLDamperLen * 100)); // RL
-            stadiumCarMesh.current.children[4].position.setY(FRONT_WHEEL_Y - (curSample.fRDamperLen * 100)); // FR
+            stadiumCarMesh.current.children[1].position.setY(BACK_WHEEL_Y - (smoothSample.rRDamperLen * 100)); // RR
+            stadiumCarMesh.current.children[2].position.setY(FRONT_WHEEL_Y - (smoothSample.fLDamperLen * 100)); // FL
+            stadiumCarMesh.current.children[3].position.setY(BACK_WHEEL_Y - (smoothSample.rLDamperLen * 100)); // RL
+            stadiumCarMesh.current.children[4].position.setY(FRONT_WHEEL_Y - (smoothSample.fRDamperLen * 100)); // FR
 
             // Camera target replay if selected
             if (followed) {
                 if (orbitControlsRef && orbitControlsRef.current) {
-                    orbitControlsRef.current.target.lerp(curSample.position, 0.2);
+                    orbitControlsRef.current.target.lerp(smoothSample.position, 0.2);
+
                     if (cameraMode === CameraMode.Follow) {
                         // move camPosMesh to Follow position
                         camPosRef.current.rotation.setFromQuaternion(carRotation);
                         // move toward where the car is heading
                         camPosRef.current.position.set(
-                            -curSample.velocity.x / 5,
-                            -curSample.velocity.y / 5,
-                            -curSample.velocity.z / 5,
+                            -smoothSample.velocity.x / 5,
+                            -smoothSample.velocity.y / 5,
+                            -smoothSample.velocity.z / 5,
                         );
-                        camPosRef.current.translateZ(-7 - (curSample.speed / 30));
-                        camPosRef.current.translateY(2 + (curSample.speed / 200));
+                        camPosRef.current.translateZ(-7 - (smoothSample.speed / 30));
+                        camPosRef.current.translateY(2 + (smoothSample.speed / 200));
                         // move camera to camPosMesh world position
                         const camWorldPos: THREE.Vector3 = new THREE.Vector3();
                         camPosRef.current.getWorldPosition(camWorldPos);
@@ -135,10 +155,6 @@ const ReplayCar = ({
     return (
         <>
             <mesh
-                position={[
-                    curSample.position.x,
-                    curSample.position.y,
-                    curSample.position.z]}
                 ref={mesh}
                 scale={1}
             >

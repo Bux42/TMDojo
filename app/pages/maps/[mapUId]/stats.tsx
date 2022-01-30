@@ -3,6 +3,7 @@ import React, {
 } from 'react';
 import { useRouter } from 'next/router';
 import { Card, Empty, Skeleton } from 'antd';
+import { PlaySquareOutlined } from '@ant-design/icons';
 import {
     FileResponse, getMapInfo, getReplays, MapInfo,
 } from '../../../lib/api/apiRequests';
@@ -14,7 +15,9 @@ import AggregateMapStats from '../../../components/mapStats/statistics/Aggregate
 import FastestTimeProgression from '../../../components/mapStats/statistics/FastestTimeProgression';
 import { AuthContext } from '../../../lib/contexts/AuthContext';
 import { MapStatsType, MapStatsTypeSwitcher } from '../../../components/mapStats/common/MapStatsTypeSwitcher';
-import { UserInfo } from '../../../lib/api/auth';
+import Footer from '../../../components/common/Footer';
+import CleanButton from '../../../components/common/CleanButton';
+import PageContainer from '../../../components/containers/PageContainer';
 
 const MapStats = () => {
     const { user } = useContext(AuthContext);
@@ -75,7 +78,8 @@ const MapStats = () => {
         const maxTime = Math.max(...inputReplays.map((r) => r.endRaceTime));
 
         // WIP method for determining bin size using the min and max times
-        const binSize = 10 ** (Math.floor(Math.log10(maxTime - minTime)) - 1);
+        let binSize = 10 ** (Math.floor(Math.log10(maxTime - minTime)) - 1);
+        binSize = Math.max(binSize, 1); // Make sure the bin size is at least 1 millisecond
         return binSize;
     };
 
@@ -105,75 +109,94 @@ const MapStats = () => {
     );
 
     return (
-        <div className="min-h-screen" style={{ backgroundColor: '#1F1F1F' }}>
+        <div className="flex flex-col items-center min-h-screen bg-page-back">
             <HeadTitle title={getTitle()} />
-            <MapHeader mapInfo={mapData || {}} title="Map statistics" />
-            {mapData && (
-                <div className="flex flex-col items-center py-8">
-                    <Card
-                        className="w-3/5 mb-8"
-                    >
-                        <MapStatsTypeSwitcher
-                            mapStatsType={mapStatsType}
-                            mapData={mapData}
-                            toggleMapStatsType={toggleMapStatsType}
-                        />
-                    </Card>
-                    <Card
-                        className="w-3/5"
-                        title={`Map: ${cleanTMFormatting(mapData?.name || '')}`}
-                    >
-                        <div className="flex flex-col h-full gap-4">
-                            {allReplaysFilteredByCurrentUser.length === 0
-                                ? (
-                                    <Empty
-                                        image={Empty.PRESENTED_IMAGE_SIMPLE}
-                                        description="No finished replays yet"
-                                    />
-                                ) : (
-                                    <>
-                                        <Card
-                                            title="Replays"
-                                            type="inner"
-                                        >
-                                            <Skeleton loading={loadingReplays} active title={false}>
-                                                <AggregateMapStats replays={allReplaysFilteredByCurrentUser} />
-                                            </Skeleton>
-                                        </Card>
+            <MapHeader
+                mapInfo={mapData || {}}
+                title="Map statistics"
+                backUrl="/"
+            >
+                <CleanButton
+                    url={`/maps/${mapData?.mapUid}`}
+                    backColor="hsl(0, 0%, 15%)"
+                    disabled={mapData === undefined}
+                >
+                    <div className="flex gap-2 items-center">
+                        <PlaySquareOutlined />
+                        3D Viewer
+                    </div>
+                </CleanButton>
+            </MapHeader>
 
-                                        <Card
-                                            title={`Finish Time Histogram ${binSize ? `(${binSize}ms bins)` : ''}`}
-                                            type="inner"
-                                        >
-                                            <Skeleton loading={loadingReplays} active>
-                                                {binSize && (
-                                                    <ReplayTimesHistogram
-                                                        replays={allReplaysFilteredByCurrentUser}
-                                                        binSize={binSize}
-                                                    />
-                                                )}
-                                            </Skeleton>
-                                        </Card>
-
-                                        <Card
-                                            title="Fastest time progression"
-                                            type="inner"
-                                        >
-                                            <Skeleton loading={loadingReplays} active>
-                                                <FastestTimeProgression
-                                                    replays={allReplaysFilteredByCurrentUser}
-                                                    userToShowProgression={user}
-                                                    onlyShowUserProgression={mapStatsType === MapStatsType.PERSONAL}
-                                                />
-                                            </Skeleton>
-                                        </Card>
-                                    </>
-                                )}
-                        </div>
-                    </Card>
+            <PageContainer>
+                <div className="w-full mb-8 bg-gray-750 rounded-md p-8">
+                    {mapData === undefined
+                        ? (
+                            <Skeleton loading active title={false} />)
+                        : (
+                            <MapStatsTypeSwitcher
+                                mapStatsType={mapStatsType}
+                                mapData={mapData}
+                                toggleMapStatsType={toggleMapStatsType}
+                            />
+                        )}
                 </div>
+                <div
+                    className="w-full p-8 bg-gray-750 rounded-md"
+                >
+                    <div className="flex flex-col h-full gap-4">
+                        {mapData !== undefined && allReplaysFilteredByCurrentUser.length === 0
+                            ? (
+                                <Empty
+                                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                                    description="No finished replays yet"
+                                />
+                            ) : (
+                                <>
+                                    <Card
+                                        title="Replays"
+                                        type="inner"
+                                        className="bg-gray-850"
+                                    >
+                                        <Skeleton loading={loadingReplays} active title={false}>
+                                            <AggregateMapStats replays={allReplaysFilteredByCurrentUser} />
+                                        </Skeleton>
+                                    </Card>
 
-            )}
+                                    <Card
+                                        title={`Finish Time Histogram ${binSize ? `(${binSize}ms bins)` : ''}`}
+                                        type="inner"
+                                        className="bg-gray-850"
+                                    >
+                                        <Skeleton loading={loadingReplays} active>
+                                            {binSize && (
+                                                <ReplayTimesHistogram
+                                                    replays={allReplaysFilteredByCurrentUser}
+                                                    binSize={binSize}
+                                                />
+                                            )}
+                                        </Skeleton>
+                                    </Card>
+
+                                    <Card
+                                        title="Fastest time progression"
+                                        type="inner"
+                                        className="bg-gray-850"
+                                    >
+                                        <Skeleton loading={loadingReplays} active>
+                                            <FastestTimeProgression
+                                                replays={allReplaysFilteredByCurrentUser}
+                                                userToShowProgression={user}
+                                                onlyShowUserProgression={mapStatsType === MapStatsType.PERSONAL}
+                                            />
+                                        </Skeleton>
+                                    </Card>
+                                </>
+                            )}
+                    </div>
+                </div>
+            </PageContainer>
+            <Footer />
         </div>
     );
 };
