@@ -56,7 +56,7 @@ export const createUser = (
                     req.log.debug(
                         `createUser: Created new user "${name}", doc ID: ${insertedUserData.insertedId.toString()}`,
                     );
-                    resolve({ userID: insertedUserData.insertedId.toString() });
+                    resolve({ userID: insertedUserData.insertedId?.toString() });
                 } else {
                     req.log.debug(`createUser: User "${name}" already exists, doc ID: ${docs[0]._id.toString()}`);
                     const updatedUser = {
@@ -74,7 +74,7 @@ export const createUser = (
                         updatedUser,
                     );
                     req.log.debug(`createUser: Updated user "${name}"`);
-                    resolve({ userID: updatedUserData.upsertedId.toString() });
+                    resolve({ userID: updatedUserData.upsertedId?.toString() });
                 }
             });
     },
