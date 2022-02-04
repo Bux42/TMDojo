@@ -67,14 +67,15 @@ export const createUser = (
                             clientCode: clientCode || null,
                         },
                     };
-                    const updatedUserData = await users.updateOne(
+                    await users.updateOne(
                         {
                             webId,
                         },
                         updatedUser,
                     );
                     req.log.debug(`createUser: Updated user "${name}"`);
-                    resolve({ userID: updatedUserData.upsertedId?.toString() });
+                    // inserts are explicit, this will always be an existing doc (so passing the known ID is fine)
+                    resolve({ userID: docs[0]._id.toString() });
                 }
             });
     },
