@@ -8,12 +8,9 @@ import * as fs from 'fs';
 import * as cors from 'cors';
 import * as bodyParser from 'body-parser';
 import * as cookieParser from 'cookie-parser';
-import { v4 as uuid } from 'uuid';
 
 import * as db from './lib/db';
-import {
-    getRequestLogger, logError, logInfo, initLogger,
-} from './lib/logger';
+import { logError, logInfo, initLogger } from './lib/logger';
 
 import authRouter from './routes/auth';
 import mapRouter from './routes/maps';
@@ -24,6 +21,8 @@ import meRouter from './routes/me';
 import userRouter from './routes/users';
 
 import authMiddleware from './middleware/auth';
+import setupLoggerMiddleware from './middleware/setupLogger';
+import reqResLoggerMiddleware from './middleware/reqResLogger';
 
 config();
 
@@ -78,26 +77,10 @@ app.use((err: Error, req: Request, res: Response, next: Function) => {
     res.status(500).send('Internal server error');
 });
 
-// App middleware
+// App Middleware
+app.use(setupLoggerMiddleware);
 app.use(authMiddleware);
-
-// request and response logger
-app.use((req: Request, res: Response, next: Function) => {
-    req.log = getRequestLogger(req);
-    req.requestId = uuid();
-
-    req.log.info(`REQUEST: ${req.method} ${req.originalUrl}`);
-
-    // override end() for logging
-    const oldEnd = res.end;
-    res.end = (data: any) => {
-        // data contains the response body
-        req.log.info(`RESPONSE: ${req.method} ${req.originalUrl} - ${res.statusCode}`);
-        oldEnd.apply(res, [data]);
-    };
-
-    next();
-});
+app.use(reqResLoggerMiddleware);
 
 // set up routes
 app.use('/auth', authRouter);
