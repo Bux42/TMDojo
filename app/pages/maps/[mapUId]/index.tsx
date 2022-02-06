@@ -27,6 +27,7 @@ const Home = (): JSX.Element => {
     const [replays, setReplays] = useState<FileResponse[]>([]);
     const [loadingReplays, setLoadingReplays] = useState<boolean>(true);
     const [selectedReplayData, setSelectedReplayData] = useState<ReplayData[]>([]);
+    const [loadingReplayData, setLoadingReplayData] = useState<FileResponse[]>([]);
     const [mapData, setMapData] = useState<MapInfo>({});
 
     const router = useRouter();
@@ -76,8 +77,34 @@ const Home = (): JSX.Element => {
         }
     }, [mapUId]);
 
+    const updateLoadingReplays = (
+        replay: FileResponse,
+        progressEvent: ProgressEvent,
+        loadingReplayCopy: FileResponse[],
+    ) => {
+        const progressPercent = (progressEvent.loaded / progressEvent.total) * 100;
+
+        const loadingReplay = loadingReplayCopy?.find((x) => x._id === replay._id);
+        if (loadingReplay) {
+            const index = loadingReplayCopy.indexOf(loadingReplay);
+            loadingReplayCopy[index].downloadProgress = Math.round(progressPercent);
+            setLoadingReplayData([...loadingReplayCopy]);
+        }
+    };
+
     const onLoadReplay = async (replay: FileResponse) => {
-        const replayData = await fetchReplayData(replay);
+        const loadingReplayCopy = [...loadingReplayData, replay];
+        setLoadingReplayData(loadingReplayCopy);
+
+        const replayData = await fetchReplayData(replay, (progressEvent: ProgressEvent) => {
+            updateLoadingReplays(replay, progressEvent, loadingReplayCopy);
+        });
+
+        const loadingReplayFiltered = loadingReplayData.filter(
+            (loadingReplay) => loadingReplay._id !== replay._id,
+        );
+
+        setLoadingReplayData(loadingReplayFiltered);
         setSelectedReplayData([...selectedReplayData, replayData]);
     };
 
@@ -95,9 +122,13 @@ const Home = (): JSX.Element => {
         const filtered = allReplays.filter(
             (replay) => selectedReplayDataIds.indexOf(replay._id) === -1,
         );
+        setLoadingReplayData(filtered);
         const fetchedReplays = await Promise.all(
-            filtered.map((replay) => fetchReplayData(replay)),
+            filtered.map((replay) => fetchReplayData(replay, (progressEvent) => {
+                updateLoadingReplays(replay, progressEvent, filtered);
+            })),
         );
+        setLoadingReplayData([]);
         setSelectedReplayData([...selectedReplayData, ...fetchedReplays]);
     };
 
@@ -134,6 +165,7 @@ const Home = (): JSX.Element => {
                         onLoadAllVisibleReplays={onLoadAllVisibleReplays}
                         onRemoveAllReplays={onRemoveAllReplays}
                         selectedReplayDataIds={selectedReplayData.map((replay) => replay._id)}
+                        loadingReplayData={loadingReplayData}
                         onRefreshReplays={fetchAndSetReplays}
                     />
                     {
