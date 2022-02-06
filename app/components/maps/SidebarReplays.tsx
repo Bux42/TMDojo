@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import {
-    Button, Drawer, message, Popconfirm, Spin, Table, Tooltip,
+    Button, Drawer, message, Popconfirm, Progress, Spin, Table, Tooltip,
 } from 'antd';
 import {
     DeleteOutlined, QuestionCircleOutlined, ReloadOutlined, UnorderedListOutlined,
@@ -25,6 +25,7 @@ interface Props {
     mapUId: string;
     replays: FileResponse[];
     loadingReplays: boolean;
+    loadingReplayData: FileResponse[];
     onLoadReplay: (replay: FileResponse) => void;
     onRemoveReplay: (replay: FileResponse) => void;
     onLoadAllVisibleReplays: (replays: FileResponse[], selectedReplayDataIds: string[]) => void;
@@ -37,6 +38,7 @@ const SidebarReplays = ({
     mapUId,
     replays,
     loadingReplays,
+    loadingReplayData,
     onLoadReplay,
     onRemoveReplay,
     onLoadAllVisibleReplays,
@@ -139,14 +141,22 @@ const SidebarReplays = ({
             width: 150,
             render: (_, replay) => {
                 const selected = selectedReplayDataIds.indexOf(replay._id) !== -1;
+                const loading = loadingReplayData.find((x) => x._id === replay._id);
                 return (
                     <div className="flex flex-row gap-4 items-center">
                         {!selected ? (
                             <CleanButton
-                                onClick={() => onLoadReplay(replay)}
+                                onClick={() => {
+                                    onLoadReplay(replay);
+                                }}
                                 className="w-full"
+                                disabled={loading !== undefined}
                             >
-                                Load
+                                {
+                                    loading === undefined
+                                        ? 'Load'
+                                        : <Progress percent={loading.downloadProgress} status="active" />
+                                }
                             </CleanButton>
                         ) : (
                             <CleanButton
