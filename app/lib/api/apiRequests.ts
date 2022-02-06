@@ -23,6 +23,7 @@ export interface FileResponse {
     playerName: string;
     raceFinished: number;
     webId: string;
+    downloadProgress: number;
     _id: string;
 }
 
@@ -52,15 +53,19 @@ export const getReplays = async (filters: FilterParams = DEFAULT_FILTERS): Promi
 };
 
 export interface ReplayData extends FileResponse, DataViewResult {}
-export const fetchReplayData = async (file: FileResponse): Promise<ReplayData> => {
+export const fetchReplayData = async (
+    file: FileResponse,
+    downloadProgress: (progressEvent: any) => void,
+): Promise<ReplayData> => {
     const res = await apiInstance.get(`/replays/${file._id}`, {
+        onDownloadProgress: downloadProgress,
         responseType: 'arraybuffer',
     });
 
     const dataView = new DataView(res.data);
     const {
         samples, minPos, maxPos, dnfPos, color, intervalMedian,
-    } = readDataView(dataView);
+    } = await readDataView(dataView);
 
     return {
         ...file, samples, minPos, maxPos, dnfPos, color, intervalMedian,
