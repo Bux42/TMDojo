@@ -3,7 +3,11 @@ module.exports = {
         browser: true,
         es2021: true,
     },
-    extends: ['plugin:react/recommended', 'airbnb'],
+    extends: [
+        'plugin:react/recommended',
+        'airbnb',
+        'plugin:react-hooks/recommended',
+    ],
     globals: {
         React: true,
         JSX: true,
@@ -41,11 +45,16 @@ module.exports = {
         'react/require-default-props': 'off',
         // due to DB IDs we have to disable this
         'no-underscore-dangle': 'off',
+        camelcase: ['error', {
+            allow: ['redirect_uri', 'client_id', 'response_type'],
+        }],
         // preferences
         '@typescript-eslint/no-use-before-define': 'off',
         'no-plusplus': 'off',
         'max-len': ['error', 120],
         'lines-between-class-members': 'off',
+        'no-shadow': 'off',
+        '@typescript-eslint/no-shadow': 'error',
     },
     settings: {
         'import/resolver': {

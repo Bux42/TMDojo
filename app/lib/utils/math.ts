@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { Vector3 } from 'three';
 
 const vec = new THREE.Vector3();
 const vec2 = new THREE.Vector3();
@@ -55,3 +56,22 @@ export default function vecToQuat(forward: THREE.Vector3, up: THREE.Vector3): TH
     quaternion.w = (m01 - m10) * num2;
     return quaternion;
 }
+
+export const interpolateFloat = (
+    a: number,
+    b: number,
+    factor: number,
+): number => a * (1 - factor) + b * factor;
+
+export const setInterpolatedVector = (
+    smoothVec: Vector3,
+    prevVec: Vector3,
+    currentVec: Vector3,
+    factor: number,
+) => {
+    smoothVec.set(
+        interpolateFloat(prevVec.x, currentVec.x, factor),
+        interpolateFloat(prevVec.y, currentVec.y, factor),
+        interpolateFloat(prevVec.z, currentVec.z, factor),
+    );
+};

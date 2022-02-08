@@ -11,10 +11,8 @@ import * as express from 'express';
 
 import axios from 'axios';
 
-import * as fs from 'fs';
-import * as path from 'path';
-
 import * as db from '../lib/db';
+import * as artefacts from '../lib/artefacts';
 
 const router = express.Router();
 /**
@@ -38,13 +36,14 @@ router.get('/', async (req: Request, res: Response, next: Function) => {
  */
 router.get('/:mapUID', async (req: Request, res: Response, next: Function) => {
     try {
-        if (fs.existsSync(`mapBlocks/${req.params.mapUID}`)) {
-            res.sendFile(path.resolve(`${__dirname}/../../mapBlocks/${req.params.mapUID}`));
-        } else {
-            res.status(404).send();
-        }
+        const mapData = await artefacts.retrieveMap(req.params.mapUID);
+        res.send(mapData);
     } catch (err) {
-        next(err);
+        if (err?.message === 'Object not found') {
+            res.status(404).send();
+        } else {
+            next(err);
+        }
     }
 });
 
@@ -65,7 +64,7 @@ router.get('/:mapUID/info', async (req: Request, res: Response) => {
         const tmioData = tmxRes.data;
         mapData = { ...mapData, ...tmioData };
     } catch (error) {
-        console.log('/maps/:mapUID/info: tm.io request failed with error ', error.toString());
+        req.log.error(`mapsRouter: tm.io request failed with error ${error.toString()}`);
     }
 
     res.send(mapData);
@@ -82,16 +81,15 @@ router.post('/:mapUID', (req: Request, res: Response, next: Function) => {
         completeData += data;
     });
 
-    req.on('end', () => {
-        const buff = Buffer.from(completeData, 'base64');
-        const filePath = `mapBlocks/${req.params.mapUID}`;
-        fs.writeFile(filePath, buff, (err) => {
-            if (err) {
-                return next(err);
-            }
-            console.log(`POST /maps/${req.params.mapUID}: The file was saved at`, filePath);
-            return res.send();
-        });
+    req.on('end', async () => {
+        try {
+            req.log.debug('mapsRouter: Received map data, uploading');
+            const buff = Buffer.from(completeData);
+            await artefacts.uploadMap(req.params.mapUID, buff);
+            res.send();
+        } catch (err) {
+            next(err);
+        }
     });
 
     req.on('error', (err) => {

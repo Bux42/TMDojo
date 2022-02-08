@@ -1,15 +1,16 @@
-import { MongoClient, ObjectId } from 'mongodb';
+import { MongoClient, ObjectId, Db } from 'mongodb';
 import { config } from 'dotenv';
 import { v4 as uuid } from 'uuid';
+import { Request } from 'express';
 import { playerLoginFromWebId } from './authorize';
+import { logError, logInfo } from './logger';
 
 config();
 
 const DB_NAME = 'dojo';
 
-let db: any = null;
+let db: Db = null;
 
-// eslint-disable-next-line no-unused-vars
 export type Rejector = (_1: Error) => void;
 
 export const initDB = () => {
@@ -19,64 +20,86 @@ export const initDB = () => {
 
     mongoClient.connect((err: Error) => {
         if (err) {
-            console.error('initDB: Could not connect to DB, shutting down');
+            logError('initDB: Could not connect to DB, shutting down');
             process.exit();
         }
-        console.log('initDB: Connected successfully to DB');
+        logInfo('initDB: Connected successfully to DB');
         db = mongoClient.db(DB_NAME);
     });
 };
 
-export const authenticateUser = (
+export const createUser = (
+    req: Request,
     webId: any,
     login: any,
     name: any,
-): Promise<void> => new Promise((resolve: () => void, reject: Rejector) => {
-    const users = db.collection('users');
-    users
-        .find({
-            webId,
-        })
-        .toArray((err: Error, docs: any) => {
-            if (err) {
-                reject(err);
-            } else if (!docs.length) {
-                users.insertOne({
-                    webId,
-                    playerLogin: login,
-                    playerName: name,
-                    last_active: Date.now(),
-                });
-                resolve();
-            } else {
-                const updatedUser = {
-                    $set: {
+    clientCode: any,
+): Promise<{userID: string}> => new Promise(
+    (resolve: (updateInfo: {userID: string}) => void, reject: Rejector) => {
+        const users = db.collection('users');
+        users
+            .find({
+                webId,
+            })
+            .toArray(async (err: Error, docs: any) => {
+                if (err) {
+                    req.log.error(`createUser: Error finding user with webId ${webId}`);
+                    reject(err);
+                } else if (!docs.length) {
+                    const insertedUserData = await users.insertOne({
+                        webId,
                         playerLogin: login,
                         playerName: name,
                         last_active: Date.now(),
-                    },
-                };
-                users.updateOne(
-                    {
-                        webId,
-                    },
-                    updatedUser,
-                );
-                resolve();
-            }
-        });
-});
+                        clientCode: clientCode || null,
+                    });
+                    req.log.debug(
+                        `createUser: Created new user "${name}", doc ID: ${insertedUserData.insertedId.toString()}`,
+                    );
+                    resolve({ userID: insertedUserData.insertedId?.toString() });
+                } else {
+                    req.log.debug(`createUser: User "${name}" already exists, doc ID: ${docs[0]._id.toString()}`);
+                    const updatedUser = {
+                        $set: {
+                            playerLogin: login,
+                            playerName: name,
+                            last_active: Date.now(),
+                            clientCode: clientCode || null,
+                        },
+                    };
+                    await users.updateOne(
+                        {
+                            webId,
+                        },
+                        updatedUser,
+                    );
+                    req.log.debug(`createUser: Updated user "${name}"`);
+                    // inserts are explicit, this will always be an existing doc (so passing the known ID is fine)
+                    resolve({ userID: docs[0]._id.toString() });
+                }
+            });
+    },
+);
 
-export const getUniqueMapNames = (
+export const getUniqueMapNames = async (
     mapName ?: string,
-): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
+): Promise<any> => {
     const replays = db.collection('replays');
     const queryPipeline = [
+        {
+            $group: {
+                _id: '$mapRef',
+                count: {
+                    $sum: 1,
+                },
+                lastUpdate: { $max: '$date' }, // pass the highest date (i.e. latest replay's timestamp)
+            },
+        },
         // populate map references to count occurrences
         {
             $lookup: {
                 from: 'maps',
-                localField: 'mapRef',
+                localField: '_id',
                 foreignField: '_id',
                 as: 'map',
             },
@@ -85,19 +108,9 @@ export const getUniqueMapNames = (
             $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ['$map', 0] }, '$$ROOT'] } },
         },
         {
-            $group: {
-                _id: '$mapUId',
-                mapName: { $first: '$mapName' }, // pass the first instance of mapUId (since it'll always be the same)
-                count: {
-                    $sum: 1,
-                },
-                lastUpdate: { $max: '$date' }, // pass the highest date (i.e. latest replay's timestamp)
-            },
-        },
-        {
             $project: {
                 _id: false,
-                mapUId: '$_id',
+                mapUId: true,
                 mapName: true,
                 count: '$count',
                 lastUpdate: true,
@@ -113,18 +126,11 @@ export const getUniqueMapNames = (
             },
         } as any);
     }
-    replays.aggregate(queryPipeline, async (aggregateErr: Error, cursor: any) => {
-        if (aggregateErr) {
-            return reject(aggregateErr);
-        }
-        try {
-            const data = await cursor.toArray();
-            return resolve(data);
-        } catch (arrayErr) {
-            return reject(arrayErr);
-        }
-    });
-});
+
+    const cursor = replays.aggregate(queryPipeline);
+    const data = await cursor.toArray();
+    return data;
+};
 
 export const getMapByUId = (mapUId ?: string): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
     const maps = db.collection('maps');
@@ -143,6 +149,14 @@ export const saveMap = (mapData ?: any): Promise<any> => new Promise((resolve: F
         .catch((error: Error) => reject(error));
 });
 
+// Gets a user by the _id field in the db
+export const getUserById = async (id: string) => {
+    const users = db.collection('users');
+    return users.findOne({
+        _id: new ObjectId(id),
+    });
+};
+
 export const getUserByWebId = (
     webId ?: string,
 ): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
@@ -155,26 +169,55 @@ export const getUserByWebId = (
     });
 });
 
-export const saveUser = (
-    userData: any,
-): Promise<{_id: string}> => new Promise((resolve: Function, reject: Rejector) => {
-    const users = db.collection('users');
-    users.insertOne(userData)
-        .then(({ insertedId }: {insertedId: string}) => resolve({ _id: insertedId }))
-        .catch((error: Error) => reject(error));
-});
+export const getReplaysByUserRef = async (
+    userRef: string,
+): Promise<any> => {
+    const replays = db.collection('replays');
 
-export const getReplays = (
+    const pipeline = [
+        {
+            $match: { userRef: new ObjectId(userRef) },
+        },
+        {
+            $lookup: {
+                from: 'maps',
+                localField: 'mapRef',
+                foreignField: '_id',
+                as: 'map',
+            },
+        },
+        {
+            $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ['$map', 0] }, '$$ROOT'] } },
+        },
+    ];
+
+    const cursor = replays.aggregate(pipeline);
+    const data = await cursor.toArray();
+    return { files: data, totalResults: data.length };
+};
+
+export const getReplays = async (
     mapName ?: string,
     playerName ?: string,
     mapUId ?: string,
     raceFinished ?: string,
     orderBy ?: string,
     maxResults: string = '1000',
-): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
+): Promise<any> => {
     const replays = db.collection('replays');
 
-    const pipeline = [
+    const pipeline = [];
+
+    const map = await getMapByUId(mapUId);
+    if (map && map._id) {
+        pipeline.push({
+            $match: {
+                mapRef: map._id,
+            },
+        });
+    }
+
+    pipeline.push(...[
         // populate user references
         {
             $lookup: {
@@ -199,7 +242,7 @@ export const getReplays = (
         {
             $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ['$map', 0] }, '$$ROOT'] } },
         },
-    ];
+    ]);
 
     const addRegexFilter = (property ?: string, propertyName ?: string) => {
         if (property) {
@@ -213,11 +256,8 @@ export const getReplays = (
             } as any);
         }
     };
-
-    // apply filters
     addRegexFilter(mapName, 'mapName');
     addRegexFilter(playerName, 'playerName');
-    addRegexFilter(mapUId, 'mapUId');
 
     if (raceFinished && raceFinished !== '-1') {
         pipeline.push({
@@ -253,23 +293,15 @@ export const getReplays = (
         },
     } as any);
 
-    replays.aggregate(pipeline, async (aggregateErr: Error, cursor: any) => {
-        if (aggregateErr) {
-            return reject(aggregateErr);
-        }
-        try {
-            const data = await cursor.toArray();
-            return resolve({ files: data, totalResults: data.length });
-        } catch (arrayErr) {
-            return reject(arrayErr);
-        }
-    });
-});
+    const cursor = replays.aggregate(pipeline);
+    const data = await cursor.toArray();
+    return { files: data, totalResults: data.length };
+};
 
-export const getReplayById = (
+export const getReplayById = async (
     replayId ?: string,
     populate ?: boolean,
-): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
+): Promise<any> => {
     const replays = db.collection('replays');
 
     let pipeline = [
@@ -314,18 +346,17 @@ export const getReplayById = (
         ] as any[]);
     }
 
-    replays.aggregate(pipeline, async (aggregateErr: Error, cursor: any) => {
-        if (aggregateErr) {
-            return reject(aggregateErr);
-        }
-        try {
-            const data = await cursor.toArray();
-            return resolve(data[0]);
-        } catch (arrayErr) {
-            return reject(arrayErr);
-        }
+    const cursor = replays.aggregate(pipeline);
+    const data = await cursor.toArray();
+    return data[0];
+};
+
+export const deleteReplayById = async (replayId: any) => {
+    const replays = db.collection('replays');
+    await replays.deleteOne({
+        _id: new ObjectId(replayId),
     });
-});
+};
 
 export const getReplayByFilePath = (
     filePath ?: string,
@@ -344,7 +375,7 @@ export const saveReplayMetadata = (
 ): Promise<{_id: string}> => new Promise((resolve: Function, reject: Rejector) => {
     const replays = db.collection('replays');
     replays.insertOne(metadata)
-        .then(({ insertedId }: {insertedId: string}) => resolve({ _id: insertedId }))
+        .then(({ insertedId }: {insertedId: ObjectId}) => resolve({ _id: insertedId }))
         .catch((error: Error) => reject(error));
 });
 
@@ -352,25 +383,23 @@ export const saveReplayMetadata = (
  * Creates session using a webId.
  * Returns session secret or undefined if something went wrong
  */
-export const createSession = async (userInfo: any) => {
+export const createSession = async (req: Request, userInfo: any, clientCode?: any) => {
     // Find user
-    let user = await getUserByWebId(userInfo.account_id);
-    if (user === undefined || user === null) {
-        const playerLogin = playerLoginFromWebId(userInfo.account_id);
+    const user = await getUserByWebId(userInfo.account_id);
+    let userID = user?._id;
+    if (!userID) {
+        const playerLogin = playerLoginFromWebId(req, userInfo.account_id);
 
         if (playerLogin === undefined) {
-            console.log(`Failed to create session, generated playerLogin is not valid: ${playerLogin}`);
             return undefined;
         }
 
         if (userInfo.account_id !== undefined && userInfo.display_name !== undefined) {
-            user = await saveUser({
-                webId: userInfo.account_id,
-                playerLogin,
-                playerName: userInfo.display_name,
-            });
+            const updatedUserInfo = await createUser(
+                req, userInfo.account_id, playerLogin, userInfo.display_name, null,
+            );
+            userID = updatedUserInfo.userID;
         } else {
-            console.log(`Could not create user for webId: ${userInfo.account_id}`);
             return undefined;
         }
     }
@@ -380,15 +409,29 @@ export const createSession = async (userInfo: any) => {
     const sessionId = uuid();
     await sessions.insertOne({
         sessionId,
-        userRef: user._id,
+        clientCode: clientCode || null,
+        userRef: userID,
     });
 
     return sessionId;
 };
 
+export const updateSession = async (session: any) => {
+    if (!session._id) {
+        throw new Error('Session without _id cannot be updated');
+    }
+    const sessions = db.collection('sessions');
+    return sessions.replaceOne({ _id: session._id }, session);
+};
+
 export const findSessionBySecret = async (sessionId: string) => {
     const sessions = db.collection('sessions');
     return sessions.findOne({ sessionId });
+};
+
+export const findSessionByClientCode = async (clientCode: string) => {
+    const sessions = db.collection('sessions');
+    return sessions.findOne({ clientCode });
 };
 
 export const deleteSession = async (sessionId: string) => {

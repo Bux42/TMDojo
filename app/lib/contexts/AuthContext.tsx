@@ -10,6 +10,7 @@ import openAuthWindow from '../utils/authPopup';
 export interface AuthContextProps {
     user?: UserInfo,
     setUser: (user?: UserInfo) => void,
+    loginUser: (code: string, state?: string) => Promise<void>,
     logoutUser: () => Promise<void>
     startAuthFlow: () => void
 }
@@ -17,6 +18,7 @@ export interface AuthContextProps {
 export const AuthContext = createContext<AuthContextProps>({
     user: undefined,
     setUser: (user?: UserInfo) => {},
+    loginUser: async (code: string, state?: string) => {},
     logoutUser: async () => {},
     startAuthFlow: () => {},
 });
@@ -80,19 +82,24 @@ export const AuthProvider = ({ children }: any): JSX.Element => {
             return;
         }
 
+        await loginUser(code);
+    }, [setUser]);
+
+    // helper function to make login callable from outside the Context
+    const loginUser = async (code: string, state?: string) => {
         try {
-            const userInfo = await authorizeWithAccessCode(code);
+            const userInfo = await authorizeWithAccessCode(code, state);
             setUser(userInfo);
         } catch (e) {
             console.log(e);
         }
-    }, [setUser]);
+    };
 
     const logoutUser = async () => {
         try {
             await logout();
             setUser(undefined);
-        } catch (e) {
+        } catch (e: any) {
             // If error code is Unauthorized (so no user is logged in), set user to undefined
             // This should only happen when manually deleting the session cookie
             if (e.response.status === 401) {
@@ -108,6 +115,7 @@ export const AuthProvider = ({ children }: any): JSX.Element => {
             value={{
                 user,
                 setUser,
+                loginUser,
                 logoutUser,
                 startAuthFlow,
             }}

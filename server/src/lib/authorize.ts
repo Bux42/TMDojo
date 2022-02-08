@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import axios from 'axios';
 
-export const exchangeCodeForAccessToken = async (code: string, redirectUri: string): Promise<any> => {
+export const exchangeCodeForAccessToken = async (req: Request, code: string, redirectUri: string): Promise<any> => {
     const authUrl = 'https://api.trackmania.com/api/access_token';
     const params = {
         grant_type: 'authorization_code',
@@ -11,29 +11,41 @@ export const exchangeCodeForAccessToken = async (code: string, redirectUri: stri
         redirect_uri: redirectUri,
     };
 
+    req.log.debug('exchangeCodeForAccessToken: Attempting to get access token from TM OAuth API');
     // TODO: properly handle errors
     const res = await axios
         .post(authUrl, new URLSearchParams(params).toString())
-        .catch((e) => console.log(e));
+        .catch((e) => {
+            req.log.error('exchangeCodeForAccessToken: TM OAuth request failed');
+            req.log.error(e);
+        });
 
-    return (res as any).data.access_token;
+    const accessToken = (res as any).data.access_token;
+    req.log.debug('exchangeCodeForAccessToken: Received access token from TM OAuth API');
+    return accessToken;
 };
 
-export const fetchUserInfo = async (accessToken: string) => {
+export const fetchUserInfo = async (req: Request, accessToken: string) => {
     const userUrl = 'https://api.trackmania.com/api/user';
     const config = {
         headers: { Authorization: `Bearer ${accessToken}` },
     };
 
+    req.log.debug('fetchUserInfo: Attempting to get user info from TM API');
     // TODO: properly handle errors
     const res = await axios
         .get(userUrl, config)
-        .catch((e) => console.log(e));
+        .catch((e) => {
+            req.log.error('fetchUserInfo: User info request failed');
+            req.log.error(e);
+        });
 
-    return (res as any).data;
+    const userInfo = (res as any).data;
+    req.log.debug('fetchUserInfo: Got user info from TM API');
+    return userInfo;
 };
 
-export const playerLoginFromWebId = (webId: string) => {
+export const playerLoginFromWebId = (req: Request, webId: string) => {
     const hexToIntArray = (inputString: string) => {
         const str = [];
         for (let i = 0; i < inputString.length; i += 2) {
@@ -52,19 +64,27 @@ export const playerLoginFromWebId = (webId: string) => {
     };
 
     try {
+        req.log.debug(`playerLoginFromWebId: Attempting to get player login from webId: ${webId}`);
         const cleanID = webId.replaceAll('-', '');
         const hexValues = hexToIntArray(cleanID);
         const base64 = Buffer.from(hexValues).toString('base64');
         const playerLogin = base64.replace('+', '-').replace('/', '_').replace(/=+$/, '');
-        return isValidPlayerLogin(playerLogin) ? playerLogin : undefined;
+        const validLogin = isValidPlayerLogin(playerLogin);
+        if (validLogin) {
+            req.log.debug(`playerLoginFromWebId: Converted webId to playerLogin: ${playerLogin}`);
+            return playerLogin;
+        }
+        req.log.error(`playerLoginFromWebId: webId "${webId}" is not a valid player login`);
+        return undefined;
     } catch (e) {
-        console.log(`Something went wrong while converting webId "${webId}" to a playerLogin:`);
-        console.log(e);
+        req.log.error(`playerLoginFromWebId: Unable to convert webId "${webId}" to a playerLogin:`);
+        req.log.error(e);
         return undefined;
     }
 };
 
 const setSessionCookieWithAge = (req: Request, res: Response, sessionId: string, age: number) => {
+    req.log.debug(`setSessionCookieWithAge: Setting session cookie with age ${age}`);
     res.cookie('sessionId', sessionId, {
         path: '/',
         secure: req.secure,

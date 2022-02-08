@@ -1,4 +1,4 @@
-/* eslint-disable no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 // eslint-disable-next-line import/no-unresolved
 import { Express } from 'express-serve-static-core';
 
@@ -16,5 +16,19 @@ declare module 'express-serve-static-core' {
     }
 
     interface Response {
+    }
+}
+
+declare global {
+    namespace Express {
+        interface Request {
+            log: {
+                info: (message: string|object) => void,
+                warn: (message: string|object) => void,
+                error: (message: string|object) => void,
+                debug: (message: string|object) => void
+            }
+            requestId: string,
+        }
     }
 }

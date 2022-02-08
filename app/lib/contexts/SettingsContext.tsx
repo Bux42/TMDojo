@@ -29,21 +29,21 @@ export interface SettingsContextProps {
 
 export const SettingsContext = createContext<SettingsContextProps>({
     lineType: LineTypes.default,
-    changeLineType: () => {},
+    changeLineType: () => { },
     showGearChanges: false,
-    setShowGearChanges: () => {},
+    setShowGearChanges: () => { },
     showFPS: false,
-    setShowFPS: () => {},
+    setShowFPS: () => { },
     showInputOverlay: true,
-    setShowInputOverlay: () => {},
+    setShowInputOverlay: () => { },
     replayLineOpacity: 0.5,
-    setReplayLineOpacity: () => {},
+    setReplayLineOpacity: () => { },
     replayCarOpacity: 0.5,
-    setReplayCarOpacity: () => {},
+    setReplayCarOpacity: () => { },
     cameraMode: CameraMode.Follow,
-    setCameraMode: () => {},
+    setCameraMode: () => { },
     numColorChange: 0,
-    setNumColorChange: () => {},
+    setNumColorChange: () => { },
 });
 
 export const SettingsProvider = ({ children }: any): JSX.Element => {

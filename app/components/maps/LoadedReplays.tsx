@@ -1,20 +1,21 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import {
-    CaretLeftOutlined, CaretRightOutlined, EyeOutlined, LeftCircleFilled,
+    CaretLeftOutlined, CaretRightOutlined, EyeOutlined,
 } from '@ant-design/icons';
 import {
-    Button, Checkbox, Drawer, Select, Row, Col, Slider, Radio, RadioChangeEvent, List, Divider,
+    Button, Drawer, Row, Col, Radio, RadioChangeEvent, List, Divider,
 } from 'antd';
 import React, {
-    Dispatch, SetStateAction, useContext, useState,
+    useContext, useMemo, useState,
 } from 'react';
 import * as ReactColor from 'react-color';
 import * as THREE from 'three';
-import { FileResponse, ReplayData } from '../../lib/api/apiRequests';
+import { ReplayData } from '../../lib/api/apiRequests';
 import { CameraMode, SettingsContext } from '../../lib/contexts/SettingsContext';
-import { getRaceTimeStr } from '../../lib/utils/time';
-import { TimeLineInfos } from '../viewer/TimeLine';
+import GlobalTimeLineInfos from '../../lib/singletons/timeLineInfos';
+import { addPlural, getRaceTimeStr } from '../../lib/utils/time';
+import SideDrawerExpandButton from '../common/SideDrawerExpandButton';
 
 interface LoadedReplayProps {
     replay: ReplayData;
@@ -25,7 +26,6 @@ interface LoadedReplayProps {
 
 interface LoadedReplaysProps {
     replays: ReplayData[];
-    timeLineGlobal: TimeLineInfos;
 }
 
 const LoadedReplay = ({
@@ -53,96 +53,116 @@ const LoadedReplay = ({
         setNumColorChange(numColorChange + 1);
     };
 
-    const handleClick = () => {
+    const toggleColorPicker = () => {
         setShowColorPicker(!showColorPicker);
     };
 
     return (
-        <Row style={{ width: 312 }}>
-            <Col span="10">
-                <div
-                    style={{
-                        color: `#${replay.color.getHexString()}`,
-                        cursor: 'pointer',
-                    }}
-                    onPointerEnter={() => hoveredReplayChanged(replay)}
-                    onPointerLeave={() => hoveredReplayChanged(undefined)}
-                >
-                    {replay.playerName}
-                </div>
-            </Col>
-            <Col span="5">
-                <div
-                    style={{
-                        padding: '5px',
-                        background: '#333333',
-                        borderRadius: '1px',
-                        boxShadow: '0 0 0 1px rgba(0,0,0,.1)',
-                        display: 'inline-block',
-                        cursor: 'pointer',
-                    }}
-                    onClick={handleClick}
-                >
-                    <div style={{
-                        width: '36px',
-                        height: '14px',
-                        borderRadius: '2px',
-                        background: color,
-                    }}
+        <Row
+            style={{ width: 312 }}
+            className="flex flex-row items-center select-none"
+        >
+            <Col
+                span="3"
+                className="cursor-pointer"
+                onClick={onClick}
+                onPointerEnter={() => hoveredReplayChanged(replay)}
+                onPointerLeave={() => hoveredReplayChanged(undefined)}
+            >
+                <div className="flex items-center justify-center">
+                    <EyeOutlined
+                        style={
+                            {
+                                verticalAlign: '',
+                                opacity: followed?._id === replay._id ? 1 : 0.5,
+                                color: followed?._id === replay._id ? '#0084ff' : 'gray',
+                                fontSize: '18px',
+                            }
+                        }
                     />
                 </div>
-                { showColorPicker ? (
-                    <div style={{
-                        position: 'absolute',
-                        zIndex: 2,
-                    }}
+            </Col>
+            <Col span="14">
+                <div className="flex flex-row items-center gap-3">
+                    <div
+                        style={{
+                            background: '#333333',
+                            borderRadius: '1px',
+                            boxShadow: '0 0 0 1px rgba(0,0,0,.1)',
+                            display: 'inline-block',
+                            cursor: 'pointer',
+                        }}
+                        onClick={toggleColorPicker}
+                        onPointerEnter={() => hoveredReplayChanged(replay)}
+                        onPointerLeave={() => hoveredReplayChanged(undefined)}
                     >
-                        <div
-                            style={{
-                                position: 'fixed',
-                                top: '0px',
-                                right: '0px',
-                                bottom: '0px',
-                                left: '0px',
-                            }}
-                            onClick={handleClose}
-                        >
-                            <ReactColor.ChromePicker
-                                disableAlpha
-                                color={color}
-                                onChange={handleChange}
-                            />
-                        </div>
+                        <div style={{
+                            width: '16px',
+                            height: '16px',
+                            borderRadius: '2px',
+                            background: color,
+                        }}
+                        />
                     </div>
-                ) : null }
-
+                    {showColorPicker ? (
+                        <div style={{
+                            position: 'absolute',
+                            zIndex: 2,
+                        }}
+                        >
+                            <div
+                                style={{
+                                    position: 'fixed',
+                                    top: '0px',
+                                    right: '0px',
+                                    bottom: '0px',
+                                    left: '0px',
+                                }}
+                                onClick={handleClose}
+                            >
+                                <ReactColor.ChromePicker
+                                    disableAlpha
+                                    color={color}
+                                    onChange={handleChange}
+                                />
+                            </div>
+                        </div>
+                    ) : null}
+                    <div
+                        style={{
+                            color: `#${replay.color.getHexString()}`,
+                        }}
+                        className="cursor-pointer flex-grow"
+                        onClick={onClick}
+                        onPointerEnter={() => hoveredReplayChanged(replay)}
+                        onPointerLeave={() => hoveredReplayChanged(undefined)}
+                    >
+                        {replay.playerName}
+                    </div>
+                </div>
             </Col>
-            <Col span="6">
+            <Col
+                span="6"
+                className="cursor-pointer"
+                onClick={onClick}
+                onPointerEnter={() => hoveredReplayChanged(replay)}
+                onPointerLeave={() => hoveredReplayChanged(undefined)}
+            >
                 {getRaceTimeStr(replay.endRaceTime)}
-            </Col>
-            <Col span="2">
-                <EyeOutlined
-                    onClick={onClick}
-                    style={
-                        {
-                            verticalAlign: '',
-                            opacity: followed?._id === replay._id ? 1 : 0.5,
-                            color: followed?._id === replay._id ? '#0084ff' : 'white',
-                        }
-                    }
-                />
             </Col>
         </Row>
     );
 };
 
 const LoadedReplays = ({
-    replays, timeLineGlobal,
+    replays,
 }: LoadedReplaysProps): JSX.Element => {
-    const [visible, setVisible] = useState(false);
+    const [visible, setVisible] = useState(true);
     const [followed, setFollowed] = useState<ReplayData>();
     const [hovered, setHovered] = useState<ReplayData>();
-    const { numColorChange, cameraMode, setCameraMode } = useContext(SettingsContext);
+    const { cameraMode, setCameraMode } = useContext(SettingsContext);
+
+    const timeLineGlobal = GlobalTimeLineInfos.getInstance();
 
     const toggleSidebar = () => {
         setVisible(!visible);
@@ -162,22 +182,23 @@ const LoadedReplays = ({
     timeLineGlobal.followedReplay = followed;
     timeLineGlobal.hoveredReplay = hovered;
 
+    const sortedReplays = useMemo(() => replays.sort((a, b) => a.endRaceTime - b.endRaceTime), [replays]);
+
     return (
-        <div className="absolute right-0 z-10">
-            {!visible
-            && (
-                <Button
-                    style={{
-                        marginTop: 226,
-                        height: 56,
-                        width: 56,
-                    }}
+        <div className="absolute right-0 z-10 mt-56">
+            {!visible && (
+                <SideDrawerExpandButton
                     onClick={toggleSidebar}
-                    icon={<CaretLeftOutlined />}
+                    side="right"
+                    content={(
+                        <>
+                            {`${replays.length} Replay${addPlural(replays.length)}`}
+                        </>
+                    )}
                 />
             )}
             <Drawer
-                style={{ height: 400, opacity: 0.9, marginTop: 300 }}
+                style={{ height: 500, opacity: 0.9, marginTop: 296 }}
                 mask={false}
                 closeIcon={<CaretRightOutlined />}
                 title={`${replays.length} Loaded Replays`}
@@ -185,20 +206,32 @@ const LoadedReplays = ({
                 width={360}
                 onClose={onClose}
                 visible={visible}
+                headerStyle={{
+                    backgroundColor: '#2C2C2C',
+                }}
+                bodyStyle={{
+                    backgroundColor: '#1F1F1F',
+                }}
             >
-                Camera Mode
-                <Radio.Group
-                    className="ml-2"
-                    defaultValue={cameraMode}
-                    buttonStyle="solid"
-                    onChange={(e: RadioChangeEvent) => setCameraMode(e.target.value)}
-                >
-                    <Radio.Button value={CameraMode.Target}>Target</Radio.Button>
-                    <Radio.Button value={CameraMode.Follow}>Follow</Radio.Button>
-                </Radio.Group>
-                <Divider />
+                <div className="flex flex-col items-center gap-3">
+                    <div className="text-base">Camera</div>
+                    <Radio.Group
+                        defaultValue={cameraMode}
+                        buttonStyle="solid"
+                        onChange={(e: RadioChangeEvent) => setCameraMode(e.target.value)}
+                        className="flex gap-4"
+                    >
+                        <Radio.Button value={CameraMode.Target}>
+                            Target
+                        </Radio.Button>
+                        <Radio.Button value={CameraMode.Follow}>
+                            Follow
+                        </Radio.Button>
+                    </Radio.Group>
+                </div>
+                <Divider className="mt-6 mb-0" />
                 <List
-                    dataSource={replays}
+                    dataSource={sortedReplays}
                     renderItem={(item) => (
                         <List.Item key={item._id}>
                             <LoadedReplay

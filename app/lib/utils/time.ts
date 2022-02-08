@@ -2,13 +2,18 @@ export const getRaceTimeStr = (raceTime: number): string => {
     const milliseconds = raceTime % 1000;
     const seconds = Math.floor((raceTime / 1000) % 60);
     const minutes = Math.floor((raceTime / (60 * 1000)) % 60);
+    const hours = Math.floor((raceTime / (60 * 60 * 1000)) % 60);
 
     return (
-        `${`${minutes > 0 ? `${minutes}:` : ''}`
+        `${`${hours > 0 ? `${hours}:` : ''}`
+        + `${minutes > 0 ? `${hours > 0 ? String(minutes).padStart(2, '0') : minutes}:` : ''}`
         + `${minutes > 0 ? String(seconds).padStart(2, '0') : seconds}`
-        + '.'}${String(milliseconds).padEnd(3, '0')}`
+        + '.'}${String(milliseconds).padStart(3, '0')}`
     );
 };
+
+// helper function to omit the "s" when value is 1
+export const addPlural = (time: number) => (time === 1 ? '' : 's');
 
 export const timeDifference = (current: number, previous: number): string => {
     const msPerMinute = 60 * 1000;
@@ -16,9 +21,6 @@ export const timeDifference = (current: number, previous: number): string => {
     const msPerDay = msPerHour * 24;
     const msPerMonth = msPerDay * 30;
     const msPerYear = msPerDay * 365;
-
-    // helper function to omit the "s" when value is 1
-    const addPlural = (time: number) => (time === 1 ? '' : 's');
 
     const elapsed = current - previous;
 
@@ -40,4 +42,36 @@ export const timeDifference = (current: number, previous: number): string => {
     }
     const time = Math.round(elapsed / msPerYear);
     return `${time} year${addPlural(time)} ago`;
+};
+
+export const msToTime = (duration: number) => {
+    const seconds = Math.floor((duration / 1000) % 60);
+    const minutes = Math.floor((duration / (1000 * 60)) % 60);
+    const hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
+    const days = Math.floor((duration / (1000 * 60 * 60 * 24)) % 7);
+    const weeks = Math.floor((duration / (1000 * 60 * 60 * 24 * 7)));
+
+    if (weeks) {
+        return `${weeks} week${addPlural(weeks)}, 
+        ${days} day${addPlural(days)}, 
+        ${hours} hour${addPlural(hours)} 
+        and ${minutes} minute${addPlural(minutes)}`;
+    }
+    if (days) {
+        return `${days} day${addPlural(days)}, 
+        ${hours} hour${addPlural(hours)} 
+        and ${minutes} minute${addPlural(minutes)}`;
+    }
+    if (hours) {
+        return `${hours} hour${addPlural(hours)} 
+        and ${minutes} minute${addPlural(minutes)}`;
+    }
+    if (minutes) {
+        return `${minutes} minute${addPlural(minutes)} 
+        and ${seconds} second${addPlural(seconds)}`;
+    }
+    if (seconds) {
+        return `${seconds} second${addPlural(seconds)}`;
+    }
+    return ('');
 };
