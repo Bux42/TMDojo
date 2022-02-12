@@ -140,22 +140,21 @@ const SidebarReplays = ({
             align: 'center',
             width: 150,
             render: (_, replay) => {
-                const selected = selectedReplayDataIds.indexOf(replay._id) !== -1;
-                const loading = loadingReplayData.find((x) => x._id === replay._id);
+                const loading = replay.downloadProgress > 0 && replay.downloadProgress < 100;
                 return (
                     <div className="flex flex-row gap-4 items-center">
-                        {!selected ? (
+                        {replay.downloadProgress < 100 ? (
                             <CleanButton
                                 onClick={() => {
                                     onLoadReplay(replay);
                                 }}
                                 className="w-full"
-                                disabled={loading !== undefined}
+                                disabled={replays.some((r) => r.downloadProgress > 0 && r.downloadProgress < 100)}
                             >
                                 {
-                                    loading === undefined
+                                    !loading
                                         ? 'Load'
-                                        : <Progress percent={loading.downloadProgress} status="active" />
+                                        : <Progress percent={replay.downloadProgress} status="active" />
                                 }
                             </CleanButton>
                         ) : (

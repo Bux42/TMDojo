@@ -48,7 +48,9 @@ export const getReplays = async (filters: FilterParams = DEFAULT_FILTERS): Promi
     const res = await apiInstance.get('/replays', {
         params: { ...DEFAULT_FILTERS, ...filters },
     });
-
+    res.data.files.forEach((replay: any) => {
+        replay.downloadProgress = 0;
+    });
     return res.data;
 };
 
