@@ -62,12 +62,17 @@ const Viewer3D = ({ replaysData }: Props): JSX.Element => {
                 />
 
                 <Grid replaysData={replaysData} blockPadding={2} />
-                <ReplayLines
-                    replaysData={replaysData}
-                    lineType={lineType}
-                    replayLineOpacity={replayLineOpacity}
-                    showGearChanges={showGearChanges}
-                />
+                {
+                    replayLineOpacity > 0
+                    && (
+                        <ReplayLines
+                            replaysData={replaysData}
+                            lineType={lineType}
+                            replayLineOpacity={replayLineOpacity}
+                            showGearChanges={showGearChanges}
+                        />
+                    )
+                }
                 <Suspense fallback={null}>
                     <ReplayCars
                         replaysData={replaysData}
