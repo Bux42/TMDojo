@@ -62,21 +62,29 @@ const Viewer3D = ({ replaysData }: Props): JSX.Element => {
                 />
 
                 <Grid replaysData={replaysData} blockPadding={2} />
-                <ReplayLines
-                    replaysData={replaysData}
-                    lineType={lineType}
-                    replayLineOpacity={replayLineOpacity}
-                    showGearChanges={showGearChanges}
-                />
-                <Suspense fallback={null}>
-                    <ReplayCars
-                        replaysData={replaysData}
-                        orbitControlsRef={orbitControlsRef}
-                        showInputOverlay={showInputOverlay}
-                        replayCarOpacity={replayCarOpacity}
-                        cameraMode={cameraMode}
-                    />
-                </Suspense>
+                {
+                    replayLineOpacity > 0
+                    && (
+                        <ReplayLines
+                            replaysData={replaysData}
+                            lineType={lineType}
+                            replayLineOpacity={replayLineOpacity}
+                            showGearChanges={showGearChanges}
+                        />
+                    )
+                }
+                {replayCarOpacity > 0
+                && (
+                    <Suspense fallback={null}>
+                        <ReplayCars
+                            replaysData={replaysData}
+                            orbitControlsRef={orbitControlsRef}
+                            showInputOverlay={showInputOverlay}
+                            replayCarOpacity={replayCarOpacity}
+                            cameraMode={cameraMode}
+                        />
+                    </Suspense>
+                )}
                 {showFPS && <FrameRate />}
             </Canvas>
             <TimeLine

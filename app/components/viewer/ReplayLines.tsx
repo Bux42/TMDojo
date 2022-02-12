@@ -34,8 +34,8 @@ interface ReplayLineProps {
 const ReplayLine = ({
     replay, lineType, replayLineOpacity,
 }: ReplayLineProps) => {
-    const points = useMemo(() => replay.samples.map((sample) => sample.position), [replay.samples]);
-    const colorBuffer = useMemo(() => lineType.colorsCallback(replay), [replay, lineType, replay.color]);
+    const points = useMemo(() => replay.samples.slice(1).map((sample) => sample.position), [replay.samples]);
+    const colorBuffer = useMemo(() => lineType.colorsCallback(replay), [replay, lineType]);
 
     const onUpdate = useCallback(
         (self) => {
