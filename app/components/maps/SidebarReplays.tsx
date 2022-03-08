@@ -279,10 +279,6 @@ const SidebarReplays = ({
                     <div>
                         <Table
                             onChange={(pagination, filters, sorter, currentPageData) => {
-                                console.log({
-                                    pagination, filters, sorter, currentPageData,
-                                });
-
                                 onReplayTableChange(pagination, currentPageData);
                             }}
                             dataSource={addReplayInfo(replays)}

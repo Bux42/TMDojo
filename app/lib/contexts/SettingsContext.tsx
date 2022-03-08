@@ -20,9 +20,7 @@ export interface SettingsContextProps {
     replayLineOpacity: number;
     setReplayLineOpacity: (setLineOpacity: number) => void;
     replayCarOpacity: number;
-    setReplayCarOpacity: (setCameraMode: number) => void;
-    cameraMode: CameraMode;
-    setCameraMode: (setCameraMode: CameraMode) => void;
+    setReplayCarOpacity: (setReplayCarOpacity: number) => void;
     numColorChange: number;
     setNumColorChange: (numColorChange: number) => void;
 }
@@ -40,8 +38,6 @@ export const SettingsContext = createContext<SettingsContextProps>({
     setReplayLineOpacity: () => { },
     replayCarOpacity: 0.5,
     setReplayCarOpacity: () => { },
-    cameraMode: CameraMode.Follow,
-    setCameraMode: () => { },
     numColorChange: 0,
     setNumColorChange: () => { },
 });
@@ -53,7 +49,6 @@ export const SettingsProvider = ({ children }: any): JSX.Element => {
     const [showInputOverlay, setShowInputOverlay] = useState(true);
     const [replayLineOpacity, setReplayLineOpacity] = useState(0.5);
     const [replayCarOpacity, setReplayCarOpacity] = useState(0.5);
-    const [cameraMode, setCameraMode] = useState(CameraMode.Follow);
     const [numColorChange, setNumColorChange] = useState(0);
 
     const changeLineType = (type: LineType) => {
@@ -75,8 +70,6 @@ export const SettingsProvider = ({ children }: any): JSX.Element => {
                 setReplayLineOpacity,
                 replayCarOpacity,
                 setReplayCarOpacity,
-                cameraMode,
-                setCameraMode,
                 numColorChange,
                 setNumColorChange,
             }}
