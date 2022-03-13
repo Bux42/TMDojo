@@ -1,16 +1,16 @@
 import { ReplayData } from '../api/apiRequests';
 
-export enum LoadingState {
+export enum DownloadState {
     IDLE = 'Idle',
     DOWNLOADING = 'Downloading',
     LOADED = 'Loaded',
     ERROR = 'Error'
 }
 
-export interface FetchedReplay
+export interface ReplayDownloadState
 {
     _id: string;
     progress: number;
-    state: LoadingState;
+    state: DownloadState;
     replay?: ReplayData;
 }

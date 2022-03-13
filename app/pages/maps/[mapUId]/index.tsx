@@ -22,13 +22,13 @@ import { cleanTMFormatting } from '../../../lib/utils/formatting';
 import LoadedReplays from '../../../components/maps/LoadedReplays';
 import CleanButton from '../../../components/common/CleanButton';
 import useIsMobileDevice from '../../../lib/hooks/useIsMobileDevice';
-import { FetchedReplay, LoadingState } from '../../../lib/replays/fetchedReplay';
+import { DownloadState, ReplayDownloadState } from '../../../lib/replays/replayDownloadState';
 
 const Home = (): JSX.Element => {
     const [replays, setReplays] = useState<FileResponse[]>([]);
     const [loadingReplays, setLoadingReplays] = useState<boolean>(true);
     const [selectedReplayData, setSelectedReplayData] = useState<ReplayData[]>([]);
-    const [fetchedReplays, setFetchedReplays] = useState<FetchedReplay[]>([]);
+    const [fetchedReplays, setFetchedReplays] = useState<ReplayDownloadState[]>([]);
     const [mapData, setMapData] = useState<MapInfo>({});
 
     const router = useRouter();
@@ -70,7 +70,7 @@ const Home = (): JSX.Element => {
                     return {
                         _id: file._id,
                         progress: 0,
-                        state: LoadingState.IDLE,
+                        state: DownloadState.IDLE,
                     };
                 }
                 return loadingReplay;
@@ -114,13 +114,13 @@ const Home = (): JSX.Element => {
             const loadingState = fetchedReplays.find((r) => r._id === replay._id);
 
             if (loadingState) {
-                fetchedReplays[fetchedReplays.indexOf(loadingState)].state = LoadingState.DOWNLOADING;
+                fetchedReplays[fetchedReplays.indexOf(loadingState)].state = DownloadState.DOWNLOADING;
                 setFetchedReplays([...fetchedReplays]);
 
                 const fetchedReplay = await fetchReplayData(replay, (progressEvent: ProgressEvent) => {
                     updateLoadingReplay(_replay, progressEvent);
                 });
-                if (fetchedReplay && fetchedReplay.state === LoadingState.LOADED) {
+                if (fetchedReplay && fetchedReplay.state === DownloadState.LOADED) {
                     setSelectedReplayData([...selectedReplayData, fetchedReplay.replay!]);
                 }
                 fetchedReplays[fetchedReplays.indexOf(loadingState)] = fetchedReplay;
@@ -138,7 +138,7 @@ const Home = (): JSX.Element => {
         const loadingState = fetchedReplays.find((r) => r._id === replayToRemove._id);
         if (loadingState) {
             fetchedReplays[fetchedReplays.indexOf(loadingState)].progress = 0;
-            fetchedReplays[fetchedReplays.indexOf(loadingState)].state = LoadingState.IDLE;
+            fetchedReplays[fetchedReplays.indexOf(loadingState)].state = DownloadState.IDLE;
             setFetchedReplays([...fetchedReplays]);
         }
     };
@@ -159,7 +159,7 @@ const Home = (): JSX.Element => {
                 if (loadingState) {
                     const progressPercent = Math.round((progressEvent.loaded / progressEvent.total) * 100);
                     fetchedReplays[fetchedReplays.indexOf(loadingState)].progress = progressPercent;
-                    fetchedReplays[fetchedReplays.indexOf(loadingState)].state = LoadingState.DOWNLOADING;
+                    fetchedReplays[fetchedReplays.indexOf(loadingState)].state = DownloadState.DOWNLOADING;
                     setFetchedReplays([...fetchedReplays]);
                 }
             })),
@@ -172,7 +172,7 @@ const Home = (): JSX.Element => {
         )));
 
         const validReplays = loadedReplays
-            .filter((replay) => replay.state === LoadingState.LOADED)
+            .filter((replay) => replay.state === DownloadState.LOADED)
             .map((replay) => replay.replay!);
 
         setSelectedReplayData([...selectedReplayData, ...validReplays]);
@@ -184,8 +184,8 @@ const Home = (): JSX.Element => {
 
         const loadedReplays = [...fetchedReplays].map((loadingReplay) => ({
             ...loadingReplay,
-            state: loadingReplay.state !== LoadingState.IDLE ? LoadingState.IDLE : loadingReplay.state,
-            progress: loadingReplay.state !== LoadingState.IDLE ? 0 : loadingReplay.progress,
+            state: loadingReplay.state !== DownloadState.IDLE ? DownloadState.IDLE : loadingReplay.state,
+            progress: loadingReplay.state !== DownloadState.IDLE ? 0 : loadingReplay.progress,
         }));
 
         setFetchedReplays(loadedReplays);

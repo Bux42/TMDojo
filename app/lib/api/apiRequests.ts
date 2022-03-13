@@ -1,6 +1,6 @@
 import apiInstance from './apiInstance';
 import { readDataView, DataViewResult } from '../replays/replayData';
-import { FetchedReplay, LoadingState } from '../replays/fetchedReplay';
+import { DownloadState, ReplayDownloadState } from '../replays/replayDownloadState';
 
 interface FilterParams {
     mapName?: any;
@@ -55,10 +55,10 @@ export interface ReplayData extends FileResponse, DataViewResult {}
 export const fetchReplayData = async (
     file: FileResponse,
     downloadProgress: (progressEvent: any) => void,
-): Promise<FetchedReplay> => {
-    const fetchedReplay: FetchedReplay = {
+): Promise<ReplayDownloadState> => {
+    const fetchedReplay: ReplayDownloadState = {
         _id: file._id,
-        state: LoadingState.LOADED,
+        state: DownloadState.LOADED,
         progress: 0,
     };
 
@@ -78,7 +78,7 @@ export const fetchReplayData = async (
         };
     } catch {
         fetchedReplay.progress = 0;
-        fetchedReplay.state = LoadingState.ERROR;
+        fetchedReplay.state = DownloadState.ERROR;
     }
     return fetchedReplay;
 };

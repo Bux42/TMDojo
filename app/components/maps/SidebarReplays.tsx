@@ -14,7 +14,7 @@ import SideDrawerExpandButton from '../common/SideDrawerExpandButton';
 import PlayerLink from '../common/PlayerLink';
 import CleanButton from '../common/CleanButton';
 import useWindowDimensions from '../../lib/hooks/useWindowDimensions';
-import { FetchedReplay, LoadingState } from '../../lib/replays/fetchedReplay';
+import { DownloadState, ReplayDownloadState } from '../../lib/replays/replayDownloadState';
 
 interface ExtendedFileResponse extends FileResponse {
     readableTime: string;
@@ -26,7 +26,7 @@ interface Props {
     mapUId: string;
     replays: FileResponse[];
     loadingReplays: boolean;
-    fetchedReplays: FetchedReplay[];
+    fetchedReplays: ReplayDownloadState[];
     onLoadReplay: (replay: FileResponse) => void;
     onRemoveReplay: (replay: FileResponse) => void;
     onLoadAllVisibleReplays: (replays: FileResponse[], selectedReplayDataIds: string[]) => void;
@@ -141,11 +141,11 @@ const SidebarReplays = ({
             align: 'center',
             width: 150,
             render: (_, replay) => {
-                const loadingSate = fetchedReplays.find((r) => r._id === replay._id);
+                const loadingState = fetchedReplays.find((r) => r._id === replay._id);
 
                 return (
                     <div className="flex flex-row gap-4 items-center">
-                        {(!loadingSate || loadingSate?.state === LoadingState.IDLE)
+                        {(!loadingState || loadingState?.state === DownloadState.IDLE)
                             && (
                                 <CleanButton
                                     onClick={() => {
@@ -156,7 +156,7 @@ const SidebarReplays = ({
                                     Load
                                 </CleanButton>
                             )}
-                        {loadingSate?.state === LoadingState.DOWNLOADING
+                        {loadingState?.state === DownloadState.DOWNLOADING
                         && (
                             <CleanButton
                                 onClick={() => {
@@ -165,10 +165,10 @@ const SidebarReplays = ({
                                 className="w-full"
                                 disabled
                             >
-                                <Progress percent={loadingSate.progress} status="active" />
+                                <Progress percent={loadingState.progress} status="active" />
                             </CleanButton>
                         )}
-                        {loadingSate?.state === LoadingState.LOADED
+                        {loadingState?.state === DownloadState.LOADED
                         && (
                             <CleanButton
                                 onClick={() => onRemoveReplay(replay)}
@@ -178,7 +178,7 @@ const SidebarReplays = ({
                                 Remove
                             </CleanButton>
                         )}
-                        {loadingSate?.state === LoadingState.ERROR
+                        {loadingState?.state === DownloadState.ERROR
                         && (
                             <Tooltip placement="top" title="Loading failed, click to try again">
                                 <span style={{ width: '100%', height: '100%' }}>
