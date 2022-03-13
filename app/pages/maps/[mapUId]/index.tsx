@@ -28,7 +28,7 @@ const Home = (): JSX.Element => {
     const [replays, setReplays] = useState<FileResponse[]>([]);
     const [loadingReplays, setLoadingReplays] = useState<boolean>(true);
     const [selectedReplayData, setSelectedReplayData] = useState<ReplayData[]>([]);
-    const [fetchedReplays, setFetchedReplays] = useState<ReplayDownloadState[]>([]);
+    const [fetchedReplays, setFetchedReplays] = useState<Map<string, ReplayDownloadState>>(new Map());
     const [mapData, setMapData] = useState<MapInfo>({});
 
     const router = useRouter();
@@ -61,21 +61,21 @@ const Home = (): JSX.Element => {
         setLoadingReplays(true);
         const { files } = await getReplays({ mapUId: `${mapUId}` });
         setReplays(files);
-        setFetchedReplays(
-            files.map((file) => {
-                const loadingReplay = fetchedReplays.find((replay) => replay._id === file._id);
 
-                // keep previous loadedState if found
-                if (!loadingReplay) {
-                    return {
+        files.forEach((file) => {
+            if (!fetchedReplays.has(file._id)) {
+                fetchedReplays.set(
+                    file._id,
+                    {
                         _id: file._id,
                         progress: 0,
                         state: DownloadState.IDLE,
-                    };
-                }
-                return loadingReplay;
-            }),
-        );
+                    },
+                );
+            }
+        });
+        setFetchedReplays(new Map(fetchedReplays));
+
         setLoadingReplays(false);
     };
 
@@ -99,11 +99,11 @@ const Home = (): JSX.Element => {
     ) => {
         const progressPercent = Math.round((progressEvent.loaded / progressEvent.total) * 100);
 
-        const loadingState = fetchedReplays.find((r) => r._id === replay._id);
+        const loadingState = fetchedReplays.get(replay._id);
 
         if (loadingState) {
-            fetchedReplays[fetchedReplays.indexOf(loadingState)].progress = progressPercent;
-            setFetchedReplays([...fetchedReplays]);
+            loadingState.progress = progressPercent;
+            setFetchedReplays(new Map(fetchedReplays.set(replay._id, loadingState)));
         }
     };
 
@@ -111,11 +111,11 @@ const Home = (): JSX.Element => {
         const _replay = replays.find((r) => r._id === replay._id);
 
         if (_replay) {
-            const loadingState = fetchedReplays.find((r) => r._id === replay._id);
+            const loadingState = fetchedReplays.get(replay._id);
 
             if (loadingState) {
-                fetchedReplays[fetchedReplays.indexOf(loadingState)].state = DownloadState.DOWNLOADING;
-                setFetchedReplays([...fetchedReplays]);
+                loadingState.state = DownloadState.DOWNLOADING;
+                setFetchedReplays(new Map(fetchedReplays.set(replay._id, loadingState)));
 
                 const fetchedReplay = await fetchReplayData(replay, (progressEvent: ProgressEvent) => {
                     updateLoadingReplay(_replay, progressEvent);
@@ -123,8 +123,8 @@ const Home = (): JSX.Element => {
                 if (fetchedReplay && fetchedReplay.state === DownloadState.LOADED) {
                     setSelectedReplayData([...selectedReplayData, fetchedReplay.replay!]);
                 }
-                fetchedReplays[fetchedReplays.indexOf(loadingState)] = fetchedReplay;
-                setFetchedReplays([...fetchedReplays]);
+
+                setFetchedReplays(new Map(fetchedReplays.set(replay._id, fetchedReplay)));
             }
         }
     };
@@ -135,11 +135,12 @@ const Home = (): JSX.Element => {
         );
         setSelectedReplayData(replayDataFiltered);
 
-        const loadingState = fetchedReplays.find((r) => r._id === replayToRemove._id);
+        const loadingState = fetchedReplays.get(replayToRemove._id);
         if (loadingState) {
-            fetchedReplays[fetchedReplays.indexOf(loadingState)].progress = 0;
-            fetchedReplays[fetchedReplays.indexOf(loadingState)].state = DownloadState.IDLE;
-            setFetchedReplays([...fetchedReplays]);
+            loadingState.progress = 0;
+            loadingState.state = DownloadState.IDLE;
+
+            setFetchedReplays(new Map(fetchedReplays.set(replayToRemove._id, loadingState)));
         }
     };
 
@@ -154,22 +155,24 @@ const Home = (): JSX.Element => {
         // make promise array first, then promise.all
         const loadedReplays = await Promise.all(
             filtered.map((replay) => fetchReplayData(replay, (progressEvent) => {
-                const loadingState = fetchedReplays.find((r) => r._id === replay._id);
+                const loadingState = fetchedReplays.get(replay._id);
 
                 if (loadingState) {
                     const progressPercent = Math.round((progressEvent.loaded / progressEvent.total) * 100);
-                    fetchedReplays[fetchedReplays.indexOf(loadingState)].progress = progressPercent;
-                    fetchedReplays[fetchedReplays.indexOf(loadingState)].state = DownloadState.DOWNLOADING;
-                    setFetchedReplays([...fetchedReplays]);
+
+                    loadingState.progress = progressPercent;
+                    loadingState.state = DownloadState.DOWNLOADING;
+
+                    setFetchedReplays(new Map(fetchedReplays.set(replay._id, loadingState)));
                 }
             })),
         );
 
-        setFetchedReplays([...fetchedReplays].map((loadingReplay) => (
-            loadedReplays.some((fetchedReplay) => fetchedReplay._id === loadingReplay._id)
-                ? loadedReplays.find((fetchedReplay) => fetchedReplay._id === loadingReplay._id)!
-                : loadingReplay!
-        )));
+        loadedReplays.forEach((loadedReplay) => {
+            fetchedReplays.set(loadedReplay._id, loadedReplay);
+        });
+
+        setFetchedReplays(new Map(fetchedReplays));
 
         const validReplays = loadedReplays
             .filter((replay) => replay.state === DownloadState.LOADED)
@@ -182,13 +185,15 @@ const Home = (): JSX.Element => {
         const replayDataFiltered = selectedReplayData.filter((el) => replaysToRemove.includes(el));
         setSelectedReplayData(replayDataFiltered);
 
-        const loadedReplays = [...fetchedReplays].map((loadingReplay) => ({
-            ...loadingReplay,
-            state: loadingReplay.state !== DownloadState.IDLE ? DownloadState.IDLE : loadingReplay.state,
-            progress: loadingReplay.state !== DownloadState.IDLE ? 0 : loadingReplay.progress,
-        }));
+        fetchedReplays.forEach((fetchedReplay) => {
+            fetchedReplays.set(fetchedReplay._id, {
+                ...fetchedReplay,
+                state: fetchedReplay.state !== DownloadState.IDLE ? DownloadState.IDLE : fetchedReplay.state,
+                progress: fetchedReplay.state !== DownloadState.IDLE ? 0 : fetchedReplay.progress,
+            });
+        });
 
-        setFetchedReplays(loadedReplays);
+        setFetchedReplays(new Map(fetchedReplays));
     };
 
     const getTitle = () => (mapData?.name ? `${cleanTMFormatting(mapData.name)} - TMDojo` : 'TMDojo');
