@@ -14,6 +14,7 @@ import SideDrawerExpandButton from '../common/SideDrawerExpandButton';
 import PlayerLink from '../common/PlayerLink';
 import CleanButton from '../common/CleanButton';
 import useWindowDimensions from '../../lib/hooks/useWindowDimensions';
+import { FetchedReplay, LoadingState } from '../../lib/replays/fetchedReplay';
 
 interface ExtendedFileResponse extends FileResponse {
     readableTime: string;
@@ -25,7 +26,7 @@ interface Props {
     mapUId: string;
     replays: FileResponse[];
     loadingReplays: boolean;
-    loadingReplayData: FileResponse[];
+    fetchedReplays: FetchedReplay[];
     onLoadReplay: (replay: FileResponse) => void;
     onRemoveReplay: (replay: FileResponse) => void;
     onLoadAllVisibleReplays: (replays: FileResponse[], selectedReplayDataIds: string[]) => void;
@@ -38,7 +39,7 @@ const SidebarReplays = ({
     mapUId,
     replays,
     loadingReplays,
-    loadingReplayData,
+    fetchedReplays,
     onLoadReplay,
     onRemoveReplay,
     onLoadAllVisibleReplays,
@@ -140,24 +141,35 @@ const SidebarReplays = ({
             align: 'center',
             width: 150,
             render: (_, replay) => {
-                const loading = replay.downloadProgress > 0 && replay.downloadProgress < 100;
+                const loadingSate = fetchedReplays.find((r) => r._id === replay._id);
+
                 return (
                     <div className="flex flex-row gap-4 items-center">
-                        {replay.downloadProgress < 100 ? (
+                        {(!loadingSate || loadingSate?.state === LoadingState.IDLE)
+                            && (
+                                <CleanButton
+                                    onClick={() => {
+                                        onLoadReplay(replay);
+                                    }}
+                                    className="w-full"
+                                >
+                                    Load
+                                </CleanButton>
+                            )}
+                        {loadingSate?.state === LoadingState.DOWNLOADING
+                        && (
                             <CleanButton
                                 onClick={() => {
                                     onLoadReplay(replay);
                                 }}
                                 className="w-full"
-                                disabled={replays.some((r) => r.downloadProgress > 0 && r.downloadProgress < 100)}
+                                disabled
                             >
-                                {
-                                    !loading
-                                        ? 'Load'
-                                        : <Progress percent={replay.downloadProgress} status="active" />
-                                }
+                                <Progress percent={loadingSate.progress} status="active" />
                             </CleanButton>
-                        ) : (
+                        )}
+                        {loadingSate?.state === LoadingState.LOADED
+                        && (
                             <CleanButton
                                 onClick={() => onRemoveReplay(replay)}
                                 className="w-full"
@@ -165,6 +177,22 @@ const SidebarReplays = ({
                             >
                                 Remove
                             </CleanButton>
+                        )}
+                        {loadingSate?.state === LoadingState.ERROR
+                        && (
+                            <Tooltip placement="top" title="Loading failed, click to try again">
+                                <span>
+
+                                    <CleanButton
+                                        onClick={() => onLoadReplay(replay)}
+                                        className="w-full"
+                                        backColor="#b46616"
+                                    >
+                                        Retry
+                                    </CleanButton>
+                                </span>
+                            </Tooltip>
+
                         )}
                         {user && user.accountId === replay.webId && (
                             <Popconfirm
@@ -288,10 +316,6 @@ const SidebarReplays = ({
                     <div>
                         <Table
                             onChange={(pagination, filters, sorter, currentPageData) => {
-                                console.log({
-                                    pagination, filters, sorter, currentPageData,
-                                });
-
                                 onReplayTableChange(pagination, currentPageData);
                             }}
                             dataSource={addReplayInfo(replays)}
