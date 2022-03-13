@@ -26,7 +26,7 @@ interface Props {
     mapUId: string;
     replays: FileResponse[];
     loadingReplays: boolean;
-    fetchedReplays: Map<string, ReplayDownloadState>;
+    replayDownloadStates: Map<string, ReplayDownloadState>;
     onLoadReplay: (replay: FileResponse) => void;
     onRemoveReplay: (replay: FileResponse) => void;
     onLoadAllVisibleReplays: (replays: FileResponse[], selectedReplayDataIds: string[]) => void;
@@ -39,7 +39,7 @@ const SidebarReplays = ({
     mapUId,
     replays,
     loadingReplays,
-    fetchedReplays,
+    replayDownloadStates,
     onLoadReplay,
     onRemoveReplay,
     onLoadAllVisibleReplays,
@@ -141,7 +141,7 @@ const SidebarReplays = ({
             align: 'center',
             width: 150,
             render: (_, replay) => {
-                const loadingState = fetchedReplays.get(replay._id);
+                const loadingState = replayDownloadStates.get(replay._id);
 
                 return (
                     <div className="flex flex-row gap-4 items-center">
