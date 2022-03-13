@@ -63,7 +63,7 @@ export const fetchReplayData = async (
     };
 
     try {
-        const res = await apiInstance.get(`/replays/${(Math.random() < 0.7 ? file._id : 'xD')}`, {
+        const res = await apiInstance.get(`/replays/${file._id}`, {
             onDownloadProgress: downloadProgress,
             responseType: 'arraybuffer',
         });

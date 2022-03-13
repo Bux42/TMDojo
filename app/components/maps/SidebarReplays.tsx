@@ -181,8 +181,7 @@ const SidebarReplays = ({
                         {loadingSate?.state === LoadingState.ERROR
                         && (
                             <Tooltip placement="top" title="Loading failed, click to try again">
-                                <span>
-
+                                <span style={{ width: '100%', height: '100%' }}>
                                     <CleanButton
                                         onClick={() => onLoadReplay(replay)}
                                         className="w-full"
@@ -192,7 +191,6 @@ const SidebarReplays = ({
                                     </CleanButton>
                                 </span>
                             </Tooltip>
-
                         )}
                         {user && user.accountId === replay.webId && (
                             <Popconfirm
