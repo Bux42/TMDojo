@@ -197,8 +197,46 @@ const ReplayCars = ({
     const camera = useThree((state) => state.camera);
     const fbx = useFBX('/StadiumCarWheelsSeparated.fbx');
 
+    const mapFbx = useFBX('/kshort.fbx');
+    const mapMeshRef = useRef<THREE.Mesh>();
+
+    const mapMesh: THREE.Mesh = fbx.children[0] as THREE.Mesh;
+    const material: THREE.MeshPhongMaterial = mapMesh.material as THREE.MeshPhongMaterial;
+
+    const matClone = material.clone();
+    matClone.opacity = 0.7;
+
+    matClone.color = new THREE.Color(
+        0.1,
+        0.1,
+        0.1,
+    );
+
+    mapFbx.children.forEach((child: any) => {
+        child.material = matClone;
+    });
+    mapFbx.traverse((children: THREE.Object3D) => {
+        if (children instanceof THREE.Mesh) {
+            children.castShadow = true;
+        }
+    });
+
     return (
         <>
+            <mesh
+                position={[
+                    -85, // closer & further
+                    103.65, // height
+                    -315]} // right & left
+            >
+                <primitive
+                    object={mapFbx}
+                    dispose={null}
+                    ref={mapMeshRef}
+                    scale={0.01}
+
+                />
+            </mesh>
             {replaysData.map((replay) => (
                 <ReplayCar
                     key={`replay-${replay._id}-car`}
