@@ -83,8 +83,6 @@ const MapStats = () => {
         return binSize;
     };
 
-    const binSize = useMemo(() => calcBinSize(replays), [replays]);
-
     const toggleMapStatsType = () => {
         if (mapStatsType === MapStatsType.GLOBAL) {
             setMapStatsType(MapStatsType.PERSONAL);
@@ -107,6 +105,9 @@ const MapStats = () => {
         },
         [user, replays, mapStatsType],
     );
+
+    const binSize = useMemo(() => calcBinSize(allReplaysFilteredByCurrentUser),
+        [allReplaysFilteredByCurrentUser]);
 
     return (
         <div className="flex flex-col items-center min-h-screen bg-page-back">

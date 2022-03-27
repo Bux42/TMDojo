@@ -26,11 +26,10 @@ interface ReplayCarProps {
     showInputOverlay: boolean;
     fbx: THREE.Object3D;
     replayCarOpacity: number;
-    cameraMode: CameraMode;
 }
 
 const ReplayCar = ({
-    replay, camera, orbitControlsRef, showInputOverlay, fbx, replayCarOpacity, cameraMode,
+    replay, camera, orbitControlsRef, showInputOverlay, fbx, replayCarOpacity,
 }: ReplayCarProps) => {
     const mesh = useRef<THREE.Mesh>();
     const stadiumCarMesh = useRef<THREE.Mesh>();
@@ -110,7 +109,7 @@ const ReplayCar = ({
                 if (orbitControlsRef && orbitControlsRef.current) {
                     orbitControlsRef.current.target.lerp(smoothSample.position, 0.2);
 
-                    if (cameraMode === CameraMode.Follow) {
+                    if (timeLineGlobal.cameraMode === CameraMode.Follow) {
                         // move camPosMesh to Follow position
                         camPosRef.current.rotation.setFromQuaternion(carRotation);
                         // move toward where the car is heading
@@ -187,7 +186,6 @@ interface ReplayCarsProps {
     orbitControlsRef: any;
     showInputOverlay: boolean;
     replayCarOpacity: number;
-    cameraMode: CameraMode;
 }
 
 const ReplayCars = ({
@@ -195,7 +193,6 @@ const ReplayCars = ({
     orbitControlsRef,
     showInputOverlay,
     replayCarOpacity,
-    cameraMode,
 }: ReplayCarsProps): JSX.Element => {
     const camera = useThree((state) => state.camera);
     const fbx = useFBX('/StadiumCarWheelsSeparated.fbx');
@@ -211,7 +208,6 @@ const ReplayCars = ({
                     showInputOverlay={showInputOverlay}
                     fbx={fbx.clone()}
                     replayCarOpacity={replayCarOpacity}
-                    cameraMode={cameraMode}
                 />
             ))}
         </>
