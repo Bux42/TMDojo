@@ -103,7 +103,7 @@ const Home = (): JSX.Element => {
 
         if (loadingState) {
             loadingState.progress = progressPercent;
-            setReplayDownloadStates(new Map(replayDownloadStates.set(replay._id, loadingState)));
+            setReplayDownloadStates((prevState) => new Map(prevState.set(replay._id, loadingState)));
         }
     };
 
@@ -115,16 +115,17 @@ const Home = (): JSX.Element => {
 
             if (loadingState) {
                 loadingState.state = DownloadState.DOWNLOADING;
-                setReplayDownloadStates(new Map(replayDownloadStates.set(replay._id, loadingState)));
+                setReplayDownloadStates((prevState) => new Map(prevState.set(replay._id, loadingState)));
 
                 const fetchedReplay = await fetchReplayData(replay, (progressEvent: ProgressEvent) => {
                     updateLoadingReplay(_replay, progressEvent);
                 });
+
                 if (fetchedReplay && fetchedReplay.state === DownloadState.LOADED) {
                     setSelectedReplayData((prevState) => [...prevState, fetchedReplay.replay!]);
                 }
 
-                setReplayDownloadStates(new Map(replayDownloadStates.set(replay._id, fetchedReplay)));
+                setReplayDownloadStates((prevState) => new Map(prevState.set(replay._id, fetchedReplay)));
             }
         }
     };
@@ -140,7 +141,7 @@ const Home = (): JSX.Element => {
             loadingState.progress = 0;
             loadingState.state = DownloadState.IDLE;
 
-            setReplayDownloadStates(new Map(replayDownloadStates.set(replayToRemove._id, loadingState)));
+            setReplayDownloadStates((prevState) => new Map(prevState.set(replayToRemove._id, loadingState)));
         }
     };
 
@@ -163,7 +164,7 @@ const Home = (): JSX.Element => {
                     loadingState.progress = progressPercent;
                     loadingState.state = DownloadState.DOWNLOADING;
 
-                    setReplayDownloadStates(new Map(replayDownloadStates.set(replay._id, loadingState)));
+                    setReplayDownloadStates((prevState) => new Map(prevState.set(replay._id, loadingState)));
                 }
             })),
         );
