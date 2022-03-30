@@ -121,7 +121,7 @@ const Home = (): JSX.Element => {
                     updateLoadingReplay(_replay, progressEvent);
                 });
                 if (fetchedReplay && fetchedReplay.state === DownloadState.LOADED) {
-                    setSelectedReplayData([...selectedReplayData, fetchedReplay.replay!]);
+                    setSelectedReplayData((prevState) => [...prevState, fetchedReplay.replay!]);
                 }
 
                 setReplayDownloadStates(new Map(replayDownloadStates.set(replay._id, fetchedReplay)));
