@@ -50,8 +50,8 @@ export const createUser = (
                         webId,
                         playerLogin: login,
                         playerName: name,
-                        last_active: Date.now(),
                         clientCode: clientCode || null,
+                        createdAt: Date.now(),
                     });
                     req.log.debug(
                         `createUser: Created new user "${name}", doc ID: ${insertedUserData.insertedId.toString()}`,
@@ -63,7 +63,6 @@ export const createUser = (
                         $set: {
                             playerLogin: login,
                             playerName: name,
-                            last_active: Date.now(),
                             clientCode: clientCode || null,
                         },
                     };
