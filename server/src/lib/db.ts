@@ -4,6 +4,7 @@ import { v4 as uuid } from 'uuid';
 import { Request } from 'express';
 import { playerLoginFromWebId } from './authorize';
 import { logError, logInfo } from './logger';
+import { DiscordWebhook } from './discordWebhooks/discordWebhook';
 
 config();
 
@@ -53,9 +54,13 @@ export const createUser = (
                         clientCode: clientCode || null,
                         createdAt: Date.now(),
                     });
+
                     req.log.debug(
                         `createUser: Created new user "${name}", doc ID: ${insertedUserData.insertedId.toString()}`,
                     );
+
+                    DiscordWebhook.sendNewUserAlert(req, name);
+
                     resolve({ userID: insertedUserData.insertedId?.toString() });
                 } else {
                     req.log.debug(`createUser: User "${name}" already exists, doc ID: ${docs[0]._id.toString()}`);
