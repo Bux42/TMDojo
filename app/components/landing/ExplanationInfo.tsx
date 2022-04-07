@@ -1,6 +1,8 @@
 /* eslint-disable react/no-array-index-key */
 /* eslint-disable max-len */
+import Link from 'next/link';
 import React, { useState } from 'react';
+import CleanButton from '../common/CleanButton';
 
 type Tab = 'whatIsThis' | 'howDoIRecord' | 'whereDoIAnalyze';
 
@@ -21,7 +23,7 @@ const ExplanationInfo = (): JSX.Element => {
         },
         {
             key: 'whereDoIAnalyze',
-            title: 'Where do I analyze?',
+            title: 'How do I analyze?',
         },
     ];
 
@@ -41,12 +43,29 @@ const ExplanationInfo = (): JSX.Element => {
         'TMDojo is still in development, so new features will always be in the works...',
     ];
     const howDoIRecord = [
+        <div className="w-full text-base text-center font-bold">
+            TMDojo Openplanet plugin
+        </div>,
+        '',
+        <span>
+            {'You can record your runs using the '}
+            <Link href="https://openplanet.dev/plugin/tmdojo">
+                <a
+                    target="_blank"
+                    rel="noreferrer"
+                    href="https://openplanet.dev/plugin/tmdojo"
+                    className="underline hover:underline"
+                >
+                    TMDojo plugin
+                </a>
+            </Link>
+            {' for Openplanet by installing it through the plugin manager.'}
+        </span>,
+        '',
         'We\'re planning on supporting several ways for you to submit runs:',
         '1. If you\'re using Openplanet, you can use our plugin to automatically upload your runs while playing.',
         '2. Later, you\'ll be able to upload a replay file yourself, and we\'ll extract all the useful data.',
         '3. To make it even easier, we might also support fetching a time straight off the leaderboards - so you don\'t have to download it yourself.',
-        '',
-        'At the moment we only support recording through the TMDojo plugin. This plugin is not publicly available on the Openplanet plugin manger yet. However, if you\'re still interested to test out the plugin, check out our Discord for early releases and more information.',
     ];
     const whereDoIAnalyze = [
         'This website is the main hub for all your analysis - simply click a map to open the 3D viewer for that map.',
@@ -82,6 +101,7 @@ const ExplanationInfo = (): JSX.Element => {
                             backgroundColor: key === infoTab ? '#171717' : '#1F1F1F',
                             transition: 'all 0.15s ease-out',
                             transform: key === infoTab ? 'translate(0px, 4px)' : '',
+                            width: `${100 / (tabList.length + 1)}%`,
                         }}
                         className={`flex items-center justify-center py-2 px-4 rounded-md cursor-pointer select-none text-center ${key === infoTab ? 'shadow' : ''}`}
                         onClick={() => setInfoTab(key)}
