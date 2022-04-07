@@ -86,11 +86,15 @@ const SidebarReplays = ({
         }
     };
 
+    // TODO: add useMemo to filters and columns
+    const nameFilters = getUniqueFilters((replay) => replay.playerName);
+    nameFilters.sort((a, b) => (a.text.toLowerCase() < b.text.toLowerCase() ? -1 : 1));
+
     let columns: ColumnsType<ExtendedFileResponse> = [
         {
             title: 'Player',
             dataIndex: 'playerName',
-            filters: getUniqueFilters((replay) => replay.playerName),
+            filters: nameFilters,
             onFilter: (value, record) => record.playerName === value,
             render: (_, replay) => (
                 <PlayerLink webId={replay.webId} name={replay.playerName} />
