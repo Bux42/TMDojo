@@ -59,7 +59,8 @@ export const createUser = (
                         `createUser: Created new user "${name}", doc ID: ${insertedUserData.insertedId.toString()}`,
                     );
 
-                    DiscordWebhook.sendNewUserAlert(req, name);
+                    // Send discord alert for new user
+                    DiscordWebhook.sendNewUserAlert(req, name, users);
 
                     resolve({ userID: insertedUserData.insertedId?.toString() });
                 } else {
