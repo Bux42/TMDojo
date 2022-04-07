@@ -246,6 +246,12 @@ export const getReplays = async (
         {
             $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ['$map', 0] }, '$$ROOT'] } },
         },
+        {
+            $project: {
+                clientCode: 0,
+                objectPath: 0,
+            },
+        },
     ]);
 
     const addRegexFilter = (property ?: string, propertyName ?: string) => {
@@ -344,7 +350,7 @@ export const getReplayById = async (
             {
                 $project: {
                     // don't remove filePath since it's needed in the request
-                    userRef: 0, user: 0, mapRef: 0, map: 0,
+                    userRef: 0, user: 0, mapRef: 0, map: 0, clientCode: 0,
                 },
             },
         ] as any[]);
