@@ -5,3 +5,5 @@ exports
 mapBlocks
 cert.pem
 key.pem
+
+/coverage
