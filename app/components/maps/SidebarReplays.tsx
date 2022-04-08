@@ -99,6 +99,7 @@ const SidebarReplays = ({
             render: (_, replay) => (
                 <PlayerLink webId={replay.webId} name={replay.playerName} />
             ),
+            filterSearch: true,
         },
         {
             title: 'Time',
