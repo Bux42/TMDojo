@@ -88,7 +88,14 @@ const SidebarReplays = ({
 
     // TODO: add useMemo to filters and columns
     const nameFilters = getUniqueFilters((replay) => replay.playerName);
-    nameFilters.sort((a, b) => (a.text.toLowerCase() < b.text.toLowerCase() ? -1 : 1));
+    nameFilters.sort((a, b) => {
+        // If user is logged in, show the player filter on top:
+        if (user && a.text === user?.displayName) return -1;
+        if (user && b.text === user?.displayName) return 1;
+
+        // Else, sort by name alphabetically:
+        return a.text.toLowerCase() < b.text.toLowerCase() ? -1 : 1;
+    });
 
     let columns: ColumnsType<ExtendedFileResponse> = [
         {
