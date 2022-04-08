@@ -3,7 +3,7 @@ import {
     Button, Drawer, message, Popconfirm, Spin, Table, Tooltip,
 } from 'antd';
 import {
-    DeleteOutlined, QuestionCircleOutlined, ReloadOutlined, UnorderedListOutlined,
+    DeleteOutlined, FilterFilled, QuestionCircleOutlined, ReloadOutlined, UnorderedListOutlined,
 } from '@ant-design/icons';
 import { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
 import { ColumnType, TableCurrentDataSource } from 'antd/lib/table/interface';
@@ -100,6 +100,12 @@ const SidebarReplays = ({
                 <PlayerLink webId={replay.webId} name={replay.playerName} />
             ),
             filterSearch: true,
+            filterIcon: () => (
+                <div className="flex gap-1 items-center">
+                    Filter
+                    <FilterFilled />
+                </div>
+            ),
         },
         {
             title: 'Time',
