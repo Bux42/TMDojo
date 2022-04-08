@@ -3,7 +3,7 @@ import {
     Button, Drawer, message, Popconfirm, Spin, Table, Tooltip,
 } from 'antd';
 import {
-    DeleteOutlined, QuestionCircleOutlined, ReloadOutlined, UnorderedListOutlined,
+    DeleteOutlined, FilterFilled, QuestionCircleOutlined, ReloadOutlined, UnorderedListOutlined,
 } from '@ant-design/icons';
 import { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
 import { ColumnType, TableCurrentDataSource } from 'antd/lib/table/interface';
@@ -86,14 +86,32 @@ const SidebarReplays = ({
         }
     };
 
+    // TODO: add useMemo to filters and columns
+    const nameFilters = getUniqueFilters((replay) => replay.playerName);
+    nameFilters.sort((a, b) => {
+        // If user is logged in, show the player filter on top:
+        if (user && a.text === user?.displayName) return -1;
+        if (user && b.text === user?.displayName) return 1;
+
+        // Else, sort by name alphabetically:
+        return a.text.toLowerCase() < b.text.toLowerCase() ? -1 : 1;
+    });
+
     let columns: ColumnsType<ExtendedFileResponse> = [
         {
             title: 'Player',
             dataIndex: 'playerName',
-            filters: getUniqueFilters((replay) => replay.playerName),
+            filters: nameFilters,
             onFilter: (value, record) => record.playerName === value,
             render: (_, replay) => (
                 <PlayerLink webId={replay.webId} name={replay.playerName} />
+            ),
+            filterSearch: true,
+            filterIcon: () => (
+                <div className="flex gap-1 items-center">
+                    Filter
+                    <FilterFilled />
+                </div>
             ),
         },
         {
