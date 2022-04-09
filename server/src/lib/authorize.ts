@@ -89,7 +89,7 @@ export const playerLoginFromWebId = (req: Request, webId: string) => {
             return false;
         }
 
-        const match = login.match('^[a-zA-Z0-9\\-_]{22}$');
+        const match = login.match('^[a-zA-Z0-9\\/-_]{22}$');
         return match !== null && match.length > 0;
     };
 
