@@ -1,23 +1,31 @@
+import { Collection, Document } from 'mongodb';
 import { RequestLogger } from '../logger';
 import { sendWebhookPayload, WebhookType } from './util';
 
 export namespace DiscordWebhook {
-    export const sendNewUserAlert = async (log: RequestLogger, name: string) => {
-        const webhookType = WebhookType.INTERNAL;
+    export const sendNewUserAlert = async (log: RequestLogger, name: string, usersCollection: Collection<Document>) => {
+        try {
+            const webhookType = WebhookType.INTERNAL;
 
-        log.debug(`DiscordWebhook: Sending ${webhookType} discord alert for new user: ${name}`);
+            log.debug(`DiscordWebhook: Sending ${webhookType} discord alert for new user: ${name}`);
 
-        const body = {
-            embeds: [{
-                author: {
-                    name: 'New user!',
-                    icon_url: 'https://i.imgur.com/ubkzobI.jpg',
-                },
-                title: name,
-                color: '11964344', // hex color -> integer
-            }],
-        };
+            // Perform count in webhook method to not block main response flow
+            const numUsers = await usersCollection.countDocuments();
 
-        await sendWebhookPayload(log, webhookType, body);
+            const body = {
+                embeds: [{
+                    author: {
+                        name: `New user! #${numUsers}`,
+                        icon_url: 'https://i.imgur.com/ubkzobI.jpg',
+                    },
+                    title: name,
+                    color: '11964344', // hex color -> integer
+                }],
+            };
+
+            await sendWebhookPayload(log, webhookType, body);
+        } catch (e) {
+            log.error(`DiscordWebhook.sendNewUserAlert: Error sending new user alert: ${e}`);
+        }
     };
 }

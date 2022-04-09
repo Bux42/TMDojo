@@ -87,12 +87,7 @@ router.get('/:replayId', async (req: Request, res: Response, next: Function) => 
  */
 // eslint-disable-next-line consistent-return
 router.post('/', (req: Request, res: Response, next: Function): any => {
-    if (
-        !req.user
-        || req.user.playerName !== req.query.playerName
-        || req.user.webId !== req.query.webId
-        || req.user.playerLogin !== req.query.playerLogin
-    ) {
+    if (!req.user || req.user.webId !== req.query.webId) {
         // reject replay uploads by unauthenticated users
         req.log.error('replaysRouter: Unauthenticated replay upload attempt');
         return res.status(401).send('Authentication required to submit replay.');
