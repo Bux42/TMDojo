@@ -84,29 +84,34 @@ export const playerLoginFromWebId = (req: Request, webId: string) => {
         return str;
     };
 
-    const isValidPlayerLogin = (login: string) => {
-        if (login === undefined) {
-            return false;
-        }
+    // const isValidPlayerLogin = (login: string) => {
+    //     if (login === undefined) {
+    //         return false;
+    //     }
 
-        const match = login.match('^[a-zA-Z0-9\\/-_]{22}$');
-        return match !== null && match.length > 0;
-    };
+    //     const match = login.match('^[a-zA-Z0-9\\-_]{22}$');
+    //     return match !== null && match.length > 0;
+    // };
 
     try {
         req.log.debug(`playerLoginFromWebId: Attempting to get player login from webId: ${webId}`);
         const cleanID = webId.replaceAll('-', '');
         const hexValues = hexToIntArray(cleanID);
         const base64 = Buffer.from(hexValues).toString('base64');
+        // TODO: fix player login conversion (replace all characters correctly)
         const playerLogin = base64.replace('+', '-').replace('/', '_').replace(/=+$/, '');
-        const validLogin = isValidPlayerLogin(playerLogin);
-        if (validLogin) {
-            req.log.debug(`playerLoginFromWebId: Converted webId to playerLogin: ${playerLogin}`);
-            return playerLogin;
-        }
+
+        return playerLogin;
+
+        // TODO: temporarily removed validation, add validation once player login conversion is fixed
+        // const validLogin = isValidPlayerLogin(playerLogin);
+        // if (validLogin) {
+        //     req.log.debug(`playerLoginFromWebId: Converted webId to playerLogin: ${playerLogin}`);
+        //     return playerLogin;
+        // }
         // eslint-disable-next-line max-len
-        req.log.error(`playerLoginFromWebId: player login "${playerLogin}" from webId "${webId}" is not a valid player login`);
-        return undefined;
+        // req.log.error(`playerLoginFromWebId: player login "${playerLogin}" from webId "${webId}" is not a valid player login`);
+        // return undefined;
     } catch (e) {
         req.log.error(`playerLoginFromWebId: Unable to convert webId "${webId}" to a playerLogin:`);
         req.log.error(e);
