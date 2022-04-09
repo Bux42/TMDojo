@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // eslint-disable-next-line import/no-unresolved
 import { Express } from 'express-serve-static-core';
-import { Logger } from '../../src/lib/logger';
+import { RequestLogger } from '../../src/lib/logger';
 
 declare module 'express-serve-static-core' {
     interface Request {
@@ -23,7 +23,7 @@ declare module 'express-serve-static-core' {
 declare global {
     namespace Express {
         interface Request {
-            log: Logger,
+            log: RequestLogger,
             requestId: string,
         }
     }

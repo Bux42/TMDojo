@@ -1,7 +1,7 @@
 import { Request } from 'express';
 import * as dayjs from 'dayjs';
 import {
-    createLogger, format, transports, Logger as WinstonLogger,
+    createLogger, format, transports, Logger,
 } from 'winston';
 
 enum LogLevel {
@@ -25,7 +25,7 @@ const logFormat = format.printf(
 );
 
 // logger gets configured at startup in initLogger
-let logger: WinstonLogger;
+let logger: Logger;
 
 // main logger utility
 const log = (message: string|object, level: LogLevel, req?: Request) => {
@@ -74,14 +74,14 @@ export const logWarn = (message: string|object) => log(message, LogLevel.warn);
 export const logError = (message: string|object) => log(message, LogLevel.error);
 export const logDebug = (message: string|object) => log(message, LogLevel.debug);
 
-export interface Logger {
+export interface RequestLogger {
     info: (message: string|object) => void;
     warn: (message: string|object) => void;
     error: (message: string|object) => void;
     debug: (message: string|object) => void;
 }
 // helper function to assign logger to request object
-export const getRequestLogger = (req: Request): Logger => ({
+export const getRequestLogger = (req: Request): RequestLogger => ({
     info: (message: string|object) => log(message, LogLevel.info, req),
     warn: (message: string|object) => log(message, LogLevel.warn, req),
     error: (message: string|object) => log(message, LogLevel.error, req),
