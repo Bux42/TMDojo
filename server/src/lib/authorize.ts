@@ -89,7 +89,7 @@ export const playerLoginFromWebId = (req: Request, webId: string) => {
             return false;
         }
 
-        const match = login.match('^[a-zA-Z0-9\\-_]{22}$');
+        const match = login.match('^[a-zA-Z0-9\\/-_]{22}$');
         return match !== null && match.length > 0;
     };
 
@@ -104,7 +104,8 @@ export const playerLoginFromWebId = (req: Request, webId: string) => {
             req.log.debug(`playerLoginFromWebId: Converted webId to playerLogin: ${playerLogin}`);
             return playerLogin;
         }
-        req.log.error(`playerLoginFromWebId: webId "${webId}" is not a valid player login`);
+        // eslint-disable-next-line max-len
+        req.log.error(`playerLoginFromWebId: player login "${playerLogin}" from webId "${webId}" is not a valid player login`);
         return undefined;
     } catch (e) {
         req.log.error(`playerLoginFromWebId: Unable to convert webId "${webId}" to a playerLogin:`);
