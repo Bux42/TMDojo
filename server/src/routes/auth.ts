@@ -51,7 +51,7 @@ router.get('/', async (req: Request, res: Response, next: Function) => {
 
         // Fetch player name from WebId
         req.log.debug('authRouter: Attempting to fetch player name from webId');
-        const playerName = await fetchPlayerName(req, req.query.webid);
+        const playerName = await fetchPlayerName(req.log, req.query.webid);
 
         if (playerName === undefined) {
             req.log.error('authRouter: Unable to fetch player name from webId');
@@ -63,7 +63,7 @@ router.get('/', async (req: Request, res: Response, next: Function) => {
 
         req.log.debug(`authRouter: Fetched player name '${playerName}' from webId '${req.query.webid}'`);
 
-        const playerLogin = playerLoginFromWebId(req, req.query.webid);
+        const playerLogin = playerLoginFromWebId(req.log, req.query.webid);
         if (playerLogin === undefined) {
             req.log.error('authRouter: Unable to create valid player login from webId');
             res.status(400)
@@ -73,11 +73,13 @@ router.get('/', async (req: Request, res: Response, next: Function) => {
         }
 
         // make sure user exists and store clientCode in user's document
-        await db.createUser(req,
+        await db.createUser(
+            req.log,
             req.query.webid,
             playerLogin,
             playerName,
-            clientCode);
+            clientCode,
+        );
 
         // generate OAuth URL
         let authURL = 'https://api.trackmania.com/oauth/authorize';

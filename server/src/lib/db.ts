@@ -1,9 +1,8 @@
 import { MongoClient, ObjectId, Db } from 'mongodb';
 import { config } from 'dotenv';
 import { v4 as uuid } from 'uuid';
-import { Request } from 'express';
 import { playerLoginFromWebId } from './authorize';
-import { logError, logInfo } from './logger';
+import { logError, logInfo, RequestLogger } from './logger';
 import { DiscordWebhook } from './discordWebhooks/discordWebhook';
 
 config();
@@ -30,7 +29,7 @@ export const initDB = () => {
 };
 
 export const createUser = (
-    req: Request,
+    log: RequestLogger,
     webId: any,
     login: any,
     name: any,
@@ -44,7 +43,7 @@ export const createUser = (
             })
             .toArray(async (err: Error, docs: any) => {
                 if (err) {
-                    req.log.error(`createUser: Error finding user with webId ${webId}`);
+                    log.error(`createUser: Error finding user with webId ${webId}`);
                     reject(err);
                 } else if (!docs.length) {
                     const insertedUserData = await users.insertOne({
@@ -55,15 +54,15 @@ export const createUser = (
                         createdAt: Date.now(),
                     });
 
-                    req.log.debug(
+                    log.debug(
                         `createUser: Created new user "${name}", doc ID: ${insertedUserData.insertedId.toString()}`,
                     );
 
-                    DiscordWebhook.sendNewUserAlert(req, name);
+                    DiscordWebhook.sendNewUserAlert(log, name);
 
                     resolve({ userID: insertedUserData.insertedId?.toString() });
                 } else {
-                    req.log.debug(`createUser: User "${name}" already exists, doc ID: ${docs[0]._id.toString()}`);
+                    log.debug(`createUser: User "${name}" already exists, doc ID: ${docs[0]._id.toString()}`);
                     const updatedUser = {
                         $set: {
                             playerLogin: login,
@@ -77,7 +76,7 @@ export const createUser = (
                         },
                         updatedUser,
                     );
-                    req.log.debug(`createUser: Updated user "${name}"`);
+                    log.debug(`createUser: Updated user "${name}"`);
                     // inserts are explicit, this will always be an existing doc (so passing the known ID is fine)
                     resolve({ userID: docs[0]._id.toString() });
                 }
@@ -387,12 +386,12 @@ export const saveReplayMetadata = (
  * Creates session using a webId.
  * Returns session secret or undefined if something went wrong
  */
-export const createSession = async (req: Request, userInfo: any, clientCode?: any) => {
+export const createSession = async (log: RequestLogger, userInfo: any, clientCode?: any) => {
     // Find user
     const user = await getUserByWebId(userInfo.account_id);
     let userID = user?._id;
     if (!userID) {
-        const playerLogin = playerLoginFromWebId(req, userInfo.account_id);
+        const playerLogin = playerLoginFromWebId(log, userInfo.account_id);
 
         if (playerLogin === undefined) {
             return undefined;
@@ -400,7 +399,7 @@ export const createSession = async (req: Request, userInfo: any, clientCode?: an
 
         if (userInfo.account_id !== undefined && userInfo.display_name !== undefined) {
             const updatedUserInfo = await createUser(
-                req, userInfo.account_id, playerLogin, userInfo.display_name, null,
+                log, userInfo.account_id, playerLogin, userInfo.display_name, null,
             );
             userID = updatedUserInfo.userID;
         } else {

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Request } from 'express';
+import { RequestLogger } from '../logger';
 
 export enum WebhookType {
     INTERNAL = 'INTERNAL',
@@ -7,7 +7,7 @@ export enum WebhookType {
 }
 
 // Executes a webhook request with error handling, to the specified webhook, with the specified body
-export const sendWebhookPayload = async (req: Request, webhookType: WebhookType, body: any) => {
+export const sendWebhookPayload = async (log: RequestLogger, webhookType: WebhookType, body: any) => {
     const webhookUrl = webhookType === WebhookType.INTERNAL
         ? process.env.INTERNAL_DISCORD_WEBHOOK_URL
         : process.env.INTERNAL_DISCORD_WEBHOOK_URL; // TODO: add public discord webhook url
@@ -15,8 +15,8 @@ export const sendWebhookPayload = async (req: Request, webhookType: WebhookType,
     await axios
         .post(webhookUrl, body)
         .catch((err: any) => {
-            req.log.error('Failed to send payload to internal discord webhook:');
-            req.log.error(body);
-            req.log.error(err);
+            log.error('Failed to send payload to internal discord webhook:');
+            log.error(body);
+            log.error(err);
         });
 };

@@ -1,11 +1,11 @@
-import { Request } from 'express';
+import { RequestLogger } from '../logger';
 import { sendWebhookPayload, WebhookType } from './util';
 
 export namespace DiscordWebhook {
-    export const sendNewUserAlert = async (req: Request, name: string) => {
+    export const sendNewUserAlert = async (log: RequestLogger, name: string) => {
         const webhookType = WebhookType.INTERNAL;
 
-        req.log.debug(`DiscordWebhook: Sending ${webhookType} discord alert for new user: ${name}`);
+        log.debug(`DiscordWebhook: Sending ${webhookType} discord alert for new user: ${name}`);
 
         const body = {
             embeds: [{
@@ -18,6 +18,6 @@ export namespace DiscordWebhook {
             }],
         };
 
-        await sendWebhookPayload(req, webhookType, body);
+        await sendWebhookPayload(log, webhookType, body);
     };
 }
