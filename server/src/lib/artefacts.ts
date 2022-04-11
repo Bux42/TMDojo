@@ -5,7 +5,7 @@ import * as zlib from 'zlib';
 
 import { S3 } from '@aws-sdk/client-s3';
 
-const { PREFERRED_STORAGE_TYPE, AWS_S3_BUCKET_NAME, AWS_S3_REGION } = process.env;
+const { AWS_S3_REGION } = process.env;
 
 enum StorageType {
     ObjectStorage = 'S3',
@@ -28,14 +28,14 @@ const streamToBuffer = (stream: any): Promise<Buffer> => new Promise(
     },
 );
 
-const compress = (input: string|Buffer): Buffer => zlib.gzipSync(input);
-const decompress = (input: Buffer): Buffer => zlib.unzipSync(input);
+export const compress = (input: string|Buffer): Buffer => zlib.gzipSync(input);
+export const decompress = (input: Buffer): Buffer => zlib.unzipSync(input);
 
 // generic helper method for uploading artefacts (includes compression)
 const uploadObject = async (storageType: StorageType, key: string, value: string|Buffer) => {
     if (storageType === StorageType.ObjectStorage) {
         const params = {
-            Bucket: AWS_S3_BUCKET_NAME,
+            Bucket: process.env.AWS_S3_BUCKET_NAME,
             Key: key,
             Body: compress(value),
         };
@@ -65,7 +65,7 @@ const retrieveObject = async (storageType: StorageType, key: string) => {
     try {
         if (storageType === StorageType.ObjectStorage) {
             const params = {
-                Bucket: AWS_S3_BUCKET_NAME,
+                Bucket: process.env.AWS_S3_BUCKET_NAME,
                 Key: key,
             };
             const data = await S3Client.getObject(params);
@@ -96,7 +96,7 @@ const deleteObject = async (storageType: StorageType, key: string) => {
     try {
         if (storageType === StorageType.ObjectStorage) {
             const params = {
-                Bucket: AWS_S3_BUCKET_NAME,
+                Bucket: process.env.AWS_S3_BUCKET_NAME,
                 Key: key,
             };
             return S3Client.deleteObject(params);
@@ -151,16 +151,18 @@ export const uploadReplay = async (replayPath: string, replayData: string) => {
     // replay data needs to be turned into a base64-encoded buffer first
     const dataBuffer = Buffer.from(replayData, 'base64');
 
-    if (PREFERRED_STORAGE_TYPE === StorageType.ObjectStorage) {
+    const storageType = process.env.PREFERRED_STORAGE_TYPE;
+
+    if (storageType === StorageType.ObjectStorage) {
         key = `maps/${replayPath}`;
         keyProperty = 'objectPath';
         await uploadObject(StorageType.ObjectStorage, key, dataBuffer);
-    } else if (PREFERRED_STORAGE_TYPE === StorageType.FileStorage) {
+    } else if (storageType === StorageType.FileStorage) {
         key = `maps/${replayPath}.gz`;
         keyProperty = 'filePath';
         await uploadObject(StorageType.FileStorage, key, dataBuffer);
     } else {
-        throw new Error(`Invalid preferred storage type "${PREFERRED_STORAGE_TYPE}"`);
+        throw new Error(`Invalid preferred storage type "${storageType}"`);
     }
 
     return {
