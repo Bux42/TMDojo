@@ -1,0 +1,14 @@
+{
+    "watch": [
+        ".",
+        "src",
+        "addon"
+    ],
+    "ext": ".ts,.js",
+    "ignore": [],
+    "exec": "npm start ./src/index.tsx",
+    "events": {
+        "restart": "kill-port 80",
+        "crash": "kill-port 80"
+    }
+}
