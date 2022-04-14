@@ -38,6 +38,11 @@ module.exports = {
                 tsx: 'never',
             },
         ],
+        // Additions after NestJS
+        'import/prefer-default-export': 'off',
+        'no-useless-constructor': 'off',
+        'class-methods-use-this': 'off',
+        'import/no-extraneous-dependencies': ['error', { devDependencies: ['**/*.spec.ts', '**/*.e2e-spec.ts'] }],
     },
     settings: {
         'import/resolver': {

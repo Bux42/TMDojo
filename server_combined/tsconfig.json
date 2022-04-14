@@ -15,17 +15,19 @@
 		"alwaysStrict": true,
 		"noUnusedParameters": false,
 		"pretty": true,
+		"emitDecoratorMetadata": true,
 		"noFallthroughCasesInSwitch": true,
 		"allowUnreachableCode": false,
 		"experimentalDecorators": true,
 		"typeRoots": [
 			"@types",
 			"src/types/*.ts",
-			"node_modules/@types"
+			"node_modules/**/*.d.ts"
 		],
 	},
 	"include": [
 		"src/",
-		"bindings"
+		"test/",
+		"bindings",
 	]
 }
