@@ -43,6 +43,7 @@ module.exports = {
         'no-useless-constructor': 'off',
         'class-methods-use-this': 'off',
         'import/no-extraneous-dependencies': ['error', { devDependencies: ['**/*.spec.ts', '**/*.e2e-spec.ts'] }],
+        'no-empty-function': 'off',
     },
     settings: {
         'import/resolver': {
