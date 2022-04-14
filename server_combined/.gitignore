@@ -1,6 +1,6 @@
 .env
 node_modules
-maps
+/maps
 exports
 mapBlocks
 cert.pem
