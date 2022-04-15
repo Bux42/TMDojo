@@ -6,7 +6,7 @@ import { ReplaysService } from '../replays/replays.service';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 
-describe('MapController', () => {
+describe('UsersController', () => {
     let usersController: UsersController;
 
     beforeEach(async () => {
