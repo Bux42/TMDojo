@@ -28,7 +28,9 @@ const ReplayMap = ({
     const material: THREE.MeshPhongMaterial = mapMesh.material as THREE.MeshPhongMaterial;
 
     const matClone = material.clone();
-    matClone.opacity = 0.7;
+    matClone.opacity = 1;
+
+    matClone.side = THREE.DoubleSide;
 
     matClone.color = new THREE.Color(
         0.1,
@@ -86,7 +88,6 @@ const ReplayMap = ({
                     dispose={null}
                     ref={mapMeshRef}
                     scale={0.01}
-
                 />
             </mesh>
         </>
