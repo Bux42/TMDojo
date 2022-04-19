@@ -3,7 +3,7 @@ import {
     Button, Drawer, message, Popconfirm, Spin, Table, Tooltip,
 } from 'antd';
 import {
-    DeleteOutlined, FilterFilled, QuestionCircleOutlined, ReloadOutlined, UnorderedListOutlined,
+    DeleteOutlined, FilterFilled, QuestionCircleOutlined, ReloadOutlined, UnorderedListOutlined, ClockCircleOutlined,
 } from '@ant-design/icons';
 import { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
 import { ColumnType, TableCurrentDataSource } from 'antd/lib/table/interface';
@@ -112,6 +112,21 @@ const SidebarReplays = ({
                     Filter
                     <FilterFilled />
                 </div>
+            ),
+        },
+        {
+            title: '',
+            dataIndex: 'properties',
+            align: 'center',
+            width: 35,
+            render: (i: number, replay) => (
+                <>
+                    {Math.random() < 0.1 ? (
+                        <Tooltip title="Replay includes CP/sector times" placement="top">
+                            <ClockCircleOutlined />
+                        </Tooltip>
+                    ) : null}
+                </>
             ),
         },
         {
