@@ -119,10 +119,10 @@ const SidebarReplays = ({
             dataIndex: 'properties',
             align: 'center',
             width: 35,
-            render: (i: number, replay) => (
+            render: (_, replay) => (
                 <>
-                    {Math.random() < 0.1 ? (
-                        <Tooltip title="Replay includes CP/sector times" placement="top">
+                    {replay.sectorTimes ? (
+                        <Tooltip title="Replay includes CP/sector times" placement="right">
                             <ClockCircleOutlined />
                         </Tooltip>
                     ) : null}
