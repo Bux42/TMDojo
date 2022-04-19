@@ -94,7 +94,14 @@ router.post('/', (req: Request, res: Response, next: Function): any => {
     }
 
     const paramNames = [
-        'authorName', 'mapName', 'mapUId', 'endRaceTime', 'raceFinished', 'playerName', 'playerLogin', 'webId',
+        'authorName',
+        'mapName',
+        'mapUId',
+        'endRaceTime',
+        'raceFinished',
+        'playerName',
+        'playerLogin',
+        'webId',
     ];
 
     // make sure all required parameters are present
@@ -137,14 +144,7 @@ router.post('/', (req: Request, res: Response, next: Function): any => {
 
             // check if user already exists
             const user = await db.getUserByWebId(`${req.query.webId}`);
-            let userID = user?._id;
-            if (!userID) {
-                req.log.debug('replaysRouter: User does not exist in database, creating new user');
-                const updatedUserInfo = await db.createUser(
-                    req, req.query.webId, req.query.playerLogin, req.query.playerName, null,
-                );
-                userID = updatedUserInfo.userID;
-            }
+            const userID = user?._id;
 
             const metadata = {
                 // reference map and user docs
@@ -153,6 +153,7 @@ router.post('/', (req: Request, res: Response, next: Function): any => {
                 date: Date.now(),
                 raceFinished: parseInt(`${req.query.raceFinished}`, 10),
                 endRaceTime: parseInt(`${req.query.endRaceTime}`, 10),
+                pluginVersion: req.query.pluginVersion,
                 ...storedReplay,
             };
             req.log.debug('replaysRouter: Saving replay metadata');
