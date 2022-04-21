@@ -16,7 +16,7 @@ const SceneDirectionalLight = ({
     replays,
     castShadow,
     intensity,
-    showDebugLocation = true,
+    showDebugLocation = false,
     corner = 0,
 }: SceneDirectionalLightProps) => {
     const ref = useRef<DirectionalLight>();
