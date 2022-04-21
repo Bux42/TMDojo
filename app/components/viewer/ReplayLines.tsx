@@ -92,9 +92,13 @@ export const ReplayLines = ({
                 {(replay.dnfPos.x !== 0 && replay.dnfPos.y !== 0 && replay.dnfPos.z !== 0) && (
                     <ReplayDnf key={`replay-${replay._id}-dnf`} replay={replay} />
                 )}
-                {replay.sectorTimes && (
-                    <ReplaySectorHighlights replay={replay} />
-                )}
+
+                {/* Removed until fully implemented: */}
+                {/*
+                    {replay.sectorTimes && (
+                        <ReplaySectorHighlights replay={replay} />
+                    )}
+                */}
             </>
         ))}
     </>

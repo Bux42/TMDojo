@@ -114,9 +114,11 @@ const SidebarReplays = ({
                 </div>
             ),
         },
+        /*
+        Remove sector time indicator column until fully implemented
         {
             title: '',
-            dataIndex: 'properties',
+            dataIndex: 'sectorTime',
             align: 'center',
             width: 35,
             render: (_, replay) => (
@@ -129,6 +131,7 @@ const SidebarReplays = ({
                 </>
             ),
         },
+        */
         {
             title: 'Time',
             dataIndex: 'readableTime',
