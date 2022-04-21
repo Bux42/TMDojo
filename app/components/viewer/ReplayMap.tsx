@@ -25,25 +25,20 @@ const ReplayMap = ({
     const [selectedPosIndex, setSelectedPosIndex] = useState<number>(0);
 
     const mapMesh: THREE.Mesh = carFbx.children[0] as THREE.Mesh;
-    const material: THREE.MeshPhongMaterial = mapMesh.material as THREE.MeshPhongMaterial;
 
-    const matClone = material.clone();
-    matClone.opacity = 1;
-
-    matClone.side = THREE.DoubleSide;
-
-    matClone.color = new THREE.Color(
-        0.1,
-        0.1,
-        0.1,
-    );
-
-    mapFbx.children.forEach((child: any) => {
-        child.material = matClone;
+    const material = new THREE.MeshStandardMaterial({
+        color: new THREE.Color(0.1, 0.1, 0.1),
+        roughness: 0.4,
+        side: THREE.DoubleSide,
     });
+
+    mapMesh.material = material;
+
     mapFbx.traverse((children: THREE.Object3D) => {
         if (children instanceof THREE.Mesh) {
             children.castShadow = true;
+            children.receiveShadow = true;
+            children.material = material;
         }
     });
 

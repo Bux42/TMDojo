@@ -7,9 +7,18 @@ import { ReplayData } from '../../lib/api/apiRequests';
 
 interface SceneDirectionalLightProps {
     replays: ReplayData[];
-    showDebugLocation?: boolean
+    castShadow?: boolean;
+    intensity: number;
+    showDebugLocation?: boolean;
+    corner?: number;
 }
-const SceneDirectionalLight = ({ replays, showDebugLocation }: SceneDirectionalLightProps) => {
+const SceneDirectionalLight = ({
+    replays,
+    castShadow,
+    intensity,
+    showDebugLocation = true,
+    corner = 0,
+}: SceneDirectionalLightProps) => {
     const ref = useRef<DirectionalLight>();
     const targetRef = useRef<Group>();
 
@@ -44,10 +53,15 @@ const SceneDirectionalLight = ({ replays, showDebugLocation }: SceneDirectionalL
             const minXZ = Math.min(minPos.x, minPos.z);
             const maxXZ = Math.max(maxPos.x, maxPos.z);
 
+            // X on corners 0 and 3: xz min; X on corners 1 and 2: xz max
+            const x = (corner + 1) % 4 <= 1 ? minXZ : maxXZ;
+            // Z on corners 0 and 1: xz min; Z on corners 2 and 3: xz max
+            const z = corner % 4 < 2 ? minXZ : maxXZ;
+
             ref.current.position.set(
-                midPos.x,
+                x,
                 maxPos.y + (maxXZ - minXZ) * 0.25,
-                midPos.z,
+                z,
             );
             setLightTarget(midPos.x, minPos.y, midPos.z);
 
@@ -59,13 +73,15 @@ const SceneDirectionalLight = ({ replays, showDebugLocation }: SceneDirectionalL
                 );
             }
         }
-    }, [ref, targetRef, replays, calcMinMidMaxPositions]);
+    }, [ref, targetRef, replays, calcMinMidMaxPositions, corner]);
 
     return (
         <>
             <directionalLight
                 ref={ref}
-                intensity={1}
+                intensity={intensity}
+                castShadow={castShadow}
+                shadow-bias={-0.0005}
                 shadow-mapSize-width={4096}
                 shadow-mapSize-height={4096}
                 shadow-camera-near={1}
@@ -74,7 +90,6 @@ const SceneDirectionalLight = ({ replays, showDebugLocation }: SceneDirectionalL
                 shadow-camera-right={750}
                 shadow-camera-top={750}
                 shadow-camera-bottom={-750}
-                castShadow
             >
                 {/* Debug Location */}
                 {showDebugLocation && (

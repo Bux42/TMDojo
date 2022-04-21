@@ -48,10 +48,12 @@ const Viewer3D = ({ replaysData }: Props): JSX.Element => {
                 }}
                 shadows
             >
-                <ambientLight intensity={0.01} />
+                <ambientLight intensity={0.1} />
                 <Sky distance={100000000} inclination={0} turbidity={0} rayleigh={10} />
 
-                <SceneDirectionalLight replays={replaysData} />
+                <SceneDirectionalLight replays={replaysData} intensity={0.5} corner={0} />
+                <SceneDirectionalLight replays={replaysData} intensity={0.4} castShadow corner={1} />
+                <SceneDirectionalLight replays={replaysData} intensity={0.1} castShadow corner={2} />
 
                 <OrbitControls
                     ref={orbitControlsRef}
