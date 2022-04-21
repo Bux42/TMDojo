@@ -42,7 +42,7 @@ router.post('/', async (req: Request, res: Response, next: Function) => {
 
         // Fetch user info using access token
         const userInfo = await fetchUserInfo(req, accessToken);
-        if (userInfo === undefined || userInfo.account_id === undefined || userInfo.display_name === undefined) {
+        if (userInfo === undefined || userInfo.accountId === undefined || userInfo.displayName === undefined) {
             res.status(500).send({ message: 'Could not retrieve user info from trackmania API.' });
             return;
         }
@@ -59,7 +59,7 @@ router.post('/', async (req: Request, res: Response, next: Function) => {
 
         // if clientCode exists, create a separate plugin session
         // first, check the user doc for the clientCode
-        const userDoc = await getUserByWebId(userInfo.account_id);
+        const userDoc = await getUserByWebId(userInfo.accountId);
         if (clientCode && userDoc.clientCode === clientCode) {
             req.log.debug('authorizeRouter: clientCode exists, creating plugin session');
             // remove clientCode from user
@@ -77,8 +77,8 @@ router.post('/', async (req: Request, res: Response, next: Function) => {
 
         // send back user info
         res.send({
-            accountId: userInfo.account_id,
-            displayName: userInfo.display_name,
+            accountId: userInfo.accountId,
+            displayName: userInfo.displayName,
         });
     } catch (err) {
         next(err);
