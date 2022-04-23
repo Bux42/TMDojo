@@ -146,6 +146,32 @@ router.post('/', (req: Request, res: Response, next: Function): any => {
             const user = await db.getUserByWebId(`${req.query.webId}`);
             const userID = user?._id;
 
+            // parse sector times
+            // convert string of sector times separated by ',' to array of numbers
+            // "1,2,3" -> [1, 2, 3]
+            let sectorTimes = null;
+            if (req.query.sectorTimes && typeof req.query.sectorTimes === 'string') {
+                const sectorTimesList: string[] = (req.query.sectorTimes as string).split(',');
+
+                try {
+                    sectorTimes = sectorTimesList.map((time) => parseInt(time, 10));
+                } catch (e) {
+                    req.log.error(`Could not parse sector times (${req.query.sectorTimes}): ${e}`);
+                }
+
+                // Set sector times to null if they contain NaN values (parseInt returns NaN for non-numeric values)
+                if (sectorTimes.filter((time) => Number.isNaN(time)).length > 0) {
+                    // eslint-disable-next-line max-len
+                    req.log.error(`Could not parse sector times (${req.query.sectorTimes}): ${sectorTimes} contains NaN`);
+                    sectorTimes = null;
+                }
+
+                // Set sector times to null if the list is empty
+                if (sectorTimes && sectorTimes.length === 0) {
+                    sectorTimes = null;
+                }
+            }
+
             const metadata = {
                 // reference map and user docs
                 mapRef: map._id,
@@ -154,6 +180,7 @@ router.post('/', (req: Request, res: Response, next: Function): any => {
                 raceFinished: parseInt(`${req.query.raceFinished}`, 10),
                 endRaceTime: parseInt(`${req.query.endRaceTime}`, 10),
                 pluginVersion: req.query.pluginVersion,
+                sectorTimes,
                 ...storedReplay,
             };
             req.log.debug('replaysRouter: Saving replay metadata');

@@ -14,6 +14,7 @@ interface FilterParams {
 }
 
 export interface FileResponse {
+    sectorTimes?: number[];
     authorName: string;
     mapUId: string;
     date: number;
