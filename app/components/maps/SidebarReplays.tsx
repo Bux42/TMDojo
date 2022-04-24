@@ -3,7 +3,7 @@ import {
     Button, Drawer, message, Popconfirm, Spin, Table, Tooltip,
 } from 'antd';
 import {
-    DeleteOutlined, FilterFilled, QuestionCircleOutlined, ReloadOutlined, UnorderedListOutlined,
+    DeleteOutlined, FilterFilled, QuestionCircleOutlined, ReloadOutlined, UnorderedListOutlined, ClockCircleOutlined,
 } from '@ant-design/icons';
 import { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
 import { ColumnType, TableCurrentDataSource } from 'antd/lib/table/interface';
@@ -114,6 +114,24 @@ const SidebarReplays = ({
                 </div>
             ),
         },
+        /*
+        Remove sector time indicator column until fully implemented
+        {
+            title: '',
+            dataIndex: 'sectorTime',
+            align: 'center',
+            width: 35,
+            render: (_, replay) => (
+                <>
+                    {replay.sectorTimes ? (
+                        <Tooltip title="Replay includes CP/sector times" placement="right">
+                            <ClockCircleOutlined />
+                        </Tooltip>
+                    ) : null}
+                </>
+            ),
+        },
+        */
         {
             title: 'Time',
             dataIndex: 'readableTime',

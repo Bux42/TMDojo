@@ -33,7 +33,7 @@ router.get('/', async (req: Request, res: Response, next: Function) => {
         if (pluginSession) {
             req.log.debug('authRouter: Found session for user, checking webId');
             const pluginUser = await db.getUserByWebId(req.query.webid?.toString());
-            if (pluginUser !== undefined
+            if (pluginUser !== null
                 && pluginSession.userRef.toString() === pluginUser._id.toString()) {
                 req.log.debug('authRouter: Session and user match, skipping authURL generation');
                 res.send({ authSuccess: true });

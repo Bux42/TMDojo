@@ -2,7 +2,7 @@ import { MongoClient, ObjectId, Db } from 'mongodb';
 import { config } from 'dotenv';
 import { v4 as uuid } from 'uuid';
 import { Request } from 'express';
-import { playerLoginFromWebId } from './authorize';
+import { playerLoginFromWebId, UserInfoResponse } from './authorize';
 import { logError, logInfo } from './logger';
 import { DiscordWebhook } from './discordWebhooks/discordWebhook';
 
@@ -394,20 +394,20 @@ export const saveReplayMetadata = (
  * Creates session using a webId.
  * Returns session secret or undefined if something went wrong
  */
-export const createSession = async (req: Request, userInfo: any, clientCode?: any) => {
+export const createSession = async (req: Request, userInfo: UserInfoResponse, clientCode?: any) => {
     // Find user
-    const user = await getUserByWebId(userInfo.account_id);
+    const user = await getUserByWebId(userInfo.accountId);
     let userID = user?._id;
     if (!userID) {
-        const playerLogin = playerLoginFromWebId(req, userInfo.account_id);
+        const playerLogin = playerLoginFromWebId(req, userInfo.accountId);
 
         if (playerLogin === undefined) {
             return undefined;
         }
 
-        if (userInfo.account_id !== undefined && userInfo.display_name !== undefined) {
+        if (userInfo.accountId !== undefined && userInfo.displayName !== undefined) {
             const updatedUserInfo = await createUser(
-                req, userInfo.account_id, playerLogin, userInfo.display_name, null,
+                req, userInfo.accountId, playerLogin, userInfo.displayName, null,
             );
             userID = updatedUserInfo.userID;
         } else {
