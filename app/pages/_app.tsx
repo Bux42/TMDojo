@@ -43,7 +43,7 @@ const App = ({ Component, pageProps }: Props): React.ReactElement => (
                     content="The data analysis and visualization platform for Trackmania runs"
                 />
                 <meta property="og:type" content="website" />
-                <meta property="og:image" content="https://tm-dojo-git-addmetatagsforembeds-bux42.vercel.app/images/tmdojo_preview.jpg" />
+                <meta property="og:image" content="https://discordapp.com/assets/ba74954dde74ff40a32ff58069e78c36.png" />
                 <meta name="theme-color" content="#61435d" />
             </Head>
             <Component {...pageProps} />
