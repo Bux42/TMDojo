@@ -43,7 +43,7 @@ const App = ({ Component, pageProps }: Props): React.ReactElement => (
                     content="The data analysis and visualization platform for Trackmania runs"
                 />
                 <meta property="og:type" content="website" />
-                <meta property="og:image" content="https://tmdojo.com/favicon.ico" />
+                <meta property="og:image" content="https://tmdojo.com/images/tmdojo_preview.jpg" />
                 <meta name="theme-color" content="#61435d" />
             </Head>
             <Component {...pageProps} />
