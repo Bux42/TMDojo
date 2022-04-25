@@ -47,10 +47,9 @@ const App = ({ Component, pageProps }: Props): React.ReactElement => (
                 />
                 <meta
                     property="og:image"
-                    content="https://discordapp.com/assets/ba74954dde74ff40a32ff58069e78c36.png"
+                    content="https://tm-dojo-git-addmetatagsforembeds-bux42.vercel.app/images/tmdojo_preview.jpg"
                 />
 
-                <meta name="twitter:card" content="summary_large_image" />
                 <meta property="twitter:domain" content="tm-dojo-git-addmetatagsforembeds-bux42.vercel.app" />
                 <meta property="twitter:url" content="https://tm-dojo-git-addmetatagsforembeds-bux42.vercel.app/" />
                 <meta name="twitter:title" content="TMDojo" />
@@ -60,7 +59,7 @@ const App = ({ Component, pageProps }: Props): React.ReactElement => (
                 />
                 <meta
                     name="twitter:image"
-                    content="https://discordapp.com/assets/ba74954dde74ff40a32ff58069e78c36.png"
+                    content="https://tm-dojo-git-addmetatagsforembeds-bux42.vercel.app/images/tmdojo_preview.jpg"
                 />
 
                 <meta name="theme-color" content="#79515a" />
