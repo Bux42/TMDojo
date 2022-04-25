@@ -62,7 +62,7 @@ const App = ({ Component, pageProps }: Props): React.ReactElement => (
                     content="https://tm-dojo-git-addmetatagsforembeds-bux42.vercel.app/images/tmdojo_preview.jpg"
                 />
 
-                <meta name="theme-color" content="#79515a" />
+                <meta name="theme-color" content="#545475" />
             </Head>
             <Component {...pageProps} />
         </SettingsProvider>
