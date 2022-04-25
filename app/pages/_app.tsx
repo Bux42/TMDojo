@@ -36,15 +36,27 @@ const App = ({ Component, pageProps }: Props): React.ReactElement => (
                 }
                 <link rel="icon" href="/favicon.ico" />
                 <title>TMDojo</title>
+                <meta property="og:type" content="website" />
                 <meta property="og:url" content="https://tmdojo.com" />
-                <meta property="og:title" content="TMDojo" />
+                <meta property="og:site_name" content="TMDojo" />
+                <meta property="twitter:card" content="summary_large_image" />
                 <meta
                     property="og:description"
                     content="The data analysis and visualization platform for Trackmania runs"
                 />
-                <meta property="og:type" content="website" />
-                <meta property="og:image" content="https://discordapp.com/assets/ba74954dde74ff40a32ff58069e78c36.png" />
-                <meta name="theme-color" content="#61435d" />
+                <meta
+                    name="description"
+                    content="The data analysis and visualization platform for Trackmania runs"
+                />
+                <meta
+                    property="og:image"
+                    content="https://discordapp.com/assets/ba74954dde74ff40a32ff58069e78c36.png"
+                />
+                <meta
+                    property="twitter:image"
+                    content="https://discord.com/assets/652f40427e1f5186ad54836074898279.png"
+                />
+                <meta name="theme-color" content="#79515a" />
             </Head>
             <Component {...pageProps} />
         </SettingsProvider>
