@@ -38,7 +38,7 @@ const App = ({ Component, pageProps }: Props): React.ReactElement => (
                 <title>TMDojo</title>
                 <meta name="description" content="The data analysis and visualization platform for Trackmania runs" />
 
-                <meta property="og:url" content="https://tm-dojo-git-addmetatagsforembeds-bux42.vercel.app/" />
+                <meta property="og:url" content="https://tmdojo.com" />
                 <meta property="og:type" content="website" />
                 <meta property="og:title" content="TMDojo" />
                 <meta
@@ -47,11 +47,11 @@ const App = ({ Component, pageProps }: Props): React.ReactElement => (
                 />
                 <meta
                     property="og:image"
-                    content="https://tm-dojo-git-addmetatagsforembeds-bux42.vercel.app/images/tmdojo_preview.jpg"
+                    content="https://tmdojo.com/images/tmdojo_preview.jpg"
                 />
 
-                <meta property="twitter:domain" content="tm-dojo-git-addmetatagsforembeds-bux42.vercel.app" />
-                <meta property="twitter:url" content="https://tm-dojo-git-addmetatagsforembeds-bux42.vercel.app/" />
+                <meta property="twitter:domain" content="tmdojo.com" />
+                <meta property="twitter:url" content="https://tmdojo.com" />
                 <meta name="twitter:title" content="TMDojo" />
                 <meta
                     name="twitter:description"
@@ -59,10 +59,10 @@ const App = ({ Component, pageProps }: Props): React.ReactElement => (
                 />
                 <meta
                     name="twitter:image"
-                    content="https://tm-dojo-git-addmetatagsforembeds-bux42.vercel.app/images/tmdojo_preview.jpg"
+                    content="https://tmdojo.com/images/tmdojo_preview.jpg"
                 />
 
-                <meta name="theme-color" content="#545475" />
+                <meta name="theme-color" content="#916c84" />
             </Head>
             <Component {...pageProps} />
         </SettingsProvider>
