@@ -114,24 +114,23 @@ const SidebarReplays = ({
                 </div>
             ),
         },
-        /*
-        Remove sector time indicator column until fully implemented
         {
-            title: '',
+            title: 'Sectors',
             dataIndex: 'sectorTime',
             align: 'center',
-            width: 35,
+            width: 30,
+            filters: [{ text: 'Includes sector times', value: true }],
+            onFilter: (value, record) => !!record.sectorTimes === value,
             render: (_, replay) => (
                 <>
-                    {replay.sectorTimes ? (
+                    {replay.sectorTimes && (
                         <Tooltip title="Replay includes CP/sector times" placement="right">
                             <ClockCircleOutlined />
                         </Tooltip>
-                    ) : null}
+                    )}
                 </>
             ),
         },
-        */
         {
             title: 'Time',
             dataIndex: 'readableTime',
