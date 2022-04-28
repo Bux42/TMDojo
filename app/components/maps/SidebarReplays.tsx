@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import {
-    Button, Drawer, message, Popconfirm, Spin, Table, Tooltip,
+    Button, Drawer, message, Popconfirm, Progress, Spin, Table, Tooltip,
 } from 'antd';
 import {
     DeleteOutlined, FilterFilled, QuestionCircleOutlined, ReloadOutlined, UnorderedListOutlined, ClockCircleOutlined,
@@ -14,6 +14,7 @@ import SideDrawerExpandButton from '../common/SideDrawerExpandButton';
 import PlayerLink from '../common/PlayerLink';
 import CleanButton from '../common/CleanButton';
 import useWindowDimensions from '../../lib/hooks/useWindowDimensions';
+import { DownloadState, ReplayDownloadState } from '../../lib/replays/replayDownloadState';
 
 interface ExtendedFileResponse extends FileResponse {
     readableTime: string;
@@ -25,6 +26,7 @@ interface Props {
     mapUId: string;
     replays: FileResponse[];
     loadingReplays: boolean;
+    replayDownloadStates: Map<string, ReplayDownloadState>;
     onLoadReplay: (replay: FileResponse) => void;
     onRemoveReplay: (replay: FileResponse) => void;
     onLoadAllVisibleReplays: (replays: FileResponse[], selectedReplayDataIds: string[]) => void;
@@ -37,6 +39,7 @@ const SidebarReplays = ({
     mapUId,
     replays,
     loadingReplays,
+    replayDownloadStates,
     onLoadReplay,
     onRemoveReplay,
     onLoadAllVisibleReplays,
@@ -174,17 +177,35 @@ const SidebarReplays = ({
             align: 'center',
             width: 150,
             render: (_, replay) => {
-                const selected = selectedReplayDataIds.indexOf(replay._id) !== -1;
+                const loadingState = replayDownloadStates.get(replay._id);
+
                 return (
                     <div className="flex flex-row gap-4 items-center">
-                        {!selected ? (
+                        {(!loadingState || loadingState?.state === DownloadState.IDLE)
+                            && (
+                                <CleanButton
+                                    onClick={() => {
+                                        onLoadReplay(replay);
+                                    }}
+                                    className="w-full"
+                                >
+                                    Load
+                                </CleanButton>
+                            )}
+                        {loadingState?.state === DownloadState.DOWNLOADING
+                        && (
                             <CleanButton
-                                onClick={() => onLoadReplay(replay)}
+                                onClick={() => {
+                                    onLoadReplay(replay);
+                                }}
                                 className="w-full"
+                                disabled
                             >
-                                Load
+                                <Progress percent={loadingState.progress} status="active" />
                             </CleanButton>
-                        ) : (
+                        )}
+                        {loadingState?.state === DownloadState.LOADED
+                        && (
                             <CleanButton
                                 onClick={() => onRemoveReplay(replay)}
                                 className="w-full"
@@ -192,6 +213,20 @@ const SidebarReplays = ({
                             >
                                 Remove
                             </CleanButton>
+                        )}
+                        {loadingState?.state === DownloadState.ERROR
+                        && (
+                            <Tooltip placement="top" title="Loading failed, click to try again">
+                                <span style={{ width: '100%', height: '100%' }}>
+                                    <CleanButton
+                                        onClick={() => onLoadReplay(replay)}
+                                        className="w-full"
+                                        backColor="#b46616"
+                                    >
+                                        Retry
+                                    </CleanButton>
+                                </span>
+                            </Tooltip>
                         )}
                         {user && user.accountId === replay.webId && (
                             <Popconfirm

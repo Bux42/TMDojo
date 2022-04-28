@@ -1,5 +1,6 @@
 import apiInstance from './apiInstance';
 import { readDataView, DataViewResult } from '../replays/replayData';
+import { DownloadState, ReplayDownloadState } from '../replays/replayDownloadState';
 
 interface FilterParams {
     mapName?: any;
@@ -48,24 +49,39 @@ export const getReplays = async (filters: FilterParams = DEFAULT_FILTERS): Promi
     const res = await apiInstance.get('/replays', {
         params: { ...DEFAULT_FILTERS, ...filters },
     });
-
     return res.data;
 };
 
 export interface ReplayData extends FileResponse, DataViewResult {}
-export const fetchReplayData = async (file: FileResponse): Promise<ReplayData> => {
-    const res = await apiInstance.get(`/replays/${file._id}`, {
-        responseType: 'arraybuffer',
-    });
-
-    const dataView = new DataView(res.data);
-    const {
-        samples, minPos, maxPos, dnfPos, color, intervalMedian,
-    } = readDataView(dataView);
-
-    return {
-        ...file, samples, minPos, maxPos, dnfPos, color, intervalMedian,
+export const fetchReplayData = async (
+    file: FileResponse,
+    downloadProgress: (progressEvent: any) => void,
+): Promise<ReplayDownloadState> => {
+    const fetchedReplay: ReplayDownloadState = {
+        _id: file._id,
+        state: DownloadState.LOADED,
+        progress: 0,
     };
+
+    try {
+        const res = await apiInstance.get(`/replays/${file._id}`, {
+            onDownloadProgress: downloadProgress,
+            responseType: 'arraybuffer',
+        });
+
+        const dataView = new DataView(res.data);
+        const {
+            samples, minPos, maxPos, dnfPos, color, intervalMedian,
+        } = await readDataView(dataView);
+
+        fetchedReplay.replay = {
+            ...file, samples, minPos, maxPos, dnfPos, color, intervalMedian,
+        };
+    } catch {
+        fetchedReplay.progress = 0;
+        fetchedReplay.state = DownloadState.ERROR;
+    }
+    return fetchedReplay;
 };
 
 export type MapInfo = {
