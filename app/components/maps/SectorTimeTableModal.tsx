@@ -8,6 +8,10 @@ import { FileResponse } from '../../lib/api/apiRequests';
 import { calcFastestSectorIndices, calcIndividualSectorTimes } from '../../lib/replays/sectorTimes';
 import { getRaceTimeStr, timeDifference } from '../../lib/utils/time';
 
+const PURPLE_SECTOR_COLOR = '#ae28ca';
+const RED_SECTOR_COLOR = 'red';
+const GREEN_SECTOR_COLOR = 'green';
+
 const openInfoModal = () => {
     Modal.info({
         title: 'CP/Sector Time Table Information',
@@ -58,81 +62,90 @@ const SectorTimeTableModal = ({ visible, setVisible, replays }: Props): JSX.Elem
     );
 
     interface Entry {
-        date: string;
-        player: string;
-        time: string;
-        gap: string;
-        // all sector time columns excluded
+        date: number;
+        playerName: string;
+        time: number;
+        gap: number;
+        sectorTimes: number[]
     }
-    const columns = useMemo(() => {
-        const generatedColumns: ColumnsType<Entry> = [
-            {
-                title: 'Date',
-                dataIndex: 'date',
-                key: 'date',
-                fixed: 'left',
-                width: 150,
-            },
-            {
-                title: 'Player',
-                dataIndex: 'player',
-                key: 'player',
-                fixed: 'left',
-                width: 150,
-            },
-            {
-                title: 'Time',
-                dataIndex: 'time',
-                key: 'time',
-                fixed: 'left',
-                width: 125,
-                render: (text) => (<code>{text}</code>),
-            },
-            {
-                title: 'Gap',
-                dataIndex: 'gap',
-                key: 'gap',
-                fixed: 'left',
-                width: 125,
-                render: (text) => (<code>{text}</code>),
-            },
-        ];
+    const columns: ColumnsType<Entry> = useMemo(() => [
+        {
+            title: 'Date',
+            dataIndex: 'date',
+            key: 'date',
+            fixed: 'left',
+            width: 150,
+            render: (_, entry) => (
+                timeDifference(new Date().getTime(), entry.date)
+            ),
+        },
+        {
+            title: 'Player',
+            dataIndex: 'playerName',
+            key: 'playerName',
+            fixed: 'left',
+            width: 150,
+        },
+        {
+            title: 'Time',
+            dataIndex: 'time',
+            key: 'time',
+            fixed: 'left',
+            width: 125,
+            render: (_, entry) => (
+                <code>
+                    {getRaceTimeStr(entry.time)}
+                </code>
+            ),
+        },
+        {
+            title: 'Gap',
+            dataIndex: 'gap',
+            key: 'gap',
+            fixed: 'left',
+            width: 125,
+            render: (_, entry, replayIndex) => (
+                <code>
+                    {replayIndex === 0 ? '-' : `+${getRaceTimeStr(entry.gap)}`}
+                </code>
+            ),
+        },
+        {
+            title: 'Sector Times',
+            children: ((filteredReplays[0] && filteredReplays[0].sectorTimes) || []).map((_, sectorIndex) => ({
+                title: `S${sectorIndex + 1}`,
+                dataIndex: `sectorTimes[${sectorIndex}]`,
+                key: `sectorTimes[${sectorIndex}]`,
+                width: 100,
+                render: (_1, entry, replayIndex) => {
+                    // Get different times
+                    const sectorTime = entry.sectorTimes[sectorIndex];
+                    const referenceTime = allIndividualSectorTimes[0][sectorIndex];
+                    const timeDiff = sectorTime - referenceTime;
 
-        if (filteredReplays.length > 0 && filteredReplays[0].sectorTimes) {
-            const numSectors = filteredReplays[0].sectorTimes.length;
-            for (let i = 0; i < numSectors + 1; i++) {
-                generatedColumns.push({
-                    title: `S${i + 1}`,
-                    dataIndex: `sector${i + 1}`,
-                    key: `sector${i + 1}`,
-                    render: (text, _, replayIndex) => {
-                        let color = '';
-                        if (fastestSectorIndices && fastestSectorIndices[i] === replayIndex) {
-                            // fastest sector: purple
-                            color = '#ae28ca';
-                        } else if (replayIndex > 0) {
-                            // delta positive/negative: red/green
-                            color = text.includes('+') ? 'red' : 'green';
-                        }
+                    let color = 'white';
+                    if (fastestSectorIndices && fastestSectorIndices[sectorIndex] === replayIndex) {
+                        // fastest sector: purple
+                        color = PURPLE_SECTOR_COLOR;
+                    } else if (replayIndex > 0) {
+                        // delta positive/negative: red/green
+                        color = timeDiff > 0 ? RED_SECTOR_COLOR : GREEN_SECTOR_COLOR;
+                    }
 
-                        return (
-                            <code style={{ color }}>
-                                {text}
-                            </code>
-                        );
+                    // Generate string to display in cell
+                    const timeStr = replayIndex === 0
+                        ? getRaceTimeStr(sectorTime)
+                        : `${timeDiff < 0 ? '-' : '+'}${getRaceTimeStr(Math.abs(timeDiff))}`;
 
-                        // Placeholder for when absolute time toggle is implemented:
-                        // return (
-                        //     <code style={{ color }}>
-                        //         {getRaceTimeStr(allIndividualSectorTimes[replayIndex][i])}
-                        //     </code>
-                        // );
-                    },
-                });
-            }
-        }
-        return generatedColumns;
-    }, [fastestSectorIndices, filteredReplays]);
+                    return (
+                        <code style={{ color }}>
+                            {timeStr}
+                        </code>
+                    );
+                },
+            })),
+        },
+    ], [allIndividualSectorTimes, fastestSectorIndices, filteredReplays]);
 
     const dataSource = useMemo(() => {
         if (filteredReplays.length === 0) {
@@ -142,41 +155,14 @@ const SectorTimeTableModal = ({ visible, setVisible, replays }: Props): JSX.Elem
         // Get reference finish time from the first replay in the filteredReplays list
         const referenceFinishTime = filteredReplays[0].endRaceTime;
 
-        const data: Entry[] = filteredReplays.map((replay, replayIndex) => {
-            const entry: any = {};
+        const data: Entry[] = filteredReplays.map((replay, replayIndex) => ({
+            date: replay.date,
+            playerName: replay.playerName,
+            time: replay.endRaceTime,
+            gap: replay.endRaceTime - referenceFinishTime,
+            sectorTimes: allIndividualSectorTimes[replayIndex],
+        }));
 
-            const now = new Date().getTime();
-            entry.date = timeDifference(now, replay.date);
-            entry.player = replay.playerName;
-            entry.time = getRaceTimeStr(replay.endRaceTime);
-
-            // Set gap time of first replay to '-', and to '+gap' for all other replays
-            entry.gap = replayIndex === 0
-                ? '-'
-                : `+${getRaceTimeStr(replay.endRaceTime - referenceFinishTime)}`;
-
-            // Set all sector times
-            const individualSectorTimes = allIndividualSectorTimes[replayIndex];
-            if (individualSectorTimes) {
-                for (let i = 0; i < individualSectorTimes.length; i++) {
-                    const individualSectorTime = individualSectorTimes[i];
-                    if (replayIndex === 0) {
-                        // First replay: always display the absolute sector time
-                        entry[`sector${i + 1}`] = getRaceTimeStr(individualSectorTime);
-                    } else {
-                        // Other replays: display the delta to the sectors of the fastest replay
-                        const referenceTime = allIndividualSectorTimes[0][i];
-
-                        const timeDiff = individualSectorTime - referenceTime;
-                        const sign = timeDiff < 0 ? '-' : '+';
-
-                        entry[`sector${i + 1}`] = `${sign}${getRaceTimeStr(Math.abs(timeDiff))}`;
-                    }
-                }
-            }
-
-            return entry;
-        });
         return data;
     }, [allIndividualSectorTimes, filteredReplays]);
 
