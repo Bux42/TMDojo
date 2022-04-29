@@ -112,7 +112,7 @@ const SectorTimeTableModal = ({ visible, setVisible, replays }: Props): JSX.Elem
         },
         {
             title: 'Sector Times',
-            children: ((filteredReplays[0] && filteredReplays[0].sectorTimes) || []).map((_, sectorIndex) => ({
+            children: (allIndividualSectorTimes[0] || []).map((_, sectorIndex) => ({
                 title: `S${sectorIndex + 1}`,
                 dataIndex: `sectorTimes[${sectorIndex}]`,
                 key: `sectorTimes[${sectorIndex}]`,
