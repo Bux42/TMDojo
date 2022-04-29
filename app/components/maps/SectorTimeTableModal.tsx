@@ -239,6 +239,8 @@ const SectorTimeTableModal = ({ visible, setVisible, replays }: Props): JSX.Elem
             centered
             visible={visible}
             footer={null}
+            onOk={() => setVisible(false)}
+            onCancel={() => setVisible(false)}
             width="80%"
             bodyStyle={{
                 overflow: 'auto', margin: 0, padding: 0, paddingLeft: '16px',
