@@ -1,9 +1,9 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
     Button, Empty, Modal, Table,
 } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
-import { ClockCircleOutlined, InfoCircleOutlined, QuestionOutlined } from '@ant-design/icons';
+import { ClockCircleOutlined, QuestionOutlined } from '@ant-design/icons';
 import { FileResponse } from '../../lib/api/apiRequests';
 import { calcFastestSectorIndices, calcIndividualSectorTimes } from '../../lib/replays/sectorTimes';
 import { getRaceTimeStr, timeDifference } from '../../lib/utils/time';
@@ -11,6 +11,8 @@ import { getRaceTimeStr, timeDifference } from '../../lib/utils/time';
 const PURPLE_SECTOR_COLOR = '#ae28ca';
 const RED_SECTOR_COLOR = 'red';
 const GREEN_SECTOR_COLOR = 'green';
+
+const THEORETICAL_BEST_BACKGROUND_COLOR = '#141414';
 
 const openInfoModal = () => {
     Modal.info({
@@ -62,90 +64,140 @@ const SectorTimeTableModal = ({ visible, setVisible, replays }: Props): JSX.Elem
     );
 
     interface Entry {
-        date: number;
+        date?: number;
         playerName: string;
         time: number;
         gap: number;
-        sectorTimes: number[]
+        sectorTimes: number[];
+        replayIndex?: number;
+        isTheoreticalBest?: boolean;
     }
-    const columns: ColumnsType<Entry> = useMemo(() => [
-        {
-            title: 'Date',
-            dataIndex: 'date',
-            key: 'date',
-            fixed: 'left',
-            width: 150,
-            render: (_, entry) => (
-                timeDifference(new Date().getTime(), entry.date)
-            ),
-        },
-        {
-            title: 'Player',
-            dataIndex: 'playerName',
-            key: 'playerName',
-            fixed: 'left',
-            width: 150,
-        },
-        {
-            title: 'Time',
-            dataIndex: 'time',
-            key: 'time',
-            fixed: 'left',
-            width: 125,
-            render: (_, entry) => (
-                <code>
-                    {getRaceTimeStr(entry.time)}
-                </code>
-            ),
-        },
-        {
-            title: 'Gap',
-            dataIndex: 'gap',
-            key: 'gap',
-            fixed: 'left',
-            width: 125,
-            render: (_, entry, replayIndex) => (
-                <code>
-                    {replayIndex === 0 ? '-' : `+${getRaceTimeStr(entry.gap)}`}
-                </code>
-            ),
-        },
-        {
-            title: 'Sector Times',
-            children: (allIndividualSectorTimes[0] || []).map((_, sectorIndex) => ({
-                title: `S${sectorIndex + 1}`,
-                dataIndex: `sectorTimes[${sectorIndex}]`,
-                key: `sectorTimes[${sectorIndex}]`,
-                width: 100,
-                render: (_1, entry, replayIndex) => {
-                    // Get different times
-                    const sectorTime = entry.sectorTimes[sectorIndex];
-                    const referenceTime = allIndividualSectorTimes[0][sectorIndex];
-                    const timeDiff = sectorTime - referenceTime;
+    const columns: ColumnsType<Entry> = useMemo(() => {
+        let cols: ColumnsType<Entry> = [
+            {
+                title: 'Date',
+                dataIndex: 'date',
+                key: 'date',
+                fixed: 'left',
+                width: 150,
+                render: (_, entry) => (
+                    entry.date
+                        ? timeDifference(new Date().getTime(), entry.date)
+                        : '-'
+                ),
+            },
+            {
+                title: 'Player',
+                dataIndex: 'playerName',
+                key: 'playerName',
+                fixed: 'left',
+                width: 150,
+            },
+            {
+                title: 'Time',
+                dataIndex: 'time',
+                key: 'time',
+                fixed: 'left',
+                width: 125,
+                onCell: (entry) => ({
+                    style: {
+                        backgroundColor: entry.isTheoreticalBest ? 'black' : undefined,
+                    },
+                }),
+                render: (_, entry) => (
+                    <code>
+                        {getRaceTimeStr(entry.time)}
+                    </code>
+                ),
+            },
+            {
+                title: 'Gap',
+                dataIndex: 'gap',
+                key: 'gap',
+                fixed: 'left',
+                width: 125,
+                render: (_, entry) => (
+                    <code>
+                        {/* Do not display Gap time for fastest replay */}
+                        {entry.replayIndex === 0
+                            ? '-'
+                            : `${entry.gap > 0 ? '+' : ''}${getRaceTimeStr(entry.gap)}`}
+                    </code>
+                ),
+            },
+            {
+                title: 'Sector Times',
+                children: (allIndividualSectorTimes[0] || []).map((_, sectorIndex) => ({
+                    title: `S${sectorIndex + 1}`,
+                    dataIndex: `sectorTimes[${sectorIndex}]`,
+                    key: `sectorTimes[${sectorIndex}]`,
+                    width: 100,
+                    render: (_1, entry) => {
+                        // Get different times
+                        const sectorTime = entry.sectorTimes[sectorIndex];
+                        const referenceTime = allIndividualSectorTimes[0][sectorIndex];
+                        const timeDiff = sectorTime - referenceTime;
 
-                    let color = 'white';
-                    if (fastestSectorIndices && fastestSectorIndices[sectorIndex] === replayIndex) {
-                        // fastest sector: purple
-                        color = PURPLE_SECTOR_COLOR;
-                    } else if (replayIndex > 0) {
-                        // delta positive/negative: red/green
-                        color = timeDiff > 0 ? RED_SECTOR_COLOR : GREEN_SECTOR_COLOR;
-                    }
+                        let color = 'white';
+                        if (fastestSectorIndices[sectorIndex] === entry.replayIndex || entry.isTheoreticalBest) {
+                            // fastest sector: purple
+                            color = PURPLE_SECTOR_COLOR;
+                        } else if (entry.replayIndex && entry.replayIndex > 0) {
+                            // delta positive/negative: red/green
+                            color = timeDiff > 0 ? RED_SECTOR_COLOR : GREEN_SECTOR_COLOR;
+                        }
 
-                    // Generate string to display in cell
-                    const timeStr = replayIndex === 0
-                        ? getRaceTimeStr(sectorTime)
-                        : `${timeDiff < 0 ? '-' : '+'}${getRaceTimeStr(Math.abs(timeDiff))}`;
+                        // Generate string to display in cell
+                        const timeStr = entry.replayIndex === 0
+                            ? getRaceTimeStr(sectorTime)
+                            : `${timeDiff <= 0 ? '-' : '+'}${getRaceTimeStr(Math.abs(timeDiff))}`;
 
-                    return (
-                        <code style={{ color }}>
-                            {timeStr}
-                        </code>
-                    );
+                        return (
+                            <code style={{ color }}>
+                                {timeStr}
+                            </code>
+                        );
+                    },
+                })),
+            },
+        ];
+
+        // Set the background color of theoretical best row
+        cols = cols.map((col) => ({
+            ...col,
+            onCell: (entry) => ({
+                style: {
+                    backgroundColor: entry.isTheoreticalBest ? THEORETICAL_BEST_BACKGROUND_COLOR : undefined,
                 },
-            })),
-        },
-    ], [allIndividualSectorTimes, fastestSectorIndices, filteredReplays]);
+            }),
+        }));
+
+        return cols;
+    }, [allIndividualSectorTimes, fastestSectorIndices]);
+
+    const generateTheoreticalBestEntry = useCallback((): Entry | undefined => {
+        if (allIndividualSectorTimes.length === 0) {
+            return undefined;
+        }
+
+        // Retrieve best sector times from all replays
+        const bestSectorTimes = allIndividualSectorTimes[0].map((_, sectorIndex) => {
+            const replayIndex = fastestSectorIndices[sectorIndex];
+            return allIndividualSectorTimes[replayIndex][sectorIndex];
+        });
+
+        // Calculate theoretical best time, from best sectors
+        const bestTime = bestSectorTimes.reduce((a, b) => a + b, 0);
+
+        return {
+            date: undefined,
+            playerName: 'Theoretical Best',
+            time: bestTime,
+            gap: bestTime - filteredReplays[0].endRaceTime,
+            sectorTimes: bestSectorTimes,
+            isTheoreticalBest: true,
+        };
+    }, [allIndividualSectorTimes, fastestSectorIndices, filteredReplays]);
 
     const dataSource = useMemo(() => {
         if (filteredReplays.length === 0) {
@@ -155,16 +207,22 @@ const SectorTimeTableModal = ({ visible, setVisible, replays }: Props): JSX.Elem
         // Get reference finish time from the first replay in the filteredReplays list
         const referenceFinishTime = filteredReplays[0].endRaceTime;
 
-        const data: Entry[] = filteredReplays.map((replay, replayIndex) => ({
+        let data: Entry[] = filteredReplays.map((replay, replayIndex) => ({
             date: replay.date,
             playerName: replay.playerName,
             time: replay.endRaceTime,
             gap: replay.endRaceTime - referenceFinishTime,
             sectorTimes: allIndividualSectorTimes[replayIndex],
+            replayIndex,
         }));
 
+        const theoreticalBest = generateTheoreticalBestEntry();
+        if (theoreticalBest) {
+            data = [theoreticalBest, ...data];
+        }
+
         return data;
-    }, [allIndividualSectorTimes, filteredReplays]);
+    }, [allIndividualSectorTimes, filteredReplays, generateTheoreticalBestEntry]);
 
     return (
         <Modal
@@ -197,6 +255,11 @@ const SectorTimeTableModal = ({ visible, setVisible, replays }: Props): JSX.Elem
                 <Table
                     columns={columns}
                     dataSource={dataSource}
+                    onRow={(entry) => ({
+                        style: {
+                            backgroundColor: entry.isTheoreticalBest ? THEORETICAL_BEST_BACKGROUND_COLOR : undefined,
+                        },
+                    })}
                     pagination={false}
                     size="small"
                     scroll={{ x: true }}
