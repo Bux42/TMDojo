@@ -14,6 +14,7 @@ import SideDrawerExpandButton from '../common/SideDrawerExpandButton';
 import PlayerLink from '../common/PlayerLink';
 import CleanButton from '../common/CleanButton';
 import useWindowDimensions from '../../lib/hooks/useWindowDimensions';
+import { calcFastestSectorIndices, calcIndividualSectorTimes } from '../../lib/replays/sectorTimes';
 
 interface ExtendedFileResponse extends FileResponse {
     readableTime: string;
@@ -84,6 +85,31 @@ const SidebarReplays = ({
         } catch (e) {
             message.error('Could not delete replay.');
         }
+    };
+
+    const onLoadReplaysWithFastestSectorTimes = () => {
+        // Filter finished replays containing sector times, sort by time
+        const filteredReplays = replays
+            .filter((replay) => replay.raceFinished
+                && replay.sectorTimes
+                && replay.sectorTimes?.length > 0)
+            .sort((a, b) => a.endRaceTime - b.endRaceTime);
+
+        // Calculate individual sector time deltas
+        const allIndividualSectorTimes = filteredReplays
+            .map((replay) => calcIndividualSectorTimes(replay.sectorTimes!, replay.endRaceTime));
+
+        // Calculate the replay indices of all fastest sector times
+        const fastestSectorIndices = calcFastestSectorIndices(allIndividualSectorTimes);
+
+        // Get a unique set of replay indices
+        const replayIndices = Array.from(new Set(fastestSectorIndices));
+
+        // Load all fastest replays
+        onLoadAllVisibleReplays(
+            replayIndices.map((index) => filteredReplays[index]),
+            selectedReplayDataIds,
+        );
     };
 
     // TODO: add useMemo to filters and columns
@@ -298,6 +324,12 @@ const SidebarReplays = ({
                                 backColor="#B41616"
                             >
                                 Unload all
+                            </CleanButton>
+                            <CleanButton
+                                onClick={() => onLoadReplaysWithFastestSectorTimes()}
+                                backColor="#ae28ca"
+                            >
+                                Load Replays with Fastest Sectors
                             </CleanButton>
                         </div>
                         <div className="mr-6">
