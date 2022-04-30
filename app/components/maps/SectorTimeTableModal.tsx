@@ -1,6 +1,6 @@
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
-    Button, Empty, Modal, Table,
+    Button, Empty, Modal, Table, Tooltip,
 } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 import { ClockCircleOutlined, QuestionOutlined } from '@ant-design/icons';
@@ -123,7 +123,24 @@ const SectorTimeTableModal = ({ visible, setVisible, replays }: Props): JSX.Elem
             {
                 title: 'Sector Times',
                 children: (allIndividualSectorTimes[0] || []).map((_, sectorIndex) => ({
-                    title: `S${sectorIndex + 1}`,
+                    title: () => {
+                        const sectorStart = sectorIndex === 0
+                            ? 'Start'
+                            : `CP ${sectorIndex}`;
+                        const sectorEnd = sectorIndex === allIndividualSectorTimes[0].length - 1
+                            ? 'Finish'
+                            : `CP ${sectorIndex + 1}`;
+
+                        const title = `${sectorStart} ➞ ${sectorEnd}`;
+
+                        return (
+                            <Tooltip title={title} className="w-full">
+                                <div className="w-full cursor-default text-center">
+                                    {`S${sectorIndex + 1}`}
+                                </div>
+                            </Tooltip>
+                        );
+                    },
                     dataIndex: `sectorTimes[${sectorIndex}]`,
                     key: `sectorTimes[${sectorIndex}]`,
                     width: 75,
