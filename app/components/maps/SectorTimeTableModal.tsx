@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import {
     Button, Empty, Modal, Table,
 } from 'antd';
@@ -79,7 +79,7 @@ const SectorTimeTableModal = ({ visible, setVisible, replays }: Props): JSX.Elem
                 dataIndex: 'date',
                 key: 'date',
                 fixed: 'left',
-                width: 150,
+                width: 200,
                 render: (_, entry) => (
                     entry.date
                         ? timeDifference(new Date().getTime(), entry.date)
@@ -99,11 +99,6 @@ const SectorTimeTableModal = ({ visible, setVisible, replays }: Props): JSX.Elem
                 key: 'time',
                 fixed: 'left',
                 width: 125,
-                onCell: (entry) => ({
-                    style: {
-                        backgroundColor: entry.isTheoreticalBest ? 'black' : undefined,
-                    },
-                }),
                 render: (_, entry) => (
                     <code>
                         {getRaceTimeStr(entry.time)}
@@ -131,7 +126,7 @@ const SectorTimeTableModal = ({ visible, setVisible, replays }: Props): JSX.Elem
                     title: `S${sectorIndex + 1}`,
                     dataIndex: `sectorTimes[${sectorIndex}]`,
                     key: `sectorTimes[${sectorIndex}]`,
-                    width: 100,
+                    width: 75,
                     render: (_1, entry) => {
                         // Get different times
                         const sectorTime = entry.sectorTimes[sectorIndex];
@@ -242,8 +237,14 @@ const SectorTimeTableModal = ({ visible, setVisible, replays }: Props): JSX.Elem
             onOk={() => setVisible(false)}
             onCancel={() => setVisible(false)}
             width="80%"
+            style={{
+                maxHeight: '80%',
+            }}
             bodyStyle={{
-                overflow: 'auto', margin: 0, padding: 0, paddingLeft: '16px',
+                overflow: 'auto',
+                margin: 0,
+                padding: 0,
+                paddingLeft: '16px',
             }}
         >
             {dataSource.length === 0 ? (
@@ -263,7 +264,7 @@ const SectorTimeTableModal = ({ visible, setVisible, replays }: Props): JSX.Elem
                     })}
                     pagination={false}
                     size="small"
-                    scroll={{ x: true }}
+                    scroll={{ x: true, y: '50vh' }}
                 />
             )}
         </Modal>
