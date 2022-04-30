@@ -80,6 +80,9 @@ const Home = (): JSX.Element => {
     }, [mapUId]);
 
     const onLoadReplay = async (replay: FileResponse) => {
+        if (selectedReplayData.some((r) => r._id === replay._id)) {
+            return;
+        }
         const replayData = await fetchReplayData(replay);
         setSelectedReplayData([...selectedReplayData, replayData]);
     };

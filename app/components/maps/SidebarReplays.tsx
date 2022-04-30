@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, {
+    useState, useEffect, useContext, useMemo,
+} from 'react';
 import {
     Button, Drawer, Dropdown, Menu, message, Popconfirm, Space, Spin, Table, Tooltip,
 } from 'antd';
@@ -62,6 +64,23 @@ const SidebarReplays = ({
 
     const { user } = useContext(AuthContext);
 
+    const userHasReplay = useMemo(
+        () => {
+            if (!user) {
+                return false;
+            }
+            return replays.some(
+                (replay) => replay.webId === user.accountId && replay.raceFinished,
+            );
+        },
+        [replays, user],
+    );
+
+    const singleReplayHasSectorTimes = useMemo(
+        () => replays.some((replay) => !!replay.sectorTimes),
+        [replays],
+    );
+
     useEffect(() => {
         // initialize visible replays with the first page
         const initiallyVisibleReplays = replays.slice(
@@ -102,6 +121,11 @@ const SidebarReplays = ({
                 && replay.sectorTimes?.length > 0)
             .sort((a, b) => a.endRaceTime - b.endRaceTime);
 
+        if (filteredReplays.length === 0) {
+            message.error('Did not find any finished replays with recorded sector times.');
+            return;
+        }
+
         // Calculate individual sector time deltas
         const allIndividualSectorTimes = filteredReplays
             .map((replay) => calcIndividualSectorTimes(replay.sectorTimes!, replay.endRaceTime));
@@ -126,6 +150,26 @@ const SidebarReplays = ({
             .sort((a, b) => a.endRaceTime - b.endRaceTime);
 
         if (filteredReplays.length === 0) {
+            return;
+        }
+
+        onLoadReplay(filteredReplays[0]);
+    };
+
+    const onLoadUserPb = () => {
+        if (!user) {
+            message.error('User not logged in, could not find PB replay.');
+            return;
+        }
+
+        // Filter finished replays and sort by time
+        const filteredReplays = replays
+            .filter((replay) => replay.webId === user.accountId)
+            .filter((replay) => replay.raceFinished)
+            .sort((a, b) => a.endRaceTime - b.endRaceTime);
+
+        if (filteredReplays.length === 0) {
+            message.error('No finished replay from user found on this map.');
             return;
         }
 
@@ -342,24 +386,35 @@ const SidebarReplays = ({
                             </CleanButton>
 
                             {/* Load other dropdown */}
-                            <Dropdown overlay={(
-                                <Menu>
-                                    <Menu.Item
-                                        className="text-md"
-                                        icon={<TrophyFilled />}
-                                        onClick={() => onLoadFastestTime()}
-                                    >
-                                        Fastest Time
-                                    </Menu.Item>
-                                    <Menu.Item
-                                        className="text-md"
-                                        icon={<ClockCircleFilled />}
-                                        onClick={() => onLoadReplaysWithFastestSectorTimes()}
-                                    >
-                                        All replays containing fastest sectors
-                                    </Menu.Item>
-                                </Menu>
-                            )}
+                            <Dropdown
+                                overlay={(
+                                    <Menu>
+                                        <Menu.Item
+                                            className="text-md"
+                                            icon={<TrophyFilled />}
+                                            onClick={() => onLoadFastestTime()}
+                                        >
+                                            Fastest Time
+                                        </Menu.Item>
+                                        <Menu.Item
+                                            className="text-md"
+                                            icon={<TrophyFilled />}
+                                            onClick={() => onLoadUserPb()}
+                                            disabled={!user || !userHasReplay}
+                                        >
+                                            Your PB
+                                        </Menu.Item>
+                                        <Menu.Item
+                                            className="text-md"
+                                            icon={<ClockCircleFilled />}
+                                            onClick={() => onLoadReplaysWithFastestSectorTimes()}
+                                            disabled={!singleReplayHasSectorTimes}
+                                        >
+                                            All replays containing fastest sectors
+                                        </Menu.Item>
+                                    </Menu>
+                                )}
+                                mouseLeaveDelay={0.2}
                             >
                                 <Space className="cursor-pointer">
                                     <CleanButton
