@@ -1,9 +1,16 @@
 import React, { useState, useEffect, useContext } from 'react';
 import {
-    Button, Drawer, message, Popconfirm, Spin, Table, Tooltip,
+    Button, Drawer, Dropdown, Menu, message, Popconfirm, Space, Spin, Table, Tooltip,
 } from 'antd';
 import {
-    DeleteOutlined, FilterFilled, QuestionCircleOutlined, ReloadOutlined, UnorderedListOutlined, ClockCircleOutlined,
+    DeleteOutlined,
+    FilterFilled,
+    QuestionCircleOutlined,
+    ReloadOutlined, UnorderedListOutlined,
+    ClockCircleOutlined,
+    DownOutlined,
+    TrophyFilled,
+    ClockCircleFilled,
 } from '@ant-design/icons';
 import { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
 import { ColumnType, TableCurrentDataSource } from 'antd/lib/table/interface';
@@ -110,6 +117,19 @@ const SidebarReplays = ({
             replayIndices.map((index) => filteredReplays[index]),
             selectedReplayDataIds,
         );
+    };
+
+    const onLoadFastestTime = () => {
+        // Filter finished replays and sort by time
+        const filteredReplays = replays
+            .filter((replay) => replay.raceFinished)
+            .sort((a, b) => a.endRaceTime - b.endRaceTime);
+
+        if (filteredReplays.length === 0) {
+            return;
+        }
+
+        onLoadReplay(filteredReplays[0]);
     };
 
     // TODO: add useMemo to filters and columns
@@ -314,22 +334,50 @@ const SidebarReplays = ({
                 <Spin spinning={loadingReplays}>
                     <div className="flex flex-row justify-between items-center mb-3 mx-4">
                         <div className="flex flex-row gap-4">
+                            {/* Load current page */}
                             <CleanButton
                                 onClick={() => onLoadAllVisibleReplays(visibleReplays, selectedReplayDataIds)}
                             >
-                                Load all visible
+                                Load page
                             </CleanButton>
+
+                            {/* Load other dropdown */}
+                            <Dropdown overlay={(
+                                <Menu>
+                                    <Menu.Item
+                                        className="text-md"
+                                        icon={<TrophyFilled />}
+                                        onClick={() => onLoadFastestTime()}
+                                    >
+                                        Fastest Time
+                                    </Menu.Item>
+                                    <Menu.Item
+                                        className="text-md"
+                                        icon={<ClockCircleFilled />}
+                                        onClick={() => onLoadReplaysWithFastestSectorTimes()}
+                                    >
+                                        All replays containing fastest sectors
+                                    </Menu.Item>
+                                </Menu>
+                            )}
+                            >
+                                <Space className="cursor-pointer">
+                                    <CleanButton
+                                        onClick={() => { }}
+                                        backColor="gray"
+                                    >
+                                        Load other...
+                                        <DownOutlined />
+                                    </CleanButton>
+                                </Space>
+                            </Dropdown>
+
+                            {/* Unload all */}
                             <CleanButton
                                 onClick={() => onRemoveAllReplays(visibleReplays)}
                                 backColor="#B41616"
                             >
                                 Unload all
-                            </CleanButton>
-                            <CleanButton
-                                onClick={() => onLoadReplaysWithFastestSectorTimes()}
-                                backColor="#ae28ca"
-                            >
-                                Load Replays with Fastest Sectors
                             </CleanButton>
                         </div>
                         <div className="mr-6">
