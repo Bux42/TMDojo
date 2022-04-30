@@ -118,8 +118,8 @@ const ReplayCar = ({
                             -smoothSample.velocity.y / 5,
                             -smoothSample.velocity.z / 5,
                         );
-                        camPosRef.current.translateZ(-7 - (smoothSample.speed / 30));
-                        camPosRef.current.translateY(2 + (smoothSample.speed / 200));
+                        camPosRef.current.translateZ(-7 - (smoothSample.velocity.length() / 30));
+                        camPosRef.current.translateY(2 + (smoothSample.velocity.length() / 200));
                         // move camera to camPosMesh world position
                         const camWorldPos: THREE.Vector3 = new THREE.Vector3();
                         camPosRef.current.getWorldPosition(camWorldPos);
