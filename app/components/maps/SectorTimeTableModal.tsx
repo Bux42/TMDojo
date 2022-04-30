@@ -254,6 +254,7 @@ const SectorTimeTableModal = ({ visible, setVisible, replays }: Props): JSX.Elem
             onOk={() => setVisible(false)}
             onCancel={() => setVisible(false)}
             width="80%"
+            zIndex={1001} // 1000 is default for Drawer components
             style={{
                 maxHeight: '80%',
             }}
