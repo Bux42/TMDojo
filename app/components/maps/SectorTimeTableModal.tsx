@@ -164,10 +164,17 @@ const SectorTimeTableModal = ({ visible, setVisible, replays }: Props): JSX.Elem
                             ? getRaceTimeStr(sectorTime)
                             : `${timeDiff <= 0 ? '-' : '+'}${getRaceTimeStr(Math.abs(timeDiff))}`;
 
+                        // Generate hover tooltip title
+                        const tooltipTitle = getRaceTimeStr(sectorTime);
+
                         return (
-                            <code style={{ color }}>
-                                {timeStr}
-                            </code>
+                            <Tooltip title={tooltipTitle} placement="topLeft" className="w-full">
+                                <div className="w-full cursor-default">
+                                    <code style={{ color }}>
+                                        {timeStr}
+                                    </code>
+                                </div>
+                            </Tooltip>
                         );
                     },
                 })),
