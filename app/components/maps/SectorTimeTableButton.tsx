@@ -16,7 +16,7 @@ const SectorTimeTableButton = ({ onClick }: Props) => (
                     Sector Time Table
                 </>
             )}
-            onClick={() => onClick()}
+            onClick={onClick}
         />
     </div>
 );
