@@ -42,6 +42,7 @@ const openInfoModal = () => {
             </div>
         ),
         width: '25%',
+        zIndex: 1020,
     });
 };
 
@@ -268,7 +269,7 @@ const SectorTimeTableModal = ({
             onOk={() => setVisible(false)}
             onCancel={() => setVisible(false)}
             width="80%"
-            zIndex={1001} // 1000 is default for Drawer components
+            zIndex={1010} // 1000 is default for Drawer components
             style={{
                 maxHeight: '80%',
             }}
