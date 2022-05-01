@@ -113,13 +113,21 @@ const ReplayCar = ({
                         // move camPosMesh to Follow position
                         camPosRef.current.rotation.setFromQuaternion(carRotation);
                         // move toward where the car is heading
+
+                        const velocitySpeed = smoothSample.velocity.length();
+                        // Set camera position behind the car
+                        const backwardMax = 6;
+                        const backward = (backwardMax - (velocitySpeed / backwardMax));
+
                         camPosRef.current.position.set(
-                            -smoothSample.velocity.x / 5,
-                            -smoothSample.velocity.y / 5,
-                            -smoothSample.velocity.z / 5,
+                            (-smoothSample.velocity.x / 4),
+                            (-smoothSample.velocity.y / 4),
+                            (-smoothSample.velocity.z / 4),
                         );
-                        camPosRef.current.translateZ(-7 - (smoothSample.velocity.length() / 30));
-                        camPosRef.current.translateY(2 + (smoothSample.velocity.length() / 200));
+
+                        // Do not force camera behind the car above a certain speed
+                        camPosRef.current.translateZ(backward < 0 ? 0 : -backward);
+                        camPosRef.current.translateY(3);
                         // move camera to camPosMesh world position
                         const camWorldPos: THREE.Vector3 = new THREE.Vector3();
                         camPosRef.current.getWorldPosition(camWorldPos);
@@ -127,6 +135,7 @@ const ReplayCar = ({
                     }
                 }
             }
+
             // Scale car up if hovered in LoadedReplays
             if (hovered) {
                 stadiumCarMesh.current.scale.lerp(new THREE.Vector3(0.02, 0.02, 0.02), 0.2);
