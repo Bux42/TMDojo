@@ -5,7 +5,11 @@ import {
 import { ColumnsType } from 'antd/lib/table';
 import { ClockCircleOutlined, QuestionOutlined } from '@ant-design/icons';
 import { FileResponse } from '../../lib/api/apiRequests';
-import { calcFastestSectorIndices, calcIndividualSectorTimes } from '../../lib/replays/sectorTimes';
+import {
+    calcFastestSectorIndices,
+    calcIndividualSectorTimes,
+    filterReplaysWithValidSectorTimes,
+} from '../../lib/replays/sectorTimes';
 import { getRaceTimeStr, timeDifference } from '../../lib/utils/time';
 
 const PURPLE_SECTOR_COLOR = '#ae28ca';
@@ -44,15 +48,18 @@ const openInfoModal = () => {
 interface Props {
     visible: boolean;
     setVisible: (visible: boolean) => void;
-    replays: FileResponse[];
+    selectedReplays: FileResponse[];
+    allReplays: FileResponse[];
 }
 
-const SectorTimeTableModal = ({ visible, setVisible, replays }: Props): JSX.Element => {
-    const filteredReplays = useMemo(() => replays
-        .filter((replay) => replay.raceFinished
-            && replay.sectorTimes
-            && replay.sectorTimes?.length > 0)
-        .sort((a, b) => a.endRaceTime - b.endRaceTime), [replays]);
+const SectorTimeTableModal = ({
+    visible, setVisible, selectedReplays, allReplays,
+}: Props): JSX.Element => {
+    const filteredReplays = useMemo(
+        () => filterReplaysWithValidSectorTimes(selectedReplays, allReplays)
+            .sort((a, b) => a.endRaceTime - b.endRaceTime),
+        [allReplays, selectedReplays],
+    );
 
     const allIndividualSectorTimes = useMemo(
         () => filteredReplays.map((replay) => calcIndividualSectorTimes(replay.sectorTimes!, replay.endRaceTime)),

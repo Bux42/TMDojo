@@ -1,3 +1,5 @@
+import { FileResponse } from '../api/apiRequests';
+
 export const calcIndividualSectorTimes = (sectorTimes: number[], endRaceTime: number): number[] => {
     const individualSectorTimes: number[] = [];
 
@@ -11,7 +13,6 @@ export const calcIndividualSectorTimes = (sectorTimes: number[], endRaceTime: nu
             individualSectorTimes.push(sectorTime - sectorTimes[i - 1]);
         }
     });
-
     // Add last sector, from last CP to the finish
     individualSectorTimes.push(endRaceTime - sectorTimes[sectorTimes.length - 1]);
 
@@ -48,5 +49,43 @@ export const calcFastestSectorIndices = (individualSectorTimes: number[][]): num
             }
         }
     }
+
     return fastestSectors;
+};
+
+export const calcValidSectorsLength = (replays: FileResponse[]): number => {
+    // Filter out replays that don't have sector times
+    const replaysWithSectorTimes = replays
+        .filter((replay) => replay.sectorTimes && replay.sectorTimes.length > 0 && replay.raceFinished);
+
+    // Get max num sectors from all replays
+    const maxNumSectors = Math.max(...replaysWithSectorTimes.map((replay) => replay.sectorTimes!.length));
+
+    return maxNumSectors;
+};
+
+/**
+ * Filters a list of replays on sector time validity.
+ * Uses the max number of sectors on all replays to filter replays that do not have enough sectors.
+ * Using on a complete list of replays to find the max number of stored sectors.
+ *
+ * This should be used to filter replays that have faulty recordings, and do not contain enough sector times.
+ *
+ * @param replaysToFilter - List of replays to filter from
+ * @param allReplays List of all replays, used to find the max number of sectors
+ *
+ * @returns List of replays with valid sector times
+ */
+export const filterReplaysWithValidSectorTimes = (
+    replaysToFilter: FileResponse[],
+    allReplays: FileResponse[],
+): FileResponse[] => {
+    // Get max num sectors from all replays
+    const maxNumSectors = calcValidSectorsLength(allReplays);
+
+    // Filter all replays that have less than max num sectors
+    const replaysWithValidSectorTimes = replaysToFilter
+        .filter((replay) => replay.sectorTimes && replay.sectorTimes.length === maxNumSectors && replay.raceFinished);
+
+    return replaysWithValidSectorTimes;
 };
