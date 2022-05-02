@@ -23,7 +23,12 @@ import SideDrawerExpandButton from '../common/SideDrawerExpandButton';
 import PlayerLink from '../common/PlayerLink';
 import CleanButton from '../common/CleanButton';
 import useWindowDimensions from '../../lib/hooks/useWindowDimensions';
-import { calcFastestSectorIndices, calcIndividualSectorTimes } from '../../lib/replays/sectorTimes';
+import {
+    calcFastestSectorIndices,
+    calcIndividualSectorTimes,
+    calcValidSectorsLength,
+    filterReplaysWithValidSectorTimes,
+} from '../../lib/replays/sectorTimes';
 
 interface ExtendedFileResponse extends FileResponse {
     readableTime: string;
@@ -64,6 +69,11 @@ const SidebarReplays = ({
 
     const { user } = useContext(AuthContext);
 
+    const validSectorsLength = useMemo(
+        () => calcValidSectorsLength(replays),
+        [replays],
+    );
+
     const userHasReplay = useMemo(
         () => {
             if (!user) {
@@ -77,8 +87,8 @@ const SidebarReplays = ({
     );
 
     const singleReplayHasSectorTimes = useMemo(
-        () => replays.some((replay) => !!replay.sectorTimes),
-        [replays],
+        () => replays.some((replay) => !!replay.sectorTimes && replay.sectorTimes.length === validSectorsLength),
+        [replays, validSectorsLength],
     );
 
     useEffect(() => {
@@ -115,10 +125,7 @@ const SidebarReplays = ({
 
     const onLoadReplaysWithFastestSectorTimes = () => {
         // Filter finished replays containing sector times, sort by time
-        const filteredReplays = replays
-            .filter((replay) => replay.raceFinished
-                && replay.sectorTimes
-                && replay.sectorTimes?.length > 0)
+        const filteredReplays = filterReplaysWithValidSectorTimes(replays, replays)
             .sort((a, b) => a.endRaceTime - b.endRaceTime);
 
         if (filteredReplays.length === 0) {
@@ -211,15 +218,21 @@ const SidebarReplays = ({
             width: 30,
             filters: [{ text: 'Includes sector times', value: true }],
             onFilter: (value, record) => !!record.sectorTimes === value,
-            render: (_, replay) => (
-                <>
-                    {replay.sectorTimes && (
-                        <Tooltip title="Replay includes CP/sector times" placement="right">
-                            <ClockCircleOutlined />
-                        </Tooltip>
-                    )}
-                </>
-            ),
+            render: (_, replay) => {
+                const validSectorTimes = replay.sectorTimes && replay.sectorTimes.length === validSectorsLength;
+
+                return (
+                    <>
+                        {validSectorTimes && (
+                            <Tooltip title="Replay includes CP/sector times" placement="right">
+                                <ClockCircleOutlined />
+                            </Tooltip>
+                        )}
+                    </>
+
+                );
+            }
+            ,
         },
         {
             title: 'Time',
