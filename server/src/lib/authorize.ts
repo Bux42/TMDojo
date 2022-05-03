@@ -55,7 +55,11 @@ export const requestTmApiAccessToken = async (req: Request): Promise<string | un
     return res.data.access_token;
 };
 
-export const fetchUserInfo = async (req: Request, accessToken: string) => {
+export interface UserInfoResponse {
+    accountId: string;
+    displayName: string;
+}
+export const fetchUserInfo = async (req: Request, accessToken: string): Promise<UserInfoResponse> => {
     const userUrl = 'https://api.trackmania.com/api/user';
     const config = {
         headers: { Authorization: `Bearer ${accessToken}` },
@@ -72,6 +76,7 @@ export const fetchUserInfo = async (req: Request, accessToken: string) => {
 
     const userInfo = (res as any).data;
     req.log.debug('fetchUserInfo: Got user info from TM API');
+
     return userInfo;
 };
 

@@ -5,9 +5,12 @@ import React from 'react';
 interface SideDrawerExpandButtonProps {
     onClick: () => void;
     content: JSX.Element;
-    side:'left'|'right';
+    side: 'left' | 'right';
+    includeArrowIcon?: boolean;
 }
-const SideDrawerExpandButton = ({ onClick, content, side }: SideDrawerExpandButtonProps) => (
+const SideDrawerExpandButton = ({
+    onClick, content, side, includeArrowIcon = true,
+}: SideDrawerExpandButtonProps) => (
     <Button
         onClick={onClick}
         className="p-6 flex flex-row items-center"
@@ -23,13 +26,13 @@ const SideDrawerExpandButton = ({ onClick, content, side }: SideDrawerExpandButt
     >
         {side === 'right' ? (
             <>
-                <CaretLeftOutlined className="mr-4" />
+                {includeArrowIcon && <CaretLeftOutlined className="mr-4" />}
                 {content}
             </>
         ) : (
             <>
                 {content}
-                <CaretRightOutlined className="ml-4" />
+                {includeArrowIcon && <CaretRightOutlined className="ml-4" />}
             </>
         )}
     </Button>
