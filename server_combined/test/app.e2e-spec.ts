@@ -16,8 +16,8 @@ describe('AppController (e2e)', () => {
         await app.init();
     });
 
-    it('/ (GET)', () => request(app.getHttpServer())
-        .get('/')
+    it('/replays (GET)', () => request(app.getHttpServer())
+        .get('/replays')
         .expect(200)
-        .expect('Hello World!'));
+        .expect(['Replay 1', 'Replay 2', 'Replay 3']));
 });
