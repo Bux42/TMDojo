@@ -10,8 +10,8 @@ async function bootstrap() {
 
     if (process.env.NODE_ENV === 'dev') {
         const swaggerConfig = new DocumentBuilder()
-            .setTitle('TMDojo')
-            .setDescription('TMDojo API description')
+            .setTitle('TMDojo API')
+            .setDescription('Documentation for the TMDojo API')
             .setVersion('1.0')
             .build();
         const document = SwaggerModule.createDocument(app, swaggerConfig);

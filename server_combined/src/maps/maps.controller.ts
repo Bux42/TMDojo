@@ -1,6 +1,8 @@
 import { Controller, Get, Param } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { MapsService } from './maps.service';
 
+@ApiTags('maps')
 @Controller('maps')
 export class MapsController {
     constructor(private readonly mapsService: MapsService) {}
