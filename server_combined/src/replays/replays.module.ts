@@ -4,6 +4,8 @@ import { ReplaysService } from './replays.service';
 import { ReplaysController } from './replays.controller';
 import { Replay, ReplaySchema } from './schemas/replay.schema';
 import { User, UserSchema } from '../users/schemas/user.schema';
+import { S3Service } from '../artefacts/s3.service';
+import { ArtefactsService } from '../artefacts/artefacts.service';
 
 @Module({
     imports: [
@@ -11,7 +13,7 @@ import { User, UserSchema } from '../users/schemas/user.schema';
         MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     ],
     controllers: [ReplaysController],
-    providers: [ReplaysService],
+    providers: [ReplaysService, ArtefactsService, S3Service],
     exports: [ReplaysService],
 })
 export class ReplaysModule {}
