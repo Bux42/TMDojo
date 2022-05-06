@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { AWSError, S3 } from 'aws-sdk';
 import { PromiseResult } from 'aws-sdk/lib/request';
 import { InjectS3 } from 'nestjs-s3';
-import { compress, decompress } from '../common/util/compression';
+import { compress, decompress } from '../../common/util/compression';
 
 @Injectable()
 export class S3Service {
