@@ -30,18 +30,4 @@ describe('ReplaysController', () => {
                 .toBe('Replay with id: 555');
         });
     });
-
-    describe('deleteReplayById', () => {
-        it('should delete the replay with ID', () => {
-            expect(replaysController.deleteReplayById('555'))
-                .toBe('Deleting replay with id: 555');
-        });
-    });
-
-    describe('uploadReplay', () => {
-        it('should upload replays', () => {
-            expect(replaysController.uploadReplay())
-                .toBe('Uploading replay to DB...');
-        });
-    });
 });

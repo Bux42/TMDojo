@@ -1,16 +1,17 @@
 import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Map, MapDocument } from './schemas/map.schema';
 
 @Injectable()
 export class MapsService {
-    getMaps(): string[] {
-        return ['Map 1', 'Map 2', 'Map 3'];
+    constructor(@InjectModel(Map.name) private mapModel: Model<MapDocument>) {}
+
+    findAll(): Promise<Map[]> {
+        return this.mapModel.find().exec();
     }
 
-    getMapById(id: string): string {
-        return `Map with id ${id}`;
-    }
-
-    getMapInfoById(id: string): string {
-        return `Map info of map with id ${id}`;
+    findByMapUId(mapUId: string): Promise<Map> {
+        return this.mapModel.findOne({ mapUId }).exec();
     }
 }

@@ -1,8 +1,9 @@
 import {
-    Controller, Delete, Get, Param, Post,
+    Controller, Get, NotFoundException, Param,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ReplaysService } from './replays.service';
+import { Replay } from './schemas/replay.schema';
 
 @ApiTags('replays')
 @Controller('replays')
@@ -10,28 +11,18 @@ export class ReplaysController {
     constructor(private readonly replaysService: ReplaysService) {}
 
     @Get()
-    getReplays(): string[] {
-        return this.replaysService.getReplays();
+    getReplays(): Promise<Replay[]> {
+        return this.replaysService.findAll();
     }
 
     @Get(':replayId')
-    getReplayById(@Param('replayId') replayId: string): string {
-        return this.replaysService.getReplayById(replayId);
-    }
+    async getReplayById(@Param('replayId') replayId: string): Promise<Replay> {
+        const replay = await this.replaysService.findById(replayId);
 
-    @Delete(':replayId')
-    deleteReplayById(@Param('replayId') replayId: string): string {
-        return this.replaysService.deleteReplayById(replayId);
-    }
+        if (replay === null) {
+            throw new NotFoundException(`Replay not found with replay ID: ${replayId}`);
+        }
 
-    @Post()
-    uploadReplay(): string {
-        return this.replaysService.uploadReplay();
-    }
-
-    // TODO: Remove this endpoint and adjust /replays to accept userWebId as filter
-    @Get(':webId/replays')
-    getUserReplays(@Param('webId') webId: string): string[] {
-        return this.replaysService.getUserReplaysByWebId(webId);
+        return replay;
     }
 }

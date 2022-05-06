@@ -1,6 +1,9 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import {
+    Controller, Get, NotFoundException, Param,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { MapsService } from './maps.service';
+import { Map } from './schemas/map.schema';
 
 @ApiTags('maps')
 @Controller('maps')
@@ -8,17 +11,18 @@ export class MapsController {
     constructor(private readonly mapsService: MapsService) {}
 
     @Get()
-    getMaps(): string[] {
-        return this.mapsService.getMaps();
+    getMaps(): Promise<Map[]> {
+        return this.mapsService.findAll();
     }
 
-    @Get(':id')
-    getMap(@Param('id') id: string): string {
-        return this.mapsService.getMapById(id);
-    }
+    @Get([':mapUId', ':mapUId/info'])
+    async getMap(@Param('mapUId') mapUId: string): Promise<Map> {
+        const map = await this.mapsService.findByMapUId(mapUId);
 
-    @Get(':id/info')
-    getMapInfo(@Param('id') id: string): string {
-        return this.mapsService.getMapInfoById(id);
+        if (map === null) {
+            throw new NotFoundException(`Map not found: ${mapUId}`);
+        }
+
+        return map;
     }
 }

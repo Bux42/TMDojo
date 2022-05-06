@@ -23,15 +23,9 @@ describe('MapController', () => {
         });
     });
 
-    describe('getMaps', () => {
+    describe('getMap', () => {
         it('should return maps', () => {
             expect(mapsController.getMap('100')).toBe('Map with id 100');
-        });
-    });
-
-    describe('getMapInfo', () => {
-        it('should return map info', () => {
-            expect(mapsController.getMapInfo('100')).toBe('Map info of map with id 100');
         });
     });
 });

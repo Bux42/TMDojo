@@ -1,31 +1,37 @@
 import { Injectable } from '@nestjs/common';
-
-export interface Replay {
-    id: string;
-    name: string;
-}
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { User, UserDocument } from '../users/schemas/user.schema';
+import { Replay, ReplayDocument } from './schemas/replay.schema';
 
 @Injectable()
 export class ReplaysService {
-    getReplays(): string[] {
-        return ['Replay 1', 'Replay 2', 'Replay 3'];
+    constructor(
+        @InjectModel(Replay.name) private replayModel: Model<ReplayDocument>,
+        @InjectModel(User.name) private userModel: Model<UserDocument>,
+    ) {}
+
+    findAll(): Promise<Replay[]> {
+        return this.replayModel
+            .find()
+            .sort({ date: -1 })
+            .limit(1000)
+            .exec();
     }
 
-    getReplayById(id: string): string {
-        return `Replay with id: ${id}`;
-    }
-
-    deleteReplayById(id: string): string {
-        return `Deleting replay with id: ${id}`;
+    findById(id: string): Promise<Replay> {
+        return this.replayModel.findById(id).exec();
     }
 
     // TODO: replace this with a getReplays method with all filters
     //     This was made temporarily to complete the /users/:webId/replays endpoint
-    getUserReplaysByWebId(webId: string): string[] {
-        return [`Replay 1 from ${webId}`, `Replay 2 from ${webId}`, `Replay 3 from ${webId}`];
-    }
+    async findUserReplaysByWebId(webId: string): Promise<Replay[]> {
+        const user = await this.userModel.findOne({ webId }).exec();
 
-    uploadReplay(): string {
-        return 'Uploading replay to DB...';
+        if (user === null) {
+            return [];
+        }
+
+        return this.replayModel.find({ userRef: user._id }).exec();
     }
 }
