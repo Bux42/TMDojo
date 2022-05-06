@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, NotImplementedException } from '@nestjs/common';
 import { AWSError, S3 } from 'aws-sdk';
 import { PromiseResult } from 'aws-sdk/lib/request';
 import { InjectS3 } from 'nestjs-s3';
@@ -7,16 +7,6 @@ import { compress, decompress } from '../../common/util/compression';
 @Injectable()
 export class S3Service {
     constructor(@InjectS3() private readonly s3: S3) {}
-
-    async uploadObject(key: string, value: Buffer): Promise<PromiseResult<S3.PutObjectOutput, AWSError>> {
-        const params = {
-            Bucket: process.env.AWS_S3_BUCKET_NAME,
-            Key: key,
-            Body: compress(value),
-        };
-
-        return this.s3.putObject(params).promise();
-    }
 
     async retrieveObject(key: string): Promise<Buffer> {
         const params = {
@@ -35,5 +25,20 @@ export class S3Service {
         }
 
         return decompress(data.Body);
+    }
+
+    async uploadObject(key: string, value: Buffer): Promise<PromiseResult<S3.PutObjectOutput, AWSError>> {
+        const params = {
+            Bucket: process.env.AWS_S3_BUCKET_NAME,
+            Key: key,
+            Body: compress(value),
+        };
+
+        return this.s3.putObject(params).promise();
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    async deleteObject(key: string): Promise<unknown> {
+        throw new NotImplementedException('Deleting S3 objects not implemented');
     }
 }
