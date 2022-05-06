@@ -15,9 +15,7 @@ export class S3Service {
             Body: compress(value),
         };
 
-        const res = await this.s3.putObject(params).promise();
-
-        return res;
+        return this.s3.putObject(params).promise();
     }
 
     async retrieveObject(key: string): Promise<Buffer> {
@@ -36,8 +34,6 @@ export class S3Service {
             throw new NotFoundException('Retrieved object is not a buffer');
         }
 
-        const decompressed = decompress(data.Body);
-
-        return decompressed;
+        return decompress(data.Body);
     }
 }
