@@ -14,7 +14,7 @@ export class ArtefactsService {
         let buffer: Buffer = null;
 
         if (replay.objectPath) {
-            buffer = await this.s3Service.retrieveObject(`${replay.objectPath}fdfsdfds`);
+            buffer = await this.s3Service.retrieveObject(`${replay.objectPath}`);
         } else if (replay.filePath) {
             throw new NotImplementedException('Replay stored locally, FS retrieval not implemented');
         } else {
