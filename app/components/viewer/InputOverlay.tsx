@@ -1,10 +1,12 @@
 import { useFrame } from '@react-three/fiber';
 import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
+import { BoxGeometry } from 'three';
 import { ReplayDataPoint } from '../../lib/replays/replayData';
 
 interface InputOverlayProps {
     sampleRef: React.MutableRefObject<ReplayDataPoint>,
+    overlayFbx: THREE.Object3D;
     camera: any
 }
 
@@ -231,18 +233,72 @@ const InputGasOverlay = ({ sampleRef }: InputOverlayItemProps) => {
     );
 };
 
-const InputOverlay = ({ sampleRef, camera }: InputOverlayProps) => {
+const InputOverlay = ({ sampleRef, overlayFbx, camera }: InputOverlayProps) => {
     const inputMeshRef = useRef<THREE.Mesh>();
-    useFrame(() => {
-        if (inputMeshRef.current && camera) {
-            inputMeshRef.current.rotation.set(
-                camera.rotation.x,
-                camera.rotation.y,
-                camera.rotation.z,
-            );
-        }
+
+    const inputGasMesh: THREE.Mesh = overlayFbx.children.find((x) => x.name === 'InputGas') as THREE.Mesh;
+    const inputGasMeshIndex = overlayFbx.children.indexOf(inputGasMesh);
+
+    const inputBrakeMesh: THREE.Mesh = overlayFbx.children.find((x) => x.name === 'InputBrake') as THREE.Mesh;
+    const inputBrakeMeshIndex = overlayFbx.children.indexOf(inputBrakeMesh);
+
+    const inputRightMesh: THREE.Mesh = overlayFbx.children.find((x) => x.name === 'InputRight') as THREE.Mesh;
+    (inputRightMesh.material as THREE.MeshPhongMaterial).opacity = 0.8;
+    const inputRightMeshIndex = overlayFbx.children.indexOf(inputRightMesh);
+
+    const inputLeftMesh: THREE.Mesh = overlayFbx.children.find((x) => x.name === 'InputLeft') as THREE.Mesh;
+    (inputLeftMesh.material as THREE.MeshPhongMaterial).opacity = 0.8;
+    const inputLeftMeshIndex = overlayFbx.children.indexOf(inputLeftMesh);
+
+    const inputLeftBgMesh: THREE.Mesh = overlayFbx.children.find((x) => x.name === 'InputLeftBg') as THREE.Mesh;
+    (inputLeftBgMesh.material as THREE.MeshPhongMaterial).opacity = 0.2;
+
+    const inputRightBgMesh: THREE.Mesh = overlayFbx.children.find((x) => x.name === 'InputRightBg') as THREE.Mesh;
+    (inputRightBgMesh.material as THREE.MeshPhongMaterial).opacity = 0.2;
+
+    const inputBaseScaleX = inputLeftMesh.scale.x;
+
+    overlayFbx.children.forEach((child: any) => {
+        child.material = child.material.clone();
+        child.material.transparent = true;
     });
+
+    useFrame(() => {
+        if (inputMeshRef.current) {
+            if (camera) {
+                inputMeshRef.current.rotation.set(
+                    camera.rotation.x,
+                    camera.rotation.y,
+                    camera.rotation.z,
+                );
+            }
+            ((inputMeshRef.current.children[0].children[inputGasMeshIndex] as THREE.Mesh)
+                .material as THREE.MeshPhongMaterial)
+                .opacity = sampleRef.current.inputGasPedal ? 0.8 : 0.2;
+
+            ((inputMeshRef.current.children[0].children[inputBrakeMeshIndex] as THREE.Mesh)
+                .material as THREE.MeshPhongMaterial)
+                .opacity = sampleRef.current.inputIsBraking ? 0.8 : 0.2;
+
+            const rightSteerValue = sampleRef.current.inputSteer > 0 ? sampleRef.current.inputSteer : 0;
+            ((inputMeshRef.current.children[0].children[inputRightMeshIndex] as THREE.Mesh)
+                .scale.x = inputBaseScaleX * rightSteerValue);
+
+            const leftSteerValue = sampleRef.current.inputSteer < 0 ? -sampleRef.current.inputSteer : 0;
+            ((inputMeshRef.current.children[0].children[inputLeftMeshIndex] as THREE.Mesh)
+                .scale.x = inputBaseScaleX * leftSteerValue);
+        }
+        /*
+        if (sampleRef.current && gasMeshRef.current) {
+            const isAccelerating = sampleRef.current.inputGasPedal;
+            gasMeshRef.current.children.forEach((child: any) => {
+                child.material.opacity = isAccelerating ? 0.6 : 0.2;
+            });
+        } */
+    });
+
     return (
+        /*
         <mesh
             ref={inputMeshRef}
             position={[0, 2, 0]}
@@ -252,6 +308,15 @@ const InputOverlay = ({ sampleRef, camera }: InputOverlayProps) => {
             <SteerDirectionOverlay sampleRef={sampleRef} dir="right" getOffsetFunc={getOffsetXRight} />
             <InputGasOverlay sampleRef={sampleRef} />
             <InputBrakeOverlay sampleRef={sampleRef} />
+        </mesh>
+        */
+        <mesh
+            ref={inputMeshRef}
+            position={[0, 2, 0]}
+        >
+            <primitive
+                object={overlayFbx}
+            />
         </mesh>
     );
 };

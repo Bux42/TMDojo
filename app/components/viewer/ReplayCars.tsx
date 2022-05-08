@@ -25,11 +25,12 @@ interface ReplayCarProps {
     orbitControlsRef: any;
     showInputOverlay: boolean;
     fbx: THREE.Object3D;
+    overlayFbx: THREE.Object3D;
     replayCarOpacity: number;
 }
 
 const ReplayCar = ({
-    replay, camera, orbitControlsRef, showInputOverlay, fbx, replayCarOpacity,
+    replay, camera, orbitControlsRef, showInputOverlay, fbx, overlayFbx, replayCarOpacity,
 }: ReplayCarProps) => {
     const mesh = useRef<THREE.Mesh>();
     const stadiumCarMesh = useRef<THREE.Mesh>();
@@ -177,7 +178,7 @@ const ReplayCar = ({
                 />
 
                 {showInputOverlay
-                    && <InputOverlay sampleRef={currentSampleRef} camera={camera} />}
+                    && <InputOverlay sampleRef={currentSampleRef} overlayFbx={overlayFbx} camera={camera} />}
                 <mesh
                     ref={camPosRef}
                 >
@@ -205,6 +206,7 @@ const ReplayCars = ({
 }: ReplayCarsProps): JSX.Element => {
     const camera = useThree((state) => state.camera);
     const fbx = useFBX('/StadiumCarWheelsSeparated.fbx');
+    const overlayFbx = useFBX('/InputOverlay.fbx');
 
     return (
         <>
@@ -216,6 +218,7 @@ const ReplayCars = ({
                     orbitControlsRef={orbitControlsRef}
                     showInputOverlay={showInputOverlay}
                     fbx={fbx.clone()}
+                    overlayFbx={overlayFbx.clone()}
                     replayCarOpacity={replayCarOpacity}
                 />
             ))}
