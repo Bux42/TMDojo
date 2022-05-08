@@ -1,5 +1,5 @@
 import {
-    Controller, Get, NotFoundException, Param,
+    Controller, Get, NotFoundException, Param, Query,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { MapsService } from './maps.service';
@@ -11,8 +11,8 @@ export class MapsController {
     constructor(private readonly mapsService: MapsService) {}
 
     @Get()
-    getMaps(): Promise<Map[]> {
-        return this.mapsService.findAll();
+    getMapsWithReplayCounts(@Query('mapName') mapName: string): Promise<any[]> {
+        return this.mapsService.findAllWithReplayCounts(mapName);
     }
 
     @Get([':mapUId', ':mapUId/info'])
