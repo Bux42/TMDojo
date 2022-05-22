@@ -19,6 +19,7 @@ export interface FileResponse {
     mapUId: string;
     date: number;
     endRaceTime: number;
+    offsetTime: number;
     mapName: string;
     playerLogin: string;
     playerName: string;
@@ -62,7 +63,7 @@ export const fetchReplayData = async (file: FileResponse): Promise<ReplayData> =
     const {
         samples, minPos, maxPos, dnfPos, color, intervalMedian,
     } = readDataView(dataView);
-
+    file.offsetTime = 0;
     return {
         ...file, samples, minPos, maxPos, dnfPos, color, intervalMedian,
     };

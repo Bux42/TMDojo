@@ -71,16 +71,39 @@ const ReplayCar = ({
             const followed = timeLineGlobal.followedReplay != null && timeLineGlobal.followedReplay._id === replay._id;
             const hovered = timeLineGlobal.hoveredReplay != null && timeLineGlobal.hoveredReplay._id === replay._id;
 
+            let { offsetTime } = replay;
+            let overflow = 0;
+
+            if (offsetTime !== 0) {
+                if (timeLineGlobal.currentRaceTime + replay.offsetTime < 0) {
+                    offsetTime = 0;
+                }
+                // if offset time is bigger than replay end time, subtract the difference
+                if (timeLineGlobal.currentRaceTime + replay.offsetTime > replay.endRaceTime) {
+                    overflow = replay.endRaceTime - (timeLineGlobal.currentRaceTime + replay.offsetTime);
+                }
+            }
+
             // Get closest sample to TimeLine.currentRaceTime
-            curSample = getSampleNearTime(replay, timeLineGlobal.currentRaceTime);
+            curSample = getSampleNearTime(replay, timeLineGlobal.currentRaceTime + offsetTime + overflow);
 
             currentSampleRef.current = curSample;
             prevSampleRef.current = replay.samples[replay.samples.indexOf(curSample) - 1];
 
             if (timeLineGlobal.currentRaceTime < replay.endRaceTime) {
-                interpolateSamples(prevSampleRef.current, curSample, smoothSample, timeLineGlobal.currentRaceTime);
+                interpolateSamples(
+                    prevSampleRef.current,
+                    curSample,
+                    smoothSample,
+                    timeLineGlobal.currentRaceTime + offsetTime + overflow,
+                );
             } else {
-                interpolateSamples(prevSampleRef.current, curSample, smoothSample, curSample.currentRaceTime);
+                interpolateSamples(
+                    prevSampleRef.current,
+                    curSample,
+                    smoothSample,
+                    curSample.currentRaceTime + offsetTime + overflow,
+                );
             }
 
             // Get car rotation
