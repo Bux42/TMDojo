@@ -1,8 +1,9 @@
 import {
-    Controller, Get, NotFoundException, Param, StreamableFile,
+    Controller, Get, NotFoundException, Param, Query, StreamableFile,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ArtefactsService } from '../artefacts/artefacts.service';
+import { ListReplaysDto } from './dto/ListReplays.dto';
 import { ReplaysService } from './replays.service';
 import { Replay } from './schemas/replay.schema';
 
@@ -15,8 +16,8 @@ export class ReplaysController {
     ) {}
 
     @Get()
-    getReplays(): Promise<Replay[]> {
-        return this.replaysService.findAll();
+    getReplays(@Query() query: ListReplaysDto): Promise<Replay[]> {
+        return this.replaysService.findAll(query);
     }
 
     @Get(':replayId')

@@ -7,11 +7,13 @@ import { User, UserSchema } from '../users/schemas/user.schema';
 import { S3Service } from '../artefacts/services/s3.service';
 import { ArtefactsService } from '../artefacts/artefacts.service';
 import { LocalArtefactsService } from '../artefacts/services/localArtefacts.service';
+import { Map, MapSchema } from '../maps/schemas/map.schema';
 
 @Module({
     imports: [
         MongooseModule.forFeature([{ name: Replay.name, schema: ReplaySchema }]),
         MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+        MongooseModule.forFeature([{ name: Map.name, schema: MapSchema }]),
     ],
     controllers: [ReplaysController],
     providers: [ReplaysService, ArtefactsService, S3Service, LocalArtefactsService],

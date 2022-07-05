@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { Map, MapSchema } from '../maps/schemas/map.schema';
 import { ReplaysService } from '../replays/replays.service';
 import { Replay, ReplaySchema } from '../replays/schemas/replay.schema';
 import { Session, SessionSchema } from '../sessions/schemas/session.schema';
@@ -12,6 +13,7 @@ import { UsersService } from './users.service';
         MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
         MongooseModule.forFeature([{ name: Replay.name, schema: ReplaySchema }]),
         MongooseModule.forFeature([{ name: Session.name, schema: SessionSchema }]),
+        MongooseModule.forFeature([{ name: Map.name, schema: MapSchema }]),
     ],
     controllers: [UsersController],
     providers: [UsersService, ReplaysService],
