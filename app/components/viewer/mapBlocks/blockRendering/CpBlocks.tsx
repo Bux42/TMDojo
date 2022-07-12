@@ -1,13 +1,15 @@
-import React from "react";
-import * as THREE from "three";
-import { Block } from "../../../lib/blocks/blockData";
-import { BasicBlock, BasicBlockMaterial, BasicBlockProps } from "./BasicBlocks";
+/* eslint-disable react/jsx-props-no-spreading */
+/* eslint-disable react/destructuring-assignment */
+import React from 'react';
+import * as THREE from 'three';
+import { Block } from '../../../../lib/mapBlocks/blockData';
+import { BasicBlock, BasicBlockMaterial, BasicBlockProps } from './BasicBlocks';
 
 interface CpBlockProps extends BasicBlockProps {
     block: Block;
 }
 export const CpBlock = (props: CpBlockProps): JSX.Element => {
-    const isRingCp = props.block.blockName.includes("GateCheckpoint");
+    const isRingCp = props.block.blockName.includes('GateCheckpoint');
 
     return isRingCp ? <RingCpBlock {...props} /> : <BasicBlock {...props} />;
 };

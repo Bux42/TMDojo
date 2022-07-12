@@ -1,37 +1,28 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import * as THREE from 'three';
-import { useLoader } from '@react-three/fiber';
+import { Group, Object3D, Vector3 } from 'three';
+import { Block } from '../../../../lib/mapBlocks/blockData';
+import { BLOCK_SIZE } from '../../../../lib/constants/block';
+import { BasicBlock, BasicBlockWithOffsets } from './BasicBlocks';
 import {
-    DoubleSide,
-    Group, Mesh, MeshPhongMaterial, Object3D, Vector3,
-} from 'three';
-import { Billboard, Sphere, Text } from '@react-three/drei';
-import { Block, MapBlockData } from '../../lib/blocks/blockData';
-import { BasicBlock, BasicBlockWithOffsets } from './blocks/BasicBlocks';
-import { CpBlock } from './blocks/CpBlocks';
-import { BLOCK_SIZE } from '../../lib/constants/block';
-import { SettingsContext } from '../../lib/contexts/SettingsContext';
-import BlockNames from './blocks/BlockNames';
-
-// Block colors
-const BASE_COLOR = new THREE.Color(0.1, 0.1, 0.1);
-const START_COLOR = new THREE.Color(0.2, 0.6, 0.2);
-const FINISH_COLOR = new THREE.Color(0.6, 0.2, 0.2);
-const CP_COLOR = new THREE.Color(0.1, 0.3, 1);
-const WATER_COLOR = new THREE.Color(0, 0, 1);
-const GRASS_COLOR = new THREE.Color(0, 1, 0);
-
-// Block opacities
-const BASE_OPACITY = 0.05;
-const START_OPACITY = 0.8;
-const FINISH_OPACITY = 0.8;
-const CP_OPACITY = 0.8;
-const WATER_OPACITY = 1;
+    BASE_COLOR,
+    BASE_OPACITY,
+    CP_COLOR,
+    CP_OPACITY,
+    FINISH_COLOR,
+    FINISH_OPACITY,
+    START_COLOR,
+    START_OPACITY,
+    WATER_COLOR,
+    WATER_OPACITY,
+} from '../../../../lib/mapBlocks/blockConstants';
+import { CpBlock } from './CpBlocks';
 
 interface MapBlockProps {
     block: Block;
+    color?: THREE.Color;
 }
-const MapBlock = ({ block }: MapBlockProps) => {
+const MapBlock = ({ block, color }: MapBlockProps) => {
     const [hasModel, setHasModel] = useState(true);
     const [models, setModels] = useState<Object3D[] | null>(null);
 
@@ -48,7 +39,8 @@ const MapBlock = ({ block }: MapBlockProps) => {
             const loader = new OBJLoader();
             loader.load(objPath, (group: Group) => {
                 if (group.children.length > 0) {
-                    setModels([group.children[0]]);
+                    // setModels([group.children[0]]);
+                    setModels(group.children);
                 }
             });
         } catch (e) {
@@ -80,21 +72,21 @@ const MapBlock = ({ block }: MapBlockProps) => {
             <>
                 {models.map((model) => (
                     <>
-                        <mesh
+                        {/* <mesh
                             position={modelCoord}
                         >
                             <Sphere />
-                        </mesh>
+                        </mesh> */}
                         <mesh
                             position={positionWithOffset}
                         >
                             <mesh
                                 rotation={[0, (Math.PI / 2) * (4 - ((block.dir) % 4)), 0]}
                             >
-                                <meshPhongMaterial />
-                                <primitive
-                                    object={model}
-                                />
+                                <primitive object={model}>
+                                    {/* <meshNormalMaterial side={THREE.DoubleSide} /> */}
+                                    <meshStandardMaterial side={THREE.DoubleSide} color={color} />
+                                </primitive>
                             </mesh>
                         </mesh>
                     </>
@@ -152,46 +144,3 @@ const MapBlock = ({ block }: MapBlockProps) => {
         />
     );
 };
-
-const filterBlocks = (blocks: Block[]): Block[] => blocks.filter((block) => {
-    const { blockName, baseCoord } = block;
-
-    if (baseCoord.y === 12 && blockName.includes('Grass')) {
-        return false;
-    }
-
-    const blockBlacklist = [
-        'Pillar',
-        'Deco',
-        'Stage',
-        'Light',
-        'Technics',
-        'Structure',
-        'PlatformGrassWallOutCurve',
-        'TrackWallCurve',
-    ];
-
-    const isBlacklisted = blockBlacklist.some((blacklistedBlock) => blockName.includes(blacklistedBlock));
-
-    return !isBlacklisted;
-});
-
-interface Props {
-    mapBlockData: MapBlockData;
-}
-const MapBlocks = ({ mapBlockData }: Props): JSX.Element => {
-    const filteredBlocks = filterBlocks(mapBlockData.blocks);
-
-    return (
-        <>
-            {filteredBlocks.map((block, i) => (
-                <>
-                    <BlockNames block={block} blockOffsetNames />
-                    <MapBlock key={i} block={block} />
-                </>
-            ))}
-        </>
-    );
-};
-
-export default MapBlocks;

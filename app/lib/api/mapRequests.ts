@@ -1,10 +1,9 @@
 import apiInstance from './apiInstance';
-import { MapBlockData } from '../blocks/blockData';
-import { FileResponse } from './apiRequests';
+import { MapBlockData } from '../mapBlocks/blockData';
 
-const fetchMapBlocks = async (file: FileResponse): Promise<MapBlockData> => {
+const fetchMapBlocks = async (mapUId: string): Promise<MapBlockData> => {
     const params = {
-        mapUId: file.mapUId,
+        mapUId,
     };
 
     const res = await apiInstance.get('/map-blocks', {

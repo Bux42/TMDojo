@@ -4,7 +4,6 @@ import React, {
 import * as THREE from 'three';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Sky } from '@react-three/drei';
-import { message } from 'antd';
 import { ReplayData } from '../../lib/api/apiRequests';
 import { ReplayLines } from './ReplayLines';
 import { Grid, DEFAULT_GRID_POS } from './Grid';
@@ -14,15 +13,16 @@ import ReplayCars from './ReplayCars';
 import GlobalTimeLineInfos from '../../lib/singletons/timeLineInfos';
 import TimeLine from './TimeLine';
 import fetchMapBlocks from '../../lib/api/mapRequests';
-import { MapBlockData } from '../../lib/blocks/blockData';
-import MapBlocks from './MapBlocks';
+import { MapBlockData } from '../../lib/mapBlocks/blockData';
+import MapBlocks from './mapBlocks/MapBlocks';
 
 const BACKGROUND_COLOR = new THREE.Color(0.05, 0.05, 0.05);
 
 interface Props {
     replaysData: ReplayData[];
+    mapUId?: string;
 }
-const Viewer3D = ({ replaysData }: Props): JSX.Element => {
+const Viewer3D = ({ replaysData, mapUId }: Props): JSX.Element => {
     const {
         lineType,
         showGearChanges,
@@ -49,18 +49,17 @@ const Viewer3D = ({ replaysData }: Props): JSX.Element => {
 
     useEffect(() => {
         const f = async () => {
+            if (!mapUId) return;
+
             try {
-                const blocks = await fetchMapBlocks(replaysData[0]);
+                const blocks = await fetchMapBlocks(mapUId);
                 setMapBlockData(blocks);
             } catch (e) {
                 // TODO: Either store that this map is unavailable, or just do nothing, like now
-                if (showBlocks) {
-                    message.error('Could not retrieve map blocks...');
-                }
             }
         };
         f();
-    }, [replaysData]);
+    }, [mapUId]);
 
     return (
         <div style={{ zIndex: -10 }} className="w-full h-full">

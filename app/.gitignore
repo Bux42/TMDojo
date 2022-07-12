@@ -32,3 +32,7 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+# .obj files
+/public/**/*.obj
+/public/**/*.mtl

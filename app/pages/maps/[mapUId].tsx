@@ -112,6 +112,7 @@ const Home = (): JSX.Element => {
                         )
                     }
                     <Viewer3D
+                        mapUId={`${mapUId}`}
                         replaysData={selectedReplayData}
                     />
                 </Layout.Content>

@@ -2,7 +2,7 @@ import React from 'react';
 import { Billboard, Text } from '@react-three/drei';
 import * as THREE from 'three';
 import { DoubleSide } from 'three';
-import { Block } from '../../../lib/blocks/blockData';
+import { Block } from '../../../../lib/mapBlocks/blockData';
 
 interface BlockNameProps {
     position: THREE.Vector3;
