@@ -23,18 +23,17 @@ interface MapBlockProps {
     color?: THREE.Color;
 }
 const MapBlock = ({ block, color }: MapBlockProps) => {
-    const [hasModel, setHasModel] = useState(true);
     const [models, setModels] = useState<Object3D[] | null>(null);
 
-    const { blockName, baseCoord } = block;
+    const { name, pos } = block;
 
     // Offset coord by -8 in the Y-direction so all blocks are below the race line
-    const meshCoord = new THREE.Vector3(baseCoord.x, baseCoord.y - 8, baseCoord.z);
+    const meshCoord = new THREE.Vector3(pos.x, pos.y - 8, pos.z);
 
     const tryToLoadBlockModel = async (): Promise<void> => {
         try {
             const { OBJLoader } = await import('three/examples/jsm/loaders/OBJLoader');
-            const objPath = `/objs/${block.blockName}.obj`;
+            const objPath = `/objs/${name}.obj`;
 
             const loader = new OBJLoader();
             loader.load(objPath, (group: Group) => {
@@ -96,7 +95,7 @@ const MapBlock = ({ block, color }: MapBlockProps) => {
     }
 
     // Start block
-    if (blockName.includes('TechStart')) {
+    if (name.includes('TechStart')) {
         return (
             <BasicBlock
                 meshCoord={meshCoord}
@@ -106,7 +105,7 @@ const MapBlock = ({ block, color }: MapBlockProps) => {
     }
 
     // Finish blocks
-    if (blockName.includes('TechFinish')) {
+    if (name.includes('TechFinish')) {
         return (
             <BasicBlock
                 meshCoord={meshCoord}
@@ -116,7 +115,7 @@ const MapBlock = ({ block, color }: MapBlockProps) => {
     }
 
     // Checkpoint blocks
-    if (blockName.includes('Checkpoint')) {
+    if (name.includes('Checkpoint')) {
         return (
             <CpBlock
                 block={block}
@@ -127,7 +126,7 @@ const MapBlock = ({ block, color }: MapBlockProps) => {
     }
 
     // Water blocks
-    if (blockName.includes('WaterBase')) {
+    if (name.includes('WaterBase')) {
         return (
             <BasicBlock
                 meshCoord={meshCoord}

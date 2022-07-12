@@ -3,9 +3,9 @@ import { BLOCK_SIZE } from '../constants/block';
 import { Block } from './blockData';
 
 const calcBlockCoord = (block: Block) => {
-    const { baseCoord, blockOffsets, dir } = block;
+    const { pos, blockOffsets, dir } = block;
 
-    const meshCoord = new Vector3(baseCoord.x, baseCoord.y - 8, baseCoord.z);
+    const meshCoord = new Vector3(pos.x, pos.y - 8, pos.z);
 
     const modelCoord = new Vector3().add(meshCoord).add(new Vector3(
         -BLOCK_SIZE.x / 2,

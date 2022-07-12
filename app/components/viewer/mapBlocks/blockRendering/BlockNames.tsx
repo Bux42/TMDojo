@@ -39,13 +39,13 @@ interface BlockNamesProps {
     blockOffsetNames: boolean;
 }
 const BlockNames = ({ block, blockOffsetNames }: BlockNamesProps) => {
-    const meshCoord = new THREE.Vector3().add(block.baseCoord).add(new THREE.Vector3(0, -8, 0));
+    const meshCoord = new THREE.Vector3().add(block.pos).add(new THREE.Vector3(0, -8, 0));
 
     return (
         <>
             <BlockName
                 position={meshCoord}
-                name={block.blockName}
+                name={block.name}
                 fontSize={2}
                 fontColor="red"
             />
@@ -63,7 +63,7 @@ const BlockNames = ({ block, blockOffsetNames }: BlockNamesProps) => {
                 return (
                     <BlockName
                         position={offsetCoord}
-                        name={`[${i + 1}/${block.blockOffsets.length}] - ${block.blockName}`}
+                        name={`[${i + 1}/${block.blockOffsets.length}] - ${block.name}`}
                         fontSize={1.3}
                         fontColor="pink"
                     />

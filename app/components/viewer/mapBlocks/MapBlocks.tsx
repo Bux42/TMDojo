@@ -8,9 +8,9 @@ import {
 } from '../../../lib/mapBlocks/blockConstants';
 
 const filterBlocks = (blocks: Block[]): Block[] => blocks.filter((block) => {
-    const { blockName, baseCoord } = block;
+    const { name, pos } = block;
 
-    if (baseCoord.y === 12 && blockName.includes('Grass')) {
+    if (pos.y === 12 && name.includes('Grass')) {
         return false;
     }
 
@@ -25,7 +25,7 @@ const filterBlocks = (blocks: Block[]): Block[] => blocks.filter((block) => {
         // 'TrackWallCurve',
     ];
 
-    const isBlacklisted = blockBlacklist.some((blacklistedBlock) => blockName.includes(blacklistedBlock));
+    const isBlacklisted = blockBlacklist.some((blacklistedBlock) => name.includes(blacklistedBlock));
 
     return !isBlacklisted;
 });
@@ -83,7 +83,7 @@ const BlockInstances = ({ blockName, blocks }: BlockInstancesProps) => {
     return (
         <>
             {blocks.map((block) => {
-                const blockColor = getBlockColor(block.blockName);
+                const blockColor = getBlockColor(block.name);
                 const position = calcBlockCoord(block);
                 return (
                     geometry ? (
@@ -112,7 +112,7 @@ interface Props {
     mapBlockData: MapBlockData;
 }
 const MapBlocks = ({ mapBlockData }: Props): JSX.Element => {
-    const filteredBlocks = useMemo(() => filterBlocks(mapBlockData.blocks), [mapBlockData]);
+    const filteredBlocks = useMemo(() => filterBlocks(mapBlockData.nadeoBlocks), [mapBlockData]);
 
     type GroupedBlocks = {
         [key: string]: Block[] | undefined
@@ -120,7 +120,7 @@ const MapBlocks = ({ mapBlockData }: Props): JSX.Element => {
     const blocksGroupedByName = useMemo(() => filteredBlocks.reduce(
         (blocks: GroupedBlocks, block: Block) => ({
             ...blocks,
-            [block.blockName]: [...(blocks[block.blockName] || []), block],
+            [block.name]: [...(blocks[block.name] || []), block],
         }),
         {},
     ), [filteredBlocks]);

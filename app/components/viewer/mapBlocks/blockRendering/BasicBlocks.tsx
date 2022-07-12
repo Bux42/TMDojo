@@ -42,7 +42,7 @@ export const BasicBlockWithOffsets = ({
 
             return (
                 <BasicBlock
-                    key={`${block.blockName}-${i}`}
+                    key={`${block.name}-${i}`}
                     meshCoord={offsetCoord}
                     materialProps={materialProps}
                 />

@@ -19,7 +19,7 @@ router.get('/', async (req: Request, res: Response, next: Function) => {
     }
 
     try {
-        const filePath = `mapBlocks/${req.query.mapUId}.gz`;
+        const filePath = `mapBlocks/${req.query.mapUId}.json.gz`;
 
         const buffer = await retrieveObject(StorageType.FileStorage, filePath);
 
@@ -29,7 +29,7 @@ router.get('/', async (req: Request, res: Response, next: Function) => {
     }
 });
 
-router.post('/', (req: Request, res: Response, next: Function): any => {
+router.post('/', async (req: Request, res: Response, next: Function): Promise<any> => {
     const paramNames = ['mapUId'];
 
     // make sure all required parameters are present
@@ -43,25 +43,21 @@ router.post('/', (req: Request, res: Response, next: Function): any => {
         return res.status(400).send('Request is missing one or more parameters');
     }
 
-    let completeData = '';
-    req.on('data', (data: string | Buffer) => {
-        completeData += data;
-    });
+    // TODO: error catching for invalid JSON
+    const parsed = JSON.stringify(req.body);
 
-    req.on('end', async () => {
-        try {
-            const filePath = `mapBlocks/${req.query.mapUId}.gz`;
+    try {
+        const filePath = `mapBlocks/${req.query.mapUId}.json.gz`;
 
-            const dataBuffer = Buffer.from(completeData, 'base64');
-            await uploadObject(StorageType.FileStorage, filePath, dataBuffer);
+        await uploadObject(StorageType.FileStorage, filePath, parsed);
 
-            return res.send();
-        } catch (err) {
-            return next(err);
-        }
-    });
+        // Add uncompressed version for debugging purposes
+        await uploadObject(StorageType.FileStorage, filePath.replace('.gz', ''), parsed, false);
 
-    req.on('error', (err) => next(err));
+        return res.send();
+    } catch (err) {
+        return next(err);
+    }
 });
 
 export default router;

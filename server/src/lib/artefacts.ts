@@ -32,12 +32,17 @@ const compress = (input: string|Buffer): Buffer => zlib.gzipSync(input);
 const decompress = (input: Buffer): Buffer => zlib.unzipSync(input);
 
 // generic helper method for uploading artefacts (includes compression)
-export const uploadObject = async (storageType: StorageType, key: string, value: string|Buffer) => {
+export const uploadObject = async (
+    storageType: StorageType,
+    key: string,
+    value: string|Buffer,
+    compressObject: boolean = true,
+) => {
     if (storageType === StorageType.ObjectStorage) {
         const params = {
             Bucket: AWS_S3_BUCKET_NAME,
             Key: key,
-            Body: compress(value),
+            Body: compressObject ? compress(value) : value,
         };
         return S3Client.putObject(params);
     }
@@ -54,7 +59,10 @@ export const uploadObject = async (storageType: StorageType, key: string, value:
         }
 
         const fullPath = path.resolve(`${__dirname}/../../${key}`);
-        return writeFile(fullPath, compress(value));
+        return writeFile(
+            fullPath,
+            compressObject ? compress(value) : value,
+        );
     }
 
     throw new Error(`Invalid storageType "${storageType}"`);
