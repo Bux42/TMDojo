@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import * as THREE from 'three';
 import { Group, Object3D, Vector3 } from 'three';
-import { Block } from '../../../../lib/mapBlocks/blockData';
+import { Block } from '../../../../lib/mapBlocks/mapBlockData';
 import { BLOCK_SIZE } from '../../../../lib/constants/block';
 import { BasicBlock, BasicBlockWithOffsets } from './BasicBlocks';
 import {
