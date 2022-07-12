@@ -1,11 +1,14 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import * as THREE from 'three';
-import { BufferGeometry, Group, Vector3 } from 'three';
-import { Block, MapBlockData } from '../../../lib/mapBlocks/mapBlockData';
+import {
+    BufferGeometry, Euler, Group, Vector3,
+} from 'three';
+import { AnchoredObject, Block, MapBlockData } from '../../../lib/mapBlocks/mapBlockData';
 import calcBlockCoord from '../../../lib/mapBlocks/blockCalculations';
 import {
     START_COLOR, CP_COLOR, FINISH_COLOR, FREEWHEEL_COLOR, BASE_COLOR,
 } from '../../../lib/mapBlocks/blockConstants';
+import { BlockName } from './blockRendering/BlockNames';
 
 const filterBlocks = (blocks: Block[]): Block[] => blocks.filter((block) => {
     const { name, pos } = block;
@@ -90,12 +93,12 @@ const BlockInstances = ({ blockName, blocks }: BlockInstancesProps) => {
                         <mesh position={position}>
                             <mesh rotation={[0, (Math.PI / 2) * (4 - ((block.dir) % 4)), 0]}>
                                 <mesh geometry={geometry}>
-                                    <meshNormalMaterial side={THREE.DoubleSide} />
-                                    {/* {
+                                    {/* <meshNormalMaterial side={THREE.DoubleSide} /> */}
+                                    {
                                         blockColor
                                             ? <meshStandardMaterial side={THREE.DoubleSide} color={blockColor} />
                                             : <meshNormalMaterial side={THREE.DoubleSide} />
-                                    } */}
+                                    }
                                 </mesh>
                             </mesh>
                         </mesh>
@@ -107,6 +110,35 @@ const BlockInstances = ({ blockName, blocks }: BlockInstancesProps) => {
         </>
     );
 };
+
+// Basic block component for regular box-shaped blocks
+export interface AnchoredObjectVisualizationProps {
+    anchoredObject: AnchoredObject;
+}
+export const AnchoredObjectVisualization = ({ anchoredObject }: AnchoredObjectVisualizationProps): JSX.Element => (
+    <>
+        <mesh
+            position={anchoredObject.pos}
+            rotation={new Euler(anchoredObject.pitch, anchoredObject.yaw, anchoredObject.roll, 'YXZ')}
+        >
+            <coneGeometry args={[1, 2, 32]} />
+            <meshBasicMaterial color="red" />
+        </mesh>
+        <mesh
+            position={anchoredObject.pos}
+            rotation={new Euler(anchoredObject.pitch, anchoredObject.yaw, anchoredObject.roll, 'YXZ')}
+        >
+            <circleGeometry args={[1.5, 32]} />
+            <meshBasicMaterial color="blue" />
+        </mesh>
+        <BlockName
+            name={anchoredObject.name}
+            position={anchoredObject.pos.clone().add(new Vector3(0, 2, 0))}
+            fontSize={1}
+            fontColor="black"
+        />
+    </>
+);
 
 interface Props {
     mapBlockData: MapBlockData;
@@ -142,6 +174,12 @@ const MapBlocks = ({ mapBlockData }: Props): JSX.Element => {
                     />
                 );
             })}
+
+            {
+                mapBlockData.anchoredObjects.map((anchoredObject: AnchoredObject) => (
+                    <AnchoredObjectVisualization key={anchoredObject.name} anchoredObject={anchoredObject} />
+                ))
+            }
             {/*
             {filteredBlocks.map((block, i) => (
                 <>

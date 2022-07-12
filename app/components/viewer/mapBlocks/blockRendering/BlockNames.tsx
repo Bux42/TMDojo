@@ -10,7 +10,7 @@ interface BlockNameProps {
     fontSize: number;
     fontColor: string;
 }
-const BlockName = ({
+export const BlockName = ({
     position, name, fontSize, fontColor,
 }: BlockNameProps) => (
     <Billboard
