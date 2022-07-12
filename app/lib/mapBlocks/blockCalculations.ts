@@ -1,6 +1,6 @@
 import { Vector3 } from 'three';
 import { BLOCK_SIZE } from '../constants/block';
-import { Block } from './blockData';
+import { Block } from './mapBlockData';
 
 const calcBlockCoord = (block: Block) => {
     const { pos, blockOffsets, dir } = block;

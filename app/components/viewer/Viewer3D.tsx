@@ -13,7 +13,7 @@ import ReplayCars from './ReplayCars';
 import GlobalTimeLineInfos from '../../lib/singletons/timeLineInfos';
 import TimeLine from './TimeLine';
 import fetchMapBlocks from '../../lib/api/mapRequests';
-import { MapBlockData } from '../../lib/mapBlocks/blockData';
+import { MapBlockData } from '../../lib/mapBlocks/mapBlockData';
 import MapBlocks from './mapBlocks/MapBlocks';
 
 const BACKGROUND_COLOR = new THREE.Color(0.05, 0.05, 0.05);

@@ -1,5 +1,5 @@
 import apiInstance from './apiInstance';
-import { MapBlockData, parseMapBlockData } from '../mapBlocks/blockData';
+import { MapBlockData, parseMapBlockData } from '../mapBlocks/mapBlockData';
 
 const fetchMapBlocks = async (mapUId: string): Promise<MapBlockData> => {
     const params = {

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import * as THREE from 'three';
 import { BufferGeometry, Group, Vector3 } from 'three';
-import { Block, MapBlockData } from '../../../lib/mapBlocks/blockData';
+import { Block, MapBlockData } from '../../../lib/mapBlocks/mapBlockData';
 import calcBlockCoord from '../../../lib/mapBlocks/blockCalculations';
 import {
     START_COLOR, CP_COLOR, FINISH_COLOR, FREEWHEEL_COLOR, BASE_COLOR,

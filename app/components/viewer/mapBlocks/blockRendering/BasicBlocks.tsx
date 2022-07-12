@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import * as THREE from 'three';
-import { Block } from '../../../../lib/mapBlocks/blockData';
+import { Block } from '../../../../lib/mapBlocks/mapBlockData';
 
 // Material component for blocks
 export interface BlockMaterialProps {

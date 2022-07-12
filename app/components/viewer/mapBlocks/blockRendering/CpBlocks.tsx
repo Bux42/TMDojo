@@ -2,7 +2,7 @@
 /* eslint-disable react/destructuring-assignment */
 import React from 'react';
 import * as THREE from 'three';
-import { Block } from '../../../../lib/mapBlocks/blockData';
+import { Block } from '../../../../lib/mapBlocks/mapBlockData';
 import { BasicBlock, BasicBlockMaterial, BasicBlockProps } from './BasicBlocks';
 
 interface CpBlockProps extends BasicBlockProps {
