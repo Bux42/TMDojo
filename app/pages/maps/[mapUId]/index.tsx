@@ -162,9 +162,10 @@ const Home = (): JSX.Element => {
 
                     <SidebarSettings />
 
-                    <SectorTimeTableButton
+                    {/* TODO: Add back in once sector times are fixed */}
+                    {/* <SectorTimeTableButton
                         onClick={() => setSectorTableVisible(!sectorTableVisible)}
-                    />
+                    /> */}
 
                     {selectedReplayData.length > 0 && (
                         <ChartsDrawer

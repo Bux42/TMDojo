@@ -211,29 +211,30 @@ const SidebarReplays = ({
                 </div>
             ),
         },
-        {
-            title: 'Sectors',
-            dataIndex: 'sectorTime',
-            align: 'center',
-            width: 30,
-            filters: [{ text: 'Includes sector times', value: true }],
-            onFilter: (value, record) => !!record.sectorTimes === value,
-            render: (_, replay) => {
-                const validSectorTimes = replay.sectorTimes && replay.sectorTimes.length === validSectorsLength;
+        // TODO: Add back in when sector times are fixed on the server and plugin
+        // {
+        //     title: 'Sectors',
+        //     dataIndex: 'sectorTime',
+        //     align: 'center',
+        //     width: 30,
+        //     filters: [{ text: 'Includes sector times', value: true }],
+        //     onFilter: (value, record) => !!record.sectorTimes === value,
+        //     render: (_, replay) => {
+        //         const validSectorTimes = replay.sectorTimes && replay.sectorTimes.length === validSectorsLength;
 
-                return (
-                    <>
-                        {validSectorTimes && (
-                            <Tooltip title="Replay includes CP/sector times" placement="right">
-                                <ClockCircleOutlined />
-                            </Tooltip>
-                        )}
-                    </>
+        //         return (
+        //             <>
+        //                 {validSectorTimes && (
+        //                     <Tooltip title="Replay includes CP/sector times" placement="right">
+        //                         <ClockCircleOutlined />
+        //                     </Tooltip>
+        //                 )}
+        //             </>
 
-                );
-            }
-            ,
-        },
+        //         );
+        //     }
+        //     ,
+        // },
         {
             title: 'Time',
             dataIndex: 'readableTime',
@@ -417,14 +418,15 @@ const SidebarReplays = ({
                                         >
                                             Your PB
                                         </Menu.Item>
-                                        <Menu.Item
+                                        {/* TODO: Add back in when sector times are fixed */}
+                                        {/* <Menu.Item
                                             className="text-md"
                                             icon={<ClockCircleFilled />}
                                             onClick={() => onLoadReplaysWithFastestSectorTimes()}
                                             disabled={!singleReplayHasSectorTimes}
                                         >
                                             All replays containing fastest sectors
-                                        </Menu.Item>
+                                        </Menu.Item> */}
                                     </Menu>
                                 )}
                                 mouseLeaveDelay={0.2}
