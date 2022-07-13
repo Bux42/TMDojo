@@ -1,4 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, {
+    useCallback, useEffect, useMemo, useState,
+} from 'react';
 import * as THREE from 'three';
 import {
     BufferGeometry, Euler, Group, Vector3,
@@ -63,41 +65,85 @@ const tryFetchModel = async (modelName: string): Promise<BufferGeometry | undefi
         return mergedGeometry;
     } catch (e) {
         // Model load failed, model could be do nothing
-        console.log(e);
+        // TODO: Only catch errors of models not found. Currently ignores all other errors too
+        return undefined;
     }
-
-    return undefined;
 };
 
-interface BlockInstancesProps {
+// TODO: Generalize interfaces to share between block and item rendering:
+// interface Transform {
+//     position: Vector3;
+//     rotation: Euler;
+// }
+// interface ModelsVisualizionProps {
+//     modelName: string;
+//     transforms: Transform[],
+//     children?: React.ReactNode;
+//     fallback?: React.ReactNode;
+// }
+
+interface SingleModelVisProps {
     modelName: string;
-    blocks: Block[];
+    position: Vector3,
+    rotation?: Euler;
+    children?: React.ReactNode;
+    fallbackComponent?: React.ReactNode;
 }
-const BlockInstancesWithModel = ({ modelName, blocks }: BlockInstancesProps) => {
+const SingleModelMesh = ({
+    modelName, position, rotation, children, fallbackComponent,
+}: SingleModelVisProps) => {
     const [geometry, setGeometry] = useState<BufferGeometry | null>(null);
 
-    const tryLoadModel = async (modelName_: string): Promise<void> => {
-        const model = await tryFetchModel(modelName_);
-
-        if (!model) {
-            return;
-        }
-
+    const tryLoadModel = useCallback(async (): Promise<void> => {
+        const model = await tryFetchModel(modelName);
+        if (!model) return;
         setGeometry(model);
-    };
+    }, [modelName, setGeometry]);
 
-    useEffect(() => {
-        tryLoadModel(modelName);
-    }, [blocks]);
+    useEffect(
+        () => { tryLoadModel(); },
+        [modelName, setGeometry],
+    );
 
     return (
         <>
             {geometry ? (
-                blocks.map((block) => {
-                    const blockColor = getBlockColor(block.name);
-                    const position = calcBlockCoord(block);
-                    const rotation = new Euler(0, (Math.PI / 2) * (4 - ((block.dir) % 4)), 0);
-                    return (
+                <mesh geometry={geometry} position={position} rotation={rotation}>
+                    {children || <meshBasicMaterial />}
+                </mesh>
+            ) : (
+                fallbackComponent || null
+            )}
+        </>
+    );
+};
+
+interface MultipleBlockModelsProps {
+    modelName: string;
+    blocks: Block[];
+}
+const MultipleBlockModels = ({ modelName, blocks }: MultipleBlockModelsProps) => {
+    const [geometry, setGeometry] = useState<BufferGeometry | null>(null);
+
+    const tryLoadModel = useCallback(async (): Promise<void> => {
+        const model = await tryFetchModel(modelName);
+        if (!model) return;
+        setGeometry(model);
+    }, [modelName, setGeometry]);
+
+    useEffect(
+        () => { tryLoadModel(); },
+        [modelName, setGeometry],
+    );
+
+    return (
+        <>
+            {blocks.map((block) => {
+                const blockColor = getBlockColor(block.name);
+                const position = calcBlockCoord(block);
+                const rotation = new Euler(0, (Math.PI / 2) * (4 - ((block.dir) % 4)), 0);
+                return geometry ? (
+                    <>
                         <mesh position={position} rotation={rotation} geometry={geometry}>
                             <meshNormalMaterial side={THREE.DoubleSide} />
                             {/* {
@@ -106,41 +152,57 @@ const BlockInstancesWithModel = ({ modelName, blocks }: BlockInstancesProps) => 
                                     : <meshNormalMaterial side={THREE.DoubleSide} />
                             } */}
                         </mesh>
-                    );
-                })
-            ) : (
-                null
-            )}
+                    </>
+                ) : (
+                    null
+                );
+            })}
         </>
     );
 };
 
 // Basic block component for regular box-shaped blocks
-export interface AnchoredObjectVisualizationProps {
+export interface AnchoredObjectMeshProps {
     anchoredObject: AnchoredObject;
 }
-export const AnchoredObjectVisualization = ({ anchoredObject }: AnchoredObjectVisualizationProps): JSX.Element => (
+export const AnchoredObjectMesh = ({ anchoredObject }: AnchoredObjectMeshProps): JSX.Element => (
     <>
-        <mesh
+        <SingleModelMesh
+            modelName={`extracted/${anchoredObject.name}`}
             position={anchoredObject.pos}
             rotation={new Euler(anchoredObject.pitch, anchoredObject.yaw, anchoredObject.roll, 'YXZ')}
+            fallbackComponent={(
+                <>
+                    <mesh
+                        position={anchoredObject.pos}
+                        rotation={new Euler(anchoredObject.pitch, anchoredObject.yaw, anchoredObject.roll, 'YXZ')}
+                    >
+                        <coneGeometry args={[1, 2, 32]} />
+                        <meshBasicMaterial color="red" />
+                    </mesh>
+                    <mesh
+                        position={anchoredObject.pos}
+                        rotation={new Euler(anchoredObject.pitch, anchoredObject.yaw, anchoredObject.roll, 'YXZ')}
+                    >
+                        <circleGeometry args={[1.5, 32]} />
+                        <meshBasicMaterial color="blue" />
+                    </mesh>
+                    {/* <BlockName
+                        name={anchoredObject.name}
+                        position={anchoredObject.pos.clone().add(new Vector3(0, 2, 0))}
+                        fontSize={1}
+                        fontColor="black"
+                    /> */}
+                </>
+            )}
         >
-            <coneGeometry args={[1, 2, 32]} />
-            <meshBasicMaterial color="red" />
-        </mesh>
-        <mesh
-            position={anchoredObject.pos}
-            rotation={new Euler(anchoredObject.pitch, anchoredObject.yaw, anchoredObject.roll, 'YXZ')}
-        >
-            <circleGeometry args={[1.5, 32]} />
-            <meshBasicMaterial color="blue" />
-        </mesh>
-        <BlockName
-            name={anchoredObject.name}
-            position={anchoredObject.pos.clone().add(new Vector3(0, 2, 0))}
-            fontSize={1}
-            fontColor="black"
-        />
+            <meshNormalMaterial side={THREE.DoubleSide} />
+            {/* {
+                    blockColor
+                        ? <meshStandardMaterial side={THREE.DoubleSide} color={blockColor} />
+                        : <meshNormalMaterial side={THREE.DoubleSide} />
+                } */}
+        </SingleModelMesh>
     </>
 );
 
@@ -171,7 +233,7 @@ const MapBlocks = ({ mapBlockData }: Props): JSX.Element => {
                 }
 
                 return (
-                    <BlockInstancesWithModel
+                    <MultipleBlockModels
                         key={blockName}
                         modelName={blockName}
                         blocks={blocks}
@@ -181,7 +243,7 @@ const MapBlocks = ({ mapBlockData }: Props): JSX.Element => {
 
             {
                 mapBlockData.anchoredObjects.map((anchoredObject: AnchoredObject, i: number) => (
-                    <AnchoredObjectVisualization
+                    <AnchoredObjectMesh
                         key={`${anchoredObject.name}-${i}`}
                         anchoredObject={anchoredObject}
                     />
