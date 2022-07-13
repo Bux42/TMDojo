@@ -43,70 +43,74 @@ const getBlockColor = (blockName: string) => {
     } if (blockName.includes('SpecialNoEngine')) {
         return FREEWHEEL_COLOR;
     }
-    return BASE_COLOR;
+    return undefined;
+};
+
+const tryFetchModel = async (modelName: string): Promise<BufferGeometry | undefined> => {
+    const { OBJLoader } = await import('three/examples/jsm/loaders/OBJLoader');
+    const { BufferGeometryUtils } = await import('three/examples/jsm/utils/BufferGeometryUtils');
+
+    const objPath = `/objs/${modelName}.obj`;
+    const loader = new OBJLoader();
+
+    try {
+        const group = await loader.loadAsync(objPath);
+
+        const geometries = group.children.map((model) => (model as THREE.Mesh).geometry);
+
+        const mergedGeometry = BufferGeometryUtils.mergeBufferGeometries(geometries);
+
+        return mergedGeometry;
+    } catch (e) {
+        // Model load failed, model could be do nothing
+        console.log(e);
+    }
+
+    return undefined;
 };
 
 interface BlockInstancesProps {
-    blockName: string;
+    modelName: string;
     blocks: Block[];
 }
-const BlockInstances = ({ blockName, blocks }: BlockInstancesProps) => {
-    if (blocks.length === 0) {
-        return <></>;
-    }
-
+const BlockInstancesWithModel = ({ modelName, blocks }: BlockInstancesProps) => {
     const [geometry, setGeometry] = useState<BufferGeometry | null>(null);
 
-    const tryToLoadBlockModel = async (): Promise<void> => {
-        try {
-            const { OBJLoader } = await import('three/examples/jsm/loaders/OBJLoader');
-            const { BufferGeometryUtils } = await import('three/examples/jsm/utils/BufferGeometryUtils');
+    const tryLoadModel = async (modelName_: string): Promise<void> => {
+        const model = await tryFetchModel(modelName_);
 
-            const objPath = `/objs/${blockName}.obj`;
-            const loader = new OBJLoader();
-            loader.load(objPath, (group: Group) => {
-                const mergedGeometry = BufferGeometryUtils
-                    .mergeBufferGeometries(group.children.map((model) => (model as THREE.Mesh).geometry));
-
-                setGeometry(mergedGeometry);
-            });
-        } catch (e) {
-            // Failed to load model, do nothing, falls back to normal cube rendering
-        }
-    };
-
-    useEffect(() => {
-        if (blocks.length === 0) {
+        if (!model) {
             return;
         }
 
-        tryToLoadBlockModel();
+        setGeometry(model);
+    };
+
+    useEffect(() => {
+        tryLoadModel(modelName);
     }, [blocks]);
 
     return (
         <>
-            {blocks.map((block) => {
-                const blockColor = getBlockColor(block.name);
-                const position = calcBlockCoord(block);
-                return (
-                    geometry ? (
-                        <mesh position={position}>
-                            <mesh rotation={[0, (Math.PI / 2) * (4 - ((block.dir) % 4)), 0]}>
-                                <mesh geometry={geometry}>
-                                    {/* <meshNormalMaterial side={THREE.DoubleSide} /> */}
-                                    {
-                                        blockColor
-                                            ? <meshStandardMaterial side={THREE.DoubleSide} color={blockColor} />
-                                            : <meshNormalMaterial side={THREE.DoubleSide} />
-                                    }
-                                </mesh>
-                            </mesh>
+            {geometry ? (
+                blocks.map((block) => {
+                    const blockColor = getBlockColor(block.name);
+                    const position = calcBlockCoord(block);
+                    const rotation = new Euler(0, (Math.PI / 2) * (4 - ((block.dir) % 4)), 0);
+                    return (
+                        <mesh position={position} rotation={rotation} geometry={geometry}>
+                            <meshNormalMaterial side={THREE.DoubleSide} />
+                            {/* {
+                                blockColor
+                                    ? <meshStandardMaterial side={THREE.DoubleSide} color={blockColor} />
+                                    : <meshNormalMaterial side={THREE.DoubleSide} />
+                            } */}
                         </mesh>
-                    ) : (
-                        null
-                    )
-                );
-            })}
+                    );
+                })
+            ) : (
+                null
+            )}
         </>
     );
 };
@@ -167,17 +171,20 @@ const MapBlocks = ({ mapBlockData }: Props): JSX.Element => {
                 }
 
                 return (
-                    <BlockInstances
+                    <BlockInstancesWithModel
                         key={blockName}
-                        blockName={blockName}
+                        modelName={blockName}
                         blocks={blocks}
                     />
                 );
             })}
 
             {
-                mapBlockData.anchoredObjects.map((anchoredObject: AnchoredObject) => (
-                    <AnchoredObjectVisualization key={anchoredObject.name} anchoredObject={anchoredObject} />
+                mapBlockData.anchoredObjects.map((anchoredObject: AnchoredObject, i: number) => (
+                    <AnchoredObjectVisualization
+                        key={`${anchoredObject.name}-${i}`}
+                        anchoredObject={anchoredObject}
+                    />
                 ))
             }
             {/*
