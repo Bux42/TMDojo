@@ -1,14 +1,23 @@
+/* eslint-disable no-nested-ternary */
 export const getRaceTimeStr = (raceTime: number): string => {
-    const milliseconds = raceTime % 1000;
-    const seconds = Math.floor((raceTime / 1000) % 60);
-    const minutes = Math.floor((raceTime / (60 * 1000)) % 60);
-    const hours = Math.floor((raceTime / (60 * 60 * 1000)) % 60);
+    const sign = raceTime < 0 ? '-' : '';
+    const absRaceTime = Math.abs(raceTime);
+
+    const milliseconds = absRaceTime % 1000;
+    const seconds = Math.floor((absRaceTime / 1000) % 60);
+    const minutes = Math.floor((absRaceTime / (60 * 1000)) % 60);
+    const hours = Math.floor((absRaceTime / (60 * 60 * 1000)) % 60);
+
+    const minutesPadded = String(minutes).padStart(2, '0');
+    const secondsPadded = String(seconds).padStart(2, '0');
+    const msPadded = String(milliseconds).padStart(3, '0');
 
     return (
-        `${`${hours > 0 ? `${hours}:` : ''}`
-        + `${minutes > 0 ? `${hours > 0 ? String(minutes).padStart(2, '0') : minutes}:` : ''}`
-        + `${minutes > 0 ? String(seconds).padStart(2, '0') : seconds}`
-        + '.'}${String(milliseconds).padStart(3, '0')}`
+        `${sign}`
+        + `${`${hours > 0 ? `${hours}:` : ''}`
+        + `${hours > 0 ? `${minutesPadded}:` : (minutes > 0 ? `${minutes}:` : '')}`
+        + `${minutes > 0 ? secondsPadded : seconds}`
+        + '.'}${msPadded}`
     );
 };
 
