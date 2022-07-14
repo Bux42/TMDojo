@@ -1,5 +1,5 @@
-import { Anchor } from 'antd';
 import { Vector3 } from 'three';
+import BLOCK_OFFSETS from './blockOffsets';
 
 export interface Block {
     name: string;
@@ -26,6 +26,8 @@ export const parseMapBlockData = (json: any): MapBlockData => {
             pos: new Vector3(block.pos[0], block.pos[1], block.pos[2]),
             dir: block.dir,
             blockOffsets: block.blockOffsets.map((offset: any) => new Vector3(offset[0], offset[1], offset[2])),
+            // blockOffsets: (BLOCK_OFFSETS[block.name] || [])
+            //     .map((offset: number[]) => new Vector3(offset[0], offset[1], offset[2])),
         })),
         anchoredObjects: json.anchoredObjects.map((anchoredObject: any) => ({
             name: anchoredObject.name,
