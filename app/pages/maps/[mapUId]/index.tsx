@@ -174,6 +174,7 @@ const Home = (): JSX.Element => {
                     )}
 
                     <Viewer3D
+                        mapUId={typeof mapUId === 'string' ? mapUId : undefined}
                         replaysData={selectedReplayData}
                     />
                 </Layout.Content>
