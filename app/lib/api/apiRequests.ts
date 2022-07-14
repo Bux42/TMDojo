@@ -14,6 +14,7 @@ interface FilterParams {
 }
 
 export interface FileResponse {
+    sectorTimes?: number[];
     authorName: string;
     mapUId: string;
     date: number;
@@ -39,7 +40,7 @@ const DEFAULT_FILTERS = {
     endRaceTimeMax: -1,
     raceFinished: -1,
     dateMin: new Date(),
-    maxResults: 1000,
+    maxResults: 10000,
     orderBy: 'None',
 };
 
@@ -106,7 +107,7 @@ export const deleteReplay = async (replay: FileResponse) => {
 export type UserInfo = {
     webId?: string;
     playerLogin?: string;
-    playerName?: number;
+    playerName?: string;
     _id?: number;
 };
 

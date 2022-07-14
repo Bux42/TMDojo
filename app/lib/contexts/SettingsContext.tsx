@@ -20,9 +20,7 @@ export interface SettingsContextProps {
     replayLineOpacity: number;
     setReplayLineOpacity: (setLineOpacity: number) => void;
     replayCarOpacity: number;
-    setReplayCarOpacity: (setCameraMode: number) => void;
-    cameraMode: CameraMode;
-    setCameraMode: (setCameraMode: CameraMode) => void;
+    setReplayCarOpacity: (setReplayCarOpacity: number) => void;
     numColorChange: number;
     setNumColorChange: (numColorChange: number) => void;
     showBlocks: boolean;
@@ -31,23 +29,21 @@ export interface SettingsContextProps {
 
 const defaultProps: SettingsContextProps = {
     lineType: LineTypes.default,
-    changeLineType: () => {},
+    changeLineType: () => { },
     showGearChanges: false,
-    setShowGearChanges: () => {},
+    setShowGearChanges: () => { },
     showFPS: false,
-    setShowFPS: () => {},
+    setShowFPS: () => { },
     showInputOverlay: true,
-    setShowInputOverlay: () => {},
+    setShowInputOverlay: () => { },
     replayLineOpacity: 0.5,
-    setReplayLineOpacity: () => {},
+    setReplayLineOpacity: () => { },
     replayCarOpacity: 0.5,
-    setReplayCarOpacity: () => {},
-    cameraMode: CameraMode.Follow,
-    setCameraMode: () => {},
+    setReplayCarOpacity: () => { },
     numColorChange: 0,
-    setNumColorChange: () => {},
+    setNumColorChange: () => { },
     showBlocks: true,
-    setShowBlocks: () => {},
+    setShowBlocks: () => { },
 };
 
 export const SettingsContext = createContext<SettingsContextProps>(defaultProps);
@@ -59,7 +55,6 @@ export const SettingsProvider = ({ children }: any): JSX.Element => {
     const [showInputOverlay, setShowInputOverlay] = useState(true);
     const [replayLineOpacity, setReplayLineOpacity] = useState(0.5);
     const [replayCarOpacity, setReplayCarOpacity] = useState(0.5);
-    const [cameraMode, setCameraMode] = useState(CameraMode.Follow);
     const [numColorChange, setNumColorChange] = useState(0);
     const [showBlocks, setShowBlocks] = useState(defaultProps.showBlocks);
 
@@ -82,8 +77,6 @@ export const SettingsProvider = ({ children }: any): JSX.Element => {
                 setReplayLineOpacity,
                 replayCarOpacity,
                 setReplayCarOpacity,
-                cameraMode,
-                setCameraMode,
                 numColorChange,
                 setNumColorChange,
                 showBlocks,

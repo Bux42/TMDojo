@@ -14,6 +14,7 @@ router.post('/', async (req: Request, res: Response, next: Function) => {
 
         // Get user by session secret
         if (user === undefined) {
+            req.log.warn('meRouter: User not found, deleting session cookie');
             setExpiredSessionCookie(req, res);
             res.status(401).send({ message: 'Not logged in.' });
             return;

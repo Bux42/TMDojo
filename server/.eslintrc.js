@@ -27,8 +27,7 @@ module.exports = {
         'no-plusplus': 'off',
         'max-len': ['error', 120],
         'lines-between-class-members': 'off',
-        // TODO: enforce this again when we have a proper logger
-        'no-console': 'off',
+        'no-console': 'error',
         'import/extensions': [
             'error',
             'ignorePackages',

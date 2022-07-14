@@ -11,10 +11,11 @@ import { SettingsContext } from '../../lib/contexts/SettingsContext';
 import FrameRate from './FrameRate';
 import ReplayCars from './ReplayCars';
 import GlobalTimeLineInfos from '../../lib/singletons/timeLineInfos';
-import TimeLine from './TimeLine';
 import fetchMapBlocks from '../../lib/api/mapRequests';
 import { MapBlockData } from '../../lib/mapBlocks/mapBlockData';
 import MapBlocks from './mapBlocks/MapBlocks';
+import TimeLine from './timeline/TimeLine';
+import SceneDirectionalLight from './SceneDirectionalLight';
 
 const BACKGROUND_COLOR = new THREE.Color(0.05, 0.05, 0.05);
 
@@ -30,8 +31,6 @@ const Viewer3D = ({ replaysData, mapUId }: Props): JSX.Element => {
         showInputOverlay,
         replayLineOpacity,
         replayCarOpacity,
-        cameraMode,
-        numColorChange,
         showBlocks,
     } = useContext(SettingsContext);
 
@@ -70,10 +69,13 @@ const Viewer3D = ({ replaysData, mapUId }: Props): JSX.Element => {
                     near: 0.1,
                     far: 50000,
                 }}
+                shadows
             >
-                <ambientLight />
-                <pointLight position={[10, 10, 10]} power={1} />
+                <ambientLight intensity={0.01} />
                 <Sky distance={100000000} inclination={0} turbidity={0} rayleigh={10} />
+
+                <SceneDirectionalLight replays={replaysData} />
+
                 <OrbitControls
                     ref={orbitControlsRef}
                     dampingFactor={0.2}
@@ -94,7 +96,6 @@ const Viewer3D = ({ replaysData, mapUId }: Props): JSX.Element => {
                         orbitControlsRef={orbitControlsRef}
                         showInputOverlay={showInputOverlay}
                         replayCarOpacity={replayCarOpacity}
-                        cameraMode={cameraMode}
                     />
                 </Suspense>
                 {showFPS && <FrameRate />}

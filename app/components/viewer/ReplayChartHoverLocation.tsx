@@ -4,7 +4,7 @@ import React, { useRef } from 'react';
 import { DoubleSide } from 'three';
 import * as THREE from 'three';
 import { ReplayData } from '../../lib/api/apiRequests';
-import getSampleNearTime from '../../lib/utils/replay';
+import { getSampleNearTime } from '../../lib/utils/replay';
 import GlobalChartsDataSingleton from '../../lib/singletons/globalChartData';
 
 interface ReplayChartHoverLocationProps {
