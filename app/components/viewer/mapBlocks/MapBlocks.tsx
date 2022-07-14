@@ -261,8 +261,6 @@ const MapBlocks = ({ mapBlockData }: Props): JSX.Element => {
                     {/* <BlockName
                         name={block.name}
                         position={block.pos}
-                        fontSize={5}
-                        fontColor="black"
                     /> */}
                 </>
             ))}

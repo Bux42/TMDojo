@@ -7,11 +7,12 @@ import { Block } from '../../../../lib/mapBlocks/mapBlockData';
 interface BlockNameProps {
     position: THREE.Vector3;
     name: string;
-    fontSize: number;
-    fontColor: string;
+    fontSize?: number;
+    fontColor?: string;
+    outlineColor?: string;
 }
 export const BlockName = ({
-    position, name, fontSize, fontColor,
+    position, name, fontSize = 5, fontColor = 'white', outlineColor = 'black',
 }: BlockNameProps) => (
     <Billboard
         args={[0, 0]}
@@ -26,7 +27,9 @@ export const BlockName = ({
             textAlign="left"
             font="https://fonts.gstatic.com/s/raleway/v14/1Ptrg8zYS_SKggPNwK4vaqI.woff"
             anchorX="center"
-            anchorY="middle"
+            anchorY="bottom"
+            outlineWidth={fontSize / 20}
+            outlineColor={outlineColor}
         >
             <meshBasicMaterial attach="material" side={DoubleSide} color="red" />
             {name}
