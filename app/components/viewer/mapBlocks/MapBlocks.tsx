@@ -2,10 +2,10 @@ import React, {
     useCallback, useEffect, useMemo, useState,
 } from 'react';
 import * as THREE from 'three';
+import { BufferGeometry, Euler, Vector3 } from 'three';
 import {
-    BufferGeometry, Euler, Group, Vector3,
-} from 'three';
-import { AnchoredObject, Block, MapBlockData } from '../../../lib/mapBlocks/mapBlockData';
+    AnchoredObject, Block, FreeModeBlock, MapBlockData,
+} from '../../../lib/mapBlocks/mapBlockData';
 import calcBlockCoord from '../../../lib/mapBlocks/blockCalculations';
 import {
     START_COLOR, CP_COLOR, FINISH_COLOR, FREEWHEEL_COLOR, BASE_COLOR,
@@ -23,9 +23,9 @@ const filterBlocks = (blocks: Block[]): Block[] => blocks.filter((block) => {
         // 'Pillar',
         // 'Deco',
         // 'Stage',
-        // 'Light', //
-        // 'Technics', //
-        // 'Structure', //
+        // 'Light',
+        // 'Technics',
+        // 'Structure',
         // 'PlatformGrassWallOutCurve',
         // 'TrackWallCurve',
     ];
@@ -241,14 +241,31 @@ const MapBlocks = ({ mapBlockData }: Props): JSX.Element => {
                 );
             })}
 
-            {
-                mapBlockData.anchoredObjects.map((anchoredObject: AnchoredObject, i: number) => (
-                    <AnchoredObjectMesh
-                        key={`${anchoredObject.name}-${i}`}
-                        anchoredObject={anchoredObject}
-                    />
-                ))
-            }
+            {mapBlockData.anchoredObjects.map((anchoredObject: AnchoredObject, i: number) => (
+                <AnchoredObjectMesh
+                    key={`anchored-${anchoredObject.name}-${i}`}
+                    anchoredObject={anchoredObject}
+                />
+            ))}
+
+            {mapBlockData.freeModeBlocks.map((block: FreeModeBlock, i: number) => (
+                <>
+                    <SingleModelMesh
+                        key={`freemode-${block.name}-${i}`}
+                        modelName={block.name}
+                        position={block.pos}
+                        rotation={block.rot}
+                    >
+                        <meshNormalMaterial />
+                    </SingleModelMesh>
+                    {/* <BlockName
+                        name={block.name}
+                        position={block.pos}
+                        fontSize={5}
+                        fontColor="black"
+                    /> */}
+                </>
+            ))}
             {/*
             {filteredBlocks.map((block, i) => (
                 <>
