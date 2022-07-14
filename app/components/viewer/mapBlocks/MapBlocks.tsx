@@ -2,7 +2,9 @@ import React, {
     useCallback, useEffect, useMemo, useState,
 } from 'react';
 import * as THREE from 'three';
-import { BufferGeometry, Euler, Vector3 } from 'three';
+import {
+    BoxBufferGeometry, BufferGeometry, Euler, Vector3,
+} from 'three';
 import {
     AnchoredObject, Block, FreeModeBlock, MapBlockData,
 } from '../../../lib/mapBlocks/mapBlockData';
@@ -48,6 +50,26 @@ const getBlockColor = (blockName: string) => {
     return undefined;
 };
 
+const tryCreatePrimitiveModel = (modelName: string): BufferGeometry | undefined => {
+    if (modelName === 'DecoWallBasePillar'
+        || modelName === 'WaterWallPillar'
+        || modelName === 'TrackWallStraightPillar') {
+        // TODO: Optimize geometry creation, getting instantiated for each block
+        const boxGeom = new BoxBufferGeometry(32, 8, 32);
+        boxGeom.translate(16, 4, 16);
+        return boxGeom;
+    }
+
+    if (modelName === 'StructurePillar') {
+        // TODO: Optimize geometry creation, getting instantiated for each block
+        const structurePillar = new BoxBufferGeometry(3, 8, 3);
+        structurePillar.translate(16, 4, 16);
+        return structurePillar;
+    }
+
+    return undefined;
+};
+
 const tryFetchModel = async (modelName: string): Promise<BufferGeometry | undefined> => {
     const { OBJLoader } = await import('three/examples/jsm/loaders/OBJLoader');
     const { BufferGeometryUtils } = await import('three/examples/jsm/utils/BufferGeometryUtils');
@@ -66,8 +88,15 @@ const tryFetchModel = async (modelName: string): Promise<BufferGeometry | undefi
     } catch (e) {
         // Model load failed, model could be do nothing
         // TODO: Only catch errors of models not found. Currently ignores all other errors too
-        return undefined;
     }
+
+    // If there's no mesh, try to create primitive models for some simple blocks as backup
+    const primitiveModel = tryCreatePrimitiveModel(modelName);
+    if (primitiveModel) {
+        return primitiveModel;
+    }
+
+    return undefined;
 };
 
 // TODO: Generalize interfaces to share between block and item rendering:
