@@ -19,9 +19,12 @@ router.get('/', async (req: Request, res: Response, next: Function) => {
     }
 
     try {
-        const filePath = `mapBlocks/${req.query.mapUId}.json.gz`;
+        // With decompression
+        // const filePath = `mapBlocks/${req.query.mapUId}.json.gz`;
+        // const buffer = await retrieveObject(StorageType.FileStorage, filePath);
 
-        const buffer = await retrieveObject(StorageType.FileStorage, filePath);
+        const filePath = `mapBlocks/${req.query.mapUId}.json`;
+        const buffer = await retrieveObject(StorageType.FileStorage, filePath, false);
 
         return res.send(buffer);
     } catch (err) {

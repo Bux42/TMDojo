@@ -69,7 +69,11 @@ export const uploadObject = async (
 };
 
 // generic helper method for fetching artefacts (includes decompression)
-export const retrieveObject = async (storageType: StorageType, key: string) => {
+export const retrieveObject = async (
+    storageType: StorageType,
+    key: string,
+    decompressObject: boolean = true,
+) => {
     try {
         if (storageType === StorageType.ObjectStorage) {
             const params = {
@@ -77,13 +81,14 @@ export const retrieveObject = async (storageType: StorageType, key: string) => {
                 Key: key,
             };
             const data = await S3Client.getObject(params);
-            return decompress(await streamToBuffer(data.Body));
+            const buffer = await streamToBuffer(data.Body);
+            return decompressObject ? decompress(buffer) : buffer;
         }
 
         if (storageType === StorageType.FileStorage) {
             const fullPath = path.resolve(`${__dirname}/../../${key}`);
             const data = await readFile(fullPath);
-            return decompress(data);
+            return decompressObject ? decompress(data) : data;
         }
 
         throw new Error(`Invalid storageType ${storageType}`);
