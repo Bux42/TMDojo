@@ -131,14 +131,25 @@ const SingleModelMesh = ({
 
     useEffect(
         () => { tryLoadModel(); },
-        [modelName, setGeometry],
+        [modelName, setGeometry, tryLoadModel],
     );
 
     return (
         <>
             {geometry ? (
-                <mesh geometry={geometry} position={position} rotation={rotation}>
-                    {children || <meshBasicMaterial />}
+                <mesh
+                    geometry={geometry}
+                    position={position}
+                    rotation={rotation}
+                    castShadow
+                    receiveShadow
+                >
+                    {children || (
+                        <meshStandardMaterial
+                            color={getBlockColor(modelName) || new THREE.Color(0.1, 0.1, 0.1)}
+                            roughness={0.4}
+                        />
+                    )}
                 </mesh>
             ) : (
                 fallbackComponent || null
@@ -162,7 +173,7 @@ const MultipleBlockModels = ({ modelName, blocks }: MultipleBlockModelsProps) =>
 
     useEffect(
         () => { tryLoadModel(); },
-        [modelName, setGeometry],
+        [modelName, setGeometry, tryLoadModel],
     );
 
     return (
@@ -173,13 +184,17 @@ const MultipleBlockModels = ({ modelName, blocks }: MultipleBlockModelsProps) =>
                 const rotation = new Euler(0, (Math.PI / 2) * (4 - ((block.dir) % 4)), 0);
                 return geometry ? (
                     <>
-                        <mesh position={position} rotation={rotation} geometry={geometry}>
-                            <meshNormalMaterial side={THREE.DoubleSide} />
-                            {/* {
-                                blockColor
-                                    ? <meshStandardMaterial side={THREE.DoubleSide} color={blockColor} />
-                                    : <meshNormalMaterial side={THREE.DoubleSide} />
-                            } */}
+                        <mesh
+                            position={position}
+                            rotation={rotation}
+                            geometry={geometry}
+                            castShadow
+                            receiveShadow
+                        >
+                            <meshStandardMaterial
+                                color={blockColor || new THREE.Color(0.1, 0.1, 0.1)}
+                                roughness={0.4}
+                            />
                         </mesh>
                     </>
                 ) : (
@@ -284,13 +299,7 @@ const MapBlocks = ({ mapBlockData }: Props): JSX.Element => {
                         modelName={block.name}
                         position={block.pos}
                         rotation={block.rot}
-                    >
-                        <meshNormalMaterial />
-                    </SingleModelMesh>
-                    {/* <BlockName
-                        name={block.name}
-                        position={block.pos}
-                    /> */}
+                    />
                 </>
             ))}
             {/*

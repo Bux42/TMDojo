@@ -4,18 +4,28 @@ import {
 } from 'three';
 import { Sphere } from '@react-three/drei';
 import { ReplayData } from '../../lib/api/apiRequests';
+import { DEFAULT_GRID_POS } from './Grid';
 
 interface SceneDirectionalLightProps {
     replays: ReplayData[];
-    showDebugLocation?: boolean
+    castShadow?: boolean;
+    intensity: number;
+    showDebugLocation?: boolean;
+    corner?: number;
 }
-const SceneDirectionalLight = ({ replays, showDebugLocation }: SceneDirectionalLightProps) => {
+const SceneDirectionalLight = ({
+    replays,
+    castShadow,
+    intensity,
+    showDebugLocation = false,
+    corner = 0,
+}: SceneDirectionalLightProps) => {
     const ref = useRef<DirectionalLight>();
     const targetRef = useRef<Group>();
 
     const calcMinMidMaxPositions = useCallback((replays_) => {
-        let minPos = new Vector3(Infinity, Infinity, Infinity);
-        let maxPos = new Vector3(-Infinity, -Infinity, -Infinity);
+        let minPos = new Vector3(0, 0, 0);
+        let maxPos = new Vector3(DEFAULT_GRID_POS.x * 2, DEFAULT_GRID_POS.y * 4, DEFAULT_GRID_POS.z * 2);
 
         for (let i = 0; i < replays_.length; i += 1) {
             const replay = replays_[i];
@@ -38,16 +48,21 @@ const SceneDirectionalLight = ({ replays, showDebugLocation }: SceneDirectionalL
     };
 
     useEffect(() => {
-        if (ref.current && replays.length > 0) {
+        if (ref.current) {
             const { minPos, midPos, maxPos } = calcMinMidMaxPositions(replays);
 
             const minXZ = Math.min(minPos.x, minPos.z);
             const maxXZ = Math.max(maxPos.x, maxPos.z);
 
+            // X on corners 0 and 3: xz min; X on corners 1 and 2: xz max
+            const x = (corner + 1) % 4 <= 1 ? minXZ : maxXZ;
+            // Z on corners 0 and 1: xz min; Z on corners 2 and 3: xz max
+            const z = corner % 4 < 2 ? minXZ : maxXZ;
+
             ref.current.position.set(
-                midPos.x,
-                maxPos.y + (maxXZ - minXZ) * 0.25,
-                midPos.z,
+                x,
+                maxPos.y + (maxXZ - minXZ) * 0.5,
+                z,
             );
             setLightTarget(midPos.x, minPos.y, midPos.z);
 
@@ -59,13 +74,15 @@ const SceneDirectionalLight = ({ replays, showDebugLocation }: SceneDirectionalL
                 );
             }
         }
-    }, [ref, targetRef, replays, calcMinMidMaxPositions]);
+    }, [ref, targetRef, replays, calcMinMidMaxPositions, corner]);
 
     return (
         <>
             <directionalLight
                 ref={ref}
-                intensity={1}
+                intensity={intensity}
+                castShadow={castShadow}
+                shadow-bias={-0.00005}
                 shadow-mapSize-width={4096}
                 shadow-mapSize-height={4096}
                 shadow-camera-near={1}
@@ -74,7 +91,6 @@ const SceneDirectionalLight = ({ replays, showDebugLocation }: SceneDirectionalL
                 shadow-camera-right={750}
                 shadow-camera-top={750}
                 shadow-camera-bottom={-750}
-                castShadow
             >
                 {/* Debug Location */}
                 {showDebugLocation && (
