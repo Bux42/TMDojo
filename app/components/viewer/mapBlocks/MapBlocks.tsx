@@ -10,6 +10,7 @@ import {
 } from '../../../lib/mapBlocks/blockConstants';
 import { Transform } from './blockRendering/Instances';
 import InstancedModels from './blockRendering/InstancedModels';
+import { BlockName } from './blockRendering/BlockNames';
 
 const filterNadeoBlocks = (blocks: Block[]): Block[] => blocks.filter((block) => {
     const { name, pos } = block;
@@ -107,17 +108,27 @@ const MapBlocks = ({ mapBlockData }: Props): JSX.Element => {
                 const color = getBlockColor(blockName);
 
                 return (
-                    <InstancedModels
-                        key={blockName}
-                        modelName={blockName}
-                        transforms={transforms}
-                        material={(
-                            <meshStandardMaterial
-                                color={color || new THREE.Color(0.1, 0.1, 0.1)}
-                                roughness={0.4}
-                            />
-                        )}
-                    />
+                    <>
+                        <InstancedModels
+                            key={blockName}
+                            modelName={blockName}
+                            transforms={transforms}
+                            material={(
+                                <meshStandardMaterial
+                                    color={color || new THREE.Color(0.1, 0.1, 0.1)}
+                                    roughness={0.4}
+                                />
+                            )}
+                        />
+                        {transforms?.map((transform: Transform) => (
+                            null
+                            // <BlockName
+                            //     name={blockName}
+                            //     position={transform.pos}
+                            //     fontSize={3}
+                            // />
+                        ))}
+                    </>
                 );
             })}
 
@@ -129,14 +140,24 @@ const MapBlocks = ({ mapBlockData }: Props): JSX.Element => {
                 }
 
                 return (
-                    <InstancedModels
-                        key={objectName}
-                        modelName={`extracted/${objectName}`}
-                        transforms={transforms}
-                        material={(<meshStandardMaterial color={new THREE.Color(0.1, 0.1, 0.1)} />)}
-                        fallbackGeometry={new THREE.ConeBufferGeometry(1, 2, 32)}
-                        fallbackMaterial={(<meshStandardMaterial color={new THREE.Color(0.2, 0.2, 0.9)} />)}
-                    />
+                    <>
+                        <InstancedModels
+                            key={objectName}
+                            modelName={`extracted/${objectName}`}
+                            transforms={transforms}
+                            material={(<meshStandardMaterial color={new THREE.Color(0.1, 0.1, 0.1)} />)}
+                            fallbackGeometry={new THREE.ConeBufferGeometry(1, 2, 32)}
+                            fallbackMaterial={(<meshStandardMaterial color={new THREE.Color(0.2, 0.2, 0.9)} />)}
+                        />
+                        {transforms?.map((transform: Transform) => (
+                            null
+                            // <BlockName
+                            //     name={objectName}
+                            //     position={transform.pos.clone().add(new THREE.Vector3(0, 2, 0))}
+                            //     fontSize={2}
+                            // />
+                        ))}
+                    </>
                 );
             })}
         </>
