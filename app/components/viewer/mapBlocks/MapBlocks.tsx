@@ -1,20 +1,17 @@
-import React, {
-    useCallback, useEffect, useMemo, useState,
-} from 'react';
+import React, { useMemo } from 'react';
 import * as THREE from 'three';
-import {
-    BoxBufferGeometry, BufferGeometry, Euler, Vector3,
-} from 'three';
+import { Euler } from 'three';
 import {
     AnchoredObject, Block, FreeModeBlock, MapBlockData,
 } from '../../../lib/mapBlocks/mapBlockData';
 import calcBlockCoord from '../../../lib/mapBlocks/blockCalculations';
 import {
-    START_COLOR, CP_COLOR, FINISH_COLOR, FREEWHEEL_COLOR, BASE_COLOR,
+    START_COLOR, CP_COLOR, FINISH_COLOR, FREEWHEEL_COLOR,
 } from '../../../lib/mapBlocks/blockConstants';
-import { BlockName } from './blockRendering/BlockNames';
+import { Transform } from './blockRendering/Instances';
+import InstancedModels from './blockRendering/InstancedModels';
 
-const filterBlocks = (blocks: Block[]): Block[] => blocks.filter((block) => {
+const filterNadeoBlocks = (blocks: Block[]): Block[] => blocks.filter((block) => {
     const { name, pos } = block;
 
     if (pos.y === 12 && name.includes('Grass')) {
@@ -50,266 +47,98 @@ const getBlockColor = (blockName: string) => {
     return undefined;
 };
 
-const tryCreatePrimitiveModel = (modelName: string): BufferGeometry | undefined => {
-    if (modelName === 'DecoWallBasePillar'
-        || modelName === 'WaterWallPillar'
-        || modelName === 'TrackWallStraightPillar') {
-        // TODO: Optimize geometry creation, getting instantiated for each block
-        const boxGeom = new BoxBufferGeometry(32, 8, 32);
-        boxGeom.translate(16, 4, 16);
-        return boxGeom;
-    }
+const nadeoBlockToTransform = (block: Block): Transform => ({
+    pos: calcBlockCoord(block),
+    rot: new Euler(0, (Math.PI / 2) * (4 - ((block.dir) % 4)), 0),
+});
 
-    if (modelName === 'StructurePillar') {
-        // TODO: Optimize geometry creation, getting instantiated for each block
-        const structurePillar = new BoxBufferGeometry(3, 8, 3);
-        structurePillar.translate(16, 4, 16);
-        return structurePillar;
-    }
+const freeModeBlockToTransform = (block: FreeModeBlock): Transform => ({
+    pos: block.pos,
+    rot: block.rot,
+});
 
-    return undefined;
-};
-
-const tryFetchModel = async (modelName: string): Promise<BufferGeometry | undefined> => {
-    const { OBJLoader } = await import('three/examples/jsm/loaders/OBJLoader');
-    const { BufferGeometryUtils } = await import('three/examples/jsm/utils/BufferGeometryUtils');
-
-    const objPath = `/objs/${modelName}.obj`;
-    const loader = new OBJLoader();
-
-    try {
-        const group = await loader.loadAsync(objPath);
-
-        const geometries = group.children.map((model) => (model as THREE.Mesh).geometry);
-
-        const mergedGeometry = BufferGeometryUtils.mergeBufferGeometries(geometries);
-
-        return mergedGeometry;
-    } catch (e) {
-        // Model load failed, model could be do nothing
-        // TODO: Only catch errors of models not found. Currently ignores all other errors too
-    }
-
-    // If there's no mesh, try to create primitive models for some simple blocks as backup
-    const primitiveModel = tryCreatePrimitiveModel(modelName);
-    if (primitiveModel) {
-        return primitiveModel;
-    }
-
-    return undefined;
-};
-
-// TODO: Generalize interfaces to share between block and item rendering:
-// interface Transform {
-//     position: Vector3;
-//     rotation: Euler;
-// }
-// interface ModelsVisualizionProps {
-//     modelName: string;
-//     transforms: Transform[],
-//     children?: React.ReactNode;
-//     fallback?: React.ReactNode;
-// }
-
-interface SingleModelVisProps {
-    modelName: string;
-    position: Vector3,
-    rotation?: Euler;
-    children?: React.ReactNode;
-    fallbackComponent?: React.ReactNode;
-}
-const SingleModelMesh = ({
-    modelName, position, rotation, children, fallbackComponent,
-}: SingleModelVisProps) => {
-    const [geometry, setGeometry] = useState<BufferGeometry | null>(null);
-
-    const tryLoadModel = useCallback(async (): Promise<void> => {
-        const model = await tryFetchModel(modelName);
-        if (!model) return;
-        setGeometry(model);
-    }, [modelName, setGeometry]);
-
-    useEffect(
-        () => { tryLoadModel(); },
-        [modelName, setGeometry, tryLoadModel],
-    );
-
-    return (
-        <>
-            {geometry ? (
-                <mesh
-                    geometry={geometry}
-                    position={position}
-                    rotation={rotation}
-                    castShadow
-                    receiveShadow
-                >
-                    {children || (
-                        <meshStandardMaterial
-                            color={getBlockColor(modelName) || new THREE.Color(0.1, 0.1, 0.1)}
-                            roughness={0.4}
-                        />
-                    )}
-                </mesh>
-            ) : (
-                fallbackComponent || null
-            )}
-        </>
-    );
-};
-
-interface MultipleBlockModelsProps {
-    modelName: string;
-    blocks: Block[];
-}
-const MultipleBlockModels = ({ modelName, blocks }: MultipleBlockModelsProps) => {
-    const [geometry, setGeometry] = useState<BufferGeometry | null>(null);
-
-    const tryLoadModel = useCallback(async (): Promise<void> => {
-        const model = await tryFetchModel(modelName);
-        if (!model) return;
-        setGeometry(model);
-    }, [modelName, setGeometry]);
-
-    useEffect(
-        () => { tryLoadModel(); },
-        [modelName, setGeometry, tryLoadModel],
-    );
-
-    return (
-        <>
-            {blocks.map((block) => {
-                const blockColor = getBlockColor(block.name);
-                const position = calcBlockCoord(block);
-                const rotation = new Euler(0, (Math.PI / 2) * (4 - ((block.dir) % 4)), 0);
-                return geometry ? (
-                    <>
-                        <mesh
-                            position={position}
-                            rotation={rotation}
-                            geometry={geometry}
-                            castShadow
-                            receiveShadow
-                        >
-                            <meshStandardMaterial
-                                color={blockColor || new THREE.Color(0.1, 0.1, 0.1)}
-                                roughness={0.4}
-                            />
-                        </mesh>
-                    </>
-                ) : (
-                    null
-                );
-            })}
-        </>
-    );
-};
-
-// Basic block component for regular box-shaped blocks
-export interface AnchoredObjectMeshProps {
-    anchoredObject: AnchoredObject;
-}
-export const AnchoredObjectMesh = ({ anchoredObject }: AnchoredObjectMeshProps): JSX.Element => (
-    <>
-        <SingleModelMesh
-            modelName={`extracted/${anchoredObject.name}`}
-            position={anchoredObject.pos}
-            rotation={new Euler(anchoredObject.pitch, anchoredObject.yaw, anchoredObject.roll, 'YXZ')}
-            fallbackComponent={(
-                <>
-                    <mesh
-                        position={anchoredObject.pos}
-                        rotation={new Euler(anchoredObject.pitch, anchoredObject.yaw, anchoredObject.roll, 'YXZ')}
-                    >
-                        <coneGeometry args={[1, 2, 32]} />
-                        <meshBasicMaterial color="red" />
-                    </mesh>
-                    <mesh
-                        position={anchoredObject.pos}
-                        rotation={new Euler(anchoredObject.pitch, anchoredObject.yaw, anchoredObject.roll, 'YXZ')}
-                    >
-                        <circleGeometry args={[1.5, 32]} />
-                        <meshBasicMaterial color="blue" />
-                    </mesh>
-                    {/* <BlockName
-                        name={anchoredObject.name}
-                        position={anchoredObject.pos.clone().add(new Vector3(0, 2, 0))}
-                        fontSize={1}
-                        fontColor="black"
-                    /> */}
-                </>
-            )}
-        >
-            <meshNormalMaterial side={THREE.DoubleSide} />
-            {/* {
-                    blockColor
-                        ? <meshStandardMaterial side={THREE.DoubleSide} color={blockColor} />
-                        : <meshNormalMaterial side={THREE.DoubleSide} />
-                } */}
-        </SingleModelMesh>
-    </>
-);
+const anchoredObjectToTransform = (anchoredObject: AnchoredObject): Transform => ({
+    pos: anchoredObject.pos,
+    rot: new Euler(anchoredObject.pitch, anchoredObject.yaw, anchoredObject.roll, 'YXZ'),
+});
 
 interface Props {
     mapBlockData: MapBlockData;
 }
 const MapBlocks = ({ mapBlockData }: Props): JSX.Element => {
-    const filteredBlocks = useMemo(() => filterBlocks(mapBlockData.nadeoBlocks), [mapBlockData]);
+    const blockTransformsGrouped = useMemo(() => {
+        const groupedBlocks = new Map<string, Transform[]>();
 
-    type GroupedBlocks = {
-        [key: string]: Block[] | undefined
-    }
-    const blocksGroupedByName = useMemo(() => filteredBlocks.reduce(
-        (blocks: GroupedBlocks, block: Block) => ({
-            ...blocks,
-            [block.name]: [...(blocks[block.name] || []), block],
-        }),
-        {},
-    ), [filteredBlocks]);
+        filterNadeoBlocks(mapBlockData.nadeoBlocks).forEach((block: Block) => {
+            const transform = nadeoBlockToTransform(block);
+            const blockName = block.name;
+            groupedBlocks.set(blockName, [...(groupedBlocks.get(blockName) || []), transform]);
+        });
+        mapBlockData.freeModeBlocks.forEach((block: FreeModeBlock) => {
+            const transform = freeModeBlockToTransform(block);
+            const blockName = block.name;
+            groupedBlocks.set(blockName, [...(groupedBlocks.get(blockName) || []), transform]);
+        });
+
+        return groupedBlocks;
+    }, [mapBlockData]);
+
+    const anchoredItemsTransformsGrouped = useMemo(() => {
+        const groupedBlocks = new Map<string, Transform[]>();
+
+        mapBlockData.anchoredObjects.forEach((anchoredObject: AnchoredObject) => {
+            const transform = anchoredObjectToTransform(anchoredObject);
+            const { name } = anchoredObject;
+            groupedBlocks.set(name, [...(groupedBlocks.get(name) || []), transform]);
+        });
+
+        return groupedBlocks;
+    }, [mapBlockData]);
 
     return (
         <>
-            {Object.keys(blocksGroupedByName).map((blockName: string) => {
-                const blocks = blocksGroupedByName[blockName];
+            {Array.from(blockTransformsGrouped.keys()).map((blockName: string) => {
+                const transforms = blockTransformsGrouped.get(blockName);
 
-                if (!blocks || blocks.length === 0) {
+                if (!transforms || transforms.length === 0) {
                     return null;
                 }
 
+                const color = getBlockColor(blockName);
+
                 return (
-                    <MultipleBlockModels
+                    <InstancedModels
                         key={blockName}
                         modelName={blockName}
-                        blocks={blocks}
+                        transforms={transforms}
+                        material={(
+                            <meshStandardMaterial
+                                color={color || new THREE.Color(0.1, 0.1, 0.1)}
+                                roughness={0.4}
+                            />
+                        )}
                     />
                 );
             })}
 
-            {mapBlockData.anchoredObjects.map((anchoredObject: AnchoredObject, i: number) => (
-                <AnchoredObjectMesh
-                    key={`anchored-${anchoredObject.name}-${i}`}
-                    anchoredObject={anchoredObject}
-                />
-            ))}
+            {Array.from(anchoredItemsTransformsGrouped.keys()).map((objectName: string) => {
+                const transforms = anchoredItemsTransformsGrouped.get(objectName);
 
-            {mapBlockData.freeModeBlocks.map((block: FreeModeBlock, i: number) => (
-                <>
-                    <SingleModelMesh
-                        key={`freemode-${block.name}-${i}`}
-                        modelName={block.name}
-                        position={block.pos}
-                        rotation={block.rot}
+                if (!transforms || transforms.length === 0) {
+                    return null;
+                }
+
+                return (
+                    <InstancedModels
+                        key={objectName}
+                        modelName={`extracted/${objectName}`}
+                        transforms={transforms}
+                        material={(<meshStandardMaterial color={new THREE.Color(0.1, 0.1, 0.1)} />)}
+                        fallbackGeometry={new THREE.ConeBufferGeometry(1, 2, 32)}
+                        fallbackMaterial={(<meshStandardMaterial color={new THREE.Color(0.2, 0.2, 0.9)} />)}
                     />
-                </>
-            ))}
-            {/*
-            {filteredBlocks.map((block, i) => (
-                <>
-                    <BlockNames block={block} blockOffsetNames />
-                    <MapBlock key={i} block={block} />
-                </>
-            ))}
-            */}
+                );
+            })}
         </>
     );
 };
