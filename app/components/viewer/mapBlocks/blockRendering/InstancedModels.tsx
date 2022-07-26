@@ -28,6 +28,11 @@ const InstancedModels = ({
         [modelName, setGeometry, tryLoadModel],
     );
 
+    const geometryToUse = useMemo(
+        () => geometry || fallbackGeometry,
+        [geometry, fallbackGeometry],
+    );
+
     const materialToUse = useMemo(
         () => {
             if (!geometry && fallbackGeometry) {
@@ -41,12 +46,11 @@ const InstancedModels = ({
 
     return (
         <>
-            {(geometry || fallbackGeometry) ? (
+            {geometryToUse ? (
                 <Instances
-                    geometry={geometry || fallbackGeometry}
+                    geometry={geometryToUse}
                     transforms={transforms}
                     material={materialToUse}
-                    fallbackMaterial={(!geometry && fallbackGeometry) && fallbackMaterial}
                 />
             ) : (null)}
         </>
