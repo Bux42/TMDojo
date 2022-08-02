@@ -67,14 +67,14 @@ const Viewer3D = ({ replaysData }: Props): JSX.Element => {
                     replayLineOpacity={replayLineOpacity}
                     showGearChanges={showGearChanges}
                 />
-                <Suspense fallback={null}>
+                {/* <Suspense fallback={null}>
                     <ReplayCars
                         replaysData={replaysData}
                         orbitControlsRef={orbitControlsRef}
                         showInputOverlay={showInputOverlay}
                         replayCarOpacity={replayCarOpacity}
                     />
-                </Suspense>
+                </Suspense> */}
                 {showFPS && <FrameRate />}
             </Canvas>
             <TimeLine

@@ -25,6 +25,7 @@ import CleanButton from '../../../components/common/CleanButton';
 import useIsMobileDevice from '../../../lib/hooks/useIsMobileDevice';
 import SectorTimeTableButton from '../../../components/maps/SectorTimeTableButton';
 import { filterReplaysWithValidSectorTimes } from '../../../lib/replays/sectorTimes';
+import ImportGhostGbxFileDragger from '../../../components/viewer/ImportGhostGbxFileDragger';
 
 const Home = (): JSX.Element => {
     const [replays, setReplays] = useState<FileResponse[]>([]);
@@ -135,6 +136,10 @@ const Home = (): JSX.Element => {
                             Stats
                         </div>
                     </CleanButton>
+
+                    <ImportGhostGbxFileDragger
+                        onReplayLoaded={(replay) => setSelectedReplayData((prev) => [...prev, replay])}
+                    />
                 </MapHeader>
 
                 <SectorTimeTableModal
