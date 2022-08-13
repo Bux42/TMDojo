@@ -175,6 +175,8 @@ router.post('/', (req: Request, res: Response, next: Function): any => {
             const metadata = {
                 // reference map and user docs
                 mapRef: map._id,
+                mapUId: req.query.mapUId,
+                mapName: secureMapName,
                 userRef: userID,
                 date: Date.now(),
                 raceFinished: parseInt(`${req.query.raceFinished}`, 10),
