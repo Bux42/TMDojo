@@ -6,6 +6,7 @@ import { LineType, LineTypes } from '../../components/viewer/ReplayLines';
 export enum CameraMode {
     Target,
     Follow,
+    Lock
 }
 
 export interface SettingsContextProps {
