@@ -19,8 +19,8 @@ export const getMapsCache = async () => {
     return maps;
 };
 
-export const addReplay = (metadata: any) => {
-    getMapsCache().then((cachedMaps: any) => {
+export const addReplay = async (metadata: any) => {
+    await getMapsCache().then((cachedMaps: any) => {
         const mapCacheMatch = cachedMaps.find((map: any) => map.mapUId === metadata.mapUId);
 
         if (mapCacheMatch) {
@@ -40,22 +40,18 @@ export const addReplay = (metadata: any) => {
     });
 };
 
-export const deleteReplay = (replay?: any) => {
-    if (replay) {
-        getMapsCache().then((cachedMaps: any) => {
-            const mapCacheMatch = cachedMaps.find((map: any) => map.mapUId === replay.mapUId);
-            if (mapCacheMatch) {
-                mapCacheMatch.count--;
-                if (mapCacheMatch.count === 0) {
-                    logInfo('mapsCache: deleteReplayById: map play count is 0, deleting map from cache');
-                    cachedMaps.splice(cachedMaps.indexOf(mapCacheMatch), 1);
-                } else {
-                    logInfo('mapsCache: deleteReplayById: decrementing map play count');
-                }
-                dbCache.set('maps', cachedMaps);
+export const deleteReplay = async (replay: any) => {
+    await getMapsCache().then((cachedMaps: any) => {
+        const mapCacheMatch = cachedMaps.find((map: any) => map.mapUId === replay.mapUId);
+        if (mapCacheMatch) {
+            mapCacheMatch.count--;
+            if (mapCacheMatch.count === 0) {
+                logInfo('mapsCache: deleteReplayById: map play count is 0, deleting map from cache');
+                cachedMaps.splice(cachedMaps.indexOf(mapCacheMatch), 1);
+            } else {
+                logInfo('mapsCache: deleteReplayById: decrementing map play count');
             }
-        });
-    } else {
-        logInfo('mapsCache: deleteReplayById: replay not found');
-    }
+            dbCache.set('maps', cachedMaps);
+        }
+    });
 };
