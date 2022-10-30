@@ -10,7 +10,7 @@ export const useAllMaps = (searchString: string = '') => useQuery(
 
 export const useMapInfo = (mapUId?: string) => useQuery(
     QUERY_KEYS.mapInfo(mapUId),
-    // default to empty string to satsify type, this will not be fetched as query is disabled with mapUId is undefined:
+    // default to empty string to satisfy type, this will not be fetched as query is disabled with mapUId is undefined:
     () => api.maps.getMapInfo(mapUId || ''),
     {
         ...queryClient.getDefaultOptions(),

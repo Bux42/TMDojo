@@ -6,13 +6,15 @@ import React, {
     useRef, useState,
 } from 'react';
 import { useFBX } from '@react-three/drei';
+import { ReplayData } from '../../lib/api/requests/replays';
 import { ReplayDataPoint } from '../../lib/replays/replayData';
 import vecToQuat from '../../lib/utils/math';
 import { CameraMode } from '../../lib/contexts/SettingsContext';
 import InputOverlay from './InputOverlay';
-import getSampleNearTime from '../../lib/utils/replay';
+import {
+    getSampleNearTime, interpolateSamples,
+} from '../../lib/utils/replay';
 import GlobalTimeLineInfos from '../../lib/singletons/timeLineInfos';
-import { ReplayData } from '../../lib/api/requests/replays';
 
 const BACK_WHEEL_Y = 35.232017517089844;
 const FRONT_WHEEL_Y = 35.24349594116211;
@@ -24,21 +26,22 @@ interface ReplayCarProps {
     showInputOverlay: boolean;
     fbx: THREE.Object3D;
     replayCarOpacity: number;
-    cameraMode: CameraMode;
 }
 
 const ReplayCar = ({
-    replay, camera, orbitControlsRef, showInputOverlay, fbx, replayCarOpacity, cameraMode,
+    replay, camera, orbitControlsRef, showInputOverlay, fbx, replayCarOpacity,
 }: ReplayCarProps) => {
     const mesh = useRef<THREE.Mesh>();
     const stadiumCarMesh = useRef<THREE.Mesh>();
     const camPosRef = useRef<THREE.Mesh>();
 
     const currentSampleRef = useRef<ReplayDataPoint>(replay.samples[0]);
+    const prevSampleRef = useRef<ReplayDataPoint>(replay.samples[0]);
 
     const timeLineGlobal = GlobalTimeLineInfos.getInstance();
 
     let curSample = replay.samples[0];
+    const smoothSample: ReplayDataPoint = { ...replay.samples[0] };
 
     // Get own material from loaded car model
     const carMesh: THREE.Mesh = fbx.children[0] as THREE.Mesh;
@@ -54,8 +57,14 @@ const ReplayCar = ({
     fbx.children.forEach((child: any) => {
         child.material = matClone;
     });
+    fbx.traverse((children: THREE.Object3D) => {
+        if (children instanceof THREE.Mesh) {
+            children.castShadow = true;
+        }
+    });
 
     useFrame((state, delta) => {
+        timeLineGlobal.tickTime = delta * 1000;
         if (mesh.current
             && stadiumCarMesh.current
             && camPosRef.current) {
@@ -64,43 +73,61 @@ const ReplayCar = ({
 
             // Get closest sample to TimeLine.currentRaceTime
             curSample = getSampleNearTime(replay, timeLineGlobal.currentRaceTime);
+
             currentSampleRef.current = curSample;
+            prevSampleRef.current = replay.samples[replay.samples.indexOf(curSample) - 1];
+
+            if (timeLineGlobal.currentRaceTime < replay.endRaceTime) {
+                interpolateSamples(prevSampleRef.current, curSample, smoothSample, timeLineGlobal.currentRaceTime);
+            } else {
+                interpolateSamples(prevSampleRef.current, curSample, smoothSample, curSample.currentRaceTime);
+            }
 
             // Get car rotation
             const carRotation: THREE.Quaternion = vecToQuat(
-                curSample.dir,
-                curSample.up,
+                smoothSample.dir,
+                smoothSample.up,
             );
 
             // Move & rotate 3D car from current sample rot & pos
-            mesh.current.position.lerp(curSample.position, 0.4);
+            mesh.current.position.set(smoothSample.position.x, smoothSample.position.y, smoothSample.position.z);
+
             stadiumCarMesh.current.rotation.setFromQuaternion(carRotation);
 
             // Set front wheels rotation
-            stadiumCarMesh.current.children[2].rotation.y = curSample.wheelAngle; // FL
-            stadiumCarMesh.current.children[4].rotation.y = curSample.wheelAngle; // FR
+            stadiumCarMesh.current.children[2].rotation.y = smoothSample.wheelAngle; // FL
+            stadiumCarMesh.current.children[4].rotation.y = smoothSample.wheelAngle; // FR
 
             // Set wheel suspensions
-            stadiumCarMesh.current.children[1].position.setY(BACK_WHEEL_Y - (curSample.rRDamperLen * 100)); // RR
-            stadiumCarMesh.current.children[2].position.setY(FRONT_WHEEL_Y - (curSample.fLDamperLen * 100)); // FL
-            stadiumCarMesh.current.children[3].position.setY(BACK_WHEEL_Y - (curSample.rLDamperLen * 100)); // RL
-            stadiumCarMesh.current.children[4].position.setY(FRONT_WHEEL_Y - (curSample.fRDamperLen * 100)); // FR
+            stadiumCarMesh.current.children[1].position.setY(BACK_WHEEL_Y - (smoothSample.rRDamperLen * 100)); // RR
+            stadiumCarMesh.current.children[2].position.setY(FRONT_WHEEL_Y - (smoothSample.fLDamperLen * 100)); // FL
+            stadiumCarMesh.current.children[3].position.setY(BACK_WHEEL_Y - (smoothSample.rLDamperLen * 100)); // RL
+            stadiumCarMesh.current.children[4].position.setY(FRONT_WHEEL_Y - (smoothSample.fRDamperLen * 100)); // FR
 
             // Camera target replay if selected
             if (followed) {
                 if (orbitControlsRef && orbitControlsRef.current) {
-                    orbitControlsRef.current.target.lerp(curSample.position, 0.2);
-                    if (cameraMode === CameraMode.Follow) {
+                    orbitControlsRef.current.target.lerp(smoothSample.position, 0.2);
+
+                    if (timeLineGlobal.cameraMode === CameraMode.Follow) {
                         // move camPosMesh to Follow position
                         camPosRef.current.rotation.setFromQuaternion(carRotation);
                         // move toward where the car is heading
+
+                        const velocitySpeed = smoothSample.velocity.length();
+                        // Set camera position behind the car
+                        const backwardMax = 6;
+                        const backward = (backwardMax - (velocitySpeed / backwardMax));
+
                         camPosRef.current.position.set(
-                            -curSample.velocity.x / 5,
-                            -curSample.velocity.y / 5,
-                            -curSample.velocity.z / 5,
+                            (-smoothSample.velocity.x / 4),
+                            (-smoothSample.velocity.y / 4),
+                            (-smoothSample.velocity.z / 4),
                         );
-                        camPosRef.current.translateZ(-7 - (curSample.speed / 30));
-                        camPosRef.current.translateY(2 + (curSample.speed / 200));
+
+                        // Do not force camera behind the car above a certain speed
+                        camPosRef.current.translateZ(backward < 0 ? 0 : -backward);
+                        camPosRef.current.translateY(3);
                         // move camera to camPosMesh world position
                         const camWorldPos: THREE.Vector3 = new THREE.Vector3();
                         camPosRef.current.getWorldPosition(camWorldPos);
@@ -108,6 +135,7 @@ const ReplayCar = ({
                     }
                 }
             }
+
             // Scale car up if hovered in LoadedReplays
             if (hovered) {
                 stadiumCarMesh.current.scale.lerp(new THREE.Vector3(0.02, 0.02, 0.02), 0.2);
@@ -135,10 +163,6 @@ const ReplayCar = ({
     return (
         <>
             <mesh
-                position={[
-                    curSample.position.x,
-                    curSample.position.y,
-                    curSample.position.z]}
                 ref={mesh}
                 scale={1}
             >
@@ -171,7 +195,6 @@ interface ReplayCarsProps {
     orbitControlsRef: any;
     showInputOverlay: boolean;
     replayCarOpacity: number;
-    cameraMode: CameraMode;
 }
 
 const ReplayCars = ({
@@ -179,7 +202,6 @@ const ReplayCars = ({
     orbitControlsRef,
     showInputOverlay,
     replayCarOpacity,
-    cameraMode,
 }: ReplayCarsProps): JSX.Element => {
     const camera = useThree((state) => state.camera);
     const fbx = useFBX('/StadiumCarWheelsSeparated.fbx');
@@ -195,7 +217,6 @@ const ReplayCars = ({
                     showInputOverlay={showInputOverlay}
                     fbx={fbx.clone()}
                     replayCarOpacity={replayCarOpacity}
-                    cameraMode={cameraMode}
                 />
             ))}
         </>

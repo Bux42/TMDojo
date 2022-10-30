@@ -3,10 +3,10 @@ import { Slider } from 'antd';
 import {
     CaretRightOutlined, PauseOutlined,
 } from '@ant-design/icons';
+import { ReplayData } from '../../../lib/api/requests/replays';
 import { getRaceTimeStr } from '../../../lib/utils/time';
 import GlobalTimeLineInfos from '../../../lib/singletons/timeLineInfos';
 import TimelineSlider from './TimelineSlider';
-import { ReplayData } from '../../../lib/api/requests/replays';
 
 interface TimeLineViewProps {
     replaysData: ReplayData[];
@@ -15,7 +15,6 @@ interface TimeLineViewProps {
 // declare setInterval return variable outside to keep persistent reference for clearInterval after render
 let playInterval: ReturnType<typeof setTimeout>;
 let expectedTime = Date.now();
-const TICK_TIME = 1000 / 60;
 
 const MIN_SPEED = -2;
 const MAX_SPEED = 2;
@@ -24,8 +23,6 @@ const TimeLineView = ({ replaysData }: TimeLineViewProps) => {
     const [timeLineTime, setTimeLineTime] = useState<number>(0);
     const [timelineSpeed, setTimelineSpeed] = useState<number>(1);
     const [playing, setPlaying] = useState<boolean>(false);
-
-    const min = 0;
 
     const timeLineGlobal = GlobalTimeLineInfos.getInstance();
 
@@ -66,7 +63,7 @@ const TimeLineView = ({ replaysData }: TimeLineViewProps) => {
     const startSteadyLoop = (callback: () => any) => {
         const dt = Date.now() - expectedTime; // the drift (positive for overshooting)
 
-        if (dt > TICK_TIME) {
+        if (dt > timeLineGlobal.tickTime) {
             // something really bad happened. Maybe the browser (tab) was inactive?
             // possibly special handling to avoid futile "catch up" run
         }
@@ -74,34 +71,36 @@ const TimeLineView = ({ replaysData }: TimeLineViewProps) => {
         // Perform actual code callback
         callback();
 
-        expectedTime += TICK_TIME;
+        expectedTime += timeLineGlobal.tickTime;
 
         // Stop timeout loop if you stop playing
-        const timeToWait = Math.max(0, TICK_TIME - dt);
+        const timeToWait = Math.max(0, timeLineGlobal.tickTime - dt);
         playInterval = setTimeout(() => startSteadyLoop(callback), timeToWait); // take into account drift
     };
 
     const initInterval = (speed: number) => {
-        expectedTime = Date.now() + TICK_TIME;
+        expectedTime = Date.now() + timeLineGlobal.tickTime;
 
         const intervalCallback = () => {
-            const raceTimeIncrement = TICK_TIME * speed;
+            const raceTimeIncrement = timeLineGlobal.tickTime * speed;
             const nextRaceTime = timeLineGlobal.currentRaceTime + raceTimeIncrement;
-            if (nextRaceTime > timeLineGlobal.maxRaceTime) {
-                onChange(min);
+            if (nextRaceTime > timeLineGlobal.maxRaceTime || nextRaceTime < 0) {
+                // Loop time back to 0 if time is past the max
+                //  and ensure time stays at least 0
+                onChange(0);
             } else {
                 onChange(nextRaceTime);
             }
         };
 
-        playInterval = setTimeout(() => startSteadyLoop(intervalCallback), TICK_TIME);
+        playInterval = setTimeout(() => startSteadyLoop(intervalCallback), timeLineGlobal.tickTime);
     };
 
     const onTogglePlay = (shouldPlay: boolean = !playing) => {
         setPlaying(shouldPlay);
         if (!shouldPlay) {
             // was playing, pause interval
-            onChange(timeLineGlobal.currentRaceTime - 1);
+            onChange(timeLineGlobal.currentRaceTime);
             clearInterval(playInterval);
         } else {
             // was not playing, start playing
@@ -136,8 +135,7 @@ const TimeLineView = ({ replaysData }: TimeLineViewProps) => {
                 </div>
                 <div className="flex-grow-0 w-24 h-full py-2">
                     <div
-                        className="flex w-full h-full items-center justify-center"
-                        style={{ backgroundColor: '#2C2C2C' }}
+                        className="flex w-full h-full items-center justify-center bg-gray-750"
                     >
                         {timeFormat(timeLineTime)}
                     </div>

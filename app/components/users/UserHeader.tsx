@@ -1,12 +1,13 @@
-import { Button, PageHeader } from 'antd';
+import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import React from 'react';
+import { Button, PageHeader } from 'antd';
+
 import { UserInfo } from '../../lib/api/requests/users';
 import UserDisplay from '../common/UserDisplay';
 
 interface Props {
-    userInfo: UserInfo | undefined;
+    userInfo?: UserInfo;
 }
 
 const UserHeader = ({ userInfo }: Props): JSX.Element => {

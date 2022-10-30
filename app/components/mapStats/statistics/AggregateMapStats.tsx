@@ -1,7 +1,7 @@
 import { Col, Row, Statistic } from 'antd';
 import React from 'react';
-import { ReplayInfo } from '../../lib/api/requests/replays';
-import { msToTime } from '../../lib/utils/time';
+import { ReplayInfo } from '../../../lib/api/requests/replays';
+import { msToTime } from '../../../lib/utils/time';
 
 interface AggregateMapStatsProps {
     replays: ReplayInfo[];

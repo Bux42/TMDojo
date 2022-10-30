@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useRouter } from 'next/router';
-import { Card, Layout } from 'antd';
-import HeadTitle from '../../components/common/HeadTitle';
-import UserHeader from '../../components/users/UserHeader';
-import UserReplays from '../../components/users/UserReplays';
+
 import { useUserInfo } from '../../lib/api/hooks/query/users';
+
+import HeadTitle from '../../components/common/HeadTitle';
+import UserReplays from '../../components/users/UserReplays';
+import PageHeaderBar from '../../components/common/PageHeaderBar';
+import Footer from '../../components/common/Footer';
+import PageContainer from '../../components/containers/PageContainer';
 
 const Home = (): JSX.Element => {
     const router = useRouter();
@@ -12,31 +15,34 @@ const Home = (): JSX.Element => {
 
     const { data: userInfo } = useUserInfo(typeof webId === 'string' ? webId : undefined);
 
-    const title = userInfo ? `${userInfo.playerName} - TMDojo` : 'TMDojo';
+    const title = useMemo(
+        () => (userInfo ? `${userInfo.playerName} - TMDojo` : 'TMDojo'),
+        [userInfo],
+    );
 
     return (
-        <>
+        <div className="flex flex-col items-center min-h-screen w-full bg-page-back">
             <HeadTitle title={title} />
-            <Layout>
-                <UserHeader userInfo={userInfo} />
-                <Layout.Content className="w-4/5 m-auto h-full flex flex-col pt-8">
-                    {userInfo
-                        ? (
-                            <Card
-                                title={userInfo?.playerName}
-                            >
-                                {userInfo && <UserReplays userInfo={userInfo} />}
-                            </Card>
-                        ) : (
-                            <Card
-                                color="red"
-                            >
-                                Profile not found
-                            </Card>
-                        )}
-                </Layout.Content>
-            </Layout>
-        </>
+            <PageHeaderBar title={userInfo?.playerName || ''} backUrl="/" />
+
+            <PageContainer>
+                <div className="w-full mb-8 bg-gray-750 rounded-md p-8 text-center">
+                    <span className="text-small">User profile of:</span>
+                    <br />
+                    <span className="text-2xl font-bold">{userInfo?.playerName}</span>
+                </div>
+
+                <div className="w-full p-8 bg-gray-750 rounded-md">
+                    {userInfo ? (
+                        userInfo && <UserReplays userInfo={userInfo} />
+                    ) : (
+                        'Profile not found'
+                    )}
+                </div>
+            </PageContainer>
+
+            <Footer />
+        </div>
     );
 };
 

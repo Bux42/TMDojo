@@ -17,10 +17,10 @@ export interface AuthContextProps {
 
 export const AuthContext = createContext<AuthContextProps>({
     user: undefined,
-    setUser: (user?: AuthUserInfo) => {},
-    loginUser: async (code: string, state?: string) => {},
-    logoutUser: async () => {},
-    startAuthFlow: () => {},
+    setUser: (user?: AuthUserInfo) => { },
+    loginUser: async (code: string, state?: string) => { },
+    logoutUser: async () => { },
+    startAuthFlow: () => { },
 });
 
 export const AuthProvider = ({ children }: any): JSX.Element => {

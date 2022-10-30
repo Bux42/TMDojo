@@ -1,14 +1,13 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useRouter } from 'next/router';
-import {
-    Card, Layout, PageHeader, Spin,
-} from 'antd';
+import { PageHeader, Spin } from 'antd';
 import { AuthContext } from '../../lib/contexts/AuthContext';
 
 const AuthRedirect = (): JSX.Element => {
     const router = useRouter();
     const { code, state } = router.query;
-    const [message, setMessage] = useState('');
+    const [showLoader, setShowLoader] = useState(true);
+    const [message, setMessage] = useState<string>('Logging in...');
     const { loginUser } = useContext(AuthContext);
 
     useEffect(() => {
@@ -23,7 +22,8 @@ const AuthRedirect = (): JSX.Element => {
                     try {
                         // follow the normal login procedure with the code/state combination
                         await loginUser(code, state);
-                        setMessage('You can close this window and return to the game now...');
+                        setMessage('Authentication complete!\nYou can close this window and return to the game now.');
+                        setShowLoader(false);
                     } catch (e) {
                         console.log(e);
                     }
@@ -43,20 +43,25 @@ const AuthRedirect = (): JSX.Element => {
     }, [code, state]);
 
     return (
-        <Layout>
+        <div className="w-screen h-screen bg-page-back">
             <PageHeader
                 onBack={() => router.push('/')}
-                title="Home"
+                title="Back"
             />
-            <Layout.Content className="w-4/5 m-auto h-full flex flex-col pt-8">
-                <Card
-                    className="w-full align-center"
-                    title={message}
-                >
-                    <Spin />
-                </Card>
-            </Layout.Content>
-        </Layout>
+            <div
+                className="w-4/5 h-4/5 m-auto flex flex-col gap-4
+                    align-center justify-center p-16 bg-gray-900 rounded-2xl"
+            >
+                {showLoader && (
+                    <Spin size="large" />
+                )}
+                {message && (
+                    <span className="text-xl text-center font-smibold">
+                        {message}
+                    </span>
+                )}
+            </div>
+        </div>
     );
 };
 

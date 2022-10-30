@@ -56,6 +56,10 @@ export const Grid = ({ replaysData, blockPadding }: GridProps): JSX.Element => {
                 args={[gridSize, gridDivisions, GRID_COLOR, GRID_COLOR]}
                 position={gridPos}
             />
+            <mesh rotation={[-Math.PI / 2, 0, 0]} position={gridPos} receiveShadow>
+                <planeBufferGeometry attach="geometry" args={[gridSize, gridSize]} />
+                <shadowMaterial attach="material" transparent opacity={0.5} />
+            </mesh>
         </>
     );
 };

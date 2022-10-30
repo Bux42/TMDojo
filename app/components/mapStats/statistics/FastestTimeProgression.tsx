@@ -5,60 +5,80 @@ import React, { useMemo } from 'react';
 import Highcharts, { some } from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import dayjs from 'dayjs';
-import { getRaceTimeStr, timeDifference } from '../../lib/utils/time';
-import PlayerLink from '../common/PlayerLink';
-import { ReplayInfo } from '../../lib/api/requests/replays';
+import { getRaceTimeStr, timeDifference } from '../../../lib/utils/time';
+import calculateFastestTimeProgressions from '../../../lib/utils/fastestTimeProgression';
+import PlayerLink from '../../common/PlayerLink';
+import { ReplayInfo } from '../../../lib/api/requests/replays';
+import { AuthUserInfo } from '../../../lib/api/requests/auth';
+
+interface ChartDataPoint {
+    x: number;
+    y: number;
+    replay: ReplayInfo;
+}
+
+const replaysToDataPoints = (replays_: ReplayInfo[]): ChartDataPoint[] => replays_.map((replay) => ({
+    x: replay.date,
+    y: replay.endRaceTime,
+    replay,
+}));
+
+const replaysToProgressionDataPoints = (replays: ReplayInfo[]) => {
+    const progression = calculateFastestTimeProgressions(replays);
+    const dataPoints = replaysToDataPoints(progression);
+    return dataPoints;
+};
+
+const filterReplaysByUser = (loggedInUser: AuthUserInfo, inputReplays: ReplayInfo[]) => {
+    const filtered = inputReplays.filter((r) => r.webId === loggedInUser.accountId);
+    return filtered;
+};
 
 interface FastestTimeProgressionProps {
     replays: ReplayInfo[];
+    onlyShowUserProgression: boolean;
+    userToShowProgression?: AuthUserInfo;
 }
-const FastestTimeProgression = ({ replays } : FastestTimeProgressionProps) => {
-    const calculateFastestTimeProgressions = (replayList: ReplayInfo[]): ReplayInfo[] => {
-        if (replayList.length === 0) {
-            return [];
-        }
-
-        const fastestTimeProgressions: ReplayInfo[] = [];
-        const sortedReplays = replayList.sort((a, b) => a.date - b.date);
-
-        fastestTimeProgressions.push(sortedReplays[0]);
-        for (let i = 1; i < sortedReplays.length; i++) {
-            const currentReplay = sortedReplays[i];
-            const latestFastestReplay = fastestTimeProgressions[fastestTimeProgressions.length - 1];
-            if (currentReplay.raceFinished
-                && currentReplay.endRaceTime < latestFastestReplay.endRaceTime) {
-                fastestTimeProgressions.push(currentReplay);
-            }
-        }
-        return fastestTimeProgressions;
-    };
-
-    interface ChartDataPoint {
-        x: number;
-        y: number;
-        replay: ReplayInfo;
-    }
-
-    const fastestTimeProgressions = useMemo(() => calculateFastestTimeProgressions(replays), [replays]);
-
-    const replaysToDataPoints = (replays_: ReplayInfo[]): ChartDataPoint[] => replays_.map((replay) => ({
-        x: replay.date,
-        y: replay.endRaceTime,
-        replay,
-    }));
+const FastestTimeProgression = ({
+    replays,
+    onlyShowUserProgression,
+    userToShowProgression,
+}: FastestTimeProgressionProps) => {
+    const finishedReplays = useMemo(() => replays.filter((r) => r.raceFinished === 1), [replays]);
 
     const timeProgressionData: ChartDataPoint[] = useMemo(
-        () => replaysToDataPoints(fastestTimeProgressions),
-        [fastestTimeProgressions],
+        () => replaysToProgressionDataPoints(replays).reverse(),
+        [replays],
+    );
+
+    const personalTimeProgressionData: ChartDataPoint[] | undefined = useMemo(
+        () => {
+            if (userToShowProgression === undefined) {
+                return undefined;
+            }
+            const filteredReplays = filterReplaysByUser(userToShowProgression, finishedReplays);
+            return replaysToProgressionDataPoints(filteredReplays).reverse();
+        },
+        [userToShowProgression, finishedReplays],
     );
 
     const allDataPoints: ChartDataPoint[] = useMemo(
-        () => replaysToDataPoints(
-            replays.filter(
+        () => {
+            let filteredReplays = finishedReplays;
+
+            filteredReplays = filteredReplays.filter(
                 (r1) => !some(timeProgressionData, (r2: ChartDataPoint) => r1._id === r2.replay._id, null),
-            ),
-        ),
-        [replays, timeProgressionData],
+            );
+
+            if (personalTimeProgressionData) {
+                filteredReplays = filteredReplays.filter(
+                    (r1) => !some(personalTimeProgressionData, (r2: ChartDataPoint) => r1._id === r2.replay._id, null),
+                );
+            }
+
+            return replaysToDataPoints(filteredReplays);
+        },
+        [finishedReplays, timeProgressionData, personalTimeProgressionData],
     );
 
     const options = {
@@ -70,13 +90,16 @@ const FastestTimeProgression = ({ replays } : FastestTimeProgressionProps) => {
             style: {
                 color: 'white',
             },
-            zoomType: 'xy',
+            zoomType: 'x',
         },
         title: {
             text: '',
         },
         subtitle: {
             text: '',
+        },
+        time: {
+            useUTC: false,
         },
         xAxis: {
             type: 'datetime',
@@ -123,7 +146,7 @@ const FastestTimeProgression = ({ replays } : FastestTimeProgressionProps) => {
             formatter: function tooltipFormatter(this: any) {
                 return `
                     <span style="font-size: 10px">
-                        ${dayjs(this.key).format('MMM D YYYY, HH:MM:ss')}
+                        ${dayjs(this.key).format('MMM D YYYY, HH:mm:ss')}
                     </span>
                     </br>
                     <span style="font-size: 13px">
@@ -149,27 +172,52 @@ const FastestTimeProgression = ({ replays } : FastestTimeProgressionProps) => {
                     },
                     color: 'white',
                     shadow: false,
-                    allowOverlap: true,
-                    y: 25,
+                    padding: 0,
+                    y: 20,
                 },
+            },
+            series: {
+                turboThreshold: 0,
             },
         },
         series: [{
             type: 'line',
             name: 'Best Times',
-            data: timeProgressionData,
+            // Set timeProgressionData to undefined to disable the line when only showing user progression
+            data: onlyShowUserProgression ? undefined : timeProgressionData,
             step: 'left',
+            color: 'green',
+        }, {
+            type: 'line',
+            name: 'Personal Best Times',
+            data: personalTimeProgressionData,
+            step: 'left',
+            color: 'orange',
         }, {
             type: 'scatter',
             name: 'Other Times',
             data: allDataPoints,
+            visible: false,
             color: 'gray',
+            marker: {
+                symbol: 'circle',
+                radius: 2,
+            },
         }],
     };
 
-    const fastestTime = timeProgressionData.length > 0
-        ? timeProgressionData[timeProgressionData.length - 1]
+    // Filter series for which the data is undefined
+    options.series = options.series.filter((s) => s.data !== undefined);
+
+    const allFastestTime = timeProgressionData && timeProgressionData.length > 0
+        ? timeProgressionData[0]
         : undefined;
+
+    const personalFastestTime = personalTimeProgressionData !== undefined && personalTimeProgressionData.length > 0
+        ? personalTimeProgressionData[0]
+        : undefined;
+
+    const fastestTime = allFastestTime || personalFastestTime;
 
     return (
         fastestTime ? (

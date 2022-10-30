@@ -15,13 +15,13 @@ export const getMapInfo = async (mapUId: string): Promise<MapInfo> => {
     return data;
 };
 
-export type Map = {
+export type MapWithStats = {
     mapName: string;
     mapUId: string;
     count: number;
     lastUpdate: number;
 };
-export const getAllMaps = async (searchString: string): Promise<Map[]> => {
+export const getAllMaps = async (searchString: string): Promise<MapWithStats[]> => {
     const { data } = await apiInstance.get('/maps', {
         params: {
             mapName: searchString,

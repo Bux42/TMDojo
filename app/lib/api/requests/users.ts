@@ -4,7 +4,7 @@ import { AllReplaysResult } from './replays';
 export type UserInfo = {
     webId?: string;
     playerLogin?: string;
-    playerName?: number;
+    playerName?: string;
     _id?: number;
 };
 export const getUserInfo = async (webId: string): Promise<UserInfo> => {

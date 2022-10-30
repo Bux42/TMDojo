@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import * as THREE from 'three';
 import { ReplayData } from '../../lib/api/requests/replays';
 import {
@@ -12,6 +12,7 @@ import {
 import ReplayChartHoverLocation from './ReplayChartHoverLocation';
 import ReplayDnf from './ReplayDnf';
 import ReplayGears from './ReplayGears';
+import ReplaySectorHighlights from './ReplaySectorHighlights';
 
 export interface LineType {
     name: string;
@@ -91,6 +92,13 @@ export const ReplayLines = ({
                 {(replay.dnfPos.x !== 0 && replay.dnfPos.y !== 0 && replay.dnfPos.z !== 0) && (
                     <ReplayDnf key={`replay-${replay._id}-dnf`} replay={replay} />
                 )}
+
+                {/* Removed until fully implemented: */}
+                {/*
+                    {replay.sectorTimes && (
+                        <ReplaySectorHighlights replay={replay} />
+                    )}
+                */}
             </>
         ))}
     </>
