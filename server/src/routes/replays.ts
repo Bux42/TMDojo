@@ -205,33 +205,33 @@ router.delete('/:replayId', async (req, res) => {
     // Fetch replay
     const replay = await db.getReplayById(req.params.replayId);
 
-    if (replay) {
-        const replayUser = await db.getUserById(replay.userRef);
+    if (!replay) {
+        req.log.error('replaysRouter: Failed to delete replay, replay not found');
+        res.status(404).send('Failed to delete replay, replay not found.');
+        return;
+    }
 
-        // Check user
-        const { user } = req;
-        if (user === undefined || user.webId !== replayUser.webId) {
-            req.log.error('replaysRouter: Unauthenticated replay delete attempt');
-            res.status(401).send('Authentication required to delete replay.');
-            return;
-        }
+    const replayUser = await db.getUserById(replay.userRef);
 
-        await db.deleteReplayById(replay._id);
+    // Check user
+    const { user } = req;
+    if (user === undefined || user.webId !== replayUser.webId) {
+        req.log.error('replaysRouter: Unauthenticated replay delete attempt');
+        res.status(401).send('Authentication required to delete replay.');
+        return;
+    }
 
-        try {
-            req.log.debug('replaysRouter: Deleted replay metadata, now deleting replay file');
-            await artefacts.deleteReplay(replay);
-        } catch (err) {
-            req.log.warn('replaysRouter: Failed to delete replay file, restoring metadata in database');
-            // If deletion failed, add the replay back into the DB
-            await db.saveReplayMetadata(replay);
+    await db.deleteReplayById(replay._id);
 
-            res.status(500).send('Failed to delete replay file.');
-            return;
-        }
-    } else {
-        req.log.error('replaysRouter: Replay not found');
-        res.status(404).send('Replay not found.');
+    try {
+        req.log.debug('replaysRouter: Deleted replay metadata, now deleting replay file');
+        await artefacts.deleteReplay(replay);
+    } catch (err) {
+        req.log.warn('replaysRouter: Failed to delete replay file, restoring metadata in database');
+        // If deletion failed, add the replay back into the DB
+        await db.saveReplayMetadata(replay);
+
+        res.status(500).send('Failed to delete replay file.');
         return;
     }
 
