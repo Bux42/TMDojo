@@ -117,7 +117,7 @@ const CleanButton = ({
     darkenOnHover,
     className,
 }: CleanButtonProps) => {
-    const button = useMemo(() => (
+    const buttonComponent: React.ReactNode = useMemo(() => (
         <ButtonComponent
             onClick={onClick}
             style={style}
@@ -137,16 +137,24 @@ const CleanButton = ({
     ), [children, onClick, style, backColor, textColor, type, url, size,
         openInNewTab, hoverAnimation, disabled, darkenOnHover, className]);
 
+    // If there is no URL, return button directly
+    if (!url) {
+        return buttonComponent;
+    }
+
+    // Handle URL return types depending on whether it should opened in a new tab
     return (
         <>
-            {url && openInNewTab ? (
+            {openInNewTab ? (
                 <Link href={url}>
                     <a target="_blank" rel="noreferrer" href={url}>
-                        {button}
+                        {buttonComponent}
                     </a>
                 </Link>
             ) : (
-                button
+                <Link href={url}>
+                    {buttonComponent}
+                </Link>
             )}
         </>
     );
