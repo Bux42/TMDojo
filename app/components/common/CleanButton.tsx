@@ -116,7 +116,7 @@ const CleanButton = ({
     disabled,
     darkenOnHover,
     className,
-}: CleanButtonProps) => {
+}: CleanButtonProps): JSX.Element => {
     const buttonComponent: React.ReactNode = useMemo(() => (
         <ButtonComponent
             onClick={onClick}
@@ -139,7 +139,11 @@ const CleanButton = ({
 
     // If there is no URL, return button directly
     if (!url) {
-        return buttonComponent;
+        return (
+            <>
+                {buttonComponent}
+            </>
+        );
     }
 
     // Handle URL return types depending on whether it should opened in a new tab
