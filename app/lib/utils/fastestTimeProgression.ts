@@ -1,11 +1,11 @@
-import { FileResponse } from '../api/apiRequests';
+import { ReplayInfo } from '../api/requests/replays';
 
-const calculateFastestTimeProgression = (replayList: FileResponse[]): FileResponse[] => {
+const calculateFastestTimeProgression = (replayList: ReplayInfo[]): ReplayInfo[] => {
     if (replayList.length === 0) {
         return [];
     }
 
-    const fastestTimeProgressions: FileResponse[] = [];
+    const fastestTimeProgressions: ReplayInfo[] = [];
     const sortedReplays = replayList.sort((a, b) => a.date - b.date);
 
     fastestTimeProgressions.push(sortedReplays[0]);

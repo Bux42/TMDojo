@@ -83,7 +83,7 @@ export const AuthProvider = ({ children }: any): JSX.Element => {
         }
 
         await loginUser(code);
-    }, [setUser]);
+    }, []);
 
     // helper function to make login callable from outside the Context
     const loginUser = async (code: string, state?: string) => {
