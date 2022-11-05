@@ -17,20 +17,21 @@ const useViewerPerformancePopupConfirmations = () => {
         // Skip if GPU tier in not yet detected
         if (!gpuTier) return;
 
-        // Handle less performant mobile devices differently
-        if (gpuTier?.isMobile) {
+        // If the user is on mobile, show the mobile performance warning
+        if (gpuTier.isMobile) {
             showMobilePerformanceWarning();
+            return;
         }
 
-        if (gpuTier?.tier === 1) {
+        if (gpuTier.tier === 2) {
             // Show performance warning when GPU tier is 2 (30 - 60 FPS)
             showPerformanceWarning();
-        } else if (gpuTier?.tier <= 1) {
-            // Disable 3D viewer for users with a low-end GPU (<30 FPS), show modal for confirmation to continue anyways
+        } else if (gpuTier.tier <= 1) {
+            // Disable 3D viewer for users with a low-end GPU (<30 FPS), show modal for confirmation to continue
             setShowViewer(false);
             showPerformanceConfirmationModal(
-                () => setShowViewer(true),
-                () => router.push('/'),
+                () => setShowViewer(true), // On confirm
+                () => router.push('/'), // On cancel
             );
         }
     }, [gpuTier, router]);
