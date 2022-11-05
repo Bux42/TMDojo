@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import showPerformanceWarning from '../popups/performanceWarning';
 import showPerformanceConfirmationModal from '../popups/performanceContinueConfirmation';
+import showMobilePerformanceWarning from '../popups/performanceMobileWarning';
 
 const useViewerPerformancePopupConfirmations = () => {
     const [showViewer, setShowViewer] = useState<boolean>(true);
@@ -17,12 +18,14 @@ const useViewerPerformancePopupConfirmations = () => {
         if (!gpuTier) return;
 
         // Handle less performant mobile devices differently
-        if (gpuTier?.isMobile) return;
+        if (gpuTier?.isMobile) {
+            showMobilePerformanceWarning();
+        }
 
-        if (gpuTier?.tier === 2) {
+        if (gpuTier?.tier === 1) {
             // Show performance warning when GPU tier is 2 (30 - 60 FPS)
             showPerformanceWarning();
-        } else if (gpuTier?.tier === 3) {
+        } else if (gpuTier?.tier <= 1) {
             // Disable 3D viewer for users with a low-end GPU (<30 FPS), show modal for confirmation to continue anyways
             setShowViewer(false);
             showPerformanceConfirmationModal(
