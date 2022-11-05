@@ -1,5 +1,3 @@
-/* eslint-disable react/no-unescaped-entities */
-/* eslint-disable max-len */
 import { useDetectGPU } from '@react-three/drei';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
