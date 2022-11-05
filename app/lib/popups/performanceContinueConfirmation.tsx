@@ -9,7 +9,10 @@ const showPerformanceConfirmationModal = (
     onModalCancel: () => void,
 ) => {
     const stopShowingConfirmationModal = localStorage.getItem('stopShowingConfirmationModal') !== null;
-    if (stopShowingConfirmationModal) return;
+    if (stopShowingConfirmationModal) {
+        onModalOk();
+        return;
+    }
 
     let dontShowAgain = false;
 
