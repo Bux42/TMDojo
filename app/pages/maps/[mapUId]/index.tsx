@@ -31,6 +31,7 @@ import useIsMobileDevice from '../../../lib/hooks/useIsMobileDevice';
 import SectorTimeTableButton from '../../../components/maps/SectorTimeTableButton';
 import { filterReplaysWithValidSectorTimes } from '../../../lib/replays/sectorTimes';
 import showPerformanceWarning from '../../../lib/popups/performanceWarning';
+import useViewerPerformanceConfirmations from '../../../lib/hooks/usePerformanceConfirmation';
 
 const Home = (): JSX.Element => {
     const [replays, setReplays] = useState<FileResponse[]>([]);
@@ -39,7 +40,7 @@ const Home = (): JSX.Element => {
     const [mapData, setMapData] = useState<MapInfo>({});
     const [sectorTableVisible, setSectorTableVisible] = useState<boolean>(false);
 
-    const [showViewer, setShowViewer] = useState<boolean>(true);
+    const { showViewer } = useViewerPerformanceConfirmations();
 
     const router = useRouter();
     const { mapUId } = router.query;
@@ -71,62 +72,6 @@ const Home = (): JSX.Element => {
             localStorage.setItem('mobileViewerWarningShown', dayjs().unix().toString());
         }
     }, [isMobile]);
-
-    const showPerformanceConfirmationModal = useCallback(() => {
-        const stopShowingConfirmationModal = localStorage.getItem('stopShowingConfirmationModal') !== null;
-
-        if (stopShowingConfirmationModal) {
-            return;
-        }
-
-        setShowViewer(false);
-
-        Modal.confirm({
-            title: 'Potential performance issues!',
-            content: (
-                <div>
-                    <p>Based on your detected hardware, your device might struggle with the 3D viewer's performance requirements.</p>
-                    <br />
-                    <p>One of the reasons could be that you do not have hardware acceleration enabled.</p>
-                    <p>Please try enabling hardware acceleration in your browser settings and try again.</p>
-                    <br />
-                    <p>If you really want to continue anyway, press &apos;Continue&apos;.</p>
-                    <br />
-                    <Checkbox>Don&apos;t show again</Checkbox>
-                </div>
-            ),
-            okText: 'Continue',
-            cancelText: 'Back to homepage',
-            centered: true,
-            width: '600',
-            icon: <ExclamationCircleOutlined style={{ color: '#a61d24' }} />,
-            onOk: () => {
-                setShowViewer(true);
-            },
-            onCancel: () => {
-                router.push('/');
-            },
-        });
-    }, [router]);
-
-    const gpuTier = useDetectGPU();
-    useEffect(() => {
-        // Skip if GPU tier in not yet detected
-        if (!gpuTier) return;
-
-        // Handle less performant mobile devices differently
-        if (gpuTier?.isMobile) return;
-
-        if (gpuTier?.tier === 3) {
-            // Don't show warning for users with a high-end GPU (>60 FPS)
-        } else if (gpuTier?.tier === 2) {
-            // Show performance warning when GPU tier is 2 (30 - 60 FPS)
-            showPerformanceWarning();
-        } else if (gpuTier?.tier <= 1) {
-            // Disable 3D viewer for users with a low-end GPU (<30 FPS), show modal for confirmation to continue anyways
-            showPerformanceConfirmationModal();
-        }
-    }, [gpuTier, showPerformanceConfirmationModal]);
 
     const fetchAndSetReplays = async () => {
         setLoadingReplays(true);
@@ -236,9 +181,6 @@ const Home = (): JSX.Element => {
                             replaysData={selectedReplayData}
                         />
                     )}
-
-                    <Button onClick={showPerformanceWarning}>Warning</Button>
-                    <Button onClick={showPerformanceConfirmationModal}>Continue Confirm</Button>
 
                     {showViewer && (
                         <Viewer3D replaysData={selectedReplayData} />
