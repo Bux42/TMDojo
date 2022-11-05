@@ -1,14 +1,13 @@
 import React, {
-    useCallback, useEffect, useMemo, useState,
+    useEffect, useMemo, useState,
 } from 'react';
 import {
-    Button, Checkbox, Layout, Modal, notification,
+    Layout, Modal,
 } from 'antd';
 import { useRouter } from 'next/router';
 
-import { ExclamationCircleOutlined, PieChartOutlined } from '@ant-design/icons';
+import { PieChartOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import { useDetectGPU } from '@react-three/drei';
 import SidebarReplays from '../../../components/maps/SidebarReplays';
 import SidebarSettings from '../../../components/maps/SidebarSettings';
 import MapHeader from '../../../components/maps/MapHeader';
@@ -30,8 +29,7 @@ import CleanButton from '../../../components/common/CleanButton';
 import useIsMobileDevice from '../../../lib/hooks/useIsMobileDevice';
 import SectorTimeTableButton from '../../../components/maps/SectorTimeTableButton';
 import { filterReplaysWithValidSectorTimes } from '../../../lib/replays/sectorTimes';
-import showPerformanceWarning from '../../../lib/popups/performanceWarning';
-import useViewerPerformanceConfirmations from '../../../lib/hooks/usePerformanceConfirmation';
+import useViewerPerformancePopupConfirmations from '../../../lib/hooks/useViewerPerformancePopupConfirmations';
 
 const Home = (): JSX.Element => {
     const [replays, setReplays] = useState<FileResponse[]>([]);
@@ -40,7 +38,7 @@ const Home = (): JSX.Element => {
     const [mapData, setMapData] = useState<MapInfo>({});
     const [sectorTableVisible, setSectorTableVisible] = useState<boolean>(false);
 
-    const { showViewer } = useViewerPerformanceConfirmations();
+    const { showViewer } = useViewerPerformancePopupConfirmations();
 
     const router = useRouter();
     const { mapUId } = router.query;
