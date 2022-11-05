@@ -32,7 +32,10 @@ const useViewerPerformancePopupConfirmations = () => {
                 () => router.push('/'), // On cancel
             );
         }
-    }, [gpuTier, router]);
+
+        // We don't need the router in the dep list because we only use it to push navigation
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [gpuTier]);
 
     return { showViewer };
 };
