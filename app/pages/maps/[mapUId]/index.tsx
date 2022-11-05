@@ -30,6 +30,7 @@ import CleanButton from '../../../components/common/CleanButton';
 import useIsMobileDevice from '../../../lib/hooks/useIsMobileDevice';
 import SectorTimeTableButton from '../../../components/maps/SectorTimeTableButton';
 import { filterReplaysWithValidSectorTimes } from '../../../lib/replays/sectorTimes';
+import showPerformanceWarning from '../../../lib/popups/performanceWarning';
 
 const Home = (): JSX.Element => {
     const [replays, setReplays] = useState<FileResponse[]>([]);
@@ -70,37 +71,6 @@ const Home = (): JSX.Element => {
             localStorage.setItem('mobileViewerWarningShown', dayjs().unix().toString());
         }
     }, [isMobile]);
-
-    const showPerformanceWarning = () => {
-        const stopShowingPerformanceWarning = localStorage.getItem('stopShowingPerformanceWarning') !== null;
-
-        if (stopShowingPerformanceWarning) {
-            return;
-        }
-
-        const key = `open${Date.now()}`;
-        const dontShowAgainButton = (
-            <Button
-                type="ghost"
-                onClick={() => {
-                    localStorage.setItem('stopShowingPerformanceWarning', dayjs().unix().toString());
-                    notification.close(key);
-                }}
-            >
-                Don&apos;t show again
-            </Button>
-        );
-
-        notification.warning({
-            message: 'Potential performance issues',
-            description: 'Your device may get lower framerates in the 3D viewer. '
-                + 'If you experience issues, try using a different device.',
-            placement: 'top',
-            duration: 10,
-            key,
-            btn: dontShowAgainButton,
-        });
-    };
 
     const showPerformanceConfirmationModal = useCallback(() => {
         const stopShowingConfirmationModal = localStorage.getItem('stopShowingConfirmationModal') !== null;
