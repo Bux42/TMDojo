@@ -160,7 +160,6 @@ const LoadedReplays = ({
     const [visible, setVisible] = useState(true);
     const [followed, setFollowed] = useState<ReplayData>();
     const [hovered, setHovered] = useState<ReplayData>();
-    const { cameraMode, setCameraMode } = useContext(SettingsContext);
 
     const timeLineGlobal = GlobalTimeLineInfos.getInstance();
 
@@ -216,9 +215,9 @@ const LoadedReplays = ({
                 <div className="flex flex-col items-center gap-3">
                     <div className="text-base">Camera</div>
                     <Radio.Group
-                        defaultValue={cameraMode}
+                        defaultValue={timeLineGlobal.cameraMode}
                         buttonStyle="solid"
-                        onChange={(e: RadioChangeEvent) => setCameraMode(e.target.value)}
+                        onChange={(e: RadioChangeEvent) => { timeLineGlobal.cameraMode = e.target.value; }}
                         className="flex gap-4"
                     >
                         <Radio.Button value={CameraMode.Target}>

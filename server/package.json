@@ -18,6 +18,7 @@
 		"dotenv": "^8.2.0",
 		"express": "^4.17.1",
 		"mongodb": "^4.1.0",
+		"node-cache": "^5.1.2",
 		"ts-node": "^9.1.1",
 		"uuid": "^8.3.1",
 		"winston": "^3.4.0"

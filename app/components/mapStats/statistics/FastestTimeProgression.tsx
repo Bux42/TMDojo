@@ -43,7 +43,7 @@ const FastestTimeProgression = ({
     replays,
     onlyShowUserProgression,
     userToShowProgression,
-} : FastestTimeProgressionProps) => {
+}: FastestTimeProgressionProps) => {
     const finishedReplays = useMemo(() => replays.filter((r) => r.raceFinished === 1), [replays]);
 
     const timeProgressionData: ChartDataPoint[] = useMemo(
@@ -175,6 +175,9 @@ const FastestTimeProgression = ({
                     padding: 0,
                     y: 20,
                 },
+            },
+            series: {
+                turboThreshold: 0,
             },
         },
         series: [{

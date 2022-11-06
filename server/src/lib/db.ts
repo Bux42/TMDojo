@@ -2,8 +2,11 @@ import { MongoClient, ObjectId, Db } from 'mongodb';
 import { config } from 'dotenv';
 import { v4 as uuid } from 'uuid';
 import { Request } from 'express';
-import { playerLoginFromWebId } from './authorize';
+import { playerLoginFromWebId, UserInfoResponse } from './authorize';
 import { logError, logInfo } from './logger';
+import { DiscordWebhook } from './discordWebhooks/discordWebhook';
+
+import * as cache from '../cache';
 
 config();
 
@@ -50,12 +53,17 @@ export const createUser = (
                         webId,
                         playerLogin: login,
                         playerName: name,
-                        last_active: Date.now(),
                         clientCode: clientCode || null,
+                        createdAt: Date.now(),
                     });
+
                     req.log.debug(
                         `createUser: Created new user "${name}", doc ID: ${insertedUserData.insertedId.toString()}`,
                     );
+
+                    // Send discord alert for new user
+                    DiscordWebhook.sendNewUserAlert(req, name, users);
+
                     resolve({ userID: insertedUserData.insertedId?.toString() });
                 } else {
                     req.log.debug(`createUser: User "${name}" already exists, doc ID: ${docs[0]._id.toString()}`);
@@ -63,7 +71,6 @@ export const createUser = (
                         $set: {
                             playerLogin: login,
                             playerName: name,
-                            last_active: Date.now(),
                             clientCode: clientCode || null,
                         },
                     };
@@ -81,10 +88,9 @@ export const createUser = (
     },
 );
 
-export const getUniqueMapNames = async (
-    mapName ?: string,
-): Promise<any> => {
+export const getMapsStats = async (): Promise<any> => {
     const replays = db.collection('replays');
+
     const queryPipeline = [
         {
             $group: {
@@ -118,18 +124,21 @@ export const getUniqueMapNames = async (
         },
     ];
 
-    // only filter by name if there's valid input
-    if (mapName && mapName !== '') {
-        queryPipeline.push({
-            $match: {
-                mapName: { $regex: `.*${mapName}.*`, $options: 'i' },
-            },
-        } as any);
-    }
-
     const cursor = replays.aggregate(queryPipeline);
     const data = await cursor.toArray();
+
     return data;
+};
+
+export const getUniqueMapNames = async (
+    mapName ?: string,
+): Promise<any> => {
+    const cachedMaps = await cache.getMapsCache();
+
+    if (mapName && mapName !== '') {
+        return cachedMaps.filter((mapC: any) => mapC.mapName.toLowerCase().includes(mapName.toLowerCase()));
+    }
+    return cachedMaps;
 };
 
 export const getMapByUId = (mapUId ?: string): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
@@ -242,6 +251,12 @@ export const getReplays = async (
         {
             $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ['$map', 0] }, '$$ROOT'] } },
         },
+        {
+            $project: {
+                clientCode: 0,
+                objectPath: 0,
+            },
+        },
     ]);
 
     const addRegexFilter = (property ?: string, propertyName ?: string) => {
@@ -340,7 +355,7 @@ export const getReplayById = async (
             {
                 $project: {
                     // don't remove filePath since it's needed in the request
-                    userRef: 0, user: 0, mapRef: 0, map: 0,
+                    userRef: 0, user: 0, mapRef: 0, map: 0, clientCode: 0,
                 },
             },
         ] as any[]);
@@ -352,6 +367,10 @@ export const getReplayById = async (
 };
 
 export const deleteReplayById = async (replayId: any) => {
+    const replay = await getReplayById(replayId);
+
+    cache.deleteReplay(replay);
+
     const replays = db.collection('replays');
     await replays.deleteOne({
         _id: new ObjectId(replayId),
@@ -373,6 +392,8 @@ export const getReplayByFilePath = (
 export const saveReplayMetadata = (
     metadata: any,
 ): Promise<{_id: string}> => new Promise((resolve: Function, reject: Rejector) => {
+    cache.addReplay(metadata);
+
     const replays = db.collection('replays');
     replays.insertOne(metadata)
         .then(({ insertedId }: {insertedId: ObjectId}) => resolve({ _id: insertedId }))
@@ -383,20 +404,20 @@ export const saveReplayMetadata = (
  * Creates session using a webId.
  * Returns session secret or undefined if something went wrong
  */
-export const createSession = async (req: Request, userInfo: any, clientCode?: any) => {
+export const createSession = async (req: Request, userInfo: UserInfoResponse, clientCode?: any) => {
     // Find user
-    const user = await getUserByWebId(userInfo.account_id);
+    const user = await getUserByWebId(userInfo.accountId);
     let userID = user?._id;
     if (!userID) {
-        const playerLogin = playerLoginFromWebId(req, userInfo.account_id);
+        const playerLogin = playerLoginFromWebId(req, userInfo.accountId);
 
         if (playerLogin === undefined) {
             return undefined;
         }
 
-        if (userInfo.account_id !== undefined && userInfo.display_name !== undefined) {
+        if (userInfo.accountId !== undefined && userInfo.displayName !== undefined) {
             const updatedUserInfo = await createUser(
-                req, userInfo.account_id, playerLogin, userInfo.display_name, null,
+                req, userInfo.accountId, playerLogin, userInfo.displayName, null,
             );
             userID = updatedUserInfo.userID;
         } else {

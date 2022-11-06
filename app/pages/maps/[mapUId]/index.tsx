@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Layout, Modal } from 'antd';
 import { useRouter } from 'next/router';
 
@@ -7,6 +7,7 @@ import dayjs from 'dayjs';
 import SidebarReplays from '../../../components/maps/SidebarReplays';
 import SidebarSettings from '../../../components/maps/SidebarSettings';
 import MapHeader from '../../../components/maps/MapHeader';
+import SectorTimeTableModal from '../../../components/maps/SectorTimeTableModal';
 import Viewer3D from '../../../components/viewer/Viewer3D';
 import {
     getReplays,
@@ -23,6 +24,8 @@ import LoadedReplays from '../../../components/maps/LoadedReplays';
 import CleanButton from '../../../components/common/CleanButton';
 import useIsMobileDevice from '../../../lib/hooks/useIsMobileDevice';
 import { DownloadState, ReplayDownloadState } from '../../../lib/replays/replayDownloadState';
+import SectorTimeTableButton from '../../../components/maps/SectorTimeTableButton';
+import { filterReplaysWithValidSectorTimes } from '../../../lib/replays/sectorTimes';
 
 const Home = (): JSX.Element => {
     const [replays, setReplays] = useState<FileResponse[]>([]);
@@ -30,11 +33,17 @@ const Home = (): JSX.Element => {
     const [selectedReplayData, setSelectedReplayData] = useState<ReplayData[]>([]);
     const [replayDownloadStates, setReplayDownloadStates] = useState<Map<string, ReplayDownloadState>>(new Map());
     const [mapData, setMapData] = useState<MapInfo>({});
+    const [sectorTableVisible, setSectorTableVisible] = useState<boolean>(false);
 
     const router = useRouter();
     const { mapUId } = router.query;
 
     const isMobile = useIsMobileDevice();
+
+    const selectedReplaysWithValidSectors = useMemo(
+        () => filterReplaysWithValidSectorTimes(selectedReplayData, replays),
+        [selectedReplayData, replays],
+    );
 
     useEffect(() => {
         const shownMobileWarning = localStorage.getItem('mobileViewerWarningShown') !== null;
@@ -215,6 +224,14 @@ const Home = (): JSX.Element => {
                         </div>
                     </CleanButton>
                 </MapHeader>
+
+                <SectorTimeTableModal
+                    selectedReplays={selectedReplaysWithValidSectors}
+                    allReplays={replays}
+                    visible={sectorTableVisible}
+                    setVisible={setSectorTableVisible}
+                />
+
                 <Layout.Content>
                     <SidebarReplays
                         mapUId={`${mapUId}`}
@@ -228,19 +245,23 @@ const Home = (): JSX.Element => {
                         replayDownloadStates={replayDownloadStates}
                         onRefreshReplays={fetchAndSetReplays}
                     />
-                    {
-                        selectedReplayData.length > 0
-                        && <LoadedReplays replays={selectedReplayData} />
-                    }
+
+                    {selectedReplayData.length > 0
+                        && <LoadedReplays replays={selectedReplayData} />}
+
                     <SidebarSettings />
-                    {
-                        selectedReplayData.length > 0
-                        && (
-                            <ChartsDrawer
-                                replaysData={selectedReplayData}
-                            />
-                        )
-                    }
+
+                    {/* TODO: Add back in once sector times are fixed */}
+                    {/* <SectorTimeTableButton
+                        onClick={() => setSectorTableVisible(!sectorTableVisible)}
+                    /> */}
+
+                    {selectedReplayData.length > 0 && (
+                        <ChartsDrawer
+                            replaysData={selectedReplayData}
+                        />
+                    )}
+
                     <Viewer3D
                         replaysData={selectedReplayData}
                     />

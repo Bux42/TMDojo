@@ -1,9 +1,18 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, {
+    useState, useEffect, useContext, useMemo,
+} from 'react';
 import {
-    Button, Drawer, message, Popconfirm, Progress, Spin, Table, Tooltip,
+    Button, Drawer, Dropdown, Menu, message, Popconfirm, Progress, Space, Spin, Table, Tooltip,
 } from 'antd';
 import {
-    DeleteOutlined, QuestionCircleOutlined, ReloadOutlined, UnorderedListOutlined,
+    DeleteOutlined,
+    FilterFilled,
+    QuestionCircleOutlined,
+    ReloadOutlined, UnorderedListOutlined,
+    ClockCircleOutlined,
+    DownOutlined,
+    TrophyFilled,
+    ClockCircleFilled,
 } from '@ant-design/icons';
 import { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
 import { ColumnType, TableCurrentDataSource } from 'antd/lib/table/interface';
@@ -15,6 +24,12 @@ import PlayerLink from '../common/PlayerLink';
 import CleanButton from '../common/CleanButton';
 import useWindowDimensions from '../../lib/hooks/useWindowDimensions';
 import { DownloadState, ReplayDownloadState } from '../../lib/replays/replayDownloadState';
+import {
+    calcFastestSectorIndices,
+    calcIndividualSectorTimes,
+    calcValidSectorsLength,
+    filterReplaysWithValidSectorTimes,
+} from '../../lib/replays/sectorTimes';
 
 interface ExtendedFileResponse extends FileResponse {
     readableTime: string;
@@ -57,6 +72,28 @@ const SidebarReplays = ({
 
     const { user } = useContext(AuthContext);
 
+    const validSectorsLength = useMemo(
+        () => calcValidSectorsLength(replays),
+        [replays],
+    );
+
+    const userHasReplay = useMemo(
+        () => {
+            if (!user) {
+                return false;
+            }
+            return replays.some(
+                (replay) => replay.webId === user.accountId && replay.raceFinished,
+            );
+        },
+        [replays, user],
+    );
+
+    const singleReplayHasSectorTimes = useMemo(
+        () => replays.some((replay) => !!replay.sectorTimes && replay.sectorTimes.length === validSectorsLength),
+        [replays, validSectorsLength],
+    );
+
     useEffect(() => {
         // initialize visible replays with the first page
         const initiallyVisibleReplays = replays.slice(
@@ -89,16 +126,118 @@ const SidebarReplays = ({
         }
     };
 
+    const onLoadReplaysWithFastestSectorTimes = () => {
+        // Filter finished replays containing sector times, sort by time
+        const filteredReplays = filterReplaysWithValidSectorTimes(replays, replays)
+            .sort((a, b) => a.endRaceTime - b.endRaceTime);
+
+        if (filteredReplays.length === 0) {
+            message.error('Did not find any finished replays with recorded sector times.');
+            return;
+        }
+
+        // Calculate individual sector time deltas
+        const allIndividualSectorTimes = filteredReplays
+            .map((replay) => calcIndividualSectorTimes(replay.sectorTimes!, replay.endRaceTime));
+
+        // Calculate the replay indices of all fastest sector times
+        const fastestSectorIndices = calcFastestSectorIndices(allIndividualSectorTimes);
+
+        // Get a unique set of replay indices
+        const replayIndices = Array.from(new Set(fastestSectorIndices));
+
+        // Load all fastest replays
+        onLoadAllVisibleReplays(
+            replayIndices.map((index) => filteredReplays[index]),
+            selectedReplayDataIds,
+        );
+    };
+
+    const onLoadFastestTime = () => {
+        // Filter finished replays and sort by time
+        const filteredReplays = replays
+            .filter((replay) => replay.raceFinished)
+            .sort((a, b) => a.endRaceTime - b.endRaceTime);
+
+        if (filteredReplays.length === 0) {
+            return;
+        }
+
+        onLoadReplay(filteredReplays[0]);
+    };
+
+    const onLoadUserPb = () => {
+        if (!user) {
+            message.error('User not logged in, could not find PB replay.');
+            return;
+        }
+
+        // Filter finished replays and sort by time
+        const filteredReplays = replays
+            .filter((replay) => replay.webId === user.accountId)
+            .filter((replay) => replay.raceFinished)
+            .sort((a, b) => a.endRaceTime - b.endRaceTime);
+
+        if (filteredReplays.length === 0) {
+            message.error('No finished replay from user found on this map.');
+            return;
+        }
+
+        onLoadReplay(filteredReplays[0]);
+    };
+
+    // TODO: add useMemo to filters and columns
+    const nameFilters = getUniqueFilters((replay) => replay.playerName);
+    nameFilters.sort((a, b) => {
+        // If user is logged in, show the player filter on top:
+        if (user && a.text === user?.displayName) return -1;
+        if (user && b.text === user?.displayName) return 1;
+
+        // Else, sort by name alphabetically:
+        return a.text.toLowerCase() < b.text.toLowerCase() ? -1 : 1;
+    });
+
     let columns: ColumnsType<ExtendedFileResponse> = [
         {
             title: 'Player',
             dataIndex: 'playerName',
-            filters: getUniqueFilters((replay) => replay.playerName),
+            filters: nameFilters,
             onFilter: (value, record) => record.playerName === value,
             render: (_, replay) => (
                 <PlayerLink webId={replay.webId} name={replay.playerName} />
             ),
+            filterSearch: true,
+            filterIcon: () => (
+                <div className="flex gap-1 items-center">
+                    Filter
+                    <FilterFilled />
+                </div>
+            ),
         },
+        // TODO: Add back in when sector times are fixed on the server and plugin
+        // {
+        //     title: 'Sectors',
+        //     dataIndex: 'sectorTime',
+        //     align: 'center',
+        //     width: 30,
+        //     filters: [{ text: 'Includes sector times', value: true }],
+        //     onFilter: (value, record) => !!record.sectorTimes === value,
+        //     render: (_, replay) => {
+        //         const validSectorTimes = replay.sectorTimes && replay.sectorTimes.length === validSectorsLength;
+
+        //         return (
+        //             <>
+        //                 {validSectorTimes && (
+        //                     <Tooltip title="Replay includes CP/sector times" placement="right">
+        //                         <ClockCircleOutlined />
+        //                     </Tooltip>
+        //                 )}
+        //             </>
+
+        //         );
+        //     }
+        //     ,
+        // },
         {
             title: 'Time',
             dataIndex: 'readableTime',
@@ -157,41 +296,41 @@ const SidebarReplays = ({
                                 </CleanButton>
                             )}
                         {loadingState?.state === DownloadState.DOWNLOADING
-                        && (
-                            <CleanButton
-                                onClick={() => {
-                                    onLoadReplay(replay);
-                                }}
-                                className="w-full"
-                                disabled
-                            >
-                                <Progress percent={loadingState.progress} status="active" />
-                            </CleanButton>
-                        )}
+                            && (
+                                <CleanButton
+                                    onClick={() => {
+                                        onLoadReplay(replay);
+                                    }}
+                                    className="w-full"
+                                    disabled
+                                >
+                                    <Progress percent={loadingState.progress} status="active" />
+                                </CleanButton>
+                            )}
                         {loadingState?.state === DownloadState.LOADED
-                        && (
-                            <CleanButton
-                                onClick={() => onRemoveReplay(replay)}
-                                className="w-full"
-                                backColor="#B41616"
-                            >
-                                Remove
-                            </CleanButton>
-                        )}
+                            && (
+                                <CleanButton
+                                    onClick={() => onRemoveReplay(replay)}
+                                    className="w-full"
+                                    backColor="#B41616"
+                                >
+                                    Remove
+                                </CleanButton>
+                            )}
                         {loadingState?.state === DownloadState.ERROR
-                        && (
-                            <Tooltip placement="top" title="Loading failed, click to try again">
-                                <span style={{ width: '100%', height: '100%' }}>
-                                    <CleanButton
-                                        onClick={() => onLoadReplay(replay)}
-                                        className="w-full"
-                                        backColor="#b46616"
-                                    >
-                                        Retry
-                                    </CleanButton>
-                                </span>
-                            </Tooltip>
-                        )}
+                            && (
+                                <Tooltip placement="top" title="Loading failed, click to try again">
+                                    <span style={{ width: '100%', height: '100%' }}>
+                                        <CleanButton
+                                            onClick={() => onLoadReplay(replay)}
+                                            className="w-full"
+                                            backColor="#b46616"
+                                        >
+                                            Retry
+                                        </CleanButton>
+                                    </span>
+                                </Tooltip>
+                            )}
                         {user && user.accountId === replay.webId && (
                             <Popconfirm
                                 title="Delete this replay?"
@@ -288,11 +427,57 @@ const SidebarReplays = ({
                 <Spin spinning={loadingReplays}>
                     <div className="flex flex-row justify-between items-center mb-3 mx-4">
                         <div className="flex flex-row gap-4">
+                            {/* Load current page */}
                             <CleanButton
                                 onClick={() => onLoadAllVisibleReplays(visibleReplays, selectedReplayDataIds)}
                             >
-                                Load all visible
+                                Load page
                             </CleanButton>
+
+                            {/* Load other dropdown */}
+                            <Dropdown
+                                overlay={(
+                                    <Menu>
+                                        <Menu.Item
+                                            className="text-md"
+                                            icon={<TrophyFilled />}
+                                            onClick={() => onLoadFastestTime()}
+                                        >
+                                            Fastest Time
+                                        </Menu.Item>
+                                        <Menu.Item
+                                            className="text-md"
+                                            icon={<TrophyFilled />}
+                                            onClick={() => onLoadUserPb()}
+                                            disabled={!user || !userHasReplay}
+                                        >
+                                            Your PB
+                                        </Menu.Item>
+                                        {/* TODO: Add back in when sector times are fixed */}
+                                        {/* <Menu.Item
+                                            className="text-md"
+                                            icon={<ClockCircleFilled />}
+                                            onClick={() => onLoadReplaysWithFastestSectorTimes()}
+                                            disabled={!singleReplayHasSectorTimes}
+                                        >
+                                            All replays containing fastest sectors
+                                        </Menu.Item> */}
+                                    </Menu>
+                                )}
+                                mouseLeaveDelay={0.2}
+                            >
+                                <Space className="cursor-pointer">
+                                    <CleanButton
+                                        onClick={() => { }}
+                                        backColor="gray"
+                                    >
+                                        Load other...
+                                        <DownOutlined />
+                                    </CleanButton>
+                                </Space>
+                            </Dropdown>
+
+                            {/* Unload all */}
                             <CleanButton
                                 onClick={() => onRemoveAllReplays(visibleReplays)}
                                 backColor="#B41616"

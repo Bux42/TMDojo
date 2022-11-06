@@ -25,7 +25,6 @@ const Viewer3D = ({ replaysData }: Props): JSX.Element => {
         showInputOverlay,
         replayLineOpacity,
         replayCarOpacity,
-        cameraMode,
     } = useContext(SettingsContext);
 
     const orbitControlsRef = useRef<any>();
@@ -74,7 +73,6 @@ const Viewer3D = ({ replaysData }: Props): JSX.Element => {
                         orbitControlsRef={orbitControlsRef}
                         showInputOverlay={showInputOverlay}
                         replayCarOpacity={replayCarOpacity}
-                        cameraMode={cameraMode}
                     />
                 </Suspense>
                 {showFPS && <FrameRate />}

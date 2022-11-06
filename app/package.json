@@ -18,7 +18,7 @@
     "@types/highcharts": "^7.0.0",
     "@types/three": "^0.127.1",
     "@types/ua-parser-js": "^0.7.36",
-    "antd": "^4.15.2",
+    "antd": "^4.19.5",
     "axios": "^0.21.1",
     "dayjs": "^1.10.7",
     "highcharts": "^9.1.1",
@@ -37,6 +37,7 @@
   "devDependencies": {
     "@babel/plugin-proposal-decorators": "^7.13.5",
     "@svgr/webpack": "^5.5.0",
+    "@types/antd": "^1.0.0",
     "@types/node": "^14.14.35",
     "@types/parse-color": "^1.0.1",
     "@types/react": "^17.0.3",

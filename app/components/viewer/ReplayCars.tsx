@@ -26,11 +26,10 @@ interface ReplayCarProps {
     showInputOverlay: boolean;
     fbx: THREE.Object3D;
     replayCarOpacity: number;
-    cameraMode: CameraMode;
 }
 
 const ReplayCar = ({
-    replay, camera, orbitControlsRef, showInputOverlay, fbx, replayCarOpacity, cameraMode,
+    replay, camera, orbitControlsRef, showInputOverlay, fbx, replayCarOpacity,
 }: ReplayCarProps) => {
     const mesh = useRef<THREE.Mesh>();
     const stadiumCarMesh = useRef<THREE.Mesh>();
@@ -110,17 +109,25 @@ const ReplayCar = ({
                 if (orbitControlsRef && orbitControlsRef.current) {
                     orbitControlsRef.current.target.lerp(smoothSample.position, 0.2);
 
-                    if (cameraMode === CameraMode.Follow) {
+                    if (timeLineGlobal.cameraMode === CameraMode.Follow) {
                         // move camPosMesh to Follow position
                         camPosRef.current.rotation.setFromQuaternion(carRotation);
                         // move toward where the car is heading
+
+                        const velocitySpeed = smoothSample.velocity.length();
+                        // Set camera position behind the car
+                        const backwardMax = 6;
+                        const backward = (backwardMax - (velocitySpeed / backwardMax));
+
                         camPosRef.current.position.set(
-                            -smoothSample.velocity.x / 5,
-                            -smoothSample.velocity.y / 5,
-                            -smoothSample.velocity.z / 5,
+                            (-smoothSample.velocity.x / 4),
+                            (-smoothSample.velocity.y / 4),
+                            (-smoothSample.velocity.z / 4),
                         );
-                        camPosRef.current.translateZ(-7 - (smoothSample.speed / 30));
-                        camPosRef.current.translateY(2 + (smoothSample.speed / 200));
+
+                        // Do not force camera behind the car above a certain speed
+                        camPosRef.current.translateZ(backward < 0 ? 0 : -backward);
+                        camPosRef.current.translateY(3);
                         // move camera to camPosMesh world position
                         const camWorldPos: THREE.Vector3 = new THREE.Vector3();
                         camPosRef.current.getWorldPosition(camWorldPos);
@@ -128,6 +135,7 @@ const ReplayCar = ({
                     }
                 }
             }
+
             // Scale car up if hovered in LoadedReplays
             if (hovered) {
                 stadiumCarMesh.current.scale.lerp(new THREE.Vector3(0.02, 0.02, 0.02), 0.2);
@@ -187,7 +195,6 @@ interface ReplayCarsProps {
     orbitControlsRef: any;
     showInputOverlay: boolean;
     replayCarOpacity: number;
-    cameraMode: CameraMode;
 }
 
 const ReplayCars = ({
@@ -195,7 +202,6 @@ const ReplayCars = ({
     orbitControlsRef,
     showInputOverlay,
     replayCarOpacity,
-    cameraMode,
 }: ReplayCarsProps): JSX.Element => {
     const camera = useThree((state) => state.camera);
     const fbx = useFBX('/StadiumCarWheelsSeparated.fbx');
@@ -211,7 +217,6 @@ const ReplayCars = ({
                     showInputOverlay={showInputOverlay}
                     fbx={fbx.clone()}
                     replayCarOpacity={replayCarOpacity}
-                    cameraMode={cameraMode}
                 />
             ))}
         </>
