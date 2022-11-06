@@ -1,4 +1,5 @@
-import React, { useCallback, useMemo } from 'react';
+import { useFrame } from '@react-three/fiber';
+import React, { useCallback, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { ReplayData } from '../../lib/api/apiRequests';
 import {
@@ -9,6 +10,8 @@ import {
     speedReplayColors,
     inputReplayColors,
 } from '../../lib/replays/replayLineColors';
+import GlobalTimeLineInfos from '../../lib/singletons/timeLineInfos';
+import { getSampleIndexNearTime, getSampleNearTime } from '../../lib/utils/replay';
 import ReplayChartHoverLocation from './ReplayChartHoverLocation';
 import ReplayDnf from './ReplayDnf';
 import ReplayGears from './ReplayGears';
@@ -35,8 +38,11 @@ interface ReplayLineProps {
 const ReplayLine = ({
     replay, lineType, replayLineOpacity,
 }: ReplayLineProps) => {
+    const bufferGeom = useRef<THREE.BufferGeometry>();
     const points = useMemo(() => replay.samples.map((sample) => sample.position), [replay.samples]);
     const colorBuffer = useMemo(() => lineType.colorsCallback(replay), [replay, lineType, replay.color]);
+
+    const timeLineGlobal = GlobalTimeLineInfos.getInstance();
 
     const onUpdate = useCallback(
         (self) => {
@@ -46,9 +52,16 @@ const ReplayLine = ({
         [points, colorBuffer],
     );
 
+    useFrame(() => {
+        if (!bufferGeom.current) return;
+
+        const sampleIndex = getSampleIndexNearTime(replay, timeLineGlobal.currentRaceTime);
+        bufferGeom.current.setDrawRange(0, sampleIndex);
+    });
+
     return (
         <line>
-            <bufferGeometry onUpdate={onUpdate} />
+            <bufferGeometry ref={bufferGeom} onUpdate={onUpdate} />
             <lineBasicMaterial
                 linewidth={10}
                 transparent
