@@ -59,7 +59,7 @@ export const fetchReplayData = async (
 ): Promise<ReplayDownloadState> => {
     const fetchedReplay: ReplayDownloadState = {
         _id: file._id,
-        state: DownloadState.LOADED,
+        state: DownloadState.DOWNLOADING,
         progress: 0,
     };
 
@@ -77,10 +77,13 @@ export const fetchReplayData = async (
         fetchedReplay.replay = {
             ...file, samples, minPos, maxPos, dnfPos, color, intervalMedian,
         };
+        fetchedReplay.progress = 1;
+        fetchedReplay.state = DownloadState.LOADED;
     } catch {
         fetchedReplay.progress = 0;
         fetchedReplay.state = DownloadState.ERROR;
     }
+
     return fetchedReplay;
 };
 

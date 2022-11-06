@@ -284,53 +284,45 @@ const SidebarReplays = ({
 
                 return (
                     <div className="flex flex-row gap-4 items-center">
-                        {(!loadingState || loadingState?.state === DownloadState.IDLE)
-                            && (
-                                <CleanButton
-                                    onClick={() => {
-                                        onLoadReplay(replay);
-                                    }}
-                                    className="w-full"
-                                >
-                                    Load
-                                </CleanButton>
-                            )}
-                        {loadingState?.state === DownloadState.DOWNLOADING
-                            && (
-                                <CleanButton
-                                    onClick={() => {
-                                        onLoadReplay(replay);
-                                    }}
-                                    className="w-full"
-                                    disabled
-                                >
-                                    <Progress percent={loadingState.progress} status="active" />
-                                </CleanButton>
-                            )}
-                        {loadingState?.state === DownloadState.LOADED
-                            && (
-                                <CleanButton
-                                    onClick={() => onRemoveReplay(replay)}
-                                    className="w-full"
-                                    backColor="#B41616"
-                                >
-                                    Remove
-                                </CleanButton>
-                            )}
-                        {loadingState?.state === DownloadState.ERROR
-                            && (
-                                <Tooltip placement="top" title="Loading failed, click to try again">
-                                    <span style={{ width: '100%', height: '100%' }}>
-                                        <CleanButton
-                                            onClick={() => onLoadReplay(replay)}
-                                            className="w-full"
-                                            backColor="#b46616"
-                                        >
-                                            Retry
-                                        </CleanButton>
-                                    </span>
-                                </Tooltip>
-                            )}
+                        {(!loadingState) && (
+                            <CleanButton
+                                onClick={() => onLoadReplay(replay)}
+                                className="w-full"
+                            >
+                                Load
+                            </CleanButton>
+                        )}
+                        {loadingState?.state === DownloadState.DOWNLOADING && (
+                            <CleanButton
+                                onClick={() => onLoadReplay(replay)}
+                                className="w-full"
+                                disabled
+                            >
+                                <Progress percent={loadingState.progress} status="active" />
+                            </CleanButton>
+                        )}
+                        {loadingState?.state === DownloadState.LOADED && (
+                            <CleanButton
+                                onClick={() => onRemoveReplay(replay)}
+                                className="w-full"
+                                backColor="#B41616"
+                            >
+                                Remove
+                            </CleanButton>
+                        )}
+                        {loadingState?.state === DownloadState.ERROR && (
+                            <Tooltip placement="top" title="Loading failed, click to try again">
+                                <span style={{ width: '100%', height: '100%' }}>
+                                    <CleanButton
+                                        onClick={() => onLoadReplay(replay)}
+                                        className="w-full"
+                                        backColor="#b46616"
+                                    >
+                                        Retry
+                                    </CleanButton>
+                                </span>
+                            </Tooltip>
+                        )}
                         {user && user.accountId === replay.webId && (
                             <Popconfirm
                                 title="Delete this replay?"
