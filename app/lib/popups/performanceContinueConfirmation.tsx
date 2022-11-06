@@ -4,11 +4,13 @@ import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { Checkbox, Modal } from 'antd';
 import dayjs from 'dayjs';
 
+const STOP_SHOWING_PERFORMANCE_CONFIRMATION_KEY = 'stopShowingPerformanceContinueConfirmation';
+
 const showPerformanceConfirmationModal = (
     onModalOk: () => void,
     onModalCancel: () => void,
 ) => {
-    const stopShowingConfirmationModal = localStorage.getItem('stopShowingConfirmationModal') !== null;
+    const stopShowingConfirmationModal = localStorage.getItem(STOP_SHOWING_PERFORMANCE_CONFIRMATION_KEY) !== null;
     if (stopShowingConfirmationModal) {
         onModalOk();
         return;
@@ -43,7 +45,7 @@ const showPerformanceConfirmationModal = (
         onOk: () => {
             onModalOk();
             if (dontShowAgain) {
-                localStorage.setItem('stopShowingConfirmationModal', dayjs().unix().toString());
+                localStorage.setItem(STOP_SHOWING_PERFORMANCE_CONFIRMATION_KEY, dayjs().unix().toString());
             }
         },
         onCancel: () => {

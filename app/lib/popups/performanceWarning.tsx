@@ -3,9 +3,11 @@ import React from 'react';
 import { Button, notification } from 'antd';
 import dayjs from 'dayjs';
 
+const STOP_SHOWING_PERFORMANCE_WARNING_KEY = 'stopShowingPerformanceWarning';
+
 const showPerformanceWarning = () => {
     // Don't show the warning if the user has already dismissed it
-    const stopShowingPerformanceWarning = localStorage.getItem('stopShowingPerformanceWarning') !== null;
+    const stopShowingPerformanceWarning = localStorage.getItem(STOP_SHOWING_PERFORMANCE_WARNING_KEY) !== null;
     if (stopShowingPerformanceWarning) return;
 
     // Assign key to notification so we can close it later
@@ -21,7 +23,7 @@ const showPerformanceWarning = () => {
             <Button
                 type="ghost"
                 onClick={() => {
-                    localStorage.setItem('stopShowingPerformanceWarning', dayjs().unix().toString());
+                    localStorage.setItem(STOP_SHOWING_PERFORMANCE_WARNING_KEY, dayjs().unix().toString());
                     notification.close(key);
                 }}
             >

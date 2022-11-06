@@ -1,8 +1,10 @@
 import { Modal } from 'antd';
 import dayjs from 'dayjs';
 
+const MOBILE_VIEWER_WARNING_SHOWN_KEY = 'mobileViewerWarningShown';
+
 const showMobilePerformanceWarning = () => {
-    const shownMobileWarning = localStorage.getItem('mobileViewerWarningShown') !== null;
+    const shownMobileWarning = localStorage.getItem(MOBILE_VIEWER_WARNING_SHOWN_KEY) !== null;
     if (shownMobileWarning) return;
 
     Modal.warning({
@@ -18,7 +20,7 @@ const showMobilePerformanceWarning = () => {
     });
 
     // Set date of showing warning to today
-    localStorage.setItem('mobileViewerWarningShown', dayjs().unix().toString());
+    localStorage.setItem(MOBILE_VIEWER_WARNING_SHOWN_KEY, dayjs().unix().toString());
 };
 
 export default showMobilePerformanceWarning;
