@@ -55,8 +55,19 @@ const ReplayLine = ({
     useFrame(() => {
         if (!bufferGeom.current) return;
 
+        const TRAIL_TIME_MS = 1000;
+
         const sampleIndex = getSampleIndexNearTime(replay, timeLineGlobal.currentRaceTime);
-        bufferGeom.current.setDrawRange(0, sampleIndex);
+        const sampleIndexMin = Math.max(
+            0,
+            getSampleIndexNearTime(replay, timeLineGlobal.currentRaceTime - TRAIL_TIME_MS),
+        );
+
+        const diff = sampleIndex - sampleIndexMin;
+        const minIndexClamped = Math.max(0, Math.min(sampleIndex - diff, replay.samples.length));
+        const numSamplesToDraw = Math.min(Math.max(sampleIndex, sampleIndex - diff), diff);
+
+        bufferGeom.current.setDrawRange(minIndexClamped, numSamplesToDraw);
     });
 
     return (
