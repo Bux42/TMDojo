@@ -1,4 +1,6 @@
-import React, { Suspense, useContext, useEffect, useRef, useState } from 'react';
+import React, {
+    Suspense, useContext, useEffect, useRef, useState,
+} from 'react';
 import * as THREE from 'three';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Sky } from '@react-three/drei';
