@@ -4,13 +4,13 @@ import React, {
 import * as THREE from 'three';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Sky } from '@react-three/drei';
+import { OrbitControls as ThreeOrbitControls } from 'three-stdlib';
 import { ReplayData } from '../../lib/api/apiRequests';
 import { ReplayLines } from './ReplayLines';
 import { Grid, DEFAULT_GRID_POS } from './Grid';
 import { SettingsContext } from '../../lib/contexts/SettingsContext';
 import FrameRate from './FrameRate';
 import ReplayCars from './ReplayCars';
-import GlobalTimeLineInfos from '../../lib/singletons/timeLineInfos';
 import TimeLine from './timeline/TimeLine';
 import SceneDirectionalLight from './SceneDirectionalLight';
 
@@ -29,18 +29,26 @@ const Viewer3D = ({ replaysData }: Props): JSX.Element => {
         replayCarOpacity,
     } = useContext(SettingsContext);
 
-    const orbitControlsRef = useRef<any>();
+    const orbitControlsRef = useRef<ThreeOrbitControls>(null);
 
-    const [orbitTarget, setOrbitTarget] = useState<THREE.Vector3>(DEFAULT_GRID_POS);
+    const prevReplaysData = useRef<ReplayData[]>([]);
 
     useEffect(() => {
-        const timeLineGlobal = GlobalTimeLineInfos.getInstance();
-        if (timeLineGlobal.currentRaceTime === 0 && replaysData.length === 1) {
-            if (replaysData[0].samples.length > 0) {
-                setOrbitTarget(replaysData[0].samples[0].position);
+        if (!orbitControlsRef.current) return;
+
+        if (prevReplaysData.current) {
+            if (prevReplaysData.current.length === 0 && replaysData.length > 0) {
+                // If previous replay data was empty and current one isn't, meaning first replay selected,
+                //  set target to first sample of the first replay
+                if (replaysData[0].samples.length > 0) {
+                    orbitControlsRef.current.target = replaysData[0].samples[0].position.clone();
+                }
             }
         }
-    }, [replaysData, setOrbitTarget]);
+
+        // Store previous replays data
+        prevReplaysData.current = replaysData;
+    }, [replaysData, orbitControlsRef]);
 
     return (
         <div style={{ zIndex: -10 }} className="w-full h-full">
@@ -62,7 +70,7 @@ const Viewer3D = ({ replaysData }: Props): JSX.Element => {
                     ref={orbitControlsRef}
                     dampingFactor={0.2}
                     rotateSpeed={0.4}
-                    target={orbitTarget}
+                    target={DEFAULT_GRID_POS}
                 />
 
                 <Grid replaysData={replaysData} blockPadding={2} />
