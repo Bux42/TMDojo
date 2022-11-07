@@ -1,16 +1,15 @@
 import React, { useContext, useState } from 'react';
-import Title from 'antd/lib/typography/Title';
 import {
-    Button, Checkbox, Drawer, Select, Col, Slider, InputNumber,
+    Checkbox, Drawer, Select, Col, Slider, InputNumber,
 } from 'antd';
 import { CheckboxChangeEvent } from 'antd/lib/checkbox';
-import { CaretLeftOutlined, SettingOutlined } from '@ant-design/icons';
+import { SettingOutlined } from '@ant-design/icons';
+import Text from 'antd/lib/typography/Text';
 import { SettingsContext } from '../../lib/contexts/SettingsContext';
 import { LineTypes } from '../viewer/ReplayLines';
 import SideDrawerExpandButton from '../common/SideDrawerExpandButton';
 import useWindowDimensions from '../../lib/hooks/useWindowDimensions';
 import GlobalTimeLineInfos from '../../lib/singletons/timeLineInfos';
-import Text from 'antd/lib/typography/Text';
 
 const SidebarSettings = (): JSX.Element => {
     const [visible, setVisible] = useState(false);
