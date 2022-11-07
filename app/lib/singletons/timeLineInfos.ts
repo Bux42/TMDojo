@@ -21,7 +21,7 @@ class TimeLineInfos {
         this.isPlaying = false;
         this.cameraMode = CameraMode.Follow;
         this.showFullTrail = true;
-        this.showTrailToStart = false;
+        this.showTrailToStart = true;
         this.revealTrailTime = 1000;
     }
 }
