@@ -1,4 +1,4 @@
-import React, { Suspense, useContext, useRef } from 'react';
+import React, { Suspense, useContext, useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Sky } from '@react-three/drei';
@@ -28,14 +28,17 @@ const Viewer3D = ({ replaysData }: Props): JSX.Element => {
     } = useContext(SettingsContext);
 
     const orbitControlsRef = useRef<any>();
-    const timeLineGlobal = GlobalTimeLineInfos.getInstance();
 
-    let orbitDefaultTarget = DEFAULT_GRID_POS;
-    if (timeLineGlobal.currentRaceTime === 0 && replaysData.length > 0) {
-        if (replaysData[0].samples.length) {
-            orbitDefaultTarget = replaysData[0].samples[0].position;
+    const [orbitTarget, setOrbitTarget] = useState<THREE.Vector3>(DEFAULT_GRID_POS);
+
+    useEffect(() => {
+        const timeLineGlobal = GlobalTimeLineInfos.getInstance();
+        if (timeLineGlobal.currentRaceTime === 0 && replaysData.length === 1) {
+            if (replaysData[0].samples.length > 0) {
+                setOrbitTarget(replaysData[0].samples[0].position);
+            }
         }
-    }
+    }, [replaysData, setOrbitTarget]);
 
     return (
         <div style={{ zIndex: -10 }} className="w-full h-full">
@@ -57,7 +60,7 @@ const Viewer3D = ({ replaysData }: Props): JSX.Element => {
                     ref={orbitControlsRef}
                     dampingFactor={0.2}
                     rotateSpeed={0.4}
-                    target={orbitDefaultTarget}
+                    target={orbitTarget}
                 />
 
                 <Grid replaysData={replaysData} blockPadding={2} />
