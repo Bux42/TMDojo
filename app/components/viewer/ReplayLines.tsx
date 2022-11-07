@@ -34,11 +34,9 @@ interface ReplayLineProps {
     replay: ReplayData;
     lineType: LineType;
     replayLineOpacity: number;
-    revealTrail?: boolean;
-    revealTrailTime?: number;
 }
 const ReplayLine = ({
-    replay, lineType, replayLineOpacity, revealTrail, revealTrailTime,
+    replay, lineType, replayLineOpacity,
 }: ReplayLineProps) => {
     const bufferGeom = useRef<THREE.BufferGeometry>();
     const points = useMemo(() => replay.samples.map((sample) => sample.position), [replay.samples]);
@@ -57,18 +55,20 @@ const ReplayLine = ({
     useFrame(() => {
         if (!bufferGeom.current) return;
 
-        if (!revealTrail) {
+        const { showFullTrail, showTrailToStart, revealTrailTime } = timeLineGlobal;
+
+        if (showFullTrail) {
             bufferGeom.current.setDrawRange(0, points.length);
             return;
         }
 
         const sampleIndex = getSampleIndexNearTime(replay, timeLineGlobal.currentRaceTime);
-        const sampleIndexMin = (revealTrailTime !== undefined)
-            ? Math.max(
+        const sampleIndexMin = showTrailToStart
+            ? 0
+            : Math.max(
                 0,
                 getSampleIndexNearTime(replay, timeLineGlobal.currentRaceTime - revealTrailTime),
-            )
-            : 0;
+            );
 
         const diff = sampleIndex - sampleIndexMin;
         const minIndexClamped = Math.max(0, Math.min(sampleIndex - diff, replay.samples.length));
@@ -112,7 +112,6 @@ export const ReplayLines = ({
                     replay={replay}
                     lineType={lineType}
                     replayLineOpacity={replayLineOpacity}
-                    revealTrail
                 />
                 <ReplayChartHoverLocation
                     key={`replay-${replay._id}-chart-hover`}
