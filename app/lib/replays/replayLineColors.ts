@@ -137,3 +137,12 @@ export const inputReplayColors = (replay: ReplayData): THREE.Float32BufferAttrib
     }
     return new THREE.Float32BufferAttribute(colorBuffer, 3);
 };
+
+export const addAlphaChannel = (rgbBuffer: THREE.Float32BufferAttribute) => {
+    const alphaList = [];
+    for (let i = 0; i < rgbBuffer.count; i++) {
+        alphaList.push(rgbBuffer.getX(i), rgbBuffer.getY(i), rgbBuffer.getZ(i), 1);
+    }
+    const alphaBuffer = new THREE.Float32BufferAttribute(alphaList, 4);
+    return alphaBuffer;
+};
