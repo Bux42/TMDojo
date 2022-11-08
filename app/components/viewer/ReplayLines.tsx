@@ -90,7 +90,7 @@ const ReplayLine = ({
                 // Index before minimum index, hide line: set alpha to 0
                 bufferGeom.current.attributes.color.setW(i, 0);
             } else if (i < endFadeIndexClamped) {
-                // Index after trail start, before fade start, fade alpha between 0 and 1
+                // Index after trail start, before fade end, fade alpha between 0 and 1
                 const alpha = (i - startTrailIndexClamped) / (endFadeIndexClamped - startTrailIndexClamped);
                 bufferGeom.current.attributes.color.setW(i, alpha);
             } else {
