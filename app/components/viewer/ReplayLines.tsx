@@ -34,6 +34,12 @@ export const LineTypes: { [name: string]: LineType } = {
     inputs: { name: 'Inputs', colorsCallback: inputReplayColors },
 };
 
+interface LineUpdateIndices {
+    startIndex: number;
+    endIndex: number;
+    segmentUpdate: boolean;
+}
+
 interface ReplayLineProps {
     replay: ReplayData;
     lineType: LineType;
@@ -46,8 +52,10 @@ const ReplayLine = ({
     const points = useMemo(() => replay.samples.map((sample) => sample.position), [replay.samples]);
     const colorBuffer = useMemo(() => {
         const colors = lineType.colorsCallback(replay);
-        return addAlphaChannel(colors);
+        return addAlphaChannel(colors, 0);
     }, [replay, lineType]);
+
+    const previousLineUpdate = useRef<LineUpdateIndices>();
 
     const timeLineGlobal = GlobalTimeLineInfos.getInstance();
 
@@ -62,46 +70,82 @@ const ReplayLine = ({
     useFrame(() => {
         if (!bufferGeom.current) return;
 
-        const { showFullTrail, showTrailToStart, revealTrailTime } = timeLineGlobal;
+        const {
+            showFullTrail, showTrailToStart, revealTrailTime, currentRaceTime,
+        } = timeLineGlobal;
 
-        if (showFullTrail) {
-            bufferGeom.current.setDrawRange(0, points.length);
-            return;
-        }
-
-        // Get sample and trail indices
         const curSampleIndex = getSampleIndexNearTime(replay, timeLineGlobal.currentRaceTime);
-        const startTrailIndex = showTrailToStart ? 0 : getSampleIndexNearTime(
-            replay,
-            timeLineGlobal.currentRaceTime - revealTrailTime,
-        );
 
-        const endFadeIndex = showTrailToStart ? 0 : getSampleIndexNearTime(
-            replay,
-            timeLineGlobal.currentRaceTime - revealTrailTime + TRAIL_FADE_SEGMENT_TIME,
-        );
-
-        // Clamp indices
-        const startTrailIndexClamped = Math.max(0, Math.min(startTrailIndex, replay.samples.length));
-        const endFadeIndexClamped = Math.max(0, Math.min(endFadeIndex, curSampleIndex, replay.samples.length));
-
-        for (let i = 0; i < curSampleIndex; i++) {
-            if (i < startTrailIndexClamped) {
-                // Index before minimum index, hide line: set alpha to 0
-                bufferGeom.current.attributes.color.setW(i, 0);
-            } else if (i < endFadeIndexClamped) {
-                // Index after trail start, before fade end, fade alpha between 0 and 1
-                const alpha = (i - startTrailIndexClamped) / (endFadeIndexClamped - startTrailIndexClamped);
-                bufferGeom.current.attributes.color.setW(i, alpha);
-            } else {
-                // Index after fade end, show line: set alpha to 1
-                bufferGeom.current.attributes.color.setW(i, 1);
+        if (showFullTrail || showTrailToStart) {
+            if (!previousLineUpdate.current || previousLineUpdate.current.segmentUpdate) {
+                // Reset alpha of full line if it's the first update or if the previous update was a segment update
+                for (let i = 0; i < points.length; i++) {
+                    bufferGeom.current.attributes.color.setW(i, 1);
+                }
+                bufferGeom.current.attributes.color.needsUpdate = true;
             }
-        }
-        bufferGeom.current.attributes.color.needsUpdate = true;
 
-        const samplesToDraw = curSampleIndex - startTrailIndexClamped;
-        bufferGeom.current.setDrawRange(startTrailIndexClamped, samplesToDraw);
+            if (showFullTrail) {
+                bufferGeom.current.setDrawRange(0, points.length);
+            } else {
+                bufferGeom.current.setDrawRange(0, curSampleIndex);
+            }
+
+            previousLineUpdate.current = {
+                startIndex: 0,
+                endIndex: points.length,
+                segmentUpdate: false,
+            };
+        } else {
+            // Get trail indices
+            const startTrailIndex = getSampleIndexNearTime(
+                replay,
+                currentRaceTime - revealTrailTime,
+            );
+            const endFadeIndex = getSampleIndexNearTime(
+                replay,
+                currentRaceTime - revealTrailTime + TRAIL_FADE_SEGMENT_TIME,
+            );
+
+            // Clamp trail indices
+            const startTrailIndexClamped = Math.max(0, Math.min(startTrailIndex, replay.samples.length));
+            const endFadeIndexClamped = Math.max(0, Math.min(endFadeIndex, curSampleIndex, replay.samples.length));
+
+            const prev = previousLineUpdate.current;
+            // Update starts at trail index or previous start index (or 0 if no previous update has occured)
+            const updateStart = Math.min(startTrailIndexClamped, prev?.startIndex || 0);
+            // Update starts at sample index or previous end index (or end of line if no previous update has occured)
+            const updateEnd = Math.max(curSampleIndex, prev?.endIndex || points.length);
+
+            // Update line alpha if needed (previous was not a segment update or update range changed)
+            if (!prev?.segmentUpdate || updateStart !== prev?.startIndex || updateEnd !== prev?.endIndex) {
+                for (let i = updateStart; i < updateEnd; i++) {
+                    if (i < startTrailIndexClamped) {
+                        // Index before minimum index, hide line: set alpha to 0
+                        bufferGeom.current.attributes.color.setW(i, 0);
+                    } else if (i < endFadeIndexClamped) {
+                        // Index after trail start, before fade end, fade alpha between 0 and 1
+                        const alpha = (i - startTrailIndexClamped) / (endFadeIndexClamped - startTrailIndexClamped);
+                        bufferGeom.current.attributes.color.setW(i, alpha);
+                    } else {
+                        // Index after fade end, show line: set alpha to 1
+                        bufferGeom.current.attributes.color.setW(i, 1);
+                    }
+                }
+                bufferGeom.current.attributes.color.needsUpdate = true;
+            }
+
+            // Set line draw range
+            const samplesToDraw = curSampleIndex - startTrailIndexClamped;
+            bufferGeom.current.setDrawRange(startTrailIndexClamped, samplesToDraw);
+
+            // Set start and end to trail start and end
+            previousLineUpdate.current = {
+                startIndex: startTrailIndexClamped,
+                endIndex: curSampleIndex,
+                segmentUpdate: true,
+            };
+        }
     });
 
     return (
