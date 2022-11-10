@@ -46,8 +46,13 @@ const ReplayLine = ({
     const points = useMemo(() => replay.samples.map((sample) => sample.position), [replay.samples]);
     const colorBuffer = useMemo(() => {
         const colors = lineType.colorsCallback(replay);
+
+        // Set alpha to 0 by default to avoid flickering, it will be set to the correct value in the replay trail hook
         return addAlphaChannel(colors, 0);
-    }, [replay, lineType]);
+
+        // We need the 'replay.color' variable to be in the dependency array, otherwise the colors will not update
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [replay, replay.color, lineType]);
 
     const onUpdate = useCallback(
         (self) => {
