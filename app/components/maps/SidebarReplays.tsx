@@ -16,6 +16,7 @@ import {
 } from '@ant-design/icons';
 import { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
 import { ColumnType, TableCurrentDataSource } from 'antd/lib/table/interface';
+import { useQueryClient } from 'react-query';
 import { getRaceTimeStr, timeDifference } from '../../lib/utils/time';
 import { AuthContext } from '../../lib/contexts/AuthContext';
 import SideDrawerExpandButton from '../common/SideDrawerExpandButton';
@@ -30,6 +31,7 @@ import {
     calcValidSectorsLength,
     filterReplaysWithValidSectorTimes,
 } from '../../lib/replays/sectorTimes';
+import useDeleteReplayMutation from '../../lib/api/hooks/mutations/replays';
 
 interface ExtendedReplayInfo extends ReplayInfo {
     readableTime: string;
@@ -60,6 +62,9 @@ const SidebarReplays = ({
     onRefreshReplays,
     selectedReplayDataIds,
 }: Props): JSX.Element => {
+    const queryClient = useQueryClient();
+    const { mutate: deleteReplayMutation } = useDeleteReplayMutation(queryClient);
+
     const defaultPageSize = 14;
 
     const showFinishedColumn = replays.some((replay: ReplayInfo) => !replay.raceFinished);
@@ -114,14 +119,15 @@ const SidebarReplays = ({
         return uniques.sort().map((val) => ({ text: val, value: val }));
     };
 
-    const deleteReplayFile = async (replay: ExtendedReplayInfo) => {
-        try {
-            await api.replays.deleteReplay(replay);
-            await onRefreshReplays();
-            message.success('Replay deleted!');
-        } catch (e) {
-            message.error('Could not delete replay.');
-        }
+    const deleteReplay = async (replay: ExtendedReplayInfo) => {
+        deleteReplayMutation(replay, {
+            onSuccess: () => {
+                message.success('Replay deleted');
+            },
+            onError: () => {
+                message.error('Could not delete replay.');
+            },
+        });
     };
 
     const onLoadReplaysWithFastestSectorTimes = () => {
@@ -309,7 +315,7 @@ const SidebarReplays = ({
                                 cancelText="No"
                                 okText="Yes"
                                 okButtonProps={{ danger: true }}
-                                onConfirm={() => deleteReplayFile(replay)}
+                                onConfirm={() => deleteReplay(replay)}
                             >
                                 <Button
                                     shape="circle"
