@@ -27,16 +27,15 @@ const Home = (): JSX.Element => {
     const queryClient = useQueryClient();
 
     const router = useRouter();
-    const { mapUId } = router.query;
+    const { mapUId: rawMapUId } = router.query;
+    const mapUId = useMemo(() => (typeof rawMapUId === 'string' ? rawMapUId : undefined), [rawMapUId]);
 
     const {
         data: mapReplaysResult,
         isLoading: isLoadingReplays,
-    } = useMapReplays(typeof mapUId === 'string' ? mapUId : undefined);
+    } = useMapReplays(mapUId);
 
-    const {
-        data: mapInfo,
-    } = useMapInfo(typeof mapUId === 'string' ? mapUId : undefined);
+    const { data: mapInfo } = useMapInfo(mapUId);
 
     const [selectedReplayData, setSelectedReplayData] = useState<ReplayData[]>([]);
     const [sectorTableVisible, setSectorTableVisible] = useState<boolean>(false);
