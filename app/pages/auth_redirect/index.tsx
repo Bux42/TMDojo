@@ -32,7 +32,7 @@ const AuthRedirect = (): JSX.Element => {
                 authorize();
                 // for the UI login, this page should only be opened in a new popup window
                 // it should send back the code and state it received to its opener
-            } else {
+            } else if (window.opener) {
                 // send them to the opening window
                 window.opener.postMessage({ source: 'ubi-login-redirect', code, state });
                 setMessage('Redirecting...');
