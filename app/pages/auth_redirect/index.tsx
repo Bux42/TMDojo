@@ -12,6 +12,7 @@ const AuthRedirect = (): JSX.Element => {
 
     const isAllowedTargetOrigin = (targetOrigin: string): boolean => (
         targetOrigin === 'https://www.tmdojo.com'
+        || targetOrigin === 'https://tmdojo.com'
         || targetOrigin === 'http://localhost:4200'
         || (targetOrigin.startsWith('https://tm-dojo-git-') && targetOrigin.endsWith('.vercel.app'))
     );
