@@ -17,7 +17,7 @@ const showPerformanceWarning = () => {
     notification.warning({
         key,
         message: 'Potential performance issues',
-        description: 'Based on your detected hardware, your device may get lower framerates in the 3D viewer. '
+        description: 'Based on your detected hardware, you may get lower framerates in the 3D viewer. '
             + 'If you experience issues, try using a different device.',
         btn: (
             <Button

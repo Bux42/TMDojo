@@ -19,7 +19,7 @@ const showPerformanceConfirmationModal = (
     let dontShowAgain = false;
 
     Modal.confirm({
-        title: 'Potential performance issues!',
+        title: 'Potential major performance issues!',
         content: (
             <div>
                 <p>Based on your detected hardware, your device might struggle with the 3D viewer's performance requirements.</p>
@@ -27,7 +27,7 @@ const showPerformanceConfirmationModal = (
                 <p>One of the reasons could be that you do not have hardware acceleration enabled.</p>
                 <p>Please try enabling hardware acceleration in your browser settings and try again.</p>
                 <br />
-                <p>If you really want to continue anyway, press &apos;Continue&apos;.</p>
+                <p>If you really want to continue anyway, click "Continue"</p>
                 <br />
                 <Checkbox
                     value={dontShowAgain}
@@ -37,7 +37,7 @@ const showPerformanceConfirmationModal = (
                 </Checkbox>
             </div>
         ),
-        okText: 'Continue',
+        okText: 'Continue anyway',
         cancelText: 'Back to homepage',
         centered: true,
         width: '600',
