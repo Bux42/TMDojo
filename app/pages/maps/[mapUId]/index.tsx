@@ -92,18 +92,6 @@ const Home = (): JSX.Element => {
         }
     }, [mapUId]);
 
-    const onRemoveReplay = async (replayToRemove: FileResponse) => {
-        const replayDataFiltered = selectedReplayData.filter(
-            (replay) => replay._id !== replayToRemove._id,
-        );
-        setSelectedReplayData(replayDataFiltered);
-
-        setReplayDownloadStates((prevDownloadStates) => {
-            prevDownloadStates.delete(replayToRemove._id);
-            return new Map(prevDownloadStates);
-        });
-    };
-
     const fetchReplayProgressCallback = (replay: FileResponse, progressEvent: ProgressEvent) => {
         const loadingState = replayDownloadStates.get(replay._id);
 
@@ -165,15 +153,27 @@ const Home = (): JSX.Element => {
         });
     };
 
-    const onRemoveAllReplays = async (replaysToRemove: FileResponse[]) => {
-        const replayDataFiltered = selectedReplayData.filter((el) => replaysToRemove.includes(el));
-        setSelectedReplayData(replayDataFiltered);
+    const onRemoveReplay = async (replayToRemove: FileResponse) => {
+        onRemoveMultipleReplays([replayToRemove]);
+    };
 
-        replayDownloadStates.forEach((fetchedReplay) => {
-            replayDownloadStates.delete(fetchedReplay._id);
+    const onRemoveAllReplays = async () => {
+        onRemoveMultipleReplays(selectedReplayData);
+    };
+
+    const onRemoveMultipleReplays = async (replaysToRemove: FileResponse[]) => {
+        // Remove from selected replays
+        setSelectedReplayData((selectedReplays) => selectedReplays.filter(
+            (replay) => !replaysToRemove.find((replayToRemove) => replayToRemove._id === replay._id),
+        ));
+
+        // Remove replay download states
+        setReplayDownloadStates((prevState) => {
+            replaysToRemove.forEach((replay) => {
+                prevState.delete(replay._id);
+            });
+            return new Map(prevState);
         });
-
-        setReplayDownloadStates(new Map(replayDownloadStates));
     };
 
     const getTitle = () => (mapData?.name ? `${cleanTMFormatting(mapData.name)} - TMDojo` : 'TMDojo');

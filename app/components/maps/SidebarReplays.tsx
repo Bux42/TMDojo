@@ -45,7 +45,7 @@ interface Props {
     onRemoveReplay: (replay: FileResponse) => void;
     onLoadReplay: (replay: FileResponse) => void;
     onLoadMultipleReplays: (replays: FileResponse[]) => Promise<void>;
-    onRemoveAllReplays: (replays: FileResponse[]) => void;
+    onRemoveAllReplays: () => void;
     onRefreshReplays: () => Promise<void>;
 }
 
@@ -469,7 +469,7 @@ const SidebarReplays = ({
 
                             {/* Unload all */}
                             <CleanButton
-                                onClick={() => onRemoveAllReplays(visibleReplays)}
+                                onClick={onRemoveAllReplays}
                                 backColor="#B41616"
                             >
                                 Unload all
