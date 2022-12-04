@@ -47,7 +47,6 @@ interface Props {
     onLoadMultipleReplays: (replays: FileResponse[]) => Promise<void>;
     onRemoveAllReplays: (replays: FileResponse[]) => void;
     onRefreshReplays: () => Promise<void>;
-    selectedReplayDataIds: string[];
 }
 
 const SidebarReplays = ({
@@ -60,7 +59,6 @@ const SidebarReplays = ({
     onLoadMultipleReplays,
     onRemoveAllReplays,
     onRefreshReplays,
-    selectedReplayDataIds,
 }: Props): JSX.Element => {
     const defaultPageSize = 14;
 

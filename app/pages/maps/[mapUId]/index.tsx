@@ -92,54 +92,6 @@ const Home = (): JSX.Element => {
         }
     }, [mapUId]);
 
-    const updateLoadingReplay = (
-        replay: FileResponse,
-        progressEvent: ProgressEvent,
-    ) => {
-        const progressPercent = Math.round((progressEvent.loaded / progressEvent.total) * 100);
-
-        const loadingState = replayDownloadStates.get(replay._id);
-
-        if (loadingState) {
-            loadingState.state = DownloadState.DOWNLOADING;
-            loadingState.progress = progressPercent;
-            setReplayDownloadStates((prevState) => new Map(prevState.set(replay._id, loadingState)));
-        }
-    };
-
-    const onLoadReplayOld = async (replay: FileResponse) => {
-        const replayInList = replays.some((r) => r._id === replay._id);
-        if (!replayInList) return;
-
-        let loadingState = replayDownloadStates.get(replay._id);
-
-        if (!loadingState) {
-            loadingState = {
-                _id: replay._id,
-                progress: 0,
-                state: DownloadState.DOWNLOADING,
-            } as ReplayDownloadState;
-            replayDownloadStates.set(replay._id, loadingState!);
-            setReplayDownloadStates((prevState) => new Map(prevState.set(replay._id, loadingState!)));
-        }
-
-        loadingState = replayDownloadStates.get(replay._id);
-
-        if (loadingState) {
-            setReplayDownloadStates((prevState) => new Map(prevState.set(replay._id, loadingState!)));
-
-            const fetchedReplay = await fetchReplayData(replay, (r, progressEvent) => {
-                updateLoadingReplay(r, progressEvent);
-            });
-
-            if (fetchedReplay && fetchedReplay.state === DownloadState.LOADED) {
-                setSelectedReplayData((prevState) => [...prevState, fetchedReplay.replay!]);
-            }
-
-            setReplayDownloadStates((prevState) => new Map(prevState.set(replay._id, fetchedReplay)));
-        }
-    };
-
     const onRemoveReplay = async (replayToRemove: FileResponse) => {
         const replayDataFiltered = selectedReplayData.filter(
             (replay) => replay._id !== replayToRemove._id,
@@ -152,20 +104,16 @@ const Home = (): JSX.Element => {
         });
     };
 
-    const onLoadReplay = async (replay: FileResponse) => {
-        onLoadMultipleReplays([replay]);
-    };
-
     const fetchReplayProgressCallback = (replay: FileResponse, progressEvent: ProgressEvent) => {
         const loadingState = replayDownloadStates.get(replay._id);
 
         if (!loadingState) {
-            // Replay state not stored yet, create new loading state for this replay
+            // Create new empty download loading state
             const newLoadingState: ReplayDownloadState = createNewReplayDownloadState(replay._id);
             replayDownloadStates.set(replay._id, newLoadingState);
             setReplayDownloadStates((prevState) => new Map(prevState.set(replay._id, newLoadingState)));
         } else {
-            // Update replay download state
+            // Update replay download state with progress percentage
             const progressPercent = Math.round((progressEvent.loaded / progressEvent.total) * 100);
 
             loadingState.progress = progressPercent;
@@ -174,6 +122,10 @@ const Home = (): JSX.Element => {
             replayDownloadStates.set(replay._id, loadingState);
             setReplayDownloadStates((prevState) => new Map(prevState.set(replay._id, loadingState)));
         }
+    };
+
+    const onLoadReplay = async (replay: FileResponse) => {
+        onLoadMultipleReplays([replay]);
     };
 
     const onLoadMultipleReplays = async (replaysToLoad: FileResponse[]) => {
@@ -213,54 +165,6 @@ const Home = (): JSX.Element => {
                 setReplayDownloadStates((prevState) => new Map(prevState.set(failedReplay._id, errorState)));
             }
         });
-    };
-
-    const onLoadAllVisibleReplays = async (
-        allReplays: FileResponse[],
-        selectedReplayDataIds: string[],
-    ) => {
-        const filtered = allReplays.filter(
-            (replay) => selectedReplayDataIds.indexOf(replay._id) === -1,
-        );
-
-        // make promise array first, then promise.all
-        const loadedReplays = await Promise.all(
-            filtered.map((replay) => fetchReplayData(replay, (progressEvent: any) => {
-                const loadingState = replayDownloadStates.get(replay._id);
-
-                if (!loadingState) {
-                    // Replay state not stored yet, create new loading state for this replay
-                    const newLoadingState: ReplayDownloadState = {
-                        _id: replay._id,
-                        progress: 0,
-                        state: DownloadState.DOWNLOADING,
-                    };
-                    replayDownloadStates.set(replay._id, newLoadingState);
-                    setReplayDownloadStates((prevState) => new Map(prevState.set(replay._id, newLoadingState)));
-                } else {
-                    // Update replay download state
-                    const progressPercent = Math.round((progressEvent.loaded / progressEvent.total) * 100);
-
-                    loadingState.progress = progressPercent;
-                    loadingState.state = DownloadState.DOWNLOADING;
-
-                    replayDownloadStates.set(replay._id, loadingState);
-                    setReplayDownloadStates((prevState) => new Map(prevState.set(replay._id, loadingState)));
-                }
-            })),
-        );
-
-        loadedReplays.forEach((loadedReplay) => {
-            replayDownloadStates.set(loadedReplay._id, loadedReplay);
-        });
-
-        setReplayDownloadStates(new Map(replayDownloadStates));
-
-        const validReplays = loadedReplays
-            .filter((replay) => replay.state === DownloadState.LOADED)
-            .map((replay) => replay.replay!);
-
-        setSelectedReplayData([...selectedReplayData, ...validReplays]);
     };
 
     const onRemoveAllReplays = async (replaysToRemove: FileResponse[]) => {
@@ -309,7 +213,6 @@ const Home = (): JSX.Element => {
                         onLoadMultipleReplays={onLoadMultipleReplays}
                         onRemoveReplay={onRemoveReplay}
                         onRemoveAllReplays={onRemoveAllReplays}
-                        selectedReplayDataIds={selectedReplayData.map((replay) => replay._id)}
                         replayDownloadStates={replayDownloadStates}
                         onRefreshReplays={fetchAndSetReplays}
                     />
