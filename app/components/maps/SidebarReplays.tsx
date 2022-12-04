@@ -181,7 +181,7 @@ const SidebarReplays = ({
         onLoadReplay(filteredReplays[0]);
     };
 
-    const onLoadReplaysOnCurrentPage = () => {
+    const onLoadCurrentPageReplays = () => {
         onLoadMultipleReplays(visibleReplays);
     };
 
@@ -419,7 +419,7 @@ const SidebarReplays = ({
                         <div className="flex flex-row gap-4">
                             {/* Load current page */}
                             <CleanButton
-                                onClick={onLoadReplaysOnCurrentPage}
+                                onClick={onLoadCurrentPageReplays}
                             >
                                 Load page
                             </CleanButton>
