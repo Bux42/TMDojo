@@ -87,19 +87,21 @@ router.get('/:replayId', async (req: Request, res: Response, next: Function) => 
  */
 // eslint-disable-next-line consistent-return
 router.post('/', (req: Request, res: Response, next: Function): any => {
-    if (
-        !req.user
-        || req.user.playerName !== req.query.playerName
-        || req.user.webId !== req.query.webId
-        || req.user.playerLogin !== req.query.playerLogin
-    ) {
+    if (!req.user || req.user.webId !== req.query.webId) {
         // reject replay uploads by unauthenticated users
         req.log.error('replaysRouter: Unauthenticated replay upload attempt');
         return res.status(401).send('Authentication required to submit replay.');
     }
 
     const paramNames = [
-        'authorName', 'mapName', 'mapUId', 'endRaceTime', 'raceFinished', 'playerName', 'playerLogin', 'webId',
+        'authorName',
+        'mapName',
+        'mapUId',
+        'endRaceTime',
+        'raceFinished',
+        'playerName',
+        'playerLogin',
+        'webId',
     ];
 
     // make sure all required parameters are present
@@ -142,22 +144,45 @@ router.post('/', (req: Request, res: Response, next: Function): any => {
 
             // check if user already exists
             const user = await db.getUserByWebId(`${req.query.webId}`);
-            let userID = user?._id;
-            if (!userID) {
-                req.log.debug('replaysRouter: User does not exist in database, creating new user');
-                const updatedUserInfo = await db.createUser(
-                    req, req.query.webId, req.query.playerLogin, req.query.playerName, null,
-                );
-                userID = updatedUserInfo.userID;
+            const userID = user?._id;
+
+            // parse sector times
+            // convert string of sector times separated by ',' to array of numbers
+            // "1,2,3" -> [1, 2, 3]
+            let sectorTimes = null;
+            if (req.query.sectorTimes && typeof req.query.sectorTimes === 'string') {
+                const sectorTimesList: string[] = (req.query.sectorTimes as string).split(',');
+
+                try {
+                    sectorTimes = sectorTimesList.map((time) => parseInt(time, 10));
+                } catch (e) {
+                    req.log.error(`Could not parse sector times (${req.query.sectorTimes}): ${e}`);
+                }
+
+                // Set sector times to null if they contain NaN values (parseInt returns NaN for non-numeric values)
+                if (sectorTimes.filter((time) => Number.isNaN(time)).length > 0) {
+                    // eslint-disable-next-line max-len
+                    req.log.error(`Could not parse sector times (${req.query.sectorTimes}): ${sectorTimes} contains NaN`);
+                    sectorTimes = null;
+                }
+
+                // Set sector times to null if the list is empty
+                if (sectorTimes && sectorTimes.length === 0) {
+                    sectorTimes = null;
+                }
             }
 
             const metadata = {
                 // reference map and user docs
                 mapRef: map._id,
+                mapUId: req.query.mapUId,
+                mapName: secureMapName,
                 userRef: userID,
                 date: Date.now(),
                 raceFinished: parseInt(`${req.query.raceFinished}`, 10),
                 endRaceTime: parseInt(`${req.query.endRaceTime}`, 10),
+                pluginVersion: req.query.pluginVersion,
+                sectorTimes,
                 ...storedReplay,
             };
             req.log.debug('replaysRouter: Saving replay metadata');
@@ -179,6 +204,13 @@ router.post('/', (req: Request, res: Response, next: Function): any => {
 router.delete('/:replayId', async (req, res) => {
     // Fetch replay
     const replay = await db.getReplayById(req.params.replayId);
+
+    if (!replay) {
+        req.log.error('replaysRouter: Failed to delete replay, replay not found');
+        res.status(404).send('Failed to delete replay, replay not found.');
+        return;
+    }
+
     const replayUser = await db.getUserById(replay.userRef);
 
     // Check user

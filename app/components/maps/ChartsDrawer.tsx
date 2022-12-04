@@ -1,6 +1,5 @@
 import React, {
-    createRef,
-    useContext, useEffect, useRef, useState,
+    createRef, useContext, useEffect, useMemo, useState,
 } from 'react';
 import {
     Button, Checkbox, Drawer,
@@ -135,16 +134,29 @@ export const ChartsDrawer = ({
     } = useContext(SettingsContext);
 
     // Get each different currentRaceTime for all replays to get matching chart tooltips
-    const allRaceTimes: number[] = [];
+    const allRaceTimes = useMemo(() => {
+        const raceTimes: number[] = [];
 
-    replaysData.forEach((replay: ReplayData) => {
-        replay.samples.forEach((sample: ReplayDataPoint) => {
-            if (!allRaceTimes.includes(sample.currentRaceTime)) {
-                allRaceTimes.push(sample.currentRaceTime);
+        // Add all raceTimes to an array, sorted
+        const allTimes: number[] = [];
+        replaysData.forEach((replay: ReplayData) => {
+            replay.samples.forEach((sample: ReplayDataPoint) => {
+                allTimes.push(sample.currentRaceTime);
+            });
+        });
+        allTimes.sort((a: number, b: number) => a - b);
+
+        // Add all times without duplicates
+        let lastAddedTime = -Infinity;
+        allTimes.forEach((time: number) => {
+            if (time !== lastAddedTime) {
+                raceTimes.push(time);
+                lastAddedTime = time;
             }
         });
-    });
-    allRaceTimes.sort((a, b) => a - b);
+
+        return raceTimes;
+    }, [replaysData]);
 
     const chartRefs: ChartRef[] = selectedChartTypes.map(() => createRef<ChartRefContent>());
 

@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { Layout, Modal } from 'antd';
+import React, {
+    useEffect, useMemo, useState,
+} from 'react';
+import { Layout } from 'antd';
 import { useRouter } from 'next/router';
 
 import { PieChartOutlined } from '@ant-design/icons';
-import dayjs from 'dayjs';
 import SidebarReplays from '../../../components/maps/SidebarReplays';
 import SidebarSettings from '../../../components/maps/SidebarSettings';
 import MapHeader from '../../../components/maps/MapHeader';
+import SectorTimeTableModal from '../../../components/maps/SectorTimeTableModal';
 import Viewer3D from '../../../components/viewer/Viewer3D';
 import {
     getReplays,
@@ -21,39 +23,26 @@ import { ChartsDrawer } from '../../../components/maps/ChartsDrawer';
 import { cleanTMFormatting } from '../../../lib/utils/formatting';
 import LoadedReplays from '../../../components/maps/LoadedReplays';
 import CleanButton from '../../../components/common/CleanButton';
-import useIsMobileDevice from '../../../lib/hooks/useIsMobileDevice';
+import SectorTimeTableButton from '../../../components/maps/SectorTimeTableButton';
+import { filterReplaysWithValidSectorTimes } from '../../../lib/replays/sectorTimes';
+import useViewerPerformancePopupConfirmations from '../../../lib/hooks/useViewerPerformancePopupConfirmations';
 
 const Home = (): JSX.Element => {
     const [replays, setReplays] = useState<FileResponse[]>([]);
     const [loadingReplays, setLoadingReplays] = useState<boolean>(true);
     const [selectedReplayData, setSelectedReplayData] = useState<ReplayData[]>([]);
     const [mapData, setMapData] = useState<MapInfo>({});
+    const [sectorTableVisible, setSectorTableVisible] = useState<boolean>(false);
+
+    const { showViewer } = useViewerPerformancePopupConfirmations();
 
     const router = useRouter();
     const { mapUId } = router.query;
 
-    const isMobile = useIsMobileDevice();
-
-    useEffect(() => {
-        const shownMobileWarning = localStorage.getItem('mobileViewerWarningShown') !== null;
-
-        if (isMobile && !shownMobileWarning) {
-            Modal.warning({
-                title: 'You\'re on mobile!',
-                // eslint-disable-next-line max-len
-                content: 'The 3D viewer is not designed for mobile use - if you want the best experience, visit the 3D viewer on a desktop.',
-                centered: true,
-                okText: 'Dismiss',
-                okType: 'ghost',
-                okButtonProps: {
-                    size: 'large',
-                },
-            });
-
-            // Set date of showing warning to today
-            localStorage.setItem('mobileViewerWarningShown', dayjs().unix().toString());
-        }
-    }, [isMobile]);
+    const selectedReplaysWithValidSectors = useMemo(
+        () => filterReplaysWithValidSectorTimes(selectedReplayData, replays),
+        [selectedReplayData, replays],
+    );
 
     const fetchAndSetReplays = async () => {
         setLoadingReplays(true);
@@ -77,6 +66,9 @@ const Home = (): JSX.Element => {
     }, [mapUId]);
 
     const onLoadReplay = async (replay: FileResponse) => {
+        if (selectedReplayData.some((r) => r._id === replay._id)) {
+            return;
+        }
         const replayData = await fetchReplayData(replay);
         setSelectedReplayData([...selectedReplayData, replayData]);
     };
@@ -124,6 +116,14 @@ const Home = (): JSX.Element => {
                         </div>
                     </CleanButton>
                 </MapHeader>
+
+                <SectorTimeTableModal
+                    selectedReplays={selectedReplaysWithValidSectors}
+                    allReplays={replays}
+                    visible={sectorTableVisible}
+                    setVisible={setSectorTableVisible}
+                />
+
                 <Layout.Content>
                     <SidebarReplays
                         mapUId={`${mapUId}`}
@@ -136,22 +136,26 @@ const Home = (): JSX.Element => {
                         selectedReplayDataIds={selectedReplayData.map((replay) => replay._id)}
                         onRefreshReplays={fetchAndSetReplays}
                     />
-                    {
-                        selectedReplayData.length > 0
-                        && <LoadedReplays replays={selectedReplayData} />
-                    }
+
+                    {selectedReplayData.length > 0
+                        && <LoadedReplays replays={selectedReplayData} />}
+
                     <SidebarSettings />
-                    {
-                        selectedReplayData.length > 0
-                        && (
-                            <ChartsDrawer
-                                replaysData={selectedReplayData}
-                            />
-                        )
-                    }
-                    <Viewer3D
-                        replaysData={selectedReplayData}
-                    />
+
+                    {/* TODO: Add back in once sector times are fixed */}
+                    {/* <SectorTimeTableButton
+                        onClick={() => setSectorTableVisible(!sectorTableVisible)}
+                    /> */}
+
+                    {selectedReplayData.length > 0 && (
+                        <ChartsDrawer
+                            replaysData={selectedReplayData}
+                        />
+                    )}
+
+                    {showViewer && (
+                        <Viewer3D replaysData={selectedReplayData} />
+                    )}
                 </Layout.Content>
             </Layout>
         </>
