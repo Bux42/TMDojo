@@ -296,7 +296,7 @@ const SidebarReplays = ({
                                 className="w-full"
                                 disabled
                             >
-                                <Progress percent={loadingState.progress} status="active" />
+                                <Progress percent={Math.round(loadingState.progress * 100)} status="active" />
                             </CleanButton>
                         )}
                         {loadingState?.state === DownloadState.LOADED && (

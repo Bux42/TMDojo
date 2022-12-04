@@ -113,10 +113,8 @@ const Home = (): JSX.Element => {
             replayDownloadStates.set(replay._id, newLoadingState);
             setReplayDownloadStates((prevState) => new Map(prevState.set(replay._id, newLoadingState)));
         } else {
-            // Update replay download state with progress percentage
-            const progressPercent = Math.round((progressEvent.loaded / progressEvent.total) * 100);
-
-            loadingState.progress = progressPercent;
+            // Update replay download state with progress
+            loadingState.progress = progressEvent.loaded / progressEvent.total;
             loadingState.state = DownloadState.DOWNLOADING;
 
             replayDownloadStates.set(replay._id, loadingState);
