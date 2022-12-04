@@ -83,6 +83,7 @@ const Viewer3D = ({ replaysData }: Props): JSX.Element => {
                         showGearChanges={showGearChanges}
                     />
                 )}
+
                 {replayCarOpacity > 0 && (
                     <Suspense fallback={null}>
                         <ReplayCars
