@@ -42,9 +42,9 @@ interface Props {
     replays: FileResponse[];
     loadingReplays: boolean;
     replayDownloadStates: Map<string, ReplayDownloadState>;
-    onLoadReplay: (replay: FileResponse) => void;
     onRemoveReplay: (replay: FileResponse) => void;
-    onLoadAllVisibleReplays: (replays: FileResponse[], selectedReplayDataIds: string[]) => void;
+    onLoadReplay: (replay: FileResponse) => void;
+    onLoadMultipleReplays: (replays: FileResponse[]) => Promise<void>;
     onRemoveAllReplays: (replays: FileResponse[]) => void;
     onRefreshReplays: () => Promise<void>;
     selectedReplayDataIds: string[];
@@ -55,9 +55,9 @@ const SidebarReplays = ({
     replays,
     loadingReplays,
     replayDownloadStates,
-    onLoadReplay,
     onRemoveReplay,
-    onLoadAllVisibleReplays,
+    onLoadReplay,
+    onLoadMultipleReplays,
     onRemoveAllReplays,
     onRefreshReplays,
     selectedReplayDataIds,
@@ -147,10 +147,7 @@ const SidebarReplays = ({
         const replayIndices = Array.from(new Set(fastestSectorIndices));
 
         // Load all fastest replays
-        onLoadAllVisibleReplays(
-            replayIndices.map((index) => filteredReplays[index]),
-            selectedReplayDataIds,
-        );
+        onLoadMultipleReplays(replayIndices.map((index) => filteredReplays[index]));
     };
 
     const onLoadFastestTime = () => {
@@ -184,6 +181,10 @@ const SidebarReplays = ({
         }
 
         onLoadReplay(filteredReplays[0]);
+    };
+
+    const onLoadReplaysOnCurrentPage = () => {
+        onLoadMultipleReplays(visibleReplays);
     };
 
     // TODO: add useMemo to filters and columns
@@ -294,7 +295,6 @@ const SidebarReplays = ({
                         )}
                         {loadingState?.state === DownloadState.DOWNLOADING && (
                             <CleanButton
-                                onClick={() => onLoadReplay(replay)}
                                 className="w-full"
                                 disabled
                             >
@@ -421,7 +421,7 @@ const SidebarReplays = ({
                         <div className="flex flex-row gap-4">
                             {/* Load current page */}
                             <CleanButton
-                                onClick={() => onLoadAllVisibleReplays(visibleReplays, selectedReplayDataIds)}
+                                onClick={onLoadReplaysOnCurrentPage}
                             >
                                 Load page
                             </CleanButton>

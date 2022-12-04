@@ -54,18 +54,22 @@ export const getReplays = async (filters: FilterParams = DEFAULT_FILTERS): Promi
 
 export interface ReplayData extends FileResponse, DataViewResult {}
 export const fetchReplayData = async (
-    file: FileResponse,
-    downloadProgress: (progressEvent: any) => void,
+    replay: FileResponse,
+    downloadProgress?: (replay: FileResponse, progressEvent: ProgressEvent) => void,
 ): Promise<ReplayDownloadState> => {
     const fetchedReplay: ReplayDownloadState = {
-        _id: file._id,
+        _id: replay._id,
         state: DownloadState.DOWNLOADING,
         progress: 0,
     };
 
     try {
-        const res = await apiInstance.get(`/replays/${file._id}`, {
-            onDownloadProgress: downloadProgress,
+        const res = await apiInstance.get(`/replays/${replay._id}`, {
+            onDownloadProgress: (e) => {
+                if (downloadProgress) {
+                    downloadProgress(replay, e);
+                }
+            },
             responseType: 'arraybuffer',
         });
 
@@ -75,7 +79,7 @@ export const fetchReplayData = async (
         } = await readDataView(dataView);
 
         fetchedReplay.replay = {
-            ...file, samples, minPos, maxPos, dnfPos, color, intervalMedian,
+            ...replay, samples, minPos, maxPos, dnfPos, color, intervalMedian,
         };
         fetchedReplay.progress = 1;
         fetchedReplay.state = DownloadState.LOADED;
