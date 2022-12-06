@@ -63,30 +63,25 @@ export const fetchReplayData = async (
         progress: 0,
     };
 
-    try {
-        const res = await apiInstance.get(`/replays/${replay._id}`, {
-            onDownloadProgress: (e) => {
-                if (downloadProgress) {
-                    downloadProgress(replay, e);
-                }
-            },
-            responseType: 'arraybuffer',
-        });
+    const res = await apiInstance.get(`/replays/${replay._id}`, {
+        onDownloadProgress: (e) => {
+            if (downloadProgress) {
+                downloadProgress(replay, e);
+            }
+        },
+        responseType: 'arraybuffer',
+    });
 
-        const dataView = new DataView(res.data);
-        const {
-            samples, minPos, maxPos, dnfPos, color, intervalMedian,
-        } = await readDataView(dataView);
+    const dataView = new DataView(res.data);
+    const {
+        samples, minPos, maxPos, dnfPos, color, intervalMedian,
+    } = await readDataView(dataView);
 
-        fetchedReplay.replay = {
-            ...replay, samples, minPos, maxPos, dnfPos, color, intervalMedian,
-        };
-        fetchedReplay.progress = 1;
-        fetchedReplay.state = DownloadState.LOADED;
-    } catch {
-        fetchedReplay.progress = 0;
-        fetchedReplay.state = DownloadState.ERROR;
-    }
+    fetchedReplay.replay = {
+        ...replay, samples, minPos, maxPos, dnfPos, color, intervalMedian,
+    };
+    fetchedReplay.progress = 1;
+    fetchedReplay.state = DownloadState.LOADED;
 
     return fetchedReplay;
 };
