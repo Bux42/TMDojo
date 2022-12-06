@@ -292,12 +292,9 @@ const SidebarReplays = ({
                             </CleanButton>
                         )}
                         {loadingState?.state === DownloadState.DOWNLOADING && (
-                            <CleanButton
-                                className="w-full"
-                                disabled
-                            >
-                                <Progress percent={Math.round(loadingState.progress * 100)} status="active" />
-                            </CleanButton>
+                            <div className="flex items-center w-full h-8">
+                                <Progress percent={Math.round(loadingState.progress * 100)} />
+                            </div>
                         )}
                         {loadingState?.state === DownloadState.LOADED && (
                             <CleanButton
