@@ -95,9 +95,13 @@ const Home = (): JSX.Element => {
     };
 
     const onLoadMultipleReplays = async (replaysToLoad: FileResponse[]) => {
-        // Filter out all replays that are already selected
+        // Filter out all replays that are already selected, downloaded, or
         const nonLoadedReplays = replaysToLoad.filter(
-            (replay) => !selectedReplayData.find((selectedReplay) => selectedReplay._id === replay._id),
+            (replay) => !(
+                selectedReplayData.find((selectedReplay) => selectedReplay._id === replay._id)
+                || replayDownloadStates.get(replay._id)?.state === DownloadState.DOWNLOADING
+                || replayDownloadStates.get(replay._id)?.state === DownloadState.LOADED
+            ),
         );
 
         // Set replay download states for all replays to progress = 0
