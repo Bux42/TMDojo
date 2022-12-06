@@ -142,7 +142,8 @@ const Home = (): JSX.Element => {
     };
 
     const onRemoveAllReplays = async () => {
-        onRemoveMultipleReplays(selectedReplayData);
+        setSelectedReplayData([]);
+        setReplayDownloadStates(new Map());
     };
 
     const onRemoveMultipleReplays = async (replaysToRemove: FileResponse[]) => {
