@@ -37,6 +37,7 @@ const Home = (): JSX.Element => {
     const {
         data: mapReplaysResult,
         isLoading: isLoadingReplays,
+        isFetching: isFetchingReplays,
     } = useMapReplays(mapUId);
 
     const { data: mapInfo } = useMapInfo(mapUId);
@@ -115,6 +116,7 @@ const Home = (): JSX.Element => {
                         mapUId={`${mapUId}`}
                         replays={mapReplaysResult?.replays || []}
                         loadingReplays={isLoadingReplays}
+                        fetchingReplays={isFetchingReplays}
                         onLoadReplay={onLoadReplay}
                         onRemoveReplay={onRemoveReplay}
                         onLoadAllVisibleReplays={onLoadAllVisibleReplays}

@@ -43,6 +43,7 @@ interface Props {
     mapUId: string;
     replays: ReplayInfo[];
     loadingReplays: boolean;
+    fetchingReplays: boolean;
     onLoadReplay: (replay: ReplayInfo) => void;
     onRemoveReplay: (replay: ReplayInfo) => void;
     onLoadAllVisibleReplays: (replays: ReplayInfo[], selectedReplayDataIds: string[]) => void;
@@ -55,6 +56,7 @@ const SidebarReplays = ({
     mapUId,
     replays,
     loadingReplays,
+    fetchingReplays,
     onLoadReplay,
     onRemoveReplay,
     onLoadAllVisibleReplays,
@@ -396,37 +398,36 @@ const SidebarReplays = ({
                     backgroundColor: '#1F1F1F',
                 }}
             >
-                <Spin spinning={loadingReplays}>
-                    <div className="flex flex-row justify-between items-center mb-3 mx-4">
-                        <div className="flex flex-row gap-4">
-                            {/* Load current page */}
-                            <CleanButton
-                                onClick={() => onLoadAllVisibleReplays(visibleReplays, selectedReplayDataIds)}
-                            >
-                                Load page
-                            </CleanButton>
+                <div className="flex flex-row justify-between items-center mb-3 mx-4">
+                    <div className="flex flex-row gap-4">
+                        {/* Load current page */}
+                        <CleanButton
+                            onClick={() => onLoadAllVisibleReplays(visibleReplays, selectedReplayDataIds)}
+                        >
+                            Load page
+                        </CleanButton>
 
-                            {/* Load other dropdown */}
-                            <Dropdown
-                                overlay={(
-                                    <Menu>
-                                        <Menu.Item
-                                            className="text-md"
-                                            icon={<TrophyFilled />}
-                                            onClick={() => onLoadFastestTime()}
-                                        >
-                                            Fastest Time
-                                        </Menu.Item>
-                                        <Menu.Item
-                                            className="text-md"
-                                            icon={<TrophyFilled />}
-                                            onClick={() => onLoadUserPb()}
-                                            disabled={!user || !userHasReplay}
-                                        >
-                                            Your PB
-                                        </Menu.Item>
-                                        {/* TODO: Add back in when sector times are fixed */}
-                                        {/* <Menu.Item
+                        {/* Load other dropdown */}
+                        <Dropdown
+                            overlay={(
+                                <Menu>
+                                    <Menu.Item
+                                        className="text-md"
+                                        icon={<TrophyFilled />}
+                                        onClick={() => onLoadFastestTime()}
+                                    >
+                                        Fastest Time
+                                    </Menu.Item>
+                                    <Menu.Item
+                                        className="text-md"
+                                        icon={<TrophyFilled />}
+                                        onClick={() => onLoadUserPb()}
+                                        disabled={!user || !userHasReplay}
+                                    >
+                                        Your PB
+                                    </Menu.Item>
+                                    {/* TODO: Add back in when sector times are fixed */}
+                                    {/* <Menu.Item
                                             className="text-md"
                                             icon={<ClockCircleFilled />}
                                             onClick={() => onLoadReplaysWithFastestSectorTimes()}
@@ -434,59 +435,59 @@ const SidebarReplays = ({
                                         >
                                             All replays containing fastest sectors
                                         </Menu.Item> */}
-                                    </Menu>
-                                )}
-                                mouseLeaveDelay={0.2}
-                            >
-                                <Space className="cursor-pointer">
-                                    <CleanButton
-                                        onClick={() => { }}
-                                        backColor="gray"
-                                    >
-                                        Load other...
-                                        <DownOutlined />
-                                    </CleanButton>
-                                </Space>
-                            </Dropdown>
+                                </Menu>
+                            )}
+                            mouseLeaveDelay={0.2}
+                        >
+                            <Space className="cursor-pointer">
+                                <CleanButton
+                                    onClick={() => { }}
+                                    backColor="gray"
+                                >
+                                    Load other...
+                                    <DownOutlined />
+                                </CleanButton>
+                            </Space>
+                        </Dropdown>
 
-                            {/* Unload all */}
-                            <CleanButton
-                                onClick={() => onRemoveAllReplays(visibleReplays)}
-                                backColor="#B41616"
-                            >
-                                Unload all
-                            </CleanButton>
-                        </div>
-                        <div className="mr-6">
-                            <Tooltip title="Refresh">
-                                <Button
-                                    shape="circle"
-                                    size="large"
-                                    icon={<ReloadOutlined />}
-                                    onClick={onRefreshReplays}
-                                />
-                            </Tooltip>
-                        </div>
+                        {/* Unload all */}
+                        <CleanButton
+                            onClick={() => onRemoveAllReplays(visibleReplays)}
+                            backColor="#B41616"
+                        >
+                            Unload all
+                        </CleanButton>
                     </div>
-                    <div>
-                        <Table
-                            onChange={(pagination, filters, sorter, currentPageData) => {
-                                onReplayTableChange(pagination, currentPageData);
-                            }}
-                            dataSource={addReplayInfo(replays)}
-                            columns={columns}
-                            size="small"
-                            pagination={{
-                                pageSize: defaultPageSize,
-                                hideOnSinglePage: true,
-                                position: ['bottomCenter'],
-                                showSizeChanger: false,
-                                size: 'small',
-                            }}
-                            scroll={{ scrollToFirstRowOnChange: true }}
-                        />
+                    <div className="mr-6">
+                        <Tooltip title="Refresh">
+                            <Button
+                                shape="circle"
+                                size="large"
+                                icon={<ReloadOutlined spin={fetchingReplays} />}
+                                onClick={onRefreshReplays}
+                            />
+                        </Tooltip>
                     </div>
-                </Spin>
+                </div>
+                <div>
+                    <Table
+                        onChange={(pagination, filters, sorter, currentPageData) => {
+                            onReplayTableChange(pagination, currentPageData);
+                        }}
+                        dataSource={addReplayInfo(replays)}
+                        columns={columns}
+                        size="small"
+                        loading={loadingReplays}
+                        pagination={{
+                            pageSize: defaultPageSize,
+                            hideOnSinglePage: true,
+                            position: ['bottomCenter'],
+                            showSizeChanger: false,
+                            size: 'small',
+                        }}
+                        scroll={{ scrollToFirstRowOnChange: true }}
+                    />
+                </div>
             </Drawer>
         </div>
     );
