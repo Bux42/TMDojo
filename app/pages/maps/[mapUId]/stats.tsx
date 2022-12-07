@@ -7,6 +7,7 @@ import {
     Card, Empty, Skeleton, Spin,
 } from 'antd';
 import { PlaySquareOutlined } from '@ant-design/icons';
+import Title from 'antd/lib/typography/Title';
 import HeadTitle from '../../../components/common/HeadTitle';
 import { cleanTMFormatting } from '../../../lib/utils/formatting';
 import MapHeader from '../../../components/maps/MapHeader';
@@ -138,7 +139,10 @@ const MapStats = () => {
                         {allReplaysFilteredByCurrentUser === undefined || allReplaysFilteredByCurrentUser.length === 0
                             ? (
                                 isLoadingReplays ? (
-                                    <Spin size="large" />
+                                    <div className="flex flex-col items-center gap-4">
+                                        <Spin size="large" />
+                                        <Title level={5}>Fetching replays...</Title>
+                                    </div>
                                 ) : (
                                     <Empty
                                         image={Empty.PRESENTED_IMAGE_SIMPLE}
