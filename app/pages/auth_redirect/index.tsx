@@ -10,6 +10,13 @@ const AuthRedirect = (): JSX.Element => {
     const [message, setMessage] = useState<string>('Logging in...');
     const { loginUser } = useContext(AuthContext);
 
+    const isAllowedTargetOrigin = (targetOrigin: string): boolean => (
+        targetOrigin === 'https://www.tmdojo.com'
+        || targetOrigin === 'https://tmdojo.com'
+        || targetOrigin === 'http://localhost:4200'
+        || (targetOrigin.startsWith('https://tm-dojo-git-') && targetOrigin.endsWith('.vercel.app'))
+    );
+
     useEffect(() => {
         if (
             code !== undefined && typeof code === 'string'
@@ -34,7 +41,12 @@ const AuthRedirect = (): JSX.Element => {
                 // it should send back the code and state it received to its opener
             } else if (window.opener) {
                 // send them to the opening window
-                window.opener.postMessage({ source: 'ubi-login-redirect', code, state });
+                if (isAllowedTargetOrigin(window.opener.origin)) {
+                    window.opener.postMessage(
+                        { source: 'ubi-login-redirect', code, state },
+                        window.opener.origin,
+                    );
+                }
                 setMessage('Redirecting...');
                 // close the popup
                 window.close();

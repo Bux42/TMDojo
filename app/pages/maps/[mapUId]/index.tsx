@@ -1,10 +1,11 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Layout, Modal } from 'antd';
+import React, {
+    useEffect, useMemo, useState,
+} from 'react';
+import { Layout } from 'antd';
 import { useRouter } from 'next/router';
 
 import { useQueryClient } from 'react-query';
 import { PieChartOutlined } from '@ant-design/icons';
-import dayjs from 'dayjs';
 import SidebarReplays from '../../../components/maps/SidebarReplays';
 import SidebarSettings from '../../../components/maps/SidebarSettings';
 import MapHeader from '../../../components/maps/MapHeader';
@@ -20,11 +21,14 @@ import { ReplayInfo, ReplayData } from '../../../lib/api/requests/replays';
 import useMapReplays from '../../../lib/api/hooks/query/replays';
 import QUERY_KEYS from '../../../lib/utils/reactQuery/reactQueryKeys';
 import { useMapInfo } from '../../../lib/api/hooks/query/maps';
-import useIsMobileDevice from '../../../lib/hooks/useIsMobileDevice';
+import SectorTimeTableButton from '../../../components/maps/SectorTimeTableButton';
 import { filterReplaysWithValidSectorTimes } from '../../../lib/replays/sectorTimes';
+import useViewerPerformancePopupConfirmations from '../../../lib/hooks/useViewerPerformancePopupConfirmations';
 
 const Home = (): JSX.Element => {
     const queryClient = useQueryClient();
+
+    const { showViewer } = useViewerPerformancePopupConfirmations();
 
     const router = useRouter();
     const { mapUId: rawMapUId } = router.query;
@@ -40,33 +44,10 @@ const Home = (): JSX.Element => {
     const [selectedReplayData, setSelectedReplayData] = useState<ReplayData[]>([]);
     const [sectorTableVisible, setSectorTableVisible] = useState<boolean>(false);
 
-    const isMobile = useIsMobileDevice();
-
     const selectedReplaysWithValidSectors = useMemo(
         () => filterReplaysWithValidSectorTimes(selectedReplayData, mapReplaysResult?.replays || []),
         [mapReplaysResult?.replays, selectedReplayData],
     );
-
-    useEffect(() => {
-        const shownMobileWarning = localStorage.getItem('mobileViewerWarningShown') !== null;
-
-        if (isMobile && !shownMobileWarning) {
-            Modal.warning({
-                title: 'You\'re on mobile!',
-                // eslint-disable-next-line max-len
-                content: 'The 3D viewer is not designed for mobile use - if you want the best experience, visit the 3D viewer on a desktop.',
-                centered: true,
-                okText: 'Dismiss',
-                okType: 'ghost',
-                okButtonProps: {
-                    size: 'large',
-                },
-            });
-
-            // Set date of showing warning to today
-            localStorage.setItem('mobileViewerWarningShown', dayjs().unix().toString());
-        }
-    }, [isMobile]);
 
     const onLoadReplay = async (replay: ReplayInfo) => {
         if (selectedReplayData.some((r) => r._id === replay._id)) {
@@ -158,9 +139,9 @@ const Home = (): JSX.Element => {
                         />
                     )}
 
-                    <Viewer3D
-                        replaysData={selectedReplayData}
-                    />
+                    {showViewer && (
+                        <Viewer3D replaysData={selectedReplayData} />
+                    )}
                 </Layout.Content>
             </Layout>
         </>
