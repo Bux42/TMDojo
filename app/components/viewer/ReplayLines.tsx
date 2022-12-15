@@ -76,12 +76,14 @@ export const ReplayLines = ({
     <>
         {replaysData.map((replay) => (
             <>
-                <ReplayLine
-                    key={`replay-${replay._id}-line`}
-                    replay={replay}
-                    lineType={lineType}
-                    replayLineOpacity={replayLineOpacity}
-                />
+                {replayLineOpacity > 0 ? (
+                    <ReplayLine
+                        key={`replay-${replay._id}-line`}
+                        replay={replay}
+                        lineType={lineType}
+                        replayLineOpacity={replayLineOpacity}
+                    />
+                ) : null}
                 <ReplayChartHoverLocation
                     key={`replay-${replay._id}-chart-hover`}
                     replay={replay}
