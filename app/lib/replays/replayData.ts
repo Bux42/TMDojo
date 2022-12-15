@@ -104,7 +104,7 @@ export interface DataViewResult {
     intervalMedian: number;
 }
 
-export const readDataView = (dataView: DataView): DataViewResult => {
+export const readDataView = (dataView: DataView): Promise<DataViewResult> => new Promise((resolve) => {
     const samples = [];
     const sampleIntervals = [];
     let intervalMedian = 20; // default to 60fps
@@ -143,7 +143,7 @@ export const readDataView = (dataView: DataView): DataViewResult => {
         return arr.length % 2 !== 0 ? nums[mid] : (nums[mid - 1] + nums[mid]) / 2;
     };
     intervalMedian = median(sampleIntervals);
-    return {
+    resolve({
         samples, minPos, maxPos, dnfPos, color, intervalMedian,
-    };
-};
+    });
+});

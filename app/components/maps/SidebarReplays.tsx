@@ -2,7 +2,7 @@ import React, {
     useState, useEffect, useContext, useMemo,
 } from 'react';
 import {
-    Button, Drawer, Dropdown, Menu, message, Popconfirm, Space, Spin, Table, Tooltip,
+    Button, Drawer, Dropdown, Menu, message, Popconfirm, Progress, Space, Spin, Table, Tooltip,
 } from 'antd';
 import {
     DeleteOutlined,
@@ -23,6 +23,7 @@ import SideDrawerExpandButton from '../common/SideDrawerExpandButton';
 import PlayerLink from '../common/PlayerLink';
 import CleanButton from '../common/CleanButton';
 import useWindowDimensions from '../../lib/hooks/useWindowDimensions';
+import { DownloadState, ReplayDownloadState } from '../../lib/replays/replayDownloadState';
 import {
     calcFastestSectorIndices,
     calcIndividualSectorTimes,
@@ -40,24 +41,24 @@ interface Props {
     mapUId: string;
     replays: FileResponse[];
     loadingReplays: boolean;
-    onLoadReplay: (replay: FileResponse) => void;
+    replayDownloadStates: Map<string, ReplayDownloadState>;
     onRemoveReplay: (replay: FileResponse) => void;
-    onLoadAllVisibleReplays: (replays: FileResponse[], selectedReplayDataIds: string[]) => void;
-    onRemoveAllReplays: (replays: FileResponse[]) => void;
+    onLoadReplay: (replay: FileResponse) => void;
+    onLoadMultipleReplays: (replays: FileResponse[]) => Promise<void>;
+    onRemoveAllReplays: () => void;
     onRefreshReplays: () => Promise<void>;
-    selectedReplayDataIds: string[];
 }
 
 const SidebarReplays = ({
     mapUId,
     replays,
     loadingReplays,
-    onLoadReplay,
+    replayDownloadStates,
     onRemoveReplay,
-    onLoadAllVisibleReplays,
+    onLoadReplay,
+    onLoadMultipleReplays,
     onRemoveAllReplays,
     onRefreshReplays,
-    selectedReplayDataIds,
 }: Props): JSX.Element => {
     const defaultPageSize = 14;
 
@@ -144,10 +145,7 @@ const SidebarReplays = ({
         const replayIndices = Array.from(new Set(fastestSectorIndices));
 
         // Load all fastest replays
-        onLoadAllVisibleReplays(
-            replayIndices.map((index) => filteredReplays[index]),
-            selectedReplayDataIds,
-        );
+        onLoadMultipleReplays(replayIndices.map((index) => filteredReplays[index]));
     };
 
     const onLoadFastestTime = () => {
@@ -181,6 +179,10 @@ const SidebarReplays = ({
         }
 
         onLoadReplay(filteredReplays[0]);
+    };
+
+    const onLoadCurrentPageReplays = () => {
+        onLoadMultipleReplays(visibleReplays);
     };
 
     // TODO: add useMemo to filters and columns
@@ -277,17 +279,24 @@ const SidebarReplays = ({
             align: 'center',
             width: 150,
             render: (_, replay) => {
-                const selected = selectedReplayDataIds.indexOf(replay._id) !== -1;
+                const loadingState = replayDownloadStates.get(replay._id);
+
                 return (
                     <div className="flex flex-row gap-4 items-center">
-                        {!selected ? (
+                        {(!loadingState) && (
                             <CleanButton
                                 onClick={() => onLoadReplay(replay)}
                                 className="w-full"
                             >
                                 Load
                             </CleanButton>
-                        ) : (
+                        )}
+                        {loadingState?.state === DownloadState.DOWNLOADING && (
+                            <div className="flex items-center w-full h-8">
+                                <Progress percent={Math.round(loadingState.progress * 100)} />
+                            </div>
+                        )}
+                        {loadingState?.state === DownloadState.LOADED && (
                             <CleanButton
                                 onClick={() => onRemoveReplay(replay)}
                                 className="w-full"
@@ -295,6 +304,19 @@ const SidebarReplays = ({
                             >
                                 Remove
                             </CleanButton>
+                        )}
+                        {loadingState?.state === DownloadState.ERROR && (
+                            <Tooltip placement="top" title="Loading failed, click to try again">
+                                <span style={{ width: '100%', height: '100%' }}>
+                                    <CleanButton
+                                        onClick={() => onLoadReplay(replay)}
+                                        className="w-full"
+                                        backColor="#b46616"
+                                    >
+                                        Retry
+                                    </CleanButton>
+                                </span>
+                            </Tooltip>
                         )}
                         {user && user.accountId === replay.webId && (
                             <Popconfirm
@@ -394,7 +416,7 @@ const SidebarReplays = ({
                         <div className="flex flex-row gap-4">
                             {/* Load current page */}
                             <CleanButton
-                                onClick={() => onLoadAllVisibleReplays(visibleReplays, selectedReplayDataIds)}
+                                onClick={onLoadCurrentPageReplays}
                             >
                                 Load page
                             </CleanButton>
@@ -444,7 +466,7 @@ const SidebarReplays = ({
 
                             {/* Unload all */}
                             <CleanButton
-                                onClick={() => onRemoveAllReplays(visibleReplays)}
+                                onClick={onRemoveAllReplays}
                                 backColor="#B41616"
                             >
                                 Unload all
