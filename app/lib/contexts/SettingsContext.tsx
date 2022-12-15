@@ -1,5 +1,6 @@
 import React, { createContext, useState } from 'react';
 import { LineType, LineTypes } from '../../components/viewer/ReplayLines';
+import GlobalTimeLineInfos from '../singletons/timeLineInfos';
 
 // eslint false positive https://stackoverflow.com/questions/63961803/
 // eslint-disable-next-line no-shadow
@@ -7,6 +8,9 @@ export enum CameraMode {
     Target,
     Follow,
 }
+
+// Timeline singleton used to intialize settings context values to the same values
+const timeLineInfos = GlobalTimeLineInfos.getInstance();
 
 export interface SettingsContextProps {
     lineType: LineType;
@@ -23,6 +27,10 @@ export interface SettingsContextProps {
     setReplayCarOpacity: (setReplayCarOpacity: number) => void;
     numColorChange: number;
     setNumColorChange: (numColorChange: number) => void;
+    showFullTrail: boolean;
+    setShowFullTrail: (showFullTrail: boolean) => void;
+    showTrailToStart: boolean;
+    setShowTrailToStart: (showFullTrail: boolean) => void;
 }
 
 export const SettingsContext = createContext<SettingsContextProps>({
@@ -40,6 +48,10 @@ export const SettingsContext = createContext<SettingsContextProps>({
     setReplayCarOpacity: () => { },
     numColorChange: 0,
     setNumColorChange: () => { },
+    showFullTrail: timeLineInfos.showFullTrail,
+    setShowFullTrail: () => { },
+    showTrailToStart: timeLineInfos.showTrailToStart,
+    setShowTrailToStart: () => { },
 });
 
 export const SettingsProvider = ({ children }: any): JSX.Element => {
@@ -50,6 +62,8 @@ export const SettingsProvider = ({ children }: any): JSX.Element => {
     const [replayLineOpacity, setReplayLineOpacity] = useState(0.5);
     const [replayCarOpacity, setReplayCarOpacity] = useState(0.5);
     const [numColorChange, setNumColorChange] = useState(0);
+    const [showFullTrail, setShowFullTrail] = useState(timeLineInfos.showFullTrail);
+    const [showTrailToStart, setShowTrailToStart] = useState(timeLineInfos.showTrailToStart);
 
     const changeLineType = (type: LineType) => {
         setLineType(type);
@@ -72,6 +86,10 @@ export const SettingsProvider = ({ children }: any): JSX.Element => {
                 setReplayCarOpacity,
                 numColorChange,
                 setNumColorChange,
+                showFullTrail,
+                setShowFullTrail,
+                showTrailToStart,
+                setShowTrailToStart,
             }}
         >
             {children}
