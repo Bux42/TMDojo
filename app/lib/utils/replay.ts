@@ -24,7 +24,7 @@ export const interpolateSamples = (
     smooth.speed = interpolateFloat(prev.speed, current.speed, factor);
 };
 
-export const getSampleNearTime = (replay: ReplayData, raceTime: number): ReplayDataPoint => {
+export const getSampleIndexNearTime = (replay: ReplayData, raceTime: number): number => {
     // First sample index guess based on median data point interval
     let sampleIndex = Math.round(raceTime / replay.intervalMedian);
     sampleIndex = Math.min(Math.max(0, sampleIndex), replay.samples.length - 1);
@@ -40,5 +40,10 @@ export const getSampleNearTime = (replay: ReplayData, raceTime: number): ReplayD
         sampleIndex++;
     }
 
+    return sampleIndex;
+};
+
+export const getSampleNearTime = (replay: ReplayData, raceTime: number): ReplayDataPoint => {
+    const sampleIndex = getSampleIndexNearTime(replay, raceTime);
     return replay.samples[sampleIndex];
 };

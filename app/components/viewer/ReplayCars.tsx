@@ -209,15 +209,19 @@ const ReplayCars = ({
     return (
         <>
             {replaysData.map((replay) => (
-                <ReplayCar
-                    key={`replay-${replay._id}-car`}
-                    replay={replay}
-                    camera={camera}
-                    orbitControlsRef={orbitControlsRef}
-                    showInputOverlay={showInputOverlay}
-                    fbx={fbx.clone()}
-                    replayCarOpacity={replayCarOpacity}
-                />
+                <>
+                    {replayCarOpacity > 0 ? (
+                        <ReplayCar
+                            key={`replay-${replay._id}-car`}
+                            replay={replay}
+                            camera={camera}
+                            orbitControlsRef={orbitControlsRef}
+                            showInputOverlay={showInputOverlay}
+                            fbx={fbx.clone()}
+                            replayCarOpacity={replayCarOpacity}
+                        />
+                    ) : null}
+                </>
             ))}
         </>
     );
