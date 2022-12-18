@@ -95,14 +95,19 @@ const ReplayCar = ({
                 stadiumCarMesh.current.rotation.setFromQuaternion(carRotation);
 
                 // Set front wheels rotation
-                stadiumCarMesh.current.children[2].rotation.y = smoothSample.wheelAngle; // FL
-                stadiumCarMesh.current.children[4].rotation.y = smoothSample.wheelAngle; // FR
+                const rearLeftWheel = stadiumCarMesh.current.children[3];
+                const frontLeftWheel = stadiumCarMesh.current.children[2];
+                const rearRightWheel = stadiumCarMesh.current.children[1];
+                const frontRigthWheel = stadiumCarMesh.current.children[4];
+
+                frontLeftWheel.rotation.y = smoothSample.wheelAngle; // FL
+                frontRigthWheel.rotation.y = smoothSample.wheelAngle; // FR
 
                 // Set wheel suspensions
-                stadiumCarMesh.current.children[1].position.setY(BACK_WHEEL_Y - (smoothSample.rRDamperLen * 100)); // RR
-                stadiumCarMesh.current.children[2].position.setY(FRONT_WHEEL_Y - (smoothSample.fLDamperLen * 100)); // FL
-                stadiumCarMesh.current.children[3].position.setY(BACK_WHEEL_Y - (smoothSample.rLDamperLen * 100)); // RL
-                stadiumCarMesh.current.children[4].position.setY(FRONT_WHEEL_Y - (smoothSample.fRDamperLen * 100)); // FR
+                rearRightWheel.position.setY(BACK_WHEEL_Y - (smoothSample.rRDamperLen * 100)); // RR
+                frontLeftWheel.position.setY(FRONT_WHEEL_Y - (smoothSample.fLDamperLen * 100)); // FL
+                rearLeftWheel.position.setY(BACK_WHEEL_Y - (smoothSample.rLDamperLen * 100)); // RL
+                frontRigthWheel.position.setY(FRONT_WHEEL_Y - (smoothSample.fRDamperLen * 100)); // FR
             }
 
             // Camera target replay if selected
@@ -169,7 +174,7 @@ const ReplayCar = ({
                 ref={mesh}
                 scale={1}
             >
-                {replayCarOpacity > 0 &&
+                {replayCarOpacity > 0 && (
                     <primitive
                         object={fbx}
                         dispose={null}
@@ -178,7 +183,7 @@ const ReplayCar = ({
                         receiveShadow
                         castShadow
                     />
-                }
+                )}
 
                 {showInputOverlay
                     && <InputOverlay sampleRef={currentSampleRef} camera={camera} />}
