@@ -40,8 +40,14 @@ const ReplayCar = ({
 
     const timeLineGlobal = GlobalTimeLineInfos.getInstance();
 
-    let curSample = replay.samples[0];
-    const smoothSample: ReplayDataPoint = { ...replay.samples[0] };
+    const smoothSample: ReplayDataPoint = {
+        ...replay.samples[0],
+        // Clone all Vector3 fields to avoid modifying original sample
+        position: replay.samples[0].position.clone(),
+        velocity: replay.samples[0].velocity.clone(),
+        up: replay.samples[0].up.clone(),
+        dir: replay.samples[0].dir.clone(),
+    };
 
     // Get own material from loaded car model
     const carMesh: THREE.Mesh = fbx.children[0] as THREE.Mesh;
@@ -71,7 +77,7 @@ const ReplayCar = ({
             const hovered = timeLineGlobal.hoveredReplay != null && timeLineGlobal.hoveredReplay._id === replay._id;
 
             // Get closest sample to TimeLine.currentRaceTime
-            curSample = getSampleNearTime(replay, timeLineGlobal.currentRaceTime);
+            const curSample = getSampleNearTime(replay, timeLineGlobal.currentRaceTime);
 
             currentSampleRef.current = curSample;
             prevSampleRef.current = replay.samples[replay.samples.indexOf(curSample) - 1];
