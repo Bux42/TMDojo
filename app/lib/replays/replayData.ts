@@ -93,6 +93,16 @@ export class ReplayDataPoint {
         const z = this.readFloat(dataView);
         return new THREE.Vector3(x, y, z);
     };
+
+    clone(): ReplayDataPoint {
+        return {
+            ...this,
+            position: this.position.clone(),
+            velocity: this.velocity.clone(),
+            up: this.up.clone(),
+            dir: this.dir.clone(),
+        };
+    }
 }
 
 export interface DataViewResult {
