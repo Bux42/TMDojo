@@ -10,6 +10,7 @@ import * as bodyParser from 'body-parser';
 import * as cookieParser from 'cookie-parser';
 import * as compression from 'compression';
 
+import * as promBundle from 'express-prom-bundle';
 import * as db from './lib/db';
 import { logError, logInfo, initLogger } from './lib/logger';
 
@@ -67,9 +68,16 @@ app.use(cookieParser());
 // Response compression (using fastest compression preset)
 app.use(compression({ level: 1 }));
 
-app.listen(defaultPort, () => {
-    logInfo(`App listening on port ${defaultPort}`);
-});
+// Prometheus metrics
+app.use(promBundle({
+    includeMethod: true,
+    includePath: true,
+    urlValueParser: {
+        extraMasks: [
+            /[0-9,a-z,A-Z,_]{24,28}/, // Map UID (ranges from 25-27 in practice, add 1 shorter and longer just in case)
+        ],
+    },
+}));
 
 // initialize DB connection
 db.initDB();
@@ -94,3 +102,7 @@ app.use('/maps', mapRouter);
 app.use('/users', userRouter);
 app.use('/me', meRouter);
 app.use('/replays', replayRouter);
+
+app.listen(defaultPort, () => {
+    logInfo(`App listening on port ${defaultPort}`);
+});
