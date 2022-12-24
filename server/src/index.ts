@@ -11,6 +11,7 @@ import * as cookieParser from 'cookie-parser';
 import * as compression from 'compression';
 
 import * as promBundle from 'express-prom-bundle';
+import * as basicAuth from 'express-basic-auth';
 import * as db from './lib/db';
 import { logError, logInfo, initLogger } from './lib/logger';
 
@@ -44,19 +45,19 @@ app.use(
     }),
 );
 
-if (process.env.USE_CERTIFICATES === 'true') {
-    https
-        .createServer(
-            {
-                key: fs.readFileSync('./key.pem'),
-                cert: fs.readFileSync('./cert.pem'),
-            },
-            app,
-        )
-        .listen(Number(process.env.HTTPS_PORT) || 443);
+// Prometheus metrics
+if (process.env.PROMETHEUS_PASSWORD) {
+    app.use('/metrics', basicAuth({ users: { admin: process.env.PROMETHEUS_PASSWORD } }));
 }
-
-const defaultPort = Number(process.env.HTTP_PORT) || 80;
+app.use(promBundle({
+    includeMethod: true,
+    includePath: true,
+    urlValueParser: {
+        extraMasks: [
+            /[0-9,a-z,A-Z,_]{24,28}/, // Map UID (ranges from 25-27 in practice, add 1 shorter and longer just in case)
+        ],
+    },
+}));
 
 // body-parser middleware
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -67,17 +68,6 @@ app.use(cookieParser());
 
 // Response compression (using fastest compression preset)
 app.use(compression({ level: 1 }));
-
-// Prometheus metrics
-app.use(promBundle({
-    includeMethod: true,
-    includePath: true,
-    urlValueParser: {
-        extraMasks: [
-            /[0-9,a-z,A-Z,_]{24,28}/, // Map UID (ranges from 25-27 in practice, add 1 shorter and longer just in case)
-        ],
-    },
-}));
 
 // initialize DB connection
 db.initDB();
@@ -102,6 +92,20 @@ app.use('/maps', mapRouter);
 app.use('/users', userRouter);
 app.use('/me', meRouter);
 app.use('/replays', replayRouter);
+
+if (process.env.USE_CERTIFICATES === 'true') {
+    https
+        .createServer(
+            {
+                key: fs.readFileSync('./key.pem'),
+                cert: fs.readFileSync('./cert.pem'),
+            },
+            app,
+        )
+        .listen(Number(process.env.HTTPS_PORT) || 443);
+}
+
+const defaultPort = Number(process.env.HTTP_PORT) || 80;
 
 app.listen(defaultPort, () => {
     logInfo(`App listening on port ${defaultPort}`);
