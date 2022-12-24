@@ -52,6 +52,7 @@ if (process.env.PROMETHEUS_PASSWORD) {
 app.use(promBundle({
     includeMethod: true,
     includePath: true,
+    buckets: [0.01, 0.025, 0.05, 0.075, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 2.5, 5, 7.5, 10],
     urlValueParser: {
         extraMasks: [
             /[0-9,a-z,A-Z,_]{24,28}/, // Map UID (ranges from 25-27 in practice, add 1 shorter and longer just in case)
