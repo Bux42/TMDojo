@@ -5,6 +5,7 @@ const queryClient = new QueryClient({
     defaultOptions: {
         queries: {
             onError: logErrorResponse,
+            refetchOnWindowFocus: false,
         },
         mutations: {
             onError: logErrorResponse,
