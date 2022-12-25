@@ -1,7 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { useRouter } from 'next/router';
+import React, { useMemo, useState } from 'react';
 import {
-    Input, Table, Tooltip, Button, Spin,
+    Input, Table, Tooltip, Button,
 } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 
@@ -23,14 +22,14 @@ const MapReplayTableWithSearchbar = () => {
 
     const [searchString, setSearchString] = useState<string>('');
 
-    const { data: allMaps, isLoading, isFetching } = useAllMaps(searchString);
+    const { data: maps, isLoading, isFetching } = useAllMaps(searchString);
 
     const tableData: ExtendedAvailableMap[] | undefined = useMemo(
-        () => allMaps?.map((map: MapWithStats) => ({
+        () => maps?.map((map) => ({
             ...map,
             key: map.mapUId,
         })),
-        [allMaps],
+        [maps],
     );
 
     const columns: ColumnsType<ExtendedAvailableMap> = [
@@ -96,53 +95,47 @@ const MapReplayTableWithSearchbar = () => {
     ];
 
     return (
-        <Spin spinning={isLoading}>
-            <div className="flex flex-col gap-4">
-                <div className="flex flex-row items-center gap-4">
-                    <Input.Search
-                        className="rounded-md"
-                        placeholder="Search"
-                        size="large"
-                        onSearch={(searchVal) => setSearchString(searchVal)}
-                        style={{ borderRadius: '10px' }}
-                    />
-                    <Tooltip title="Refresh">
-                        <Button
-                            shape="circle"
-                            className="mr-2"
-                            icon={<ReloadOutlined spin={isLoading || isFetching} />}
-                            onClick={() => queryClient.invalidateQueries(QUERY_KEYS.allMaps())}
-                        />
-                    </Tooltip>
-                </div>
-
-                <Table
-                    className="overflow-x-auto select-none"
-                    dataSource={tableData}
-                    columns={columns}
-                    onHeaderRow={() => ({
-                        style: {
-                            backgroundColor: '#1F1F1F',
-                            fontSize: '1rem',
-                        },
-                    })}
-                    onRow={() => ({
-                        style: {
-                            backgroundColor: '#1F1F1F',
-                        },
-                    })}
-                    showSorterTooltip={false}
-                    size="small"
-                    pagination={{
-                        pageSize: 10,
-                        hideOnSinglePage: true,
-                        position: ['bottomCenter'],
-                        showSizeChanger: false,
-                        size: 'small',
+        <div className="flex flex-col gap-4">
+            <div className="flex flex-row items-center gap-4">
+                <Input.Search
+                    className="rounded-md"
+                    placeholder="Map name"
+                    size="large"
+                    allowClear
+                    loading={isFetching}
+                    onSearch={(value) => {
+                        setSearchString(value);
+                        queryClient.invalidateQueries(QUERY_KEYS.allMaps(value));
                     }}
                 />
             </div>
-        </Spin>
+
+            <Table
+                className="overflow-x-auto select-none"
+                columns={columns}
+                dataSource={tableData}
+                loading={isLoading}
+                onHeaderRow={() => ({
+                    style: {
+                        backgroundColor: '#1F1F1F',
+                        fontSize: '1rem',
+                    },
+                })}
+                onRow={() => ({
+                    style: {
+                        backgroundColor: '#1F1F1F',
+                    },
+                })}
+                size="small"
+                pagination={{
+                    pageSize: 10,
+                    hideOnSinglePage: true,
+                    position: ['bottomCenter'],
+                    showSizeChanger: false,
+                    size: 'small',
+                }}
+            />
+        </div>
     );
 };
 
