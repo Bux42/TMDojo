@@ -4,8 +4,8 @@ import React, {
 import * as THREE from 'three';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Sky } from '@react-three/drei';
-import { ReplayData } from '../../lib/api/requests/replays';
 import { OrbitControls as ThreeOrbitControls } from 'three-stdlib';
+import { ReplayData } from '../../lib/api/requests/replays';
 import { ReplayLines } from './ReplayLines';
 import { Grid, DEFAULT_GRID_POS } from './Grid';
 import { SettingsContext } from '../../lib/contexts/SettingsContext';
