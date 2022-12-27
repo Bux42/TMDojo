@@ -1,10 +1,8 @@
 import React, { useMemo, useState } from 'react';
-import {
-    Input, Table, Tooltip, Button,
-} from 'antd';
+import { Input, Table, Tag } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 
-import { PieChartOutlined, ReloadOutlined } from '@ant-design/icons';
+import { PieChartOutlined, SyncOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { useQueryClient } from 'react-query';
 import { timeDifference } from '../../lib/utils/time';
@@ -23,6 +21,11 @@ const MapReplayTableWithSearchbar = () => {
     const [searchString, setSearchString] = useState<string>('');
 
     const { data: maps, isLoading, isFetching } = useAllMaps(searchString);
+
+    const totalReplays = useMemo(() => {
+        if (!maps) return 0;
+        return maps.reduce((acc, map) => acc + map.count, 0);
+    }, [maps]);
 
     const tableData: ExtendedAvailableMap[] | undefined = useMemo(
         () => maps?.map((map) => ({
@@ -89,6 +92,7 @@ const MapReplayTableWithSearchbar = () => {
         {
             title: 'Replays',
             dataIndex: 'count',
+            render: (count) => count.toLocaleString(),
             sorter: (a, b) => a.count - b.count,
             width: '15%',
         },
@@ -96,9 +100,9 @@ const MapReplayTableWithSearchbar = () => {
 
     return (
         <div className="flex flex-col gap-4">
-            <div className="flex flex-row items-center gap-4">
+            <div className="flex flex-col sm:flex-row place-self-center justify-center items-center gap-4 w-full">
                 <Input.Search
-                    className="rounded-md"
+                    className="w-full sm:w-1/2 bg-gray-800"
                     placeholder="Map name"
                     size="large"
                     allowClear
@@ -108,6 +112,21 @@ const MapReplayTableWithSearchbar = () => {
                         queryClient.invalidateQueries(QUERY_KEYS.allMaps(value));
                     }}
                 />
+
+                <div className="flex flex-row w-full sm:w-1/2 justify-center sm:justify-start">
+                    <Tag
+                        className="text-base rounded"
+                        icon={isLoading ? <SyncOutlined spin /> : null}
+                    >
+                        {`${(maps ? maps.length : 0).toLocaleString()} maps`}
+                    </Tag>
+                    <Tag
+                        className="text-base rounded"
+                        icon={isLoading ? <SyncOutlined spin /> : null}
+                    >
+                        {`${totalReplays.toLocaleString()} replays`}
+                    </Tag>
+                </div>
             </div>
 
             <Table
