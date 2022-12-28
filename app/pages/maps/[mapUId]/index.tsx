@@ -19,12 +19,21 @@ import { ReplayInfo, ReplayData } from '../../../lib/api/requests/replays';
 import useMapReplays from '../../../lib/api/reactQuery/hooks/query/replays';
 import QUERY_KEYS from '../../../lib/api/reactQuery/queryKeys';
 import { useMapInfo } from '../../../lib/api/reactQuery/hooks/query/maps';
+import {
+    createErrorReplayDownloadState,
+    createNewReplayDownloadState,
+    DownloadState, ReplayDownloadState,
+} from '../../../lib/replays/replayDownloadState';
 import SectorTimeTableButton from '../../../components/maps/SectorTimeTableButton';
 import { filterReplaysWithValidSectorTimes } from '../../../lib/replays/sectorTimes';
 import useViewerPerformancePopupConfirmations from '../../../lib/hooks/useViewerPerformancePopupConfirmations';
 
 const Home = (): JSX.Element => {
     const queryClient = useQueryClient();
+
+    const [selectedReplayData, setSelectedReplayData] = useState<ReplayData[]>([]);
+    const [replayDownloadStates, setReplayDownloadStates] = useState<Map<string, ReplayDownloadState>>(new Map());
+    const [sectorTableVisible, setSectorTableVisible] = useState<boolean>(false);
 
     const { showViewer } = useViewerPerformancePopupConfirmations();
 
@@ -40,46 +49,98 @@ const Home = (): JSX.Element => {
 
     const { data: mapInfo } = useMapInfo(mapUId);
 
-    const [selectedReplayData, setSelectedReplayData] = useState<ReplayData[]>([]);
-    const [sectorTableVisible, setSectorTableVisible] = useState<boolean>(false);
-
     const selectedReplaysWithValidSectors = useMemo(
         () => filterReplaysWithValidSectorTimes(selectedReplayData, mapReplaysResult?.replays || []),
         [mapReplaysResult?.replays, selectedReplayData],
     );
 
-    const onLoadReplay = async (replay: ReplayInfo) => {
-        if (selectedReplayData.some((r) => r._id === replay._id)) {
-            return;
-        }
-        const replayData = await API.replays.fetchReplayData(replay);
+    const fetchReplayProgressCallback = (replay: ReplayInfo, progressEvent: ProgressEvent) => {
+        const loadingState = replayDownloadStates.get(replay._id);
 
-        setSelectedReplayData([...selectedReplayData, replayData]);
+        if (!loadingState) {
+            // Create new empty download loading state
+            const newLoadingState: ReplayDownloadState = createNewReplayDownloadState(replay._id);
+            replayDownloadStates.set(replay._id, newLoadingState);
+            setReplayDownloadStates((prevState) => new Map(prevState.set(replay._id, newLoadingState)));
+        } else {
+            // Update replay download state with progress
+            loadingState.progress = progressEvent.loaded / progressEvent.total;
+            loadingState.state = DownloadState.DOWNLOADING;
+
+            replayDownloadStates.set(replay._id, loadingState);
+            setReplayDownloadStates((prevState) => new Map(prevState.set(replay._id, loadingState)));
+        }
+    };
+
+    const onLoadReplay = async (replay: ReplayInfo) => {
+        onLoadMultipleReplays([replay]);
+    };
+
+    const onLoadMultipleReplays = async (replaysToLoad: ReplayInfo[]) => {
+        // Filter out all replays that are already selected, downloaded, or
+        const nonLoadedReplays = replaysToLoad.filter(
+            (replay) => !(
+                selectedReplayData.find((selectedReplay) => selectedReplay._id === replay._id)
+                || replayDownloadStates.get(replay._id)?.state === DownloadState.DOWNLOADING
+                || replayDownloadStates.get(replay._id)?.state === DownloadState.LOADED
+            ),
+        );
+
+        // Set replay download states for all replays to progress = 0
+        nonLoadedReplays.forEach((replay) => {
+            const loadingState = createNewReplayDownloadState(replay._id);
+            replayDownloadStates.set(replay._id, loadingState);
+            setReplayDownloadStates((prevState) => new Map(prevState.set(replay._id, loadingState)));
+        });
+
+        // Create promises to fetch all replay files
+        const replayFetchPromises = nonLoadedReplays.map(
+            (replay) => API.replays.fetchReplayData(replay, fetchReplayProgressCallback),
+        );
+
+        // Await all promises using Promise.allSettled to catch errors
+        const replayPromiseResults = await Promise.allSettled(replayFetchPromises);
+
+        // Load all fulfilled replays and set error states for rejected replays
+        replayPromiseResults.forEach((promiseResult, index) => {
+            if (promiseResult.status === 'fulfilled') {
+                // Add all successfully loaded replays to selectedReplayData
+                const replayDownload = promiseResult.value;
+                if (replayDownload.replay) {
+                    setSelectedReplayData((prevState) => [...prevState, replayDownload.replay!]);
+                    setReplayDownloadStates((prevState) => new Map(prevState.set(replayDownload._id, replayDownload)));
+                }
+            } else if (promiseResult.status === 'rejected') {
+                // Set replay error states for the failing replays
+                const failedReplay = nonLoadedReplays[index];
+                const errorState = createErrorReplayDownloadState(failedReplay._id);
+                setReplayDownloadStates((prevState) => new Map(prevState.set(failedReplay._id, errorState)));
+            }
+        });
     };
 
     const onRemoveReplay = async (replayToRemove: ReplayInfo) => {
-        const replayDataFiltered = selectedReplayData.filter(
-            (replay) => replay._id !== replayToRemove._id,
-        );
-        setSelectedReplayData(replayDataFiltered);
+        onRemoveMultipleReplays([replayToRemove]);
     };
 
-    const onLoadAllVisibleReplays = async (
-        allReplays: ReplayInfo[],
-        selectedReplayDataIds: string[],
-    ) => {
-        const filtered = allReplays.filter(
-            (replay) => selectedReplayDataIds.indexOf(replay._id) === -1,
-        );
-        const fetchedReplays = await Promise.all(
-            filtered.map((replay) => API.replays.fetchReplayData(replay)),
-        );
-        setSelectedReplayData([...selectedReplayData, ...fetchedReplays]);
+    const onRemoveAllReplays = async () => {
+        setSelectedReplayData([]);
+        setReplayDownloadStates(new Map());
     };
 
-    const onRemoveAllReplays = async (replaysToRemove: ReplayInfo[]) => {
-        const replayDataFiltered = selectedReplayData.filter((el) => replaysToRemove.includes(el));
-        setSelectedReplayData(replayDataFiltered);
+    const onRemoveMultipleReplays = async (replaysToRemove: ReplayInfo[]) => {
+        // Remove from selected replays
+        setSelectedReplayData((selectedReplays) => selectedReplays.filter(
+            (replay) => !replaysToRemove.find((replayToRemove) => replayToRemove._id === replay._id),
+        ));
+
+        // Remove replay download states
+        setReplayDownloadStates((prevState) => {
+            replaysToRemove.forEach((replay) => {
+                prevState.delete(replay._id);
+            });
+            return new Map(prevState);
+        });
     };
 
     const title = mapInfo?.name
@@ -116,11 +177,11 @@ const Home = (): JSX.Element => {
                         loadingReplays={isLoadingReplays}
                         fetchingReplays={isFetchingReplays}
                         onLoadReplay={onLoadReplay}
+                        onLoadMultipleReplays={onLoadMultipleReplays}
                         onRemoveReplay={onRemoveReplay}
-                        onLoadAllVisibleReplays={onLoadAllVisibleReplays}
                         onRemoveAllReplays={onRemoveAllReplays}
-                        selectedReplayDataIds={selectedReplayData.map((replay) => replay._id)}
                         onRefreshReplays={() => queryClient.invalidateQueries(QUERY_KEYS.mapReplays(mapUId as string))}
+                        replayDownloadStates={replayDownloadStates}
                     />
 
                     {selectedReplayData.length > 0

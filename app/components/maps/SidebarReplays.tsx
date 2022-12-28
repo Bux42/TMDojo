@@ -2,7 +2,7 @@ import React, {
     useState, useEffect, useContext, useMemo,
 } from 'react';
 import {
-    Button, Drawer, Dropdown, Menu, message, Popconfirm, Space, Spin, Table, Tooltip,
+    Button, Drawer, Dropdown, Menu, message, Popconfirm, Progress, Space, Spin, Table, Tooltip,
 } from 'antd';
 import {
     DeleteOutlined,
@@ -24,6 +24,7 @@ import PlayerLink from '../common/PlayerLink';
 import { ReplayInfo } from '../../lib/api/requests/replays';
 import CleanButton from '../common/CleanButton';
 import useWindowDimensions from '../../lib/hooks/useWindowDimensions';
+import { DownloadState, ReplayDownloadState } from '../../lib/replays/replayDownloadState';
 import {
     calcFastestSectorIndices,
     calcIndividualSectorTimes,
@@ -43,12 +44,12 @@ interface Props {
     replays: ReplayInfo[];
     loadingReplays: boolean;
     fetchingReplays: boolean;
-    onLoadReplay: (replay: ReplayInfo) => void;
+    replayDownloadStates: Map<string, ReplayDownloadState>;
     onRemoveReplay: (replay: ReplayInfo) => void;
-    onLoadAllVisibleReplays: (replays: ReplayInfo[], selectedReplayDataIds: string[]) => void;
-    onRemoveAllReplays: (replays: ReplayInfo[]) => void;
+    onLoadReplay: (replay: ReplayInfo) => void;
+    onLoadMultipleReplays: (replays: ReplayInfo[]) => Promise<void>;
+    onRemoveAllReplays: () => void;
     onRefreshReplays: () => Promise<void>;
-    selectedReplayDataIds: string[];
 }
 
 const SidebarReplays = ({
@@ -56,12 +57,12 @@ const SidebarReplays = ({
     replays,
     loadingReplays,
     fetchingReplays,
-    onLoadReplay,
+    replayDownloadStates,
     onRemoveReplay,
-    onLoadAllVisibleReplays,
+    onLoadReplay,
+    onLoadMultipleReplays,
     onRemoveAllReplays,
     onRefreshReplays,
-    selectedReplayDataIds,
 }: Props): JSX.Element => {
     const queryClient = useQueryClient();
     const { mutate: deleteReplayMutation } = useDeleteReplayMutation(queryClient);
@@ -152,10 +153,7 @@ const SidebarReplays = ({
         const replayIndices = Array.from(new Set(fastestSectorIndices));
 
         // Load all fastest replays
-        onLoadAllVisibleReplays(
-            replayIndices.map((index) => filteredReplays[index]),
-            selectedReplayDataIds,
-        );
+        onLoadMultipleReplays(replayIndices.map((index) => filteredReplays[index]));
     };
 
     const onLoadFastestTime = () => {
@@ -189,6 +187,10 @@ const SidebarReplays = ({
         }
 
         onLoadReplay(filteredReplays[0]);
+    };
+
+    const onLoadCurrentPageReplays = () => {
+        onLoadMultipleReplays(visibleReplays);
     };
 
     // TODO: add useMemo to filters and columns
@@ -285,17 +287,24 @@ const SidebarReplays = ({
             align: 'center',
             width: 150,
             render: (_, replay) => {
-                const selected = selectedReplayDataIds.indexOf(replay._id) !== -1;
+                const loadingState = replayDownloadStates.get(replay._id);
+
                 return (
                     <div className="flex flex-row gap-4 items-center">
-                        {!selected ? (
+                        {(!loadingState) && (
                             <CleanButton
                                 onClick={() => onLoadReplay(replay)}
                                 className="w-full"
                             >
                                 Load
                             </CleanButton>
-                        ) : (
+                        )}
+                        {loadingState?.state === DownloadState.DOWNLOADING && (
+                            <div className="flex items-center w-full h-8">
+                                <Progress percent={Math.round(loadingState.progress * 100)} />
+                            </div>
+                        )}
+                        {loadingState?.state === DownloadState.LOADED && (
                             <CleanButton
                                 onClick={() => onRemoveReplay(replay)}
                                 className="w-full"
@@ -303,6 +312,19 @@ const SidebarReplays = ({
                             >
                                 Remove
                             </CleanButton>
+                        )}
+                        {loadingState?.state === DownloadState.ERROR && (
+                            <Tooltip placement="top" title="Loading failed, click to try again">
+                                <span style={{ width: '100%', height: '100%' }}>
+                                    <CleanButton
+                                        onClick={() => onLoadReplay(replay)}
+                                        className="w-full"
+                                        backColor="#b46616"
+                                    >
+                                        Retry
+                                    </CleanButton>
+                                </span>
+                            </Tooltip>
                         )}
                         {user && user.accountId === replay.webId && (
                             <Popconfirm
@@ -400,9 +422,7 @@ const SidebarReplays = ({
                 <div className="flex flex-row justify-between items-center mb-3 mx-4">
                     <div className="flex flex-row gap-4">
                         {/* Load current page */}
-                        <CleanButton
-                            onClick={() => onLoadAllVisibleReplays(visibleReplays, selectedReplayDataIds)}
-                        >
+                        <CleanButton onClick={onLoadCurrentPageReplays}>
                             Load page
                         </CleanButton>
 
@@ -427,13 +447,14 @@ const SidebarReplays = ({
                                     </Menu.Item>
                                     {/* TODO: Add back in when sector times are fixed */}
                                     {/* <Menu.Item
-                                            className="text-md"
-                                            icon={<ClockCircleFilled />}
-                                            onClick={() => onLoadReplaysWithFastestSectorTimes()}
-                                            disabled={!singleReplayHasSectorTimes}
-                                        >
-                                            All replays containing fastest sectors
-                                        </Menu.Item> */}
+                                        className="text-md"
+                                        icon={<ClockCircleFilled />}
+                                        onClick={() => onLoadReplaysWithFastestSectorTimes()}
+                                        disabled={!singleReplayHasSectorTimes}
+                                    >
+                                        All replays containing fastest sectors
+                                    </Menu.Item> */}
+
                                 </Menu>
                             )}
                             mouseLeaveDelay={0.2}
@@ -451,12 +472,24 @@ const SidebarReplays = ({
 
                         {/* Unload all */}
                         <CleanButton
-                            onClick={() => onRemoveAllReplays(visibleReplays)}
+                            onClick={onRemoveAllReplays}
                             backColor="#B41616"
                         >
                             Unload all
                         </CleanButton>
+
+                        <div className="mr-6">
+                            <Tooltip title="Refresh">
+                                <Button
+                                    shape="circle"
+                                    size="large"
+                                    icon={<ReloadOutlined />}
+                                    onClick={onRefreshReplays}
+                                />
+                            </Tooltip>
+                        </div>
                     </div>
+
                     <div className="mr-6">
                         <Tooltip title="Refresh">
                             <Button

@@ -40,8 +40,7 @@ const ReplayCar = ({
 
     const timeLineGlobal = GlobalTimeLineInfos.getInstance();
 
-    let curSample = replay.samples[0];
-    const smoothSample: ReplayDataPoint = { ...replay.samples[0] };
+    const smoothSample: ReplayDataPoint = replay.samples[0].clone();
 
     // Get own material from loaded car model
     const carMesh: THREE.Mesh = fbx.children[0] as THREE.Mesh;
@@ -66,13 +65,12 @@ const ReplayCar = ({
     useFrame((state, delta) => {
         timeLineGlobal.tickTime = delta * 1000;
         if (mesh.current
-            && stadiumCarMesh.current
             && camPosRef.current) {
             const followed = timeLineGlobal.followedReplay != null && timeLineGlobal.followedReplay._id === replay._id;
             const hovered = timeLineGlobal.hoveredReplay != null && timeLineGlobal.hoveredReplay._id === replay._id;
 
             // Get closest sample to TimeLine.currentRaceTime
-            curSample = getSampleNearTime(replay, timeLineGlobal.currentRaceTime);
+            const curSample = getSampleNearTime(replay, timeLineGlobal.currentRaceTime);
 
             currentSampleRef.current = curSample;
             prevSampleRef.current = replay.samples[replay.samples.indexOf(curSample) - 1];
@@ -92,17 +90,24 @@ const ReplayCar = ({
             // Move & rotate 3D car from current sample rot & pos
             mesh.current.position.set(smoothSample.position.x, smoothSample.position.y, smoothSample.position.z);
 
-            stadiumCarMesh.current.rotation.setFromQuaternion(carRotation);
+            if (stadiumCarMesh.current) {
+                stadiumCarMesh.current.rotation.setFromQuaternion(carRotation);
 
-            // Set front wheels rotation
-            stadiumCarMesh.current.children[2].rotation.y = smoothSample.wheelAngle; // FL
-            stadiumCarMesh.current.children[4].rotation.y = smoothSample.wheelAngle; // FR
+                // Set front wheels rotation
+                const rearLeftWheel = stadiumCarMesh.current.children[3];
+                const frontLeftWheel = stadiumCarMesh.current.children[2];
+                const rearRightWheel = stadiumCarMesh.current.children[1];
+                const frontRigthWheel = stadiumCarMesh.current.children[4];
 
-            // Set wheel suspensions
-            stadiumCarMesh.current.children[1].position.setY(BACK_WHEEL_Y - (smoothSample.rRDamperLen * 100)); // RR
-            stadiumCarMesh.current.children[2].position.setY(FRONT_WHEEL_Y - (smoothSample.fLDamperLen * 100)); // FL
-            stadiumCarMesh.current.children[3].position.setY(BACK_WHEEL_Y - (smoothSample.rLDamperLen * 100)); // RL
-            stadiumCarMesh.current.children[4].position.setY(FRONT_WHEEL_Y - (smoothSample.fRDamperLen * 100)); // FR
+                frontLeftWheel.rotation.y = smoothSample.wheelAngle; // FL
+                frontRigthWheel.rotation.y = smoothSample.wheelAngle; // FR
+
+                // Set wheel suspensions
+                rearRightWheel.position.setY(BACK_WHEEL_Y - (smoothSample.rRDamperLen * 100)); // RR
+                frontLeftWheel.position.setY(FRONT_WHEEL_Y - (smoothSample.fLDamperLen * 100)); // FL
+                rearLeftWheel.position.setY(BACK_WHEEL_Y - (smoothSample.rLDamperLen * 100)); // RL
+                frontRigthWheel.position.setY(FRONT_WHEEL_Y - (smoothSample.fRDamperLen * 100)); // FR
+            }
 
             // Camera target replay if selected
             if (followed) {
@@ -137,10 +142,12 @@ const ReplayCar = ({
             }
 
             // Scale car up if hovered in LoadedReplays
-            if (hovered) {
-                stadiumCarMesh.current.scale.lerp(new THREE.Vector3(0.02, 0.02, 0.02), 0.2);
-            } else {
-                stadiumCarMesh.current.scale.lerp(new THREE.Vector3(0.01, 0.01, 0.01), 0.2);
+            if (stadiumCarMesh.current) {
+                if (hovered) {
+                    stadiumCarMesh.current.scale.lerp(new THREE.Vector3(0.02, 0.02, 0.02), 0.2);
+                } else {
+                    stadiumCarMesh.current.scale.lerp(new THREE.Vector3(0.01, 0.01, 0.01), 0.2);
+                }
             }
         }
     });
@@ -166,15 +173,16 @@ const ReplayCar = ({
                 ref={mesh}
                 scale={1}
             >
-
-                <primitive
-                    object={fbx}
-                    dispose={null}
-                    ref={stadiumCarMesh}
-                    scale={0.01}
-                    receiveShadow
-                    castShadow
-                />
+                {replayCarOpacity > 0 && (
+                    <primitive
+                        object={fbx}
+                        dispose={null}
+                        ref={stadiumCarMesh}
+                        scale={0.01}
+                        receiveShadow
+                        castShadow
+                    />
+                )}
 
                 {showInputOverlay
                     && <InputOverlay sampleRef={currentSampleRef} camera={camera} />}
