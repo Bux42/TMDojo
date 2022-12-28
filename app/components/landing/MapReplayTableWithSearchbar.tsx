@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { useQueryClient } from 'react-query';
 import { timeDifference } from '../../lib/utils/time';
 import CleanButton from '../common/CleanButton';
-import { useAllMaps } from '../../lib/api/hooks/query/maps';
+import { useAllMaps } from '../../lib/api/reactQuery/hooks/query/maps';
 import { MapWithStats } from '../../lib/api/requests/maps';
 import QUERY_KEYS from '../../lib/api/reactQuery/queryKeys';
 

@@ -30,7 +30,7 @@ import {
     calcValidSectorsLength,
     filterReplaysWithValidSectorTimes,
 } from '../../lib/replays/sectorTimes';
-import useDeleteReplayMutation from '../../lib/api/hooks/mutations/replays';
+import useDeleteReplayMutation from '../../lib/api/reactQuery/hooks/mutations/replays';
 
 interface ExtendedReplayInfo extends ReplayInfo {
     readableTime: string;

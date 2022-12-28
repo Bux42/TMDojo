@@ -1,7 +1,7 @@
 import { useQuery } from 'react-query';
-import queryClient from '../../reactQuery/queryClient';
-import QUERY_KEYS from '../../reactQuery/queryKeys';
-import API from '../../apiWrapper';
+import queryClient from '../../queryClient';
+import QUERY_KEYS from '../../queryKeys';
+import API from '../../../apiWrapper';
 
 const useMapReplays = (mapUId?: string) => useQuery(
     QUERY_KEYS.mapReplays(mapUId),

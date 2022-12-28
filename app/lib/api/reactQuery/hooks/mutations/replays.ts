@@ -1,7 +1,7 @@
 import { QueryClient, useMutation } from 'react-query';
-import QUERY_KEYS from '../../reactQuery/queryKeys';
-import API from '../../apiWrapper';
-import { AllReplaysResult } from '../../requests/replays';
+import QUERY_KEYS from '../../queryKeys';
+import API from '../../../apiWrapper';
+import { AllReplaysResult } from '../../../requests/replays';
 
 const useDeleteReplayMutation = (queryClient: QueryClient) => useMutation(
     API.replays.deleteReplay,
