@@ -16,7 +16,7 @@ import LoadedReplays from '../../../components/maps/LoadedReplays';
 import CleanButton from '../../../components/common/CleanButton';
 import API from '../../../lib/api/apiWrapper';
 import { ReplayInfo, ReplayData } from '../../../lib/api/requests/replays';
-import useMapReplays from '../../../lib/api/reactQuery/hooks/query/replays';
+import { useMapReplays } from '../../../lib/api/reactQuery/hooks/query/replays';
 import QUERY_KEYS from '../../../lib/api/reactQuery/queryKeys';
 import { useMapInfo } from '../../../lib/api/reactQuery/hooks/query/maps';
 import {

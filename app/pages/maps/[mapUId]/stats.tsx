@@ -14,7 +14,7 @@ import MapHeader from '../../../components/maps/MapHeader';
 import ReplayTimesHistogram from '../../../components/mapStats/statistics/ReplayTimesHistogram';
 import AggregateMapStats from '../../../components/mapStats/statistics/AggregateMapStats';
 import FastestTimeProgression from '../../../components/mapStats/statistics/FastestTimeProgression';
-import useMapReplays from '../../../lib/api/reactQuery/hooks/query/replays';
+import { useMapReplays } from '../../../lib/api/reactQuery/hooks/query/replays';
 import { useMapInfo } from '../../../lib/api/reactQuery/hooks/query/maps';
 import { AuthContext } from '../../../lib/contexts/AuthContext';
 import { MapStatsType, MapStatsTypeSwitcher } from '../../../components/mapStats/common/MapStatsTypeSwitcher';

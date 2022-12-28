@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { useRouter } from 'next/router';
 
-import { useUserInfo } from '../../lib/api/reactQuery/hooks/query/users';
+import useUserInfo from '../../lib/api/reactQuery/hooks/query/users';
 
 import HeadTitle from '../../components/common/HeadTitle';
 import UserReplays from '../../components/users/UserReplays';

@@ -3,7 +3,7 @@ import queryClient from '../../queryClient';
 import QUERY_KEYS from '../../queryKeys';
 import API from '../../../apiWrapper';
 
-const useMapReplays = (mapUId?: string) => useQuery(
+export const useMapReplays = (mapUId?: string) => useQuery(
     QUERY_KEYS.mapReplays(mapUId),
     () => API.replays.fetchReplays({ mapUId }),
     {
@@ -12,4 +12,11 @@ const useMapReplays = (mapUId?: string) => useQuery(
     },
 );
 
-export default useMapReplays;
+export const useUserReplays = (webId?: string) => useQuery(
+    QUERY_KEYS.userReplays(webId),
+    () => API.users.getUserReplays(webId || ''),
+    {
+        ...queryClient.getDefaultOptions(),
+        enabled: webId !== undefined,
+    },
+);

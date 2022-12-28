@@ -3,16 +3,7 @@ import queryClient from '../../queryClient';
 import QUERY_KEYS from '../../queryKeys';
 import API from '../../../apiWrapper';
 
-export const useUserReplays = (userId?: string) => useQuery(
-    QUERY_KEYS.userReplays(userId),
-    () => API.users.getUserReplays(userId || ''),
-    {
-        ...queryClient.getDefaultOptions(),
-        enabled: userId !== undefined,
-    },
-);
-
-export const useUserInfo = (webId?: string) => useQuery(
+const useUserInfo = (webId?: string) => useQuery(
     QUERY_KEYS.userInfo(webId),
     () => API.users.getUserInfo(webId || ''),
     {
@@ -21,3 +12,5 @@ export const useUserInfo = (webId?: string) => useQuery(
         staleTime: 60 * 1000, // long stale time, user info should never really change
     },
 );
+
+export default useUserInfo;
