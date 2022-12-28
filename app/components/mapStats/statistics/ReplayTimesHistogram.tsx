@@ -131,11 +131,13 @@ const ReplayTimesHistogram = ({ replays, binSize }: ReplayTimesHistogramProps) =
                 groupPadding: 0,
                 shadow: false,
             },
+            series: {
+                animation: false,
+            },
         },
         series: [{
             name: 'Finish Times',
             data: histogramData,
-
         }],
     };
 

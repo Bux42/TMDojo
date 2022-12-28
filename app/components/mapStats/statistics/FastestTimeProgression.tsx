@@ -178,6 +178,7 @@ const FastestTimeProgression = ({
             },
             series: {
                 turboThreshold: 0,
+                animation: false,
             },
         },
         series: [{
