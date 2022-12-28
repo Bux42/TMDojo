@@ -30,7 +30,7 @@ import {
     calcValidSectorsLength,
     filterReplaysWithValidSectorTimes,
 } from '../../lib/replays/sectorTimes';
-import useDeleteReplayMutation from '../../lib/api/reactQuery/hooks/mutations/replays';
+import useDeleteReplay from '../../lib/api/reactQuery/hooks/mutations/replays';
 
 interface ExtendedReplayInfo extends ReplayInfo {
     readableTime: string;
@@ -64,7 +64,7 @@ const SidebarReplays = ({
     onRefreshReplays,
 }: Props): JSX.Element => {
     const queryClient = useQueryClient();
-    const { mutate: deleteReplayMutation } = useDeleteReplayMutation(queryClient);
+    const { mutate: deleteReplayMutation } = useDeleteReplay(queryClient);
 
     const defaultPageSize = 14;
 

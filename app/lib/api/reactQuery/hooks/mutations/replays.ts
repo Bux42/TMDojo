@@ -3,7 +3,7 @@ import QUERY_KEYS from '../../queryKeys';
 import API from '../../../apiWrapper';
 import { AllReplaysResult } from '../../../requests/replays';
 
-const useDeleteReplayMutation = (queryClient: QueryClient) => useMutation(
+const useDeleteReplay = (queryClient: QueryClient) => useMutation(
     API.replays.deleteReplay,
     {
         onSuccess: (_, replay) => {
@@ -29,4 +29,4 @@ const useDeleteReplayMutation = (queryClient: QueryClient) => useMutation(
     },
 );
 
-export default useDeleteReplayMutation;
+export default useDeleteReplay;
