@@ -8,11 +8,10 @@ import {
     DeleteOutlined,
     FilterFilled,
     QuestionCircleOutlined,
-    ReloadOutlined, UnorderedListOutlined,
-    ClockCircleOutlined,
+    UnorderedListOutlined,
     DownOutlined,
     TrophyFilled,
-    ClockCircleFilled,
+    SyncOutlined,
 } from '@ant-design/icons';
 import { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
 import { ColumnType, TableCurrentDataSource } from 'antd/lib/table/interface';
@@ -477,17 +476,6 @@ const SidebarReplays = ({
                         >
                             Unload all
                         </CleanButton>
-
-                        <div className="mr-6">
-                            <Tooltip title="Refresh">
-                                <Button
-                                    shape="circle"
-                                    size="large"
-                                    icon={<ReloadOutlined />}
-                                    onClick={onRefreshReplays}
-                                />
-                            </Tooltip>
-                        </div>
                     </div>
 
                     <div className="mr-6">
@@ -495,7 +483,7 @@ const SidebarReplays = ({
                             <Button
                                 shape="circle"
                                 size="large"
-                                icon={<ReloadOutlined spin={fetchingReplays} />}
+                                icon={<SyncOutlined spin={fetchingReplays} />}
                                 onClick={onRefreshReplays}
                             />
                         </Tooltip>
