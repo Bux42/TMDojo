@@ -18,8 +18,8 @@ const MapHeader = ({
     const hasExchangeId = mapInfo?.exchangeid !== undefined && mapInfo.exchangeid !== 0;
     const hasMapUid = mapInfo?.mapUid !== undefined && mapInfo.mapUid !== '';
 
-    const tmioURL = `https://trackmania.io/#/leaderboard/${mapInfo?.mapUid}`;
-    const tmxURL = `https://trackmania.exchange/maps/${mapInfo?.exchangeid}`;
+    const tmioURL = mapInfo?.mapUid ? `https://trackmania.io/#/leaderboard/${mapInfo.mapUid}` as const : undefined;
+    const tmxURL = mapInfo?.exchangeid ? `https://trackmania.exchange/maps/${mapInfo.exchangeid}` as const : undefined;
 
     return (
         <PageHeaderBar
