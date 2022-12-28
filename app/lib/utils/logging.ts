@@ -1,8 +1,8 @@
 const logErrorResponse = (e: any) => {
     if (e.response) {
-        console.log('Error response:', { response: e.response });
+        console.error({ error: e.response });
     } else {
-        console.log('Error:', e);
+        console.error(e);
     }
 };
 
