@@ -1,4 +1,4 @@
-import { ReplayData } from '../api/apiRequests';
+import { ReplayData } from '../api/requests/replays';
 
 export enum DownloadState {
     DOWNLOADING = 'Downloading',
@@ -6,8 +6,7 @@ export enum DownloadState {
     ERROR = 'Error'
 }
 
-export interface ReplayDownloadState
-{
+export interface ReplayDownloadState {
     _id: string;
     progress: number;
     state: DownloadState;

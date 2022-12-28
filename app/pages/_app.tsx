@@ -4,8 +4,8 @@
 import React from 'react';
 import Head from 'next/head';
 import { AppProps } from 'next/app';
-import { QueryClientProvider } from 'react-query';
-import { ReactQueryDevtools } from 'react-query/devtools';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { SettingsProvider } from '../lib/contexts/SettingsContext';
 import { AuthProvider } from '../lib/contexts/AuthContext';
 import '../styles/globals.css';

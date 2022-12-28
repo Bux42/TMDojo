@@ -1,4 +1,4 @@
-import { QueryClient, useMutation } from 'react-query';
+import { QueryClient, useMutation } from '@tanstack/react-query';
 import QUERY_KEYS from '../../queryKeys';
 import API from '../../../apiWrapper';
 import { AllReplaysResult } from '../../../requests/replays';

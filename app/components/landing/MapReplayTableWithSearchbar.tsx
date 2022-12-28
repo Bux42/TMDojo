@@ -4,7 +4,7 @@ import { ColumnsType } from 'antd/lib/table';
 
 import { PieChartOutlined, SyncOutlined } from '@ant-design/icons';
 import Link from 'next/link';
-import { useQueryClient } from 'react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { timeDifference } from '../../lib/utils/time';
 import CleanButton from '../common/CleanButton';
 import { useAllMaps } from '../../lib/api/reactQuery/hooks/query/maps';

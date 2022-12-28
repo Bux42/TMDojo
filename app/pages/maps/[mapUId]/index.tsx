@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Layout } from 'antd';
 import { useRouter } from 'next/router';
 
-import { useQueryClient } from 'react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { PieChartOutlined } from '@ant-design/icons';
 import SidebarReplays from '../../../components/maps/SidebarReplays';
 import SidebarSettings from '../../../components/maps/SidebarSettings';

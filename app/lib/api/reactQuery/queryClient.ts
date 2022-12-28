@@ -1,4 +1,4 @@
-import { QueryClient } from 'react-query';
+import { QueryClient } from '@tanstack/react-query';
 import logErrorResponse from '../../utils/logging';
 
 const queryClient = new QueryClient({
