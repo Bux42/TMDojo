@@ -37,7 +37,17 @@ const UserReplays = ({ userInfo }: Props): JSX.Element => {
         [userReplaysResult],
     );
 
-    const dataSource = useMemo(() => addReplayInfo(userReplays), [userReplays]);
+    const dataSource = useMemo(() => {
+        const now = new Date().getTime();
+
+        return userReplays.map((replay) => ({
+            ...replay,
+            key: replay._id,
+            readableTime: getRaceTimeStr(replay.endRaceTime),
+            relativeDate: timeDifference(now, replay.date),
+            finished: replay.raceFinished === 1,
+        }));
+    }, [userReplays]);
 
     const calculateTotalTime = (replays: ReplayInfo[]): string => {
         const totalRecordedTime = replays.reduce((a, b) => a + b.endRaceTime, 0);
@@ -49,18 +59,6 @@ const UserReplays = ({ userInfo }: Props): JSX.Element => {
         () => calculateTotalTime(userReplays),
         [userReplays],
     );
-
-    const addReplayInfo = (replayList: ReplayInfo[]): ExtendedFileResponse[] => {
-        const now = new Date().getTime();
-
-        return replayList.map((replay) => ({
-            ...replay,
-            key: replay._id,
-            readableTime: getRaceTimeStr(replay.endRaceTime),
-            relativeDate: timeDifference(now, replay.date),
-            finished: replay.raceFinished === 1,
-        }));
-    };
 
     const getUniqueFilters = (replayFieldCallback: (replay: ReplayInfo) => string) => {
         const uniques = Array.from(new Set(userReplays.map(replayFieldCallback)));
