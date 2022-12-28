@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import queryClient from '../../queryClient';
 import QUERY_KEYS from '../../queryKeys';
 import API from '../../../apiWrapper';
+import { TIME_IN_MS } from '../../../../utils/time';
 
 export const useAllMaps = (searchString: string = '') => useQuery(
     QUERY_KEYS.allMaps(searchString),
@@ -15,6 +16,6 @@ export const useMapInfo = (mapUId?: string) => useQuery(
     {
         ...queryClient.getDefaultOptions(),
         enabled: mapUId !== undefined,
-        staleTime: 60 * 1000, // 1 minute stale time, map info should not change often
+        staleTime: TIME_IN_MS.HOUR, // Long stale time, map info should not change often
     },
 );

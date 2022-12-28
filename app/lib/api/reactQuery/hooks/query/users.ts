@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import queryClient from '../../queryClient';
 import QUERY_KEYS from '../../queryKeys';
 import API from '../../../apiWrapper';
+import { TIME_IN_MS } from '../../../../utils/time';
 
 const useUserInfo = (webId?: string) => useQuery(
     QUERY_KEYS.userInfo(webId),
@@ -9,7 +10,7 @@ const useUserInfo = (webId?: string) => useQuery(
     {
         ...queryClient.getDefaultOptions(),
         enabled: webId !== undefined,
-        staleTime: 60 * 1000, // long stale time, user info should never really change
+        staleTime: TIME_IN_MS.HOUR, // Long stale time, user info should never really change
     },
 );
 
