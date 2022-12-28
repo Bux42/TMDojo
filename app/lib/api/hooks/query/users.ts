@@ -1,11 +1,11 @@
 import { useQuery } from 'react-query';
-import queryClient from '../../../utils/reactQuery/queryClient';
-import QUERY_KEYS from '../../../utils/reactQuery/reactQueryKeys';
-import api from '../../apiWrapper';
+import queryClient from '../../reactQuery/queryClient';
+import QUERY_KEYS from '../../reactQuery/queryKeys';
+import API from '../../apiWrapper';
 
 export const useUserReplays = (userId?: string) => useQuery(
     QUERY_KEYS.userReplays(userId),
-    () => api.users.getUserReplays(userId || ''),
+    () => API.users.getUserReplays(userId || ''),
     {
         ...queryClient.getDefaultOptions(),
         enabled: userId !== undefined,
@@ -14,7 +14,7 @@ export const useUserReplays = (userId?: string) => useQuery(
 
 export const useUserInfo = (webId?: string) => useQuery(
     QUERY_KEYS.userInfo(webId),
-    () => api.users.getUserInfo(webId || ''),
+    () => API.users.getUserInfo(webId || ''),
     {
         ...queryClient.getDefaultOptions(),
         enabled: webId !== undefined,

@@ -1,6 +1,4 @@
-import React, {
-    useEffect, useMemo, useState,
-} from 'react';
+import React, { useMemo, useState } from 'react';
 import { Layout } from 'antd';
 import { useRouter } from 'next/router';
 
@@ -16,10 +14,10 @@ import { ChartsDrawer } from '../../../components/maps/ChartsDrawer';
 import { cleanTMFormatting } from '../../../lib/utils/formatting';
 import LoadedReplays from '../../../components/maps/LoadedReplays';
 import CleanButton from '../../../components/common/CleanButton';
-import api from '../../../lib/api/apiWrapper';
+import API from '../../../lib/api/apiWrapper';
 import { ReplayInfo, ReplayData } from '../../../lib/api/requests/replays';
 import useMapReplays from '../../../lib/api/hooks/query/replays';
-import QUERY_KEYS from '../../../lib/utils/reactQuery/reactQueryKeys';
+import QUERY_KEYS from '../../../lib/api/reactQuery/queryKeys';
 import { useMapInfo } from '../../../lib/api/hooks/query/maps';
 import SectorTimeTableButton from '../../../components/maps/SectorTimeTableButton';
 import { filterReplaysWithValidSectorTimes } from '../../../lib/replays/sectorTimes';
@@ -54,7 +52,7 @@ const Home = (): JSX.Element => {
         if (selectedReplayData.some((r) => r._id === replay._id)) {
             return;
         }
-        const replayData = await api.replays.fetchReplayData(replay);
+        const replayData = await API.replays.fetchReplayData(replay);
 
         setSelectedReplayData([...selectedReplayData, replayData]);
     };
@@ -74,7 +72,7 @@ const Home = (): JSX.Element => {
             (replay) => selectedReplayDataIds.indexOf(replay._id) === -1,
         );
         const fetchedReplays = await Promise.all(
-            filtered.map((replay) => api.replays.fetchReplayData(replay)),
+            filtered.map((replay) => API.replays.fetchReplayData(replay)),
         );
         setSelectedReplayData([...selectedReplayData, ...fetchedReplays]);
     };

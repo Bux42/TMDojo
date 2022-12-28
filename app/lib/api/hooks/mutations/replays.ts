@@ -1,10 +1,10 @@
 import { QueryClient, useMutation } from 'react-query';
-import QUERY_KEYS from '../../../utils/reactQuery/reactQueryKeys';
-import api from '../../apiWrapper';
+import QUERY_KEYS from '../../reactQuery/queryKeys';
+import API from '../../apiWrapper';
 import { AllReplaysResult } from '../../requests/replays';
 
 const useDeleteReplayMutation = (queryClient: QueryClient) => useMutation(
-    api.replays.deleteReplay,
+    API.replays.deleteReplay,
     {
         onSuccess: (_, replay) => {
             // Optimistic update of query data

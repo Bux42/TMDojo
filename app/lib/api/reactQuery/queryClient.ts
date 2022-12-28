@@ -1,5 +1,5 @@
 import { QueryClient } from 'react-query';
-import logErrorResponse from '../logging';
+import logErrorResponse from '../../utils/logging';
 
 const queryClient = new QueryClient({
     defaultOptions: {

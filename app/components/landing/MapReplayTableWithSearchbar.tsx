@@ -9,7 +9,7 @@ import { timeDifference } from '../../lib/utils/time';
 import CleanButton from '../common/CleanButton';
 import { useAllMaps } from '../../lib/api/hooks/query/maps';
 import { MapWithStats } from '../../lib/api/requests/maps';
-import QUERY_KEYS from '../../lib/utils/reactQuery/reactQueryKeys';
+import QUERY_KEYS from '../../lib/api/reactQuery/queryKeys';
 
 interface ExtendedAvailableMap extends MapWithStats {
     key: string;

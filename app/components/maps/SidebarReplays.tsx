@@ -22,7 +22,6 @@ import { AuthContext } from '../../lib/contexts/AuthContext';
 import SideDrawerExpandButton from '../common/SideDrawerExpandButton';
 import PlayerLink from '../common/PlayerLink';
 import { ReplayInfo } from '../../lib/api/requests/replays';
-import api from '../../lib/api/apiWrapper';
 import CleanButton from '../common/CleanButton';
 import useWindowDimensions from '../../lib/hooks/useWindowDimensions';
 import {
