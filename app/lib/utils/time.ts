@@ -85,7 +85,7 @@ export const msToTime = (duration: number) => {
     return ('');
 };
 
-// Utility functions for time
+// Utility constants for time in milliseconds
 export const TIME_IN_MS = {
     SECOND: 1_000,
     MINUTE: 60_000,
