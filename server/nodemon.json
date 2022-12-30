@@ -6,7 +6,7 @@
     ],
     "ext": ".ts,.js",
     "ignore": [],
-    "exec": "npm start ./src/index.tsx",
+    "exec": "npm start",
     "events": {
         "restart": "kill-port 80",
         "crash": "kill-port 80"
