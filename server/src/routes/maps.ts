@@ -11,8 +11,11 @@ import * as express from 'express';
 
 import axios from 'axios';
 
+import { z } from 'zod';
 import * as db from '../lib/db';
 import * as artefacts from '../lib/artefacts';
+import { asyncErrorHandler } from '../lib/asyncErrorHandler';
+import zParseRequest from '../lib/zodParseRequest';
 
 const router = express.Router();
 /**
@@ -21,14 +24,19 @@ const router = express.Router();
  * Query params:
  * - mapName (optional)
  */
-router.get('/', async (req: Request, res: Response, next: Function) => {
-    try {
-        const mapNames = await db.getUniqueMapNames(req.query.mapName as string);
-        res.send(mapNames);
-    } catch (err) {
-        next(err);
-    }
+const mapsInputSchema = z.object({
+    query: z.object({
+        mapName: z.string().optional(),
+    }),
 });
+
+router.get('/', asyncErrorHandler(async (req: Request, res: Response) => {
+    const { query: { mapName } } = zParseRequest(mapsInputSchema, req);
+
+    const mapNames = await db.getUniqueMapNames(mapName);
+
+    res.send(mapNames);
+}));
 
 /**
  * GET /maps/:mapUID
