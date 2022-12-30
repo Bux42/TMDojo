@@ -44,7 +44,7 @@ router.get('/', asyncErrorHandler(async (req: Request, res: Response) => {
             req.log.debug('authRouter: Found session for user, checking webId');
             const pluginUser = await db.getUserByWebId(webid.toString());
             if (pluginUser !== null
-                        && pluginSession.userRef.toString() === pluginUser._id.toString()) {
+                && pluginSession.userRef.toString() === pluginUser._id.toString()) {
                 req.log.debug('authRouter: Session and user match, skipping authURL generation');
                 res.send({ authSuccess: true });
                 return;
@@ -107,17 +107,18 @@ router.get('/pluginSecret', asyncErrorHandler(async (req: Request, res: Response
     req.log.debug(`authRouter: Searching for session with clientCode "${clientCode}"`);
     const session = await db.findSessionByClientCode(clientCode.toString());
 
-    // TODO: maybe also make the plugin send a user that we can check against - just to be sure it's the same user
-    if (session) {
-        req.log.debug('authRouter: Found session, sending sessionId and deleting clientCode');
-        res.send({ sessionId: session.sessionId });
-        // remove clientCode from the session again (so it can't be reused)
-        delete session.clientCode;
-        await db.updateSession(session);
-    } else {
-        req.log.error('authRouter: No session found');
-        res.status(400).send();
+    if (!session) {
+        req.log.error(`authRouter: No session found for clientCode: ${clientCode}`);
+        throw new HttpError(400, `No session found for clientCode: ${clientCode}`);
     }
+
+    // TODO: maybe also make the plugin send a user that we can check against - just to be sure it's the same user
+    req.log.debug('authRouter: Found session, sending sessionId and deleting clientCode');
+    res.send({ sessionId: session.sessionId });
+
+    // Remove clientCode from the session again (so it can't be reused)
+    delete session.clientCode;
+    await db.updateSession(session);
 }));
 
 export default router;
