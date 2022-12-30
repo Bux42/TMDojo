@@ -23,6 +23,8 @@
 			"src/types/*.ts",
 			"node_modules/@types"
 		],
+		"strict": true,
+		"strictNullChecks": true
 	},
 	"include": [
 		"src/",
