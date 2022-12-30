@@ -24,14 +24,14 @@ const router = express.Router();
  * Query params:
  * - mapName (optional)
  */
-const mapsInputSchema = z.object({
+const getMapsInputSchema = z.object({
     query: z.object({
         mapName: z.string().optional(),
     }),
 });
 
 router.get('/', asyncErrorHandler(async (req: Request, res: Response) => {
-    const { query: { mapName } } = zParseRequest(mapsInputSchema, req);
+    const { query: { mapName } } = zParseRequest(getMapsInputSchema, req);
 
     const mapNames = await db.getUniqueMapNames(mapName);
 
@@ -42,9 +42,17 @@ router.get('/', asyncErrorHandler(async (req: Request, res: Response) => {
  * GET /maps/:mapUID
  * Retrieves map (block) data by mapUID
  */
-router.get('/:mapUID', async (req: Request, res: Response, next: Function) => {
+const getMapInputSchema = z.object({
+    params: z.object({
+        mapUID: z.string(),
+    }),
+});
+
+router.get('/:mapUID/blocks', async (req: Request, res: Response, next: Function) => {
+    const { params: { mapUID } } = zParseRequest(getMapInputSchema, req);
+
     try {
-        const mapData = await artefacts.retrieveMap(req.params.mapUID);
+        const mapData = await artefacts.retrieveMap(mapUID);
         res.send(mapData);
     } catch (err: any) {
         if (err?.message === 'Object not found') {
