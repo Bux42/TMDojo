@@ -63,7 +63,7 @@ router.get('/:replayId', async (req: Request, res: Response, next: Function) => 
         const replayData = await artefacts.retrieveReplay(replay);
         req.log.debug('replaysRouter: Replay data retrieved');
         res.send(replayData);
-    } catch (err) {
+    } catch (err: any) {
         if (err?.message === 'Object not found') {
             res.status(404).send();
         } else {
@@ -160,7 +160,7 @@ router.post('/', (req: Request, res: Response, next: Function): any => {
                 }
 
                 // Set sector times to null if they contain NaN values (parseInt returns NaN for non-numeric values)
-                if (sectorTimes.filter((time) => Number.isNaN(time)).length > 0) {
+                if (sectorTimes && sectorTimes.filter((time) => Number.isNaN(time)).length > 0) {
                     // eslint-disable-next-line max-len
                     req.log.error(`Could not parse sector times (${req.query.sectorTimes}): ${sectorTimes} contains NaN`);
                     sectorTimes = null;
@@ -215,7 +215,7 @@ router.delete('/:replayId', async (req, res) => {
 
     // Check user
     const { user } = req;
-    if (user === undefined || user.webId !== replayUser.webId) {
+    if (!replayUser || user === undefined || user.webId !== replayUser.webId) {
         req.log.error('replaysRouter: Unauthenticated replay delete attempt');
         res.status(401).send('Authentication required to delete replay.');
         return;

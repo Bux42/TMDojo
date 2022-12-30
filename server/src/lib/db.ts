@@ -12,16 +12,16 @@ config();
 
 const DB_NAME = 'dojo';
 
-let db: Db = null;
+let db: Db;
 
 export type Rejector = (_1: Error) => void;
 
 export const initDB = () => {
-    const mongoClient = new MongoClient(process.env.MONGO_URL, {
+    const mongoClient = new MongoClient(process.env.MONGO_URL as string, {
         useUnifiedTopology: true,
     } as any);
 
-    mongoClient.connect((err: Error) => {
+    mongoClient.connect((err: any) => {
         if (err) {
             logError('initDB: Could not connect to DB, shutting down');
             process.exit();
@@ -44,7 +44,7 @@ export const createUser = (
             .find({
                 webId,
             })
-            .toArray(async (err: Error, docs: any) => {
+            .toArray(async (err: any, docs: any) => {
                 if (err) {
                     req.log.error(`createUser: Error finding user with webId ${webId}`);
                     reject(err);
@@ -143,7 +143,7 @@ export const getUniqueMapNames = async (
 
 export const getMapByUId = (mapUId ?: string): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
     const maps = db.collection('maps');
-    maps.findOne({ mapUId }, (err: Error, map: any) => {
+    maps.findOne({ mapUId }, (err: any, map: any) => {
         if (err) {
             return reject(err);
         }
@@ -170,7 +170,7 @@ export const getUserByWebId = (
     webId ?: string,
 ): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
     const users = db.collection('users');
-    users.findOne({ webId }, (err: Error, user: any) => {
+    users.findOne({ webId }, (err: any, user: any) => {
         if (err) {
             return reject(err);
         }
@@ -260,7 +260,7 @@ export const getReplays = async (
     ]);
 
     const addRegexFilter = (property ?: string, propertyName ?: string) => {
-        if (property) {
+        if (property && propertyName) {
             pipeline.push({
                 $match: {
                     [propertyName]: {
@@ -381,7 +381,7 @@ export const getReplayByFilePath = (
     filePath ?: string,
 ): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
     const replays = db.collection('replays');
-    replays.findOne({ filePath }, (err: Error, replay: any) => {
+    replays.findOne({ filePath }, (err: any, replay: any) => {
         if (err) {
             return reject(err);
         }

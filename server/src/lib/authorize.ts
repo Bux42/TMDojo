@@ -5,8 +5,8 @@ export const exchangeCodeForAccessToken = async (req: Request, code: string, red
     const authUrl = 'https://api.trackmania.com/api/access_token';
     const params = {
         grant_type: 'authorization_code',
-        client_id: process.env.TM_API_CLIENT_ID,
-        client_secret: process.env.TM_API_CLIENT_SECRET,
+        client_id: process.env.TM_API_CLIENT_ID as string,
+        client_secret: process.env.TM_API_CLIENT_SECRET as string,
         code,
         redirect_uri: redirectUri,
     };
@@ -29,8 +29,8 @@ export const requestTmApiAccessToken = async (req: Request): Promise<string | un
     const accessTokenUrl = 'https://api.trackmania.com/api/access_token';
     const params = {
         grant_type: 'client_credentials',
-        client_id: process.env.TM_API_CLIENT_ID,
-        client_secret: process.env.TM_API_CLIENT_SECRET,
+        client_id: process.env.TM_API_CLIENT_ID as string,
+        client_secret: process.env.TM_API_CLIENT_SECRET as string,
     };
 
     req.log.debug('requestTmApiAccessToken: Attempting to get client credentials access from TM API');
@@ -117,7 +117,7 @@ export const playerLoginFromWebId = (req: Request, webId: string) => {
         // eslint-disable-next-line max-len
         // req.log.error(`playerLoginFromWebId: player login "${playerLogin}" from webId "${webId}" is not a valid player login`);
         // return undefined;
-    } catch (e) {
+    } catch (e: any) {
         req.log.error(`playerLoginFromWebId: Unable to convert webId "${webId}" to a playerLogin:`);
         req.log.error(e);
         return undefined;

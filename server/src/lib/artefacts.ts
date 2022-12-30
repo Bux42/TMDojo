@@ -79,7 +79,7 @@ const retrieveObject = async (storageType: StorageType, key: string) => {
         }
 
         throw new Error(`Invalid storageType ${storageType}`);
-    } catch (error) {
+    } catch (error: any) {
         if (error?.message === 'NoSuchKey' || error?.code === 'ENOENT') {
             // translate same problem into single error we can detect later
             throw new Error('Object not found');
@@ -109,7 +109,7 @@ const deleteObject = async (storageType: StorageType, key: string) => {
         }
 
         throw new Error(`Invalid storageType ${storageType}`);
-    } catch (error) {
+    } catch (error: any) {
         if (!error.code || error.code !== 'ENOENT') {
             // silently catch error if the file doesn't exist and therefore can't be deleted
             throw error;

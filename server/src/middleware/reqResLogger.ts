@@ -14,7 +14,7 @@ const reqResLoggerMiddleware = async (req: Request, res: Response, next: Functio
     res.end = (data: any) => {
         // data contains the response body
         req.log.info(`RESPONSE${pluginVersionStr}: ${req.method} ${req.originalUrl} - ${res.statusCode}`);
-        oldEnd.apply(res, [data]);
+        oldEnd.apply(res, [data, 'utf-8']);
     };
 
     return next();

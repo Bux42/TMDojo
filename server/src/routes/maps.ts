@@ -38,7 +38,7 @@ router.get('/:mapUID', async (req: Request, res: Response, next: Function) => {
     try {
         const mapData = await artefacts.retrieveMap(req.params.mapUID);
         res.send(mapData);
-    } catch (err) {
+    } catch (err: any) {
         if (err?.message === 'Object not found') {
             res.status(404).send();
         } else {
@@ -63,7 +63,7 @@ router.get('/:mapUID/info', async (req: Request, res: Response) => {
 
         const tmioData = tmxRes.data;
         mapData = { ...mapData, ...tmioData };
-    } catch (error) {
+    } catch (error: any) {
         req.log.error(`mapsRouter: tm.io request failed with error ${error.toString()}`);
     }
 

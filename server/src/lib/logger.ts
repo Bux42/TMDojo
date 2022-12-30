@@ -4,21 +4,15 @@ import {
     createLogger, format, transports, Logger,
 } from 'winston';
 
-enum LogLevel {
+export enum LogLevel {
     info = 'info',
     warn = 'warn',
     error = 'error',
     debug = 'debug',
 }
 
-interface LogFormat {
-    level: string;
-    message: string;
-    timestamp: string;
-}
-
 const logFormat = format.printf(
-    ({ level, message, timestamp }: LogFormat) => {
+    ({ level, message, timestamp }) => {
         const formattedTime = dayjs(timestamp).format('DD/MM/YYYY HH:mm:ss.SSS');
         return `${formattedTime} ${level.toUpperCase()} ${message}`;
     },

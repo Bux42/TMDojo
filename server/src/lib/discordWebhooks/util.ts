@@ -12,6 +12,11 @@ export const sendWebhookPayload = async (req: Request, webhookType: WebhookType,
         ? process.env.INTERNAL_DISCORD_WEBHOOK_URL
         : process.env.INTERNAL_DISCORD_WEBHOOK_URL; // TODO: add public discord webhook url
 
+    if (!webhookUrl) {
+        req.log.error(`Failed to send payload to ${webhookType} discord webhook: No webhook url defined`);
+        return;
+    }
+
     await axios
         .post(webhookUrl, body)
         .catch((err: any) => {

@@ -12,7 +12,10 @@ const globalErrorHandler = (err: Error, req: Request, res: Response, next: Funct
         return;
     }
 
-    req.log.error(err.stack);
+    if (err.stack) {
+        req.log.error(err.stack);
+    }
+
     res.status(500).send({ status: 500, message: 'Internal server error' });
 };
 

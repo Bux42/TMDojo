@@ -11,7 +11,7 @@ import * as cookieParser from 'cookie-parser';
 import * as compression from 'compression';
 
 import * as db from './lib/db';
-import { logInfo, initLogger } from './lib/logger';
+import { logInfo, initLogger, LogLevel } from './lib/logger';
 
 import authRouter from './routes/auth';
 import mapRouter from './routes/maps';
@@ -30,7 +30,7 @@ import corsConfig from './lib/cors';
 config();
 
 // Initialize the logger with the provided level first
-initLogger(process.env.LOG_LEVEL);
+initLogger(process.env.LOG_LEVEL || LogLevel.debug);
 
 // Setup Express App
 const app = express();
