@@ -1,10 +1,14 @@
 import { Request, Response } from 'express';
 import * as express from 'express';
+import { z } from 'zod';
 import { exchangeCodeForAccessToken, fetchUserInfo, setSessionCookie } from '../lib/authorize';
 
 import {
     createSession, createUser, getUserByWebId,
 } from '../lib/db';
+import { asyncErrorHandler } from '../lib/asyncErrorHandler';
+import zParseRequest from '../lib/zodParseRequest';
+import { HttpError } from '../lib/httpErrors';
 
 const router = express.Router();
 
@@ -15,74 +19,62 @@ const router = express.Router();
  * - code
  * - redirect_uri
  */
-router.post('/', async (req: Request, res: Response, next: Function) => {
-    try {
-        // Get code, redirect URI and clientCode from body
-        const { code, redirect_uri: redirectUri, clientCode } = req.body;
 
-        // Check for missing parameters
-        const missingParams = [];
-        if (code === undefined || typeof code !== 'string') {
-            missingParams.push('code');
-        }
-        if (redirectUri === undefined || typeof redirectUri !== 'string') {
-            missingParams.push('redirect_uri');
-        }
-        if (missingParams.length > 0) {
-            res.status(400).send({ message: `Body is missing the following params: ${missingParams}` });
-            return;
-        }
-
-        // Exchange access code for access token from Trackmania API
-        const accessToken = await exchangeCodeForAccessToken(req, code, redirectUri);
-        if (accessToken === undefined || typeof accessToken !== 'string') {
-            res.status(500).send({ message: 'Could not get access token from trackmania API.' });
-            return;
-        }
-
-        // Fetch user info using access token
-        const userInfo = await fetchUserInfo(req, accessToken);
-        if (userInfo === undefined || userInfo.accountId === undefined || userInfo.displayName === undefined) {
-            res.status(500).send({ message: 'Could not retrieve user info from trackmania API.' });
-            return;
-        }
-
-        // Create UI session
-        // TODO: if clientCode exists (i.e. if this is plugin auth), only create a new UI session if there isn't one yet
-        const sessionId = await createSession(req, userInfo);
-        if (sessionId === undefined) {
-            res.status(500).send({ message: 'Failed to create login session.' });
-            return;
-        }
-
-        setSessionCookie(req, res, sessionId);
-
-        // if clientCode exists, create a separate plugin session
-        // first, check the user doc for the clientCode
-        const userDoc = await getUserByWebId(userInfo.accountId);
-        if (clientCode && userDoc.clientCode === clientCode) {
-            req.log.debug('authorizeRouter: clientCode exists, creating plugin session');
-            // remove clientCode from user
-            delete userDoc.clientCode;
-            await createUser(req, userDoc.webId, userDoc.playerLogin, userDoc.playerName, null);
-
-            // create a new plugin session including the clientCode
-            await createSession(req, userInfo, clientCode);
-        } else {
-            // looks like a different client/the UI initiated this login - don't create a plugin session
-            req.log.debug(
-                'authorizeRouter: No clientCode/it does not match the OAuth state, no plugin session will be created',
-            );
-        }
-
-        // send back user info
-        res.send({
-            accountId: userInfo.accountId,
-            displayName: userInfo.displayName,
-        });
-    } catch (err) {
-        next(err);
-    }
+const authorizeInputSchema = z.object({
+    body: z.object({
+        code: z.string(),
+        redirect_uri: z.string(),
+        clientCode: z.string().optional(),
+    }),
 });
+
+router.post('/', asyncErrorHandler(async (req: Request, res: Response) => {
+    const { body: { code, redirect_uri: redirectUri, clientCode } } = zParseRequest(authorizeInputSchema, req);
+
+    // Exchange access code for access token from Trackmania API
+    const accessToken = await exchangeCodeForAccessToken(req, code, redirectUri);
+    if (accessToken === undefined || typeof accessToken !== 'string') {
+        throw new HttpError(401, 'Failed to get access token from TrackMania API.');
+    }
+
+    // Fetch user info using access token
+    const userInfo = await fetchUserInfo(req, accessToken);
+    if (userInfo === undefined || userInfo.accountId === undefined || userInfo.displayName === undefined) {
+        throw new HttpError(500, 'Failed to retrieve user info from TrackMania API.');
+    }
+
+    // Create UI session
+    // TODO: if clientCode exists (i.e. if this is plugin auth), only create a new UI session if there isn't one yet
+    const sessionId = await createSession(req, userInfo);
+    if (sessionId === undefined) {
+        throw new HttpError(500, 'Failed to create login session.');
+    }
+
+    setSessionCookie(req, res, sessionId);
+
+    // if clientCode exists, create a separate plugin session
+    // first, check the user doc for the clientCode
+    const userDoc = await getUserByWebId(userInfo.accountId);
+    if (clientCode && userDoc.clientCode === clientCode) {
+        req.log.debug('authorizeRouter: clientCode exists, creating plugin session');
+        // remove clientCode from user
+        delete userDoc.clientCode;
+        await createUser(req, userDoc.webId, userDoc.playerLogin, userDoc.playerName, null);
+
+        // create a new plugin session including the clientCode
+        await createSession(req, userInfo, clientCode);
+    } else {
+        // looks like a different client/the UI initiated this login - don't create a plugin session
+        req.log.debug(
+            'authorizeRouter: No clientCode/it does not match the OAuth state, no plugin session will be created',
+        );
+    }
+
+    // send back user info
+    res.send({
+        accountId: userInfo.accountId,
+        displayName: userInfo.displayName,
+    });
+}));
 
 export default router;

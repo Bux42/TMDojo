@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
 import axios, { AxiosResponse } from 'axios';
+import { HttpError } from './httpErrors';
 
-export const exchangeCodeForAccessToken = async (req: Request, code: string, redirectUri: string): Promise<any> => {
+export const exchangeCodeForAccessToken = async (req: Request, code: string, redirectUri: string): Promise<string> => {
     const authUrl = 'https://api.trackmania.com/api/access_token';
     const params = {
         grant_type: 'authorization_code',
@@ -12,17 +13,28 @@ export const exchangeCodeForAccessToken = async (req: Request, code: string, red
     };
 
     req.log.debug('exchangeCodeForAccessToken: Attempting to get access token from TM OAuth API');
-    // TODO: properly handle errors
-    const res = await axios
-        .post(authUrl, new URLSearchParams(params).toString())
-        .catch((e) => {
-            req.log.error('exchangeCodeForAccessToken: TM OAuth request failed');
-            req.log.error(e);
-        });
 
-    const accessToken = (res as any).data.access_token;
-    req.log.debug('exchangeCodeForAccessToken: Received access token from TM OAuth API');
-    return accessToken;
+    try {
+        const res = await axios.post(authUrl, new URLSearchParams(params).toString());
+
+        const accessToken = (res as any)?.data?.access_token;
+
+        if (!accessToken) {
+            throw new HttpError(401, 'Failed to get access token from TrackMania API, OAuth request failed.');
+        }
+
+        return accessToken;
+    } catch (e: any) {
+        // Let HttpErrors bubble up
+        if (e instanceof HttpError) throw e;
+
+        // Remove config from error object to avoid logging sensitive data
+        if ('config' in e) delete e.config;
+
+        req.log.error('exchangeCodeForAccessToken: TM OAuth request failed');
+        req.log.error(e);
+        throw new HttpError(401, 'Failed to get access token from TrackMania API, OAuth request failed.');
+    }
 };
 
 export const requestTmApiAccessToken = async (req: Request): Promise<string | undefined> => {
@@ -69,7 +81,7 @@ export const fetchUserInfo = async (req: Request, accessToken: string): Promise<
     // TODO: properly handle errors
     const res = await axios
         .get(userUrl, config)
-        .catch((e) => {
+        .catch((e: any) => {
             req.log.error('fetchUserInfo: User info request failed');
             req.log.error(e);
         });
