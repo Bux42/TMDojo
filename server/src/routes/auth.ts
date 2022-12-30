@@ -13,7 +13,7 @@ import { z } from 'zod';
 
 import * as db from '../lib/db';
 import { playerLoginFromWebId, fetchPlayerName } from '../lib/authorize';
-import { wrap } from '../lib/asyncErrorHandler';
+import { asyncErrorHandler } from '../lib/asyncErrorHandler';
 import zParseRequest from '../lib/zodParseRequest';
 import { HttpError } from '../lib/httpErrors';
 
@@ -34,7 +34,7 @@ const authInputSchema = z.object({
     }),
 });
 
-router.get('/', wrap(async (req: Request, res: Response) => {
+router.get('/', asyncErrorHandler(async (req: Request, res: Response) => {
     const { query: { webid, sessionId } } = zParseRequest(authInputSchema, req);
 
     // check if there's already a session for the user
@@ -101,7 +101,7 @@ const pluginSecretInputSchema = z.object({
     }),
 });
 
-router.get('/pluginSecret', wrap(async (req: Request, res: Response) => {
+router.get('/pluginSecret', asyncErrorHandler(async (req: Request, res: Response) => {
     const { query: { clientCode } } = zParseRequest(pluginSecretInputSchema, req);
 
     req.log.debug(`authRouter: Searching for session with clientCode "${clientCode}"`);

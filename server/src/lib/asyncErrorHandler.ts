@@ -21,6 +21,6 @@ const handle = <T>(result: Promise<T> | T, next: NextFunction): T | Promise<T | 
     return result;
 };
 
-export function wrap <Req, Res>(fn: Handler<Req, Res>): Handler<Req, Res> {
+export function asyncErrorHandler <Req, Res>(fn: Handler<Req, Res>): Handler<Req, Res> {
     return (req: Req, res: Res, next: NextFunction) => handle((fn as Handler<Req, Res>)(req, res, next), next);
 }

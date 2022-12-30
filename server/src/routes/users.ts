@@ -15,7 +15,7 @@ import { z } from 'zod';
 
 import * as db from '../lib/db';
 import zParseRequest from '../lib/zodParseRequest';
-import { wrap } from '../lib/asyncErrorHandler';
+import { asyncErrorHandler } from '../lib/asyncErrorHandler';
 import { HttpError } from '../lib/httpErrors';
 
 const router = express.Router();
@@ -30,7 +30,7 @@ const userInfoInputSchema = z.object({
     }),
 });
 
-router.get('/:webId/info', wrap(async (req: Request, res: Response) => {
+router.get('/:webId/info', asyncErrorHandler(async (req: Request, res: Response) => {
     const { params: { webId } } = zParseRequest(userInfoInputSchema, req);
 
     const userInfos = await db.getUserByWebId(webId);
@@ -53,7 +53,7 @@ const userReplaysInputSchema = z.object({
     }),
 });
 
-router.get('/:webId/replays', wrap(async (req: Request, res: Response) => {
+router.get('/:webId/replays', asyncErrorHandler(async (req: Request, res: Response) => {
     const { params: { webId } } = zParseRequest(userReplaysInputSchema, req);
 
     const userInfos = await db.getUserByWebId(webId);
