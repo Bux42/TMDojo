@@ -16,6 +16,7 @@ import * as db from '../lib/db';
 import * as artefacts from '../lib/artefacts';
 import { asyncErrorHandler } from '../lib/asyncErrorHandler';
 import zParseRequest from '../lib/zodParseRequest';
+import { HttpError } from '../lib/httpErrors';
 
 const router = express.Router();
 /**
@@ -42,7 +43,7 @@ router.get('/', asyncErrorHandler(async (req: Request, res: Response) => {
  * GET /maps/:mapUID
  * Retrieves map (block) data by mapUID
  */
-const getMapInputSchema = z.object({
+const getMapBlocksInputSchema = z.object({
     params: z.object({
         mapUID: z.string(),
     }),
@@ -50,7 +51,7 @@ const getMapInputSchema = z.object({
 
 // TODO: use asyncErrorHandler to handle errors correctly
 router.get('/:mapUID/blocks', async (req: Request, res: Response, next: Function) => {
-    const { params: { mapUID } } = zParseRequest(getMapInputSchema, req);
+    const { params: { mapUID } } = zParseRequest(getMapBlocksInputSchema, req);
 
     try {
         const mapData = await artefacts.retrieveMap(mapUID);
@@ -68,24 +69,39 @@ router.get('/:mapUID/blocks', async (req: Request, res: Response, next: Function
  * GET /maps/:mapUID/info
  * Retrieves map's metadata (including tm.io information)
  */
-router.get('/:mapUID/info', async (req: Request, res: Response) => {
-    let mapData = {};
+const getMapInfoInputSchema = z.object({
+    params: z.object({
+        mapUID: z.string(),
+    }),
+});
 
-    // fetch tm.io data
+router.get(['/:mapUID', '/:mapUID/info'], asyncErrorHandler(async (req: Request, res: Response) => {
+    const { params: { mapUID } } = zParseRequest(getMapInfoInputSchema, req);
+
     try {
-        const tmxRes = await axios.get(`https://trackmania.io/api/map/${req.params.mapUID}`, {
+        // Fetch tm.io data
+        const tmioRes = await axios.get(`https://trackmania.io/api/map/${mapUID}`, {
             withCredentials: true,
             headers: { 'User-Agent': 'TMDojo API - https://github.com/Bux42/TMDojo' },
         });
 
-        const tmioData = tmxRes.data;
-        mapData = { ...mapData, ...tmioData };
-    } catch (error: any) {
-        req.log.error(`mapsRouter: tm.io request failed with error ${error.toString()}`);
-    }
+        if (!tmioRes || !tmioRes.data) {
+            throw new HttpError(404, `Map not found: ${mapUID}`);
+        }
 
-    res.send(mapData);
-});
+        res.send(tmioRes.data);
+    } catch (error: any) {
+        // Let HttpError bubble up
+        if (error instanceof HttpError) throw error;
+
+        req.log.error('mapsRouter: TM.io map request failed');
+        if (error.config) delete error.config; // Avoid logging sensitive data from the config
+        req.log.error(error);
+
+        // Map still not found, so return a 404
+        throw new HttpError(404, `Map not found: ${mapUID}`);
+    }
+}));
 
 /**
  * POST /maps/:mapUID
