@@ -48,6 +48,7 @@ const getMapInputSchema = z.object({
     }),
 });
 
+// TODO: use asyncErrorHandler to handle errors correctly
 router.get('/:mapUID/blocks', async (req: Request, res: Response, next: Function) => {
     const { params: { mapUID } } = zParseRequest(getMapInputSchema, req);
 
