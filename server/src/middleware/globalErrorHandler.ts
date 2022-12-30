@@ -6,7 +6,7 @@ import { HttpError } from '../lib/httpErrors';
 const globalErrorHandler = (err: Error, req: Request, res: Response, next: Function) => {
     if (err instanceof HttpError) {
         const errorResponseBody = err.responseBody();
-        req.log.error(`Global error handler: Received HTTP Error "${err.statusName}" (${err.status})`);
+        req.log.error(`Global error handler: Received HTTP Error: ${err.statusName} (${err.status})`);
         req.log.error(`Global error handler: Sending response: ${JSON.stringify(errorResponseBody)}`);
         res.status(err.status).send(errorResponseBody);
         return;
