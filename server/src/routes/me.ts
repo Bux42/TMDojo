@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import * as express from 'express';
 import { setExpiredSessionCookie } from '../lib/authorize';
+import { asyncErrorHandler } from '../lib/asyncErrorHandler';
+import { HttpError } from '../lib/httpErrors';
 
 const router = express.Router();
 
@@ -8,26 +10,21 @@ const router = express.Router();
  * POST /me
  * Retrieves user info
  */
-router.post('/', async (req: Request, res: Response, next: Function) => {
-    try {
-        const { user } = req;
+router.post('/', asyncErrorHandler(async (req: Request, res: Response) => {
+    const { user } = req;
 
-        // Get user by session secret
-        if (user === undefined) {
-            req.log.warn('meRouter: User not found, deleting session cookie');
-            setExpiredSessionCookie(req, res);
-            res.status(401).send({ message: 'Not logged in.' });
-            return;
-        }
-
-        // Repond with user info
-        res.send({
-            accountId: user.webId,
-            displayName: user.playerName,
-        });
-    } catch (err) {
-        next(err);
+    // Get user by session secret
+    if (user === undefined) {
+        req.log.warn('meRouter: User not found, deleting session cookie');
+        setExpiredSessionCookie(req, res);
+        throw new HttpError(401, 'Not logged in.');
     }
-});
+
+    // Repond with user info
+    res.send({
+        accountId: user.webId,
+        displayName: user.playerName,
+    });
+}));
 
 export default router;
