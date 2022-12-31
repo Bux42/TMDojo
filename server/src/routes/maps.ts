@@ -40,33 +40,7 @@ router.get('/', asyncErrorHandler(async (req: Request, res: Response) => {
 }));
 
 /**
- * GET /maps/:mapUID
- * Retrieves map (block) data by mapUID
- */
-const getMapBlocksInputSchema = z.object({
-    params: z.object({
-        mapUID: z.string(),
-    }),
-});
-
-// TODO: use asyncErrorHandler to handle errors correctly when implementing map blocks for real
-router.get('/:mapUID/blocks', async (req: Request, res: Response, next: Function) => {
-    const { params: { mapUID } } = zParseRequest(getMapBlocksInputSchema, req);
-
-    try {
-        const mapData = await artefacts.retrieveMap(mapUID);
-        res.send(mapData);
-    } catch (err: any) {
-        if (err?.message === 'Object not found') {
-            res.status(404).send();
-        } else {
-            next(err);
-        }
-    }
-});
-
-/**
- * GET /maps/:mapUID/info
+ * GET /maps/:mapUID (or /maps/:mapUID/info for temporary backwards compatibility)
  * Retrieves map's metadata (including tm.io information)
  */
 const getMapInfoInputSchema = z.object({
@@ -104,12 +78,38 @@ router.get(['/:mapUID', '/:mapUID/info'], asyncErrorHandler(async (req: Request,
 }));
 
 /**
- * POST /maps/:mapUID
+ * GET /maps/:mapUID/blocks
+ * Retrieves map (block) data by mapUID
+ */
+const getMapBlocksInputSchema = z.object({
+    params: z.object({
+        mapUID: z.string(),
+    }),
+});
+
+// TODO: use asyncErrorHandler to handle errors correctly when implementing map blocks for real
+router.get('/:mapUID/blocks', async (req: Request, res: Response, next: Function) => {
+    const { params: { mapUID } } = zParseRequest(getMapBlocksInputSchema, req);
+
+    try {
+        const mapData = await artefacts.retrieveMap(mapUID);
+        res.send(mapData);
+    } catch (err: any) {
+        if (err?.message === 'Object not found') {
+            res.status(404).send();
+        } else {
+            next(err);
+        }
+    }
+});
+
+/**
+ * POST /maps/:mapUID/blocks
  * Stores map (block) data (from the request body)
  */
 
 // TODO: use asyncErrorHandler to handle errors correctly when implementing map blocks for real
-router.post('/:mapUID', (req: Request, res: Response, next: Function) => {
+router.post('/:mapUID/blocks', (req: Request, res: Response, next: Function) => {
     let completeData = '';
 
     req.on('data', (data) => {
