@@ -49,7 +49,7 @@ const getMapBlocksInputSchema = z.object({
     }),
 });
 
-// TODO: use asyncErrorHandler to handle errors correctly
+// TODO: use asyncErrorHandler to handle errors correctly when implementing map blocks for real
 router.get('/:mapUID/blocks', async (req: Request, res: Response, next: Function) => {
     const { params: { mapUID } } = zParseRequest(getMapBlocksInputSchema, req);
 
@@ -107,6 +107,8 @@ router.get(['/:mapUID', '/:mapUID/info'], asyncErrorHandler(async (req: Request,
  * POST /maps/:mapUID
  * Stores map (block) data (from the request body)
  */
+
+// TODO: use asyncErrorHandler to handle errors correctly when implementing map blocks for real
 router.post('/:mapUID', (req: Request, res: Response, next: Function) => {
     let completeData = '';
 
