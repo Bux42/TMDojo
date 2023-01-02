@@ -1,12 +1,12 @@
 import React from 'react';
 
-import { MapInfo } from '../../lib/api/apiRequests';
 import { cleanTMFormatting } from '../../lib/utils/formatting';
+import { MapInfo } from '../../lib/api/requests/maps';
 import CleanButton from '../common/CleanButton';
 import PageHeaderBar from '../common/PageHeaderBar';
 
 interface Props {
-    mapInfo: MapInfo;
+    mapInfo?: MapInfo;
     title: string;
     backUrl?: string;
     children?: React.ReactNode
@@ -15,16 +15,16 @@ interface Props {
 const MapHeader = ({
     mapInfo, title, backUrl, children,
 }: Props): JSX.Element => {
-    const hasExchangeId = mapInfo.exchangeid !== undefined && mapInfo.exchangeid !== 0;
-    const hasMapUid = mapInfo.mapUid !== undefined && mapInfo.mapUid !== '';
+    const hasExchangeId = mapInfo?.exchangeid !== undefined && mapInfo.exchangeid !== 0;
+    const hasMapUid = mapInfo?.mapUid !== undefined && mapInfo.mapUid !== '';
 
-    const tmioURL = `https://trackmania.io/#/leaderboard/${mapInfo.mapUid}`;
-    const tmxURL = `https://trackmania.exchange/maps/${mapInfo.exchangeid}`;
+    const tmioURL = mapInfo?.mapUid ? `https://trackmania.io/#/leaderboard/${mapInfo.mapUid}` as const : undefined;
+    const tmxURL = mapInfo?.exchangeid ? `https://trackmania.exchange/maps/${mapInfo.exchangeid}` as const : undefined;
 
     return (
         <PageHeaderBar
             title={title}
-            subtitle={cleanTMFormatting(mapInfo.name || '')}
+            subtitle={cleanTMFormatting(mapInfo?.name || '')}
             backUrl={backUrl}
         >
             <CleanButton

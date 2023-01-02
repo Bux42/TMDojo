@@ -2,7 +2,7 @@ import React, {
     useCallback, useEffect, useMemo, useRef,
 } from 'react';
 import * as THREE from 'three';
-import { ReplayData } from '../../lib/api/apiRequests';
+import { ReplayData } from '../../lib/api/requests/replays';
 import useUpdateReplayLineTrail from '../../lib/hooks/viewer/replayLines/useUpdateReplayLineTrail';
 import {
     accelerationReplayColors,

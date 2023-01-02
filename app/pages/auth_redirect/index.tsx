@@ -52,7 +52,7 @@ const AuthRedirect = (): JSX.Element => {
                 window.close();
             }
         }
-    }, [code, state]);
+    }, [code, state, loginUser]);
 
     return (
         <div className="w-screen h-screen bg-page-back">

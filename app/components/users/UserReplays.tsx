@@ -1,3 +1,5 @@
+import React, { useMemo } from 'react';
+import Link from 'next/link';
 import {
     Card,
     Col,
@@ -5,15 +7,16 @@ import {
     Spin,
     Statistic,
     Table,
-    TablePaginationConfig,
 } from 'antd';
-import { ColumnsType, TableCurrentDataSource } from 'antd/lib/table/interface';
-import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
-import { FileResponse, getUserReplays, UserInfo } from '../../lib/api/apiRequests';
+import { ColumnsType } from 'antd/lib/table/interface';
+import { useUserReplays } from '../../lib/api/reactQuery/hooks/query/replays';
+import { ReplayInfo } from '../../lib/api/requests/replays';
+import { UserInfo } from '../../lib/api/requests/users';
 import { getRaceTimeStr, msToTime, timeDifference } from '../../lib/utils/time';
 
-interface ExtendedFileResponse extends FileResponse {
+const DEFAULT_PAGE_SIZE = 10;
+
+interface ExtendedFileResponse extends ReplayInfo {
     readableTime: string;
     relativeDate: string;
     finished: boolean;
@@ -24,64 +27,40 @@ interface Props {
 }
 
 const UserReplays = ({ userInfo }: Props): JSX.Element => {
-    const [userReplays, setUserReplays] = useState<FileResponse[]>([]);
-    const [loadingReplays, setLoadingReplays] = useState<boolean>(true);
-    const [visibleReplays, setVisibleReplays] = useState<FileResponse[]>([]);
-    const defaultPageSize = 10;
+    const {
+        data: userReplaysResult,
+        isLoading: isLoadingUserReplays,
+    } = useUserReplays(userInfo.webId);
 
-    const fetchAndSetUserReplays = async (userId: string) => {
-        setLoadingReplays(true);
-        const { files } = await getUserReplays(userId);
-        setUserReplays(files);
-        setLoadingReplays(false);
-    };
+    const userReplays = useMemo(
+        () => userReplaysResult?.replays || [],
+        [userReplaysResult],
+    );
 
-    const totalRecordedTime = userReplays.reduce((a, b) => a + b.endRaceTime, 0);
-    const totalRecordedTimeStr = msToTime(totalRecordedTime);
-
-    useEffect(() => {
-        if (userInfo !== undefined && userInfo.webId) {
-            fetchAndSetUserReplays(`${userInfo.webId}`);
-        }
-    }, [userInfo]);
-
-    const addReplayInfo = (replayList: FileResponse[]): ExtendedFileResponse[] => {
+    const dataSource = useMemo(() => {
         const now = new Date().getTime();
 
-        return replayList.map((replay) => ({
+        return userReplays.map((replay) => ({
             ...replay,
             key: replay._id,
             readableTime: getRaceTimeStr(replay.endRaceTime),
             relativeDate: timeDifference(now, replay.date),
             finished: replay.raceFinished === 1,
         }));
+    }, [userReplays]);
+
+    const calculateTotalTime = (replays: ReplayInfo[]): string => {
+        const totalRecordedTime = replays.reduce((a, b) => a + b.endRaceTime, 0);
+        const totalRecordedTimeStr = msToTime(totalRecordedTime);
+        return totalRecordedTimeStr;
     };
 
-    const onReplayTableChange = (
-        pagination: TablePaginationConfig,
-        currentPageData: TableCurrentDataSource<ExtendedFileResponse>,
-    ) => {
-        const { current, pageSize } = pagination;
+    const totalTime = useMemo(
+        () => calculateTotalTime(userReplays),
+        [userReplays],
+    );
 
-        if (current === undefined || pageSize === undefined) {
-            return;
-        }
-
-        const curPageIndex = current - 1;
-
-        const replaysOnPage = [];
-        for (
-            let i = curPageIndex * pageSize;
-            i < Math.min((curPageIndex + 1) * pageSize, currentPageData.currentDataSource.length);
-            i++
-        ) {
-            replaysOnPage.push(currentPageData.currentDataSource[i]);
-        }
-
-        setVisibleReplays(replaysOnPage);
-    };
-
-    const getUniqueFilters = (replayFieldCallback: (replay: FileResponse) => string) => {
+    const getUniqueFilters = (replayFieldCallback: (replay: ReplayInfo) => string) => {
         const uniques = Array.from(new Set(userReplays.map(replayFieldCallback)));
         return uniques.sort().map((val) => ({ text: val, value: val }));
     };
@@ -148,7 +127,7 @@ const UserReplays = ({ userInfo }: Props): JSX.Element => {
 
     return (
         <>
-            <Spin spinning={loadingReplays}>
+            <Spin spinning={isLoadingUserReplays}>
                 <div className="flex flex-col w-full gap-6">
                     <Card
                         title="Replays"
@@ -159,7 +138,7 @@ const UserReplays = ({ userInfo }: Props): JSX.Element => {
                                 <Statistic title="Count" value={userReplays ? userReplays.length : 0} />
                             </Col>
                             <Col span={12}>
-                                <Statistic title="Total Time" value={totalRecordedTimeStr} />
+                                <Statistic title="Total Time" value={totalTime} />
                             </Col>
                         </Row>
                     </Card>
@@ -167,10 +146,7 @@ const UserReplays = ({ userInfo }: Props): JSX.Element => {
                         className="bg-gray-850"
                     >
                         <Table
-                            onChange={(pagination, filters, sorter, currentPageData) => {
-                                onReplayTableChange(pagination, currentPageData);
-                            }}
-                            dataSource={addReplayInfo(userReplays)}
+                            dataSource={dataSource}
                             columns={columns}
                             size="small"
                             onHeaderRow={() => ({
@@ -185,7 +161,7 @@ const UserReplays = ({ userInfo }: Props): JSX.Element => {
                                 },
                             })}
                             pagination={{
-                                pageSize: 10,
+                                pageSize: DEFAULT_PAGE_SIZE,
                                 hideOnSinglePage: true,
                                 position: ['bottomCenter'],
                                 showLessItems: true,
@@ -195,10 +171,8 @@ const UserReplays = ({ userInfo }: Props): JSX.Element => {
                             scroll={{ scrollToFirstRowOnChange: true }}
                         />
                     </Card>
-
                 </div>
             </Spin>
-
         </>
     );
 };

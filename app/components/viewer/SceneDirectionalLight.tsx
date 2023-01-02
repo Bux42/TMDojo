@@ -3,7 +3,7 @@ import {
     Color, DirectionalLight, Group, Vector3,
 } from 'three';
 import { Sphere } from '@react-three/drei';
-import { ReplayData } from '../../lib/api/apiRequests';
+import { ReplayData } from '../../lib/api/requests/replays';
 
 interface SceneDirectionalLightProps {
     replays: ReplayData[];

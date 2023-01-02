@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import * as THREE from 'three';
 import { Sphere } from '@react-three/drei';
 import { DoubleSide } from 'three';
-import { ReplayData } from '../../lib/api/apiRequests';
+import { ReplayData } from '../../lib/api/requests/replays';
 import { getSampleNearTime } from '../../lib/utils/replay';
 import { setInterpolatedVector } from '../../lib/utils/math';
 

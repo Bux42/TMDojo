@@ -8,7 +8,7 @@ import Highcharts, { AxisSetExtremesEventObject } from 'highcharts/highstock';
 import HighchartsReact from 'highcharts-react-official';
 import { CheckboxChangeEvent } from 'antd/lib/checkbox';
 import { CaretUpOutlined, LineChartOutlined } from '@ant-design/icons';
-import { ReplayData } from '../../lib/api/apiRequests';
+import { ReplayData } from '../../lib/api/requests/replays';
 import { SettingsContext } from '../../lib/contexts/SettingsContext';
 import { getRaceTimeStr } from '../../lib/utils/time';
 import { ReplayDataPoint } from '../../lib/replays/replayData';
