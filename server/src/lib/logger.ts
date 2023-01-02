@@ -22,7 +22,7 @@ const logFormat = format.printf(
 let logger: Logger;
 
 // main logger utility
-const log = (message: string|object, level: LogLevel, req?: Request) => {
+const log = (message: string | object, level: LogLevel, req?: Request) => {
     let logMessage = '';
 
     // add request elements
@@ -63,17 +63,17 @@ const log = (message: string|object, level: LogLevel, req?: Request) => {
 };
 
 // global log helpers for when there is no request object available
-export const logInfo = (message: string|object) => log(message, LogLevel.info);
-export const logWarn = (message: string|object) => log(message, LogLevel.warn);
-export const logError = (message: string|object) => log(message, LogLevel.error);
-export const logDebug = (message: string|object) => log(message, LogLevel.debug);
+export const logInfo = (message: string | object) => log(message, LogLevel.info);
+export const logWarn = (message: string | object) => log(message, LogLevel.warn);
+export const logError = (message: string | object) => log(message, LogLevel.error);
+export const logDebug = (message: string | object) => log(message, LogLevel.debug);
 
 // helper function to assign logger to request object
 export const getRequestLogger = (req: Request) => ({
-    info: (message: string|object) => log(message, LogLevel.info, req),
-    warn: (message: string|object) => log(message, LogLevel.warn, req),
-    error: (message: string|object) => log(message, LogLevel.error, req),
-    debug: (message: string|object) => log(message, LogLevel.debug, req),
+    info: (message: string | object) => log(message, LogLevel.info, req),
+    warn: (message: string | object) => log(message, LogLevel.warn, req),
+    error: (message: string | object) => log(message, LogLevel.error, req),
+    debug: (message: string | object) => log(message, LogLevel.debug, req),
 });
 
 export const initLogger = (logLevel: string) => {
