@@ -205,41 +205,35 @@ export const getReplaysByUserRef = async (
     return { files: data, totalResults: data.length };
 };
 
-export const getReplays = async (
-    mapName?: string,
-    playerName?: string,
-    mapUId?: string,
-    raceFinished?: string,
-    orderBy?: string,
-    maxResults: string = '1000',
-): Promise<any> => {
+interface FetchReplaysOptions {
+    mapName?: string;
+    mapUId?: string;
+    playerName?: string;
+    maxResults?: number;
+}
+
+export const getReplays = async ({
+    mapName,
+    mapUId,
+    maxResults = 1000,
+}: FetchReplaysOptions): Promise<any> => {
     const replays = db.collection('replays');
 
     const pipeline = [];
 
-    const map = await getMapByUId(mapUId);
-    if (map && map._id) {
-        pipeline.push({
-            $match: {
-                mapRef: map._id,
-            },
-        });
+    if (mapUId) {
+        const map = await getMapByUId(mapUId);
+        if (map && map._id) {
+            pipeline.push({
+                $match: {
+                    mapRef: map._id,
+                },
+            });
+        }
     }
 
+    // Populate map references
     pipeline.push(...[
-        // populate user references
-        {
-            $lookup: {
-                from: 'users',
-                localField: 'userRef',
-                foreignField: '_id',
-                as: 'user',
-            },
-        },
-        {
-            $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ['$user', 0] }, '$$ROOT'] } },
-        },
-        // populate map references
         {
             $lookup: {
                 from: 'maps',
@@ -251,6 +245,36 @@ export const getReplays = async (
         {
             $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ['$map', 0] }, '$$ROOT'] } },
         },
+    ]);
+
+    const addRegexFilter = (property: string, propertyName: string) => {
+        pipeline.push({
+            $match: {
+                [propertyName]: {
+                    $regex: `.*${property}.*`,
+                    $options: 'i',
+                },
+            },
+        });
+    };
+
+    if (mapName) {
+        addRegexFilter(mapName, 'mapName');
+    }
+
+    // Populate user references
+    pipeline.push(...[
+        {
+            $lookup: {
+                from: 'users',
+                localField: 'userRef',
+                foreignField: '_id',
+                as: 'user',
+            },
+        },
+        {
+            $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ['$user', 0] }, '$$ROOT'] } },
+        },
         {
             $project: {
                 clientCode: 0,
@@ -259,58 +283,26 @@ export const getReplays = async (
         },
     ]);
 
-    const addRegexFilter = (property?: string, propertyName?: string) => {
-        if (property && propertyName) {
-            pipeline.push({
-                $match: {
-                    [propertyName]: {
-                        $regex: `.*${property}.*`,
-                        $options: 'i',
-                    },
-                },
-            } as any);
-        }
-    };
-    addRegexFilter(mapName, 'mapName');
-    addRegexFilter(playerName, 'playerName');
-
-    if (raceFinished && raceFinished !== '-1') {
-        pipeline.push({
-            $match: {
-                raceFinished: parseInt(raceFinished, 10),
-            },
-        } as any);
-    }
-
-    if (orderBy && orderBy !== 'None') {
-        const order: { endRaceTime?: number, date?: number } = {};
-        if (orderBy === 'Time Desc') {
-            order.endRaceTime = -1;
-        } else if (orderBy === 'Time Asc') {
-            order.endRaceTime = 1;
-        } else if (orderBy === 'Date Desc') {
-            order.date = -1;
-        } else if (orderBy === 'Date Asc') {
-            order.date = 1;
-        }
-        pipeline.push({
-            $sort: order,
-        } as any);
-    }
-
-    // add limit and clean up results
+    // Add limit
     pipeline.push({
-        $limit: parseInt(maxResults, 10),
-    } as any);
+        $limit: maxResults,
+    });
+
+    // Remove fields we don't want to return
     pipeline.push({
         $project: {
             userRef: 0, user: 0, mapRef: 0, map: 0, filePath: 0,
         },
-    } as any);
+    });
 
     const cursor = replays.aggregate(pipeline);
+
     const data = await cursor.toArray();
-    return { files: data, totalResults: data.length };
+
+    return {
+        files: data,
+        totalResults: data.length,
+    };
 };
 
 export const getReplayById = async (

@@ -25,30 +25,39 @@ const router = express.Router();
  * Retrieves filtered replay metadata
  * Query params:
  * - mapName (optional)
- * - playerName (optional)
  * - mapUId (optional)
- * - raceFinished (optional)
- * - orderBy (optional)
  * - maxResults (optional)
+ * - playerName (optional) - currently unused
+ * - raceFinished (optional) - currently unused
+ * - orderBy (optional) - currently unused
  * - endRaceTimeMin (optional) - currently unused
  * - endRaceTimeMax (optional) - currently unused
  * - dateMin (optional) - currently unused
  */
-router.get('/', async (req: Request, res: Response, next: Function) => {
-    try {
-        const replays = await db.getReplays(
-            req.query.mapName as string,
-            req.query.playerName as string,
-            req.query.mapUId as string,
-            req.query.raceFinished as string,
-            req.query.orderBy as string,
-            req.query.maxResults as string,
-        );
-        res.send(replays);
-    } catch (err) {
-        next(err);
-    }
+const getReplaysInputSchema = z.object({
+    query: z.object({
+        mapName: z.string().optional(),
+        mapUId: z.string().optional(),
+        maxResults: z.coerce.number().optional(),
+        // The other query params will be added at a later date when implementing proper filtering and pagination
+    }),
 });
+
+router.get('/', asyncErrorHandler(async (req: Request, res: Response) => {
+    const {
+        query: {
+            mapName, mapUId, maxResults,
+        },
+    } = zParseRequest(getReplaysInputSchema, req);
+
+    const replays = await db.getReplays({
+        mapName,
+        mapUId,
+        maxResults,
+    });
+
+    res.send(replays);
+}));
 
 /**
  * GET /replays/:replayId
