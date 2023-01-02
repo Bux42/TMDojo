@@ -12,8 +12,12 @@
 import { Request, Response } from 'express';
 import * as express from 'express';
 
+import { z } from 'zod';
 import * as db from '../lib/db';
 import * as artefacts from '../lib/artefacts';
+import zParseRequest from '../lib/zodParseRequest';
+import { HttpError } from '../lib/httpErrors';
+import { asyncErrorHandler } from '../lib/asyncErrorHandler';
 
 const router = express.Router();
 /**
@@ -53,24 +57,36 @@ router.get('/', async (req: Request, res: Response, next: Function) => {
  * - download (optional)
  * - fileName (optional)
  */
-router.get('/:replayId', async (req: Request, res: Response, next: Function) => {
+const getReplayInputSchema = z.object({
+    params: z.object({
+        replayId: z.string(),
+    }),
+});
+
+router.get('/:replayId', asyncErrorHandler(async (req: Request, res: Response) => {
+    const { params: { replayId } } = zParseRequest(getReplayInputSchema, req);
+
     try {
-        const replay = await db.getReplayById(req.params.replayId);
+        const replay = await db.getReplayById(replayId);
+
         if (!replay) {
-            req.log.error(`replaysRouter: Replay with id "${req.params.replayId}" not found in the database`);
-            throw new Error('Object not found');
+            req.log.error(`replaysRouter: Replay with id "${replayId}" not found in the database, throwing 404`);
+            throw new HttpError(404, `Replay not found: ${replayId}`);
         }
+
         const replayData = await artefacts.retrieveReplay(replay);
-        req.log.debug('replaysRouter: Replay data retrieved');
+        req.log.debug(`replaysRouter: Replay data retrieved: ${replayId}`);
+
         res.send(replayData);
     } catch (err: any) {
-        if (err?.message === 'Object not found') {
-            res.status(404).send();
-        } else {
-            next(err);
-        }
+        if (err instanceof HttpError) throw err;
+
+        req.log.error(`replaysRouter: Couldn't retrieve replay: ${replayId}`);
+        req.log.error(err);
+
+        throw new HttpError(404, `Replay not found: ${replayId}`);
     }
-});
+}));
 
 /**
  * POST /replays
