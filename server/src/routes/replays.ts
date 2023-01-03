@@ -18,6 +18,8 @@ import * as artefacts from '../lib/artefacts';
 import zParseRequest from '../lib/zodParseRequest';
 import { HttpError } from '../lib/httpErrors';
 import { asyncErrorHandler } from '../lib/asyncErrorHandler';
+import { logError } from '../lib/logger';
+import streamToString from '../lib/streamToString';
 
 const router = express.Router();
 /**
@@ -110,117 +112,102 @@ router.get('/:replayId', asyncErrorHandler(async (req: Request, res: Response) =
  * - playerLogin
  * - webId
  */
-// eslint-disable-next-line consistent-return
-router.post('/', (req: Request, res: Response, next: Function): any => {
-    if (!req.user || req.user.webId !== req.query.webId) {
-        // reject replay uploads by unauthenticated users
-        req.log.error('replaysRouter: Unauthenticated replay upload attempt');
-        return res.status(401).send('Authentication required to submit replay.');
-    }
+const parsedSectorTimesInputSchema = z.string().optional().transform((string) => {
+    if (!string) return undefined;
+    if (typeof string !== 'string') return undefined;
 
-    const paramNames = [
-        'authorName',
-        'mapName',
-        'mapUId',
-        'endRaceTime',
-        'raceFinished',
-        'playerName',
-        'playerLogin',
-        'webId',
-    ];
+    try {
+        const parsed = string.split(',').map((s) => parseInt(s, 10));
 
-    // make sure all required parameters are present
-    let requestValid = true;
-    paramNames.forEach((paramName) => {
-        if (!Object.prototype.hasOwnProperty.call(req.query, paramName)) {
-            requestValid = false;
+        if (parsed.length === 0 || parsed.some((n) => (!Number.isInteger(n) || Number.isNaN(n) || n == null))) {
+            logError(`Invalid sector times encountered while parsing: ${parsed}`);
+            return undefined;
         }
-    });
-    if (!requestValid) {
-        req.log.error('replaysRouter: Missing required parameters');
-        return res.status(400).send('Request is missing one or more parameters');
-    }
 
-    const secureMapName = decodeURIComponent(req.query.mapName as string);
-
-    let completeData = '';
-    req.on('data', (data: string | Buffer) => {
-        completeData += data;
-    });
-
-    req.on('end', async () => {
-        req.log.debug('replaysRouter: Received replay data');
-        try {
-            const fileName = `${req.query.endRaceTime}_${req.query.playerName}_${Date.now()}`;
-            const filePath = `${req.query.authorName}/${req.query.mapName}/${fileName}`;
-            const storedReplay = await artefacts.uploadReplay(filePath, completeData);
-            req.log.debug('replaysRouter: Replay data stored');
-
-            // check if map already exists
-            let map = await db.getMapByUId(`${req.query.mapUId}`);
-            if (!map) {
-                req.log.debug('replaysRouter: Map does not exist in database, creating new map');
-                map = await db.saveMap({
-                    mapName: secureMapName,
-                    mapUId: req.query.mapUId,
-                    authorName: req.query.authorName,
-                });
+        for (let i = 1; i < parsed.length; i += 1) {
+            if (parsed[i - 1] > parsed[i]) {
+                // eslint-disable-next-line max-len
+                logError(`Invalid sector times encountered while parsing, value at index ${i - 1} (${parsed[i - 1]}) was bigger than the value at index ${i} (${parsed[i]}) in: ${parsed}`);
+                return undefined;
             }
-
-            // check if user already exists
-            const user = await db.getUserByWebId(`${req.query.webId}`);
-            const userID = user?._id;
-
-            // parse sector times
-            // convert string of sector times separated by ',' to array of numbers
-            // "1,2,3" -> [1, 2, 3]
-            let sectorTimes = null;
-            if (req.query.sectorTimes && typeof req.query.sectorTimes === 'string') {
-                const sectorTimesList: string[] = (req.query.sectorTimes as string).split(',');
-
-                try {
-                    sectorTimes = sectorTimesList.map((time) => parseInt(time, 10));
-                } catch (e) {
-                    req.log.error(`Could not parse sector times (${req.query.sectorTimes}): ${e}`);
-                }
-
-                // Set sector times to null if they contain NaN values (parseInt returns NaN for non-numeric values)
-                if (sectorTimes && sectorTimes.filter((time) => Number.isNaN(time)).length > 0) {
-                    // eslint-disable-next-line max-len
-                    req.log.error(`Could not parse sector times (${req.query.sectorTimes}): ${sectorTimes} contains NaN`);
-                    sectorTimes = null;
-                }
-
-                // Set sector times to null if the list is empty
-                if (sectorTimes && sectorTimes.length === 0) {
-                    sectorTimes = null;
-                }
-            }
-
-            const metadata = {
-                // reference map and user docs
-                mapRef: map._id,
-                mapUId: req.query.mapUId,
-                mapName: secureMapName,
-                userRef: userID,
-                date: Date.now(),
-                raceFinished: parseInt(`${req.query.raceFinished}`, 10),
-                endRaceTime: parseInt(`${req.query.endRaceTime}`, 10),
-                pluginVersion: req.query.pluginVersion,
-                sectorTimes,
-                ...storedReplay,
-            };
-            req.log.debug('replaysRouter: Saving replay metadata');
-            await db.saveReplayMetadata(metadata);
-
-            return res.send();
-        } catch (err) {
-            return next(err);
         }
-    });
 
-    req.on('error', (err) => next(err));
+        return parsed;
+    } catch (e: any) {
+        logError(`Error thrown while parsing sector times: ${e}`);
+        return undefined;
+    }
 });
+
+const uploadReplayInputSchema = z.object({
+    query: z.object({
+        authorName: z.string(),
+        mapName: z.string(),
+        mapUId: z.string(),
+        endRaceTime: z.coerce.number(),
+        raceFinished: z.string(),
+        playerName: z.string(),
+        webId: z.string(),
+        pluginVersion: z.string().optional(),
+        sectorTimes: parsedSectorTimesInputSchema,
+    }),
+});
+
+router.post('/', asyncErrorHandler(async (req: Request, res: Response) => {
+    const {
+        query: {
+            authorName, mapName, mapUId, endRaceTime, raceFinished, playerName, webId, pluginVersion, sectorTimes,
+        },
+    } = zParseRequest(uploadReplayInputSchema, req);
+
+    // Reject replay uploads by unauthenticated users
+    if (!req.user || req.user.webId !== webId) {
+        req.log.error('replaysRouter: Unauthenticated replay upload attempt');
+        throw new HttpError(401, 'Authentication required to submit replay.');
+    }
+
+    // Read replay data from request
+    const replayDataAsString = await streamToString(req);
+
+    // Upload replay file to S3
+    const fileName = `${endRaceTime}_${playerName}_${Date.now()}`;
+    const filePath = `${authorName}/${mapName}/${fileName}`;
+    const storedReplay = await artefacts.uploadReplay(filePath, replayDataAsString);
+    req.log.debug('replaysRouter: Replay data stored');
+
+    // Check if map already exists
+    let map = await db.getMapByUId(mapUId);
+    const secureMapName = decodeURIComponent(mapName);
+    if (!map) {
+        req.log.debug('replaysRouter: Map does not exist in database, creating new map');
+        map = await db.saveMap({
+            mapName: secureMapName,
+            mapUId,
+            authorName,
+        });
+    }
+
+    // Save replay metadata in database
+    const metadata = {
+        mapRef: map._id,
+        mapUId,
+        mapName: secureMapName,
+        userRef: req.user._id,
+        date: Date.now(),
+        raceFinished,
+        endRaceTime,
+        pluginVersion,
+        sectorTimes,
+        ...storedReplay,
+    };
+    req.log.debug('replaysRouter: Saving replay metadata');
+    const { _id } = await db.saveReplayMetadata(metadata);
+
+    // Respond with saved replay entry
+    const savedReplay = await db.getReplayById(_id);
+    delete savedReplay.objectPath;
+    return res.send(savedReplay);
+}));
 
 /**
  * DELETE /replays/:replayId

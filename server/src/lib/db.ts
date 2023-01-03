@@ -388,7 +388,7 @@ export const saveReplayMetadata = (
 
     const replays = db.collection('replays');
     replays.insertOne(metadata)
-        .then(({ insertedId }: { insertedId: ObjectId }) => resolve({ _id: insertedId }))
+        .then(({ insertedId }: { insertedId: ObjectId }) => resolve({ _id: insertedId.toString() }))
         .catch((error: Error) => reject(error));
 });
 
