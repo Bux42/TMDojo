@@ -1,28 +1,24 @@
-import React, {
-    useEffect, useMemo, useState,
-} from 'react';
+import React, { useMemo, useState } from 'react';
 import { Layout } from 'antd';
 import { useRouter } from 'next/router';
 
+import { useQueryClient } from '@tanstack/react-query';
 import { PieChartOutlined } from '@ant-design/icons';
 import SidebarReplays from '../../../components/maps/SidebarReplays';
 import SidebarSettings from '../../../components/maps/SidebarSettings';
 import MapHeader from '../../../components/maps/MapHeader';
 import SectorTimeTableModal from '../../../components/maps/SectorTimeTableModal';
 import Viewer3D from '../../../components/viewer/Viewer3D';
-import {
-    getReplays,
-    getMapInfo,
-    FileResponse,
-    fetchReplayData,
-    ReplayData,
-    MapInfo,
-} from '../../../lib/api/apiRequests';
 import HeadTitle from '../../../components/common/HeadTitle';
 import { ChartsDrawer } from '../../../components/maps/ChartsDrawer';
 import { cleanTMFormatting } from '../../../lib/utils/formatting';
 import LoadedReplays from '../../../components/maps/LoadedReplays';
 import CleanButton from '../../../components/common/CleanButton';
+import API from '../../../lib/api/apiWrapper';
+import { ReplayInfo, ReplayData } from '../../../lib/api/requests/replays';
+import { useMapReplays } from '../../../lib/api/reactQuery/hooks/query/replays';
+import QUERY_KEYS from '../../../lib/api/reactQuery/queryKeys';
+import { useMapInfo } from '../../../lib/api/reactQuery/hooks/query/maps';
 import {
     createErrorReplayDownloadState,
     createNewReplayDownloadState,
@@ -33,46 +29,32 @@ import { filterReplaysWithValidSectorTimes } from '../../../lib/replays/sectorTi
 import useViewerPerformancePopupConfirmations from '../../../lib/hooks/useViewerPerformancePopupConfirmations';
 
 const Home = (): JSX.Element => {
-    const [replays, setReplays] = useState<FileResponse[]>([]);
-    const [loadingReplays, setLoadingReplays] = useState<boolean>(true);
+    const queryClient = useQueryClient();
+
     const [selectedReplayData, setSelectedReplayData] = useState<ReplayData[]>([]);
     const [replayDownloadStates, setReplayDownloadStates] = useState<Map<string, ReplayDownloadState>>(new Map());
-    const [mapData, setMapData] = useState<MapInfo>({});
     const [sectorTableVisible, setSectorTableVisible] = useState<boolean>(false);
 
     const { showViewer } = useViewerPerformancePopupConfirmations();
 
     const router = useRouter();
-    const { mapUId } = router.query;
+    const { mapUId: rawMapUId } = router.query;
+    const mapUId = useMemo(() => (typeof rawMapUId === 'string' ? rawMapUId : undefined), [rawMapUId]);
+
+    const {
+        data: mapReplaysResult,
+        isLoading: isLoadingReplays,
+        isFetching: isFetchingReplays,
+    } = useMapReplays(mapUId);
+
+    const { data: mapInfo } = useMapInfo(mapUId);
 
     const selectedReplaysWithValidSectors = useMemo(
-        () => filterReplaysWithValidSectorTimes(selectedReplayData, replays),
-        [selectedReplayData, replays],
+        () => filterReplaysWithValidSectorTimes(selectedReplayData, mapReplaysResult?.replays || []),
+        [mapReplaysResult?.replays, selectedReplayData],
     );
 
-    const fetchAndSetReplays = async () => {
-        setLoadingReplays(true);
-        const { files } = await getReplays({ mapUId: `${mapUId}` });
-        setReplays(files);
-
-        setLoadingReplays(false);
-    };
-
-    useEffect(() => {
-        if (mapUId !== undefined) {
-            fetchAndSetReplays();
-        }
-
-        const fetchMapData = async (mapId: string) => {
-            const mapInfo = await getMapInfo(mapId); // TODO: what happens if the map can't be found?
-            setMapData(mapInfo);
-        };
-        if (mapUId !== undefined) {
-            fetchMapData(`${mapUId}`);
-        }
-    }, [mapUId]);
-
-    const fetchReplayProgressCallback = (replay: FileResponse, progressEvent: ProgressEvent) => {
+    const fetchReplayProgressCallback = (replay: ReplayInfo, progressEvent: ProgressEvent) => {
         const loadingState = replayDownloadStates.get(replay._id);
 
         if (!loadingState) {
@@ -90,11 +72,11 @@ const Home = (): JSX.Element => {
         }
     };
 
-    const onLoadReplay = async (replay: FileResponse) => {
+    const onLoadReplay = async (replay: ReplayInfo) => {
         onLoadMultipleReplays([replay]);
     };
 
-    const onLoadMultipleReplays = async (replaysToLoad: FileResponse[]) => {
+    const onLoadMultipleReplays = async (replaysToLoad: ReplayInfo[]) => {
         // Filter out all replays that are already selected, downloaded, or
         const nonLoadedReplays = replaysToLoad.filter(
             (replay) => !(
@@ -113,7 +95,7 @@ const Home = (): JSX.Element => {
 
         // Create promises to fetch all replay files
         const replayFetchPromises = nonLoadedReplays.map(
-            (replay) => fetchReplayData(replay, fetchReplayProgressCallback),
+            (replay) => API.replays.fetchReplayData(replay, fetchReplayProgressCallback),
         );
 
         // Await all promises using Promise.allSettled to catch errors
@@ -137,7 +119,7 @@ const Home = (): JSX.Element => {
         });
     };
 
-    const onRemoveReplay = async (replayToRemove: FileResponse) => {
+    const onRemoveReplay = async (replayToRemove: ReplayInfo) => {
         onRemoveMultipleReplays([replayToRemove]);
     };
 
@@ -146,7 +128,7 @@ const Home = (): JSX.Element => {
         setReplayDownloadStates(new Map());
     };
 
-    const onRemoveMultipleReplays = async (replaysToRemove: FileResponse[]) => {
+    const onRemoveMultipleReplays = async (replaysToRemove: ReplayInfo[]) => {
         // Remove from selected replays
         setSelectedReplayData((selectedReplays) => selectedReplays.filter(
             (replay) => !replaysToRemove.find((replayToRemove) => replayToRemove._id === replay._id),
@@ -161,17 +143,19 @@ const Home = (): JSX.Element => {
         });
     };
 
-    const getTitle = () => (mapData?.name ? `${cleanTMFormatting(mapData.name)} - TMDojo` : 'TMDojo');
+    const title = mapInfo?.name
+        ? `${cleanTMFormatting(mapInfo.name)} - TMDojo`
+        : 'TMDojo';
 
     return (
         <>
-            <HeadTitle title={getTitle()} />
+            <HeadTitle title={title} />
             <Layout>
-                <MapHeader mapInfo={mapData} title="Replay viewer" backUrl="/">
+                <MapHeader mapInfo={mapInfo} title="Replay viewer" backUrl="/">
                     <CleanButton
-                        url={`/maps/${mapData?.mapUid}/stats`}
+                        url={`/maps/${mapInfo?.mapUid}/stats`}
                         backColor="hsl(0, 0%, 15%)"
-                        disabled={mapData === undefined}
+                        disabled={mapInfo === undefined}
                     >
                         <div className="flex gap-2 items-center">
                             <PieChartOutlined />
@@ -182,22 +166,22 @@ const Home = (): JSX.Element => {
 
                 <SectorTimeTableModal
                     selectedReplays={selectedReplaysWithValidSectors}
-                    allReplays={replays}
+                    allReplays={mapReplaysResult?.replays || []}
                     visible={sectorTableVisible}
                     setVisible={setSectorTableVisible}
                 />
-
                 <Layout.Content>
                     <SidebarReplays
                         mapUId={`${mapUId}`}
-                        replays={replays}
-                        loadingReplays={loadingReplays}
+                        replays={mapReplaysResult?.replays || []}
+                        loadingReplays={isLoadingReplays}
+                        fetchingReplays={isFetchingReplays}
                         onLoadReplay={onLoadReplay}
                         onLoadMultipleReplays={onLoadMultipleReplays}
                         onRemoveReplay={onRemoveReplay}
                         onRemoveAllReplays={onRemoveAllReplays}
+                        onRefreshReplays={() => queryClient.invalidateQueries(QUERY_KEYS.mapReplays(mapUId as string))}
                         replayDownloadStates={replayDownloadStates}
-                        onRefreshReplays={fetchAndSetReplays}
                     />
 
                     {selectedReplayData.length > 0

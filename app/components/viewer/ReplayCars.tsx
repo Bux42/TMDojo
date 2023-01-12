@@ -6,7 +6,7 @@ import React, {
     useRef, useState,
 } from 'react';
 import { useFBX } from '@react-three/drei';
-import { ReplayData } from '../../lib/api/apiRequests';
+import { ReplayData } from '../../lib/api/requests/replays';
 import { ReplayDataPoint } from '../../lib/replays/replayData';
 import vecToQuat from '../../lib/utils/math';
 import { CameraMode } from '../../lib/contexts/SettingsContext';

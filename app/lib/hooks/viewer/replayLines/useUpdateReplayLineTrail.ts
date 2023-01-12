@@ -1,7 +1,7 @@
 import { useFrame } from '@react-three/fiber';
 import React, { useRef } from 'react';
 import * as THREE from 'three';
-import { ReplayData } from '../../../api/apiRequests';
+import { ReplayData } from '../../../api/requests/replays';
 import GlobalTimeLineInfos from '../../../singletons/timeLineInfos';
 import { getSampleIndexNearTime } from '../../../utils/replay';
 

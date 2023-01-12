@@ -5,14 +5,14 @@ import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import bellcurve from 'highcharts/modules/histogram-bellcurve';
 import { getRaceTimeStr } from '../../../lib/utils/time';
-import { FileResponse } from '../../../lib/api/apiRequests';
+import { ReplayInfo } from '../../../lib/api/requests/replays';
 
 if (typeof Highcharts === 'object') {
     bellcurve(Highcharts);
 }
 
 interface ReplayTimesHistogramProps {
-    replays: FileResponse[];
+    replays: ReplayInfo[];
     binSize: number;
 }
 const ReplayTimesHistogram = ({ replays, binSize }: ReplayTimesHistogramProps) => {
@@ -131,11 +131,13 @@ const ReplayTimesHistogram = ({ replays, binSize }: ReplayTimesHistogramProps) =
                 groupPadding: 0,
                 shadow: false,
             },
+            series: {
+                animation: false,
+            },
         },
         series: [{
             name: 'Finish Times',
             data: histogramData,
-
         }],
     };
 

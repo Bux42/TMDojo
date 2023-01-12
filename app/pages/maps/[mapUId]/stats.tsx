@@ -1,55 +1,48 @@
+/* eslint-disable no-nested-ternary */
 import React, {
     useContext, useEffect, useMemo, useState,
 } from 'react';
 import { useRouter } from 'next/router';
-import { Card, Empty, Skeleton } from 'antd';
-import { PlaySquareOutlined } from '@ant-design/icons';
 import {
-    FileResponse, getMapInfo, getReplays, MapInfo,
-} from '../../../lib/api/apiRequests';
+    Card, Empty, Skeleton, Spin,
+} from 'antd';
+import { PlaySquareOutlined } from '@ant-design/icons';
+import Title from 'antd/lib/typography/Title';
 import HeadTitle from '../../../components/common/HeadTitle';
 import { cleanTMFormatting } from '../../../lib/utils/formatting';
 import MapHeader from '../../../components/maps/MapHeader';
 import ReplayTimesHistogram from '../../../components/mapStats/statistics/ReplayTimesHistogram';
 import AggregateMapStats from '../../../components/mapStats/statistics/AggregateMapStats';
 import FastestTimeProgression from '../../../components/mapStats/statistics/FastestTimeProgression';
+import { useMapReplays } from '../../../lib/api/reactQuery/hooks/query/replays';
+import { useMapInfo } from '../../../lib/api/reactQuery/hooks/query/maps';
 import { AuthContext } from '../../../lib/contexts/AuthContext';
 import { MapStatsType, MapStatsTypeSwitcher } from '../../../components/mapStats/common/MapStatsTypeSwitcher';
 import Footer from '../../../components/common/Footer';
 import CleanButton from '../../../components/common/CleanButton';
 import PageContainer from '../../../components/containers/PageContainer';
+import { ReplayInfo } from '../../../lib/api/requests/replays';
 
 const MapStats = () => {
     const { user } = useContext(AuthContext);
-
-    const [replays, setReplays] = useState<FileResponse[]>([]);
-    const [loadingReplays, setLoadingReplays] = useState<boolean>(true);
-    const [mapData, setMapData] = useState<MapInfo>();
-
     const [mapStatsType, setMapStatsType] = useState(MapStatsType.GLOBAL);
 
     const router = useRouter();
     const { mapUId } = router.query;
 
-    const fetchAndSetReplays = async () => {
-        setLoadingReplays(true);
+    const {
+        data: mapReplayData,
+        isLoading: isLoadingReplays,
+    } = useMapReplays(typeof mapUId === 'string' ? mapUId : undefined);
 
-        const { files } = await getReplays({ mapUId: `${mapUId}` });
-        setReplays(files);
+    const replays = useMemo(
+        () => mapReplayData?.replays || [],
+        [mapReplayData?.replays],
+    );
 
-        setLoadingReplays(false);
-    };
-
-    useEffect(() => {
-        const fetchMapData = async (mapId: string) => {
-            const mapInfo = await getMapInfo(mapId); // TODO: what happens if the map can't be found?
-            setMapData(mapInfo);
-        };
-        if (mapUId !== undefined) {
-            fetchAndSetReplays();
-            fetchMapData(`${mapUId}`);
-        }
-    }, [mapUId]);
+    const {
+        data: mapInfo,
+    } = useMapInfo(typeof mapUId === 'string' ? mapUId : undefined);
 
     // If user object changes, set the according map stats type
     useEffect(() => {
@@ -67,9 +60,9 @@ const MapStats = () => {
         }
     }, [replays, user]);
 
-    const getTitle = () => (mapData?.name ? `${cleanTMFormatting(mapData.name)} - TMDojo` : 'TMDojo');
+    const getTitle = () => (mapInfo?.name ? `${cleanTMFormatting(mapInfo.name)} - TMDojo` : 'TMDojo');
 
-    const calcBinSize = (inputReplays: FileResponse[]) => {
+    const calcBinSize = (inputReplays: ReplayInfo[]) => {
         if (inputReplays.length === 0) {
             return undefined;
         }
@@ -113,14 +106,14 @@ const MapStats = () => {
         <div className="flex flex-col items-center min-h-screen bg-page-back">
             <HeadTitle title={getTitle()} />
             <MapHeader
-                mapInfo={mapData || {}}
+                mapInfo={mapInfo || {}}
                 title="Map statistics"
                 backUrl="/"
             >
                 <CleanButton
-                    url={`/maps/${mapData?.mapUid}`}
+                    url={`/maps/${mapInfo?.mapUid}`}
                     backColor="hsl(0, 0%, 15%)"
-                    disabled={mapData === undefined}
+                    disabled={mapInfo === undefined}
                 >
                     <div className="flex gap-2 items-center">
                         <PlaySquareOutlined />
@@ -131,27 +124,31 @@ const MapStats = () => {
 
             <PageContainer>
                 <div className="w-full mb-8 bg-gray-750 rounded-md p-8">
-                    {mapData === undefined
-                        ? (
-                            <Skeleton loading active title={false} />)
-                        : (
-                            <MapStatsTypeSwitcher
-                                mapStatsType={mapStatsType}
-                                mapData={mapData}
-                                toggleMapStatsType={toggleMapStatsType}
-                            />
-                        )}
+                    {mapInfo === undefined ? (
+                        <Skeleton loading active title={false} />
+                    ) : (
+                        <MapStatsTypeSwitcher
+                            mapStatsType={mapStatsType}
+                            mapData={mapInfo}
+                            toggleMapStatsType={toggleMapStatsType}
+                        />
+                    )}
                 </div>
-                <div
-                    className="w-full p-8 bg-gray-750 rounded-md"
-                >
+                <div className="w-full p-8 bg-gray-750 rounded-md">
                     <div className="flex flex-col h-full gap-4">
-                        {mapData !== undefined && allReplaysFilteredByCurrentUser.length === 0
+                        {allReplaysFilteredByCurrentUser === undefined || allReplaysFilteredByCurrentUser.length === 0
                             ? (
-                                <Empty
-                                    image={Empty.PRESENTED_IMAGE_SIMPLE}
-                                    description="No finished replays yet"
-                                />
+                                isLoadingReplays ? (
+                                    <div className="flex flex-col items-center gap-4">
+                                        <Spin size="large" />
+                                        <Title level={5}>Fetching replays...</Title>
+                                    </div>
+                                ) : (
+                                    <Empty
+                                        image={Empty.PRESENTED_IMAGE_SIMPLE}
+                                        description="No finished replays yet"
+                                    />
+                                )
                             ) : (
                                 <>
                                     <Card
@@ -159,7 +156,7 @@ const MapStats = () => {
                                         type="inner"
                                         className="bg-gray-850"
                                     >
-                                        <Skeleton loading={loadingReplays} active title={false}>
+                                        <Skeleton loading={isLoadingReplays} active title={false}>
                                             <AggregateMapStats replays={allReplaysFilteredByCurrentUser} />
                                         </Skeleton>
                                     </Card>
@@ -169,13 +166,13 @@ const MapStats = () => {
                                         type="inner"
                                         className="bg-gray-850"
                                     >
-                                        <Skeleton loading={loadingReplays} active>
-                                            {binSize && (
+                                        <Skeleton loading={isLoadingReplays} active>
+                                            {binSize ? (
                                                 <ReplayTimesHistogram
                                                     replays={allReplaysFilteredByCurrentUser}
                                                     binSize={binSize}
                                                 />
-                                            )}
+                                            ) : null}
                                         </Skeleton>
                                     </Card>
 
@@ -184,7 +181,7 @@ const MapStats = () => {
                                         type="inner"
                                         className="bg-gray-850"
                                     >
-                                        <Skeleton loading={loadingReplays} active>
+                                        <Skeleton loading={isLoadingReplays} active>
                                             <FastestTimeProgression
                                                 replays={allReplaysFilteredByCurrentUser}
                                                 userToShowProgression={user}

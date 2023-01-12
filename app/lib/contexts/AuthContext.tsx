@@ -2,14 +2,14 @@ import { useRouter } from 'next/router';
 import React, {
     createContext, useCallback, useEffect, useState,
 } from 'react';
-import {
-    authorizeWithAccessCode, fetchLoggedInUser, generateAuthUrl, logout, UserInfo,
-} from '../api/auth';
+import API from '../api/apiWrapper';
+import { AuthUserInfo } from '../api/requests/auth';
+import { generateAuthUrl } from '../utils/auth';
 import openAuthWindow from '../utils/authPopup';
 
 export interface AuthContextProps {
-    user?: UserInfo,
-    setUser: (user?: UserInfo) => void,
+    user?: AuthUserInfo,
+    setUser: (user?: AuthUserInfo) => void,
     loginUser: (code: string, state?: string) => Promise<void>,
     logoutUser: () => Promise<void>
     startAuthFlow: () => void
@@ -17,14 +17,14 @@ export interface AuthContextProps {
 
 export const AuthContext = createContext<AuthContextProps>({
     user: undefined,
-    setUser: (user?: UserInfo) => {},
-    loginUser: async (code: string, state?: string) => {},
-    logoutUser: async () => {},
-    startAuthFlow: () => {},
+    setUser: (user?: AuthUserInfo) => { },
+    loginUser: async (code: string, state?: string) => { },
+    logoutUser: async () => { },
+    startAuthFlow: () => { },
 });
 
 export const AuthProvider = ({ children }: any): JSX.Element => {
-    const [user, setUser] = useState<UserInfo>();
+    const [user, setUser] = useState<AuthUserInfo>();
     const { asPath } = useRouter();
 
     useEffect(() => {
@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }: any): JSX.Element => {
     }, [asPath]);
 
     const updateLoggedInUser = async () => {
-        const me = await fetchLoggedInUser();
+        const me = await API.auth.fetchLoggedInUser();
         if (me === undefined) {
             setUser(undefined);
         } else if (me?.accountId !== user?.accountId) {
@@ -83,12 +83,12 @@ export const AuthProvider = ({ children }: any): JSX.Element => {
         }
 
         await loginUser(code);
-    }, [setUser]);
+    }, []);
 
     // helper function to make login callable from outside the Context
     const loginUser = async (code: string, state?: string) => {
         try {
-            const userInfo = await authorizeWithAccessCode(code, state);
+            const userInfo = await API.auth.authorizeWithAccessCode(code, state);
             setUser(userInfo);
         } catch (e) {
             console.log(e);
@@ -97,7 +97,7 @@ export const AuthProvider = ({ children }: any): JSX.Element => {
 
     const logoutUser = async () => {
         try {
-            await logout();
+            await API.auth.logout();
             setUser(undefined);
         } catch (e: any) {
             // If error code is Unauthorized (so no user is logged in), set user to undefined
