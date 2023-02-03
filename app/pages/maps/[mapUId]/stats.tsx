@@ -4,7 +4,7 @@ import React, {
 } from 'react';
 import { useRouter } from 'next/router';
 import {
-    Card, Empty, Skeleton, Spin,
+    Card, Col, Empty, InputNumber, Row, Skeleton, Slider, Spin,
 } from 'antd';
 import { PlaySquareOutlined } from '@ant-design/icons';
 import Title from 'antd/lib/typography/Title';
@@ -70,10 +70,20 @@ const MapStats = () => {
         const minTime = Math.min(...inputReplays.map((r) => r.endRaceTime));
         const maxTime = Math.max(...inputReplays.map((r) => r.endRaceTime));
 
-        // WIP method for determining bin size using the min and max times
-        let binSize = 10 ** (Math.floor(Math.log10(maxTime - minTime)) - 1);
-        binSize = Math.max(binSize, 1); // Make sure the bin size is at least 1 millisecond
-        return binSize;
+        const potentialBinSizes = [1, 5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000, 30000, 60000];
+
+        let currentBinSize = potentialBinSizes[0];
+        for (let i = 1; i <= potentialBinSizes.length; i++) {
+            const binSize = potentialBinSizes[i];
+            const numBins = (maxTime - minTime) / binSize;
+
+            // Stop increasing binSize if the number of bins exceeds 75 bins
+            if (numBins < 75) break;
+
+            currentBinSize = binSize;
+        }
+
+        return currentBinSize;
     };
 
     const toggleMapStatsType = () => {
@@ -99,8 +109,30 @@ const MapStats = () => {
         [user, replays, mapStatsType],
     );
 
-    const binSize = useMemo(() => calcBinSize(allReplaysFilteredByCurrentUser),
-        [allReplaysFilteredByCurrentUser]);
+    const minTime = Math.min(...allReplaysFilteredByCurrentUser.map((r) => r.endRaceTime));
+    const maxTime = Math.max(...allReplaysFilteredByCurrentUser.map((r) => r.endRaceTime));
+
+    const [lower, setLower] = useState(0);
+    const [upper, setUpper] = useState(Infinity);
+
+    useEffect(() => {
+        const min = Math.min(...allReplaysFilteredByCurrentUser.map((r) => r.endRaceTime));
+        const max = Math.max(...allReplaysFilteredByCurrentUser.map((r) => r.endRaceTime));
+
+        setLower(Math.floor(min / 1000) * 1000);
+        setUpper(Math.ceil(max / 1000) * 1000);
+    }, [allReplaysFilteredByCurrentUser, setLower, setUpper]);
+
+    const replaysFilteredByRange = useMemo(
+        () => allReplaysFilteredByCurrentUser
+            .filter((r) => r.endRaceTime > lower && r.endRaceTime < upper),
+        [allReplaysFilteredByCurrentUser, lower, upper],
+    );
+
+    const binSize = useMemo(
+        () => calcBinSize(replaysFilteredByRange),
+        [replaysFilteredByRange],
+    );
 
     return (
         <div className="flex flex-col items-center min-h-screen bg-page-back">
@@ -157,9 +189,46 @@ const MapStats = () => {
                                         className="bg-gray-850"
                                     >
                                         <Skeleton loading={isLoadingReplays} active title={false}>
-                                            <AggregateMapStats replays={allReplaysFilteredByCurrentUser} />
+                                            <AggregateMapStats replays={replaysFilteredByRange} />
                                         </Skeleton>
                                     </Card>
+
+                                    <Row>
+                                        <Col span={4}>
+                                            <InputNumber
+                                                min={Math.floor(minTime / 1000) * 1000}
+                                                max={Math.ceil(maxTime / 1000) * 1000}
+                                                step={1}
+                                                style={{ margin: '0 16px' }}
+                                                value={lower}
+                                                onChange={(v) => setLower(v)}
+                                            />
+                                        </Col>
+                                        <Col span={8}>
+                                            <Slider
+                                                min={Math.floor(minTime / 1000) * 1000}
+                                                max={Math.ceil(maxTime / 1000) * 1000}
+                                                step={1}
+                                                onChange={([newLower, newUpper]) => {
+                                                    setLower(newLower);
+                                                    setUpper(newUpper);
+                                                }}
+                                                range
+                                                value={[lower, upper]}
+                                            // tooltip={{ formatter: (value: number): string => `${value} secs.` }}
+                                            />
+                                        </Col>
+                                        <Col span={4}>
+                                            <InputNumber
+                                                min={Math.floor(minTime / 1000) * 1000}
+                                                max={Math.ceil(maxTime / 1000) * 1000}
+                                                step={1}
+                                                style={{ margin: '0 16px' }}
+                                                value={upper}
+                                                onChange={(v) => setUpper(v)}
+                                            />
+                                        </Col>
+                                    </Row>
 
                                     <Card
                                         title={`Finish Time Histogram ${binSize ? `(${binSize}ms bins)` : ''}`}
@@ -169,7 +238,7 @@ const MapStats = () => {
                                         <Skeleton loading={isLoadingReplays} active>
                                             {binSize ? (
                                                 <ReplayTimesHistogram
-                                                    replays={allReplaysFilteredByCurrentUser}
+                                                    replays={replaysFilteredByRange}
                                                     binSize={binSize}
                                                 />
                                             ) : null}
@@ -183,7 +252,7 @@ const MapStats = () => {
                                     >
                                         <Skeleton loading={isLoadingReplays} active>
                                             <FastestTimeProgression
-                                                replays={allReplaysFilteredByCurrentUser}
+                                                replays={replaysFilteredByRange}
                                                 userToShowProgression={user}
                                                 onlyShowUserProgression={mapStatsType === MapStatsType.PERSONAL}
                                             />

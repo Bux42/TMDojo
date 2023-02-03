@@ -132,7 +132,7 @@ const ReplayTimesHistogram = ({ replays, binSize }: ReplayTimesHistogramProps) =
                 shadow: false,
             },
             series: {
-                animation: false,
+                animation: true,
             },
         },
         series: [{
