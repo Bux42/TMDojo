@@ -1,10 +1,12 @@
 import {
-    Controller, Get, NotFoundException, Param, Query, StreamableFile,
+    Controller, Get, NotFoundException, Param, Post, Query, StreamableFile,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ArtefactsService } from '../artefacts/artefacts.service';
 import { ListReplaysDto } from './dto/ListReplays.dto';
+import { UploadReplayDto } from './dto/UploadReplay.dto';
 import { ReplaysService } from './replays.service';
+import { ReplayRo } from './ro/Replay.ro';
 import { Replay } from './schemas/replay.schema';
 
 @ApiTags('replays')
@@ -16,26 +18,33 @@ export class ReplaysController {
     ) { }
 
     @Get()
-    getReplays(@Query() listReplayOptions: ListReplaysDto): Promise<Replay[]> {
-        return this.replaysService.findAll(listReplayOptions);
+    async getReplays(@Query() listReplayOptions: ListReplaysDto): Promise<ReplayRo[]> {
+        const replays = await this.replaysService.findAll(listReplayOptions);
+        return replays.map((r) => Replay.toRo(r));
+    }
+
+    @Post()
+    async uploadReplay(@Query() uploadReplayDto: UploadReplayDto): Promise<ReplayRo> {
+        const replay = await this.replaysService.uploadReplay(uploadReplayDto);
+        return Replay.toRo(replay);
     }
 
     @Get(':replayId')
-    async getReplayById(@Param('replayId') replayId: string): Promise<Replay> {
+    async getReplayById(@Param('replayId') replayId: string): Promise<ReplayRo> {
         const replay = await this.replaysService.findById(replayId);
 
-        if (replay === null) {
+        if (!replay) {
             throw new NotFoundException(`Replay not found with replay ID: ${replayId}`);
         }
 
-        return replay;
+        return Replay.toRo(replay);
     }
 
     @Get(':replayId/file')
     async s3Test(@Param('replayId') replayId: string): Promise<StreamableFile> {
         const replay = await this.replaysService.findById(replayId);
 
-        if (replay === null) {
+        if (!replay) {
             throw new NotFoundException('Replay not found');
         }
 

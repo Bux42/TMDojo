@@ -3,9 +3,14 @@ import { Document } from 'mongoose';
 import * as mongoose from 'mongoose';
 import { User } from '../../users/schemas/user.schema';
 import { Map } from '../../maps/schemas/map.schema';
+import { ReplayRo } from '../ro/Replay.ro';
 
-@Schema()
+@Schema({
+    versionKey: false,
+})
 export class Replay {
+    _id: string;
+
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Map.name })
     mapRef: Map;
 
@@ -32,6 +37,18 @@ export class Replay {
 
     @Prop()
     filePath?: string;
+
+    static toRo(replay: Replay): ReplayRo {
+        return {
+            _id: replay._id,
+            mapRef: replay.mapRef,
+            date: replay.date,
+            raceFinished: replay.raceFinished,
+            endRaceTime: replay.endRaceTime,
+            pluginVersion: replay.pluginVersion,
+            sectorTimes: replay.sectorTimes,
+        };
+    }
 }
 
 export type ReplayDocument = Replay & Document;

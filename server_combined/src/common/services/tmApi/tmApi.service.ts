@@ -1,11 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { Injectable } from '@nestjs/common';
 import axios from 'axios';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class TmApiService {
-    constructor() { }
-
     async fetchPlayerName(webId: string): Promise<string | null> {
         const accessToken = await this.requestTmApiAccessToken();
 

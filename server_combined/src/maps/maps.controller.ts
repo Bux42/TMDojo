@@ -8,7 +8,7 @@ import { Map } from './schemas/map.schema';
 @ApiTags('maps')
 @Controller('maps')
 export class MapsController {
-    constructor(private readonly mapsService: MapsService) {}
+    constructor(private readonly mapsService: MapsService) { }
 
     @Get()
     getMapsWithReplayCounts(@Query('mapName') mapName: string): Promise<any[]> {
