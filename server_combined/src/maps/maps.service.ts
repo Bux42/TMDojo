@@ -9,7 +9,7 @@ export class MapsService {
     constructor(
         @InjectModel(Map.name) private mapModel: Model<MapDocument>,
         @InjectModel(Replay.name) private replayModel: Model<ReplayDocument>,
-    ) {}
+    ) { }
 
     findAll(): Promise<Map[]> {
         return this.mapModel.find().exec();
@@ -42,7 +42,7 @@ export class MapsService {
             .exec();
     }
 
-    findByMapUId(mapUId: string): Promise<Map> {
+    findByMapUId(mapUId: string) {
         return this.mapModel.findOne({ mapUId }).exec();
     }
 }

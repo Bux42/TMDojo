@@ -4,6 +4,7 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { ReplaysService } from '../replays/replays.service';
 import { Replay } from '../replays/schemas/replay.schema';
+import { SessionsService } from '../sessions/sessions.service';
 import { User } from './schemas/user.schema';
 import { UsersService } from './users.service';
 
@@ -13,7 +14,8 @@ export class UsersController {
     constructor(
         private readonly usersService: UsersService,
         private readonly replaysService: ReplaysService,
-    ) {}
+        private readonly sessionsService: SessionsService,
+    ) { }
 
     @Get()
     async getUsers(): Promise<User[]> {
@@ -40,7 +42,7 @@ export class UsersController {
     // TODO: Remove endpoint after auth guards are implemented, only used for session testing
     @Get('session/:sessionId')
     async getUserSession(@Param('sessionId') sessionId: string): Promise<User> {
-        const user = await this.usersService.findUserBySessionId(sessionId);
+        const user = await this.sessionsService.findUserBySessionId(sessionId);
 
         if (user === null) {
             throw new NotFoundException(`Session with ID not found: ${sessionId}`);

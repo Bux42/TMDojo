@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { config } from 'dotenv';
 import { S3Module } from 'nestjs-s3';
 import { MapsModule } from './maps/maps.module';
+import { PluginAuthModule } from './pluginAuth/pluginAuth.module';
 import { ReplaysModule } from './replays/replays.module';
 import { UsersModule } from './users/users.module';
 
@@ -19,8 +20,9 @@ config();
         MapsModule,
         UsersModule,
         ReplaysModule,
+        PluginAuthModule,
     ],
     controllers: [],
     providers: [],
 })
-export class AppModule {}
+export class AppModule { }

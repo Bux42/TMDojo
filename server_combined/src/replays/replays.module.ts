@@ -3,20 +3,19 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ReplaysService } from './replays.service';
 import { ReplaysController } from './replays.controller';
 import { Replay, ReplaySchema } from './schemas/replay.schema';
+import { ArtefactsModule } from '../artefacts/artefacts.module';
+import { MapsModule } from '../maps/maps.module';
 import { User, UserSchema } from '../users/schemas/user.schema';
-import { S3Service } from '../artefacts/services/s3.service';
-import { ArtefactsService } from '../artefacts/artefacts.service';
-import { LocalArtefactsService } from '../artefacts/services/localArtefacts.service';
-import { Map, MapSchema } from '../maps/schemas/map.schema';
 
 @Module({
     imports: [
         MongooseModule.forFeature([{ name: Replay.name, schema: ReplaySchema }]),
         MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-        MongooseModule.forFeature([{ name: Map.name, schema: MapSchema }]),
+        ArtefactsModule,
+        MapsModule,
     ],
     controllers: [ReplaysController],
-    providers: [ReplaysService, ArtefactsService, S3Service, LocalArtefactsService],
+    providers: [ReplaysService],
     exports: [ReplaysService],
 })
-export class ReplaysModule {}
+export class ReplaysModule { }

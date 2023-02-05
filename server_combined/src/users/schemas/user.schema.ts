@@ -7,10 +7,10 @@ export class User {
     webId: string;
 
     @Prop({ required: true })
-    playerLogin: string;
-
-    @Prop({ required: true })
     playerName: string;
+
+    @Prop()
+    playerLogin?: string;
 
     @Prop()
     clientCode?: string;

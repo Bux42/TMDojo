@@ -13,11 +13,11 @@ export class ReplaysController {
     constructor(
         private readonly replaysService: ReplaysService,
         private readonly artefactsService: ArtefactsService,
-    ) {}
+    ) { }
 
     @Get()
-    getReplays(@Query() query: ListReplaysDto): Promise<Replay[]> {
-        return this.replaysService.findAll(query);
+    getReplays(@Query() listReplayOptions: ListReplaysDto): Promise<Replay[]> {
+        return this.replaysService.findAll(listReplayOptions);
     }
 
     @Get(':replayId')

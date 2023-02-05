@@ -15,4 +15,4 @@ import { MapSchema } from './schemas/map.schema';
     providers: [MapsService],
     exports: [MapsService],
 })
-export class MapsModule {}
+export class MapsModule { }
