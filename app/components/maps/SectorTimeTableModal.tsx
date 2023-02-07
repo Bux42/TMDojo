@@ -4,7 +4,7 @@ import {
 } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 import { ClockCircleOutlined, QuestionOutlined } from '@ant-design/icons';
-import { FileResponse } from '../../lib/api/apiRequests';
+import { ReplayInfo } from '../../lib/api/requests/replays';
 import {
     calcFastestSectorIndices,
     calcIndividualSectorTimes,
@@ -49,8 +49,8 @@ const openInfoModal = () => {
 interface Props {
     visible: boolean;
     setVisible: (visible: boolean) => void;
-    selectedReplays: FileResponse[];
-    allReplays: FileResponse[];
+    selectedReplays: ReplayInfo[];
+    allReplays: ReplayInfo[];
 }
 
 const SectorTimeTableModal = ({

@@ -1,6 +1,6 @@
 /* eslint-disable no-lonely-if */
 import * as THREE from 'three';
-import { ReplayData } from '../api/apiRequests';
+import { ReplayData } from '../api/requests/replays';
 import { ColorMap, getColorFromMap } from '../utils/colormaps';
 import { ReplayDataPoint } from './replayData';
 
@@ -136,4 +136,13 @@ export const inputReplayColors = (replay: ReplayData): THREE.Float32BufferAttrib
         colorBuffer.push(color.r, color.g, color.b);
     }
     return new THREE.Float32BufferAttribute(colorBuffer, 3);
+};
+
+export const addAlphaChannel = (rgbBuffer: THREE.Float32BufferAttribute, alpha: number = 1) => {
+    const alphaList = [];
+    for (let i = 0; i < rgbBuffer.count; i++) {
+        alphaList.push(rgbBuffer.getX(i), rgbBuffer.getY(i), rgbBuffer.getZ(i), alpha);
+    }
+    const alphaBuffer = new THREE.Float32BufferAttribute(alphaList, 4);
+    return alphaBuffer;
 };

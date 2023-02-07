@@ -175,6 +175,8 @@ router.post('/', (req: Request, res: Response, next: Function): any => {
             const metadata = {
                 // reference map and user docs
                 mapRef: map._id,
+                mapUId: req.query.mapUId,
+                mapName: secureMapName,
                 userRef: userID,
                 date: Date.now(),
                 raceFinished: parseInt(`${req.query.raceFinished}`, 10),
@@ -202,6 +204,13 @@ router.post('/', (req: Request, res: Response, next: Function): any => {
 router.delete('/:replayId', async (req, res) => {
     // Fetch replay
     const replay = await db.getReplayById(req.params.replayId);
+
+    if (!replay) {
+        req.log.error('replaysRouter: Failed to delete replay, replay not found');
+        res.status(404).send('Failed to delete replay, replay not found.');
+        return;
+    }
+
     const replayUser = await db.getUserById(replay.userRef);
 
     // Check user

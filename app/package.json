@@ -14,6 +14,8 @@
     "@babel/core": "^7.13.10",
     "@react-three/drei": "^4.3.3",
     "@react-three/fiber": "^6.0.16",
+    "@tanstack/react-query": "^4.20.4",
+    "@tanstack/react-query-devtools": "^4.20.4",
     "@three-ts/orbit-controls": "^1.4.7",
     "@types/highcharts": "^7.0.0",
     "@types/three": "^0.127.1",
@@ -23,11 +25,11 @@
     "dayjs": "^1.10.7",
     "highcharts": "^9.1.1",
     "highcharts-react-official": "^3.0.0",
-    "next": "^10.0.9",
+    "next": "^12.3.4",
     "parse-color": "^1.0.0",
-    "react": "17.0.1",
+    "react": "^17.0.2",
     "react-color": "^2.19.3",
-    "react-dom": "17.0.1",
+    "react-dom": "^17.0.2",
     "tailwindcss": "^2.1.2",
     "three": "^0.128.0",
     "three-stdlib": "^2.3.0",
@@ -53,6 +55,6 @@
     "eslint-plugin-react": "^7.23.2",
     "eslint-plugin-react-hooks": "^4.3.0",
     "postcss": "^8.2.8",
-    "typescript": "^4.2.3"
+    "typescript": "^4.3.2"
   }
 }

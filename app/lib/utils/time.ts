@@ -1,18 +1,23 @@
+/* eslint-disable no-nested-ternary */
 export const getRaceTimeStr = (raceTime: number): string => {
     const sign = raceTime < 0 ? '-' : '';
     const absRaceTime = Math.abs(raceTime);
 
-    const milliseconds = absRaceTime % 1000;
-    const seconds = Math.floor((absRaceTime / 1000) % 60);
-    const minutes = Math.floor((absRaceTime / (60 * 1000)) % 60);
-    const hours = Math.floor((absRaceTime / (60 * 60 * 1000)) % 60);
+    const milliseconds = absRaceTime % TIME_IN_MS.SECOND;
+    const seconds = Math.floor((absRaceTime / TIME_IN_MS.SECOND) % 60);
+    const minutes = Math.floor((absRaceTime / TIME_IN_MS.MINUTE) % 60);
+    const hours = Math.floor((absRaceTime / TIME_IN_MS.HOUR) % 60);
+
+    const minutesPadded = String(minutes).padStart(2, '0');
+    const secondsPadded = String(seconds).padStart(2, '0');
+    const msPadded = String(milliseconds).padStart(3, '0');
 
     return (
         `${sign}`
         + `${`${hours > 0 ? `${hours}:` : ''}`
-        + `${minutes > 0 ? `${hours > 0 ? String(minutes).padStart(2, '0') : minutes}:` : ''}`
-        + `${minutes > 0 ? String(seconds).padStart(2, '0') : seconds}`
-        + '.'}${String(milliseconds).padStart(3, '0')}`
+        + `${hours > 0 ? `${minutesPadded}:` : (minutes > 0 ? `${minutes}:` : '')}`
+        + `${minutes > 0 ? secondsPadded : seconds}`
+        + '.'}${msPadded}`
     );
 };
 
@@ -20,7 +25,7 @@ export const getRaceTimeStr = (raceTime: number): string => {
 export const addPlural = (time: number) => (time === 1 ? '' : 's');
 
 export const timeDifference = (current: number, previous: number): string => {
-    const msPerMinute = 60 * 1000;
+    const msPerMinute = TIME_IN_MS.MINUTE;
     const msPerHour = msPerMinute * 60;
     const msPerDay = msPerHour * 24;
     const msPerMonth = msPerDay * 30;
@@ -49,11 +54,11 @@ export const timeDifference = (current: number, previous: number): string => {
 };
 
 export const msToTime = (duration: number) => {
-    const seconds = Math.floor((duration / 1000) % 60);
-    const minutes = Math.floor((duration / (1000 * 60)) % 60);
-    const hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
-    const days = Math.floor((duration / (1000 * 60 * 60 * 24)) % 7);
-    const weeks = Math.floor((duration / (1000 * 60 * 60 * 24 * 7)));
+    const seconds = Math.floor((duration / TIME_IN_MS.SECOND) % 60);
+    const minutes = Math.floor((duration / TIME_IN_MS.MINUTE) % 60);
+    const hours = Math.floor((duration / TIME_IN_MS.HOUR) % 24);
+    const days = Math.floor((duration / TIME_IN_MS.DAY) % 7);
+    const weeks = Math.floor((duration / TIME_IN_MS.WEEK));
 
     if (weeks) {
         return `${weeks} week${addPlural(weeks)}, 
@@ -79,3 +84,12 @@ export const msToTime = (duration: number) => {
     }
     return ('');
 };
+
+// Utility constants for time in milliseconds
+export const TIME_IN_MS = {
+    SECOND: 1_000,
+    MINUTE: 60_000,
+    HOUR: 3_600_000,
+    DAY: 86_400_000,
+    WEEK: 604_800_000,
+} as const;

@@ -1,4 +1,4 @@
-import { FileResponse } from '../api/apiRequests';
+import { ReplayInfo } from '../api/requests/replays';
 
 export const calcIndividualSectorTimes = (sectorTimes: number[], endRaceTime: number): number[] => {
     const individualSectorTimes: number[] = [];
@@ -53,7 +53,7 @@ export const calcFastestSectorIndices = (individualSectorTimes: number[][]): num
     return fastestSectors;
 };
 
-export const calcValidSectorsLength = (replays: FileResponse[]): number => {
+export const calcValidSectorsLength = (replays: ReplayInfo[]): number => {
     // Filter out replays that don't have sector times
     const replaysWithSectorTimes = replays
         .filter((replay) => replay.sectorTimes && replay.sectorTimes.length > 0 && replay.raceFinished);
@@ -77,9 +77,9 @@ export const calcValidSectorsLength = (replays: FileResponse[]): number => {
  * @returns List of replays with valid sector times
  */
 export const filterReplaysWithValidSectorTimes = (
-    replaysToFilter: FileResponse[],
-    allReplays: FileResponse[],
-): FileResponse[] => {
+    replaysToFilter: ReplayInfo[],
+    allReplays: ReplayInfo[],
+): ReplayInfo[] => {
     // Get max num sectors from all replays
     const maxNumSectors = calcValidSectorsLength(allReplays);
 

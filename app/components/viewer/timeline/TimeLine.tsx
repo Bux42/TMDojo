@@ -3,7 +3,7 @@ import { Slider } from 'antd';
 import {
     CaretRightOutlined, PauseOutlined,
 } from '@ant-design/icons';
-import { ReplayData } from '../../../lib/api/apiRequests';
+import { ReplayData } from '../../../lib/api/requests/replays';
 import { getRaceTimeStr } from '../../../lib/utils/time';
 import GlobalTimeLineInfos from '../../../lib/singletons/timeLineInfos';
 import TimelineSlider from './TimelineSlider';

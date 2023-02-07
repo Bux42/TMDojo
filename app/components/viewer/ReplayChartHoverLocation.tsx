@@ -3,7 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import React, { useRef } from 'react';
 import { DoubleSide } from 'three';
 import * as THREE from 'three';
-import { ReplayData } from '../../lib/api/apiRequests';
+import { ReplayData } from '../../lib/api/requests/replays';
 import { getSampleNearTime } from '../../lib/utils/replay';
 import GlobalChartsDataSingleton from '../../lib/singletons/globalChartData';
 
