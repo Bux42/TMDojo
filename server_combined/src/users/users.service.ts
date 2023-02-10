@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, ProjectionType } from 'mongoose';
 import { User, UserDocument } from './schemas/user.schema';
 
 @Injectable()
@@ -9,32 +9,38 @@ export class UsersService {
         @InjectModel(User.name) private userModel: Model<UserDocument>,
     ) { }
 
-    findAll() {
-        return this.userModel.find().exec();
-    }
-
-    findUserByWebId(webId: string) {
-        return this.userModel.findOne({ webId }).exec();
-    }
-
-    async createUserWithClientCode(webId: string, playerName: string, clientCode: string): Promise<User> {
-        return this.userModel.create({ webId, playerName, clientCode });
-    }
-
-    async updateUserWithClientCode(webId: string, clientCode: string) {
+    findAll(projection?: ProjectionType<UserDocument>) {
         return this.userModel
-            .updateOne(
-                { webId },
-                { clientCode },
-            );
+            .find({}, projection)
+            .exec();
     }
 
-    async upsertUserWithClientCode(webId: string, playerName: string, clientCode: string): Promise<User> {
+    findByWebId(webId: string, projection?: ProjectionType<UserDocument>) {
         return this.userModel
-            .findOneAndUpdate(
+            .findOne(
                 { webId },
-                { webId, playerName, clientCode },
-                { upsert: true, new: true },
-            );
+                projection,
+            )
+            .exec();
+    }
+
+    createUser(user: User) {
+        return this.userModel.create(user);
+    }
+
+    upsertUser(user: User) {
+        return this.userModel.findOneAndUpdate(
+            { webId: user.webId },
+            user,
+            { upsert: true, new: true },
+        );
+    }
+
+    updateUserClientCode(webId: string, clientCode?: string) {
+        return this.userModel.updateOne(
+            { webId },
+            { clientCode },
+            clientCode === undefined ? { $unset: clientCode } : {},
+        );
     }
 }

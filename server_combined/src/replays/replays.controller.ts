@@ -1,12 +1,11 @@
 import {
-    Controller, Get, NotFoundException, Param, Post, Query, StreamableFile,
+    Controller, Delete, Get, NotFoundException, Param, Post, Query, StreamableFile,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ArtefactsService } from '../artefacts/artefacts.service';
 import { ListReplaysDto } from './dto/ListReplays.dto';
 import { UploadReplayDto } from './dto/UploadReplay.dto';
 import { ReplaysService } from './replays.service';
-import { ReplayRo } from './ro/Replay.ro';
 import { Replay } from './schemas/replay.schema';
 
 @ApiTags('replays')
@@ -17,35 +16,60 @@ export class ReplaysController {
         private readonly artefactsService: ArtefactsService,
     ) { }
 
+    @ApiOperation({
+        summary: 'TODO: Check functionality and return types',
+    })
     @Get()
-    async getReplays(@Query() listReplayOptions: ListReplaysDto): Promise<ReplayRo[]> {
+    async findAll(@Query() listReplayOptions: ListReplaysDto) : Promise<Replay[]> {
         const replays = await this.replaysService.findAll(listReplayOptions);
-        return replays.map((r) => Replay.toRo(r));
+        return replays.map((r) => r);
     }
 
-    @Post()
-    async uploadReplay(@Query() uploadReplayDto: UploadReplayDto): Promise<ReplayRo> {
-        const replay = await this.replaysService.uploadReplay(uploadReplayDto);
-        return Replay.toRo(replay);
-    }
-
+    @ApiOperation({
+        summary: 'TODO: Check functionality and return types',
+    })
     @Get(':replayId')
-    async getReplayById(@Param('replayId') replayId: string): Promise<ReplayRo> {
+    async findOne(@Param('replayId') replayId: string) : Promise<Replay> {
         const replay = await this.replaysService.findById(replayId);
 
         if (!replay) {
             throw new NotFoundException(`Replay not found with replay ID: ${replayId}`);
         }
 
-        return Replay.toRo(replay);
+        return replay;
     }
 
+    @ApiOperation({
+        summary: 'TODO: Implement artefact upload and check functionality and return types',
+    })
+    @Post()
+    uploadReplay(@Query() uploadReplayDto: UploadReplayDto) {
+        return this.replaysService.uploadReplay(uploadReplayDto);
+    }
+
+    @ApiOperation({
+        summary: 'TODO: Delete replay artefact (replay is being deleted from DB atm)',
+    })
+    @Delete(':replayId')
+    async delete(@Param('replayId') replayId: string) : Promise<Replay> {
+        const replay = await this.replaysService.deleteReplay(replayId);
+
+        if (!replay) {
+            throw new NotFoundException(`Replay not found with ID: ${replayId}`);
+        }
+
+        return replay;
+    }
+
+    @ApiOperation({
+        summary: 'TODO: Implement artefact fetching',
+    })
     @Get(':replayId/file')
     async s3Test(@Param('replayId') replayId: string): Promise<StreamableFile> {
         const replay = await this.replaysService.findById(replayId);
 
         if (!replay) {
-            throw new NotFoundException('Replay not found');
+            throw new NotFoundException(`Replay not found with ID: ${replayId}`);
         }
 
         const buffer = await this.artefactsService.retrieveReplayObject(replay);

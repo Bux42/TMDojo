@@ -1,7 +1,7 @@
 import {
     Controller, Get, NotFoundException, Param,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ReplaysService } from '../replays/replays.service';
 import { Replay } from '../replays/schemas/replay.schema';
 import { SessionsService } from '../sessions/sessions.service';
@@ -17,35 +17,50 @@ export class UsersController {
         private readonly sessionsService: SessionsService,
     ) { }
 
+    @ApiOperation({
+        summary: 'TODO: Check functionality and return types',
+    })
     @Get()
-    async getUsers(): Promise<User[]> {
-        return this.usersService.findAll();
+    async findAll(): Promise<User[]> {
+        return this.usersService.findAll({ clientCode: 0 });
     }
 
+    @ApiOperation({
+        summary: 'TODO: Check functionality and return types',
+    })
     @Get([':webId', ':webId/info'])
-    async getUserInfo(@Param('webId') webId: string): Promise<User> {
-        const user = await this.usersService.findUserByWebId(webId);
+    async findOne(@Param('webId') webId: string): Promise<User> {
+        const user = await this.usersService.findByWebId(
+            webId,
+            { clientCode: 0 },
+        );
 
         if (user === null) {
-            throw new NotFoundException(`User with webId not found: ${webId}`);
+            throw new NotFoundException(`User not found by webId: ${webId}`);
         }
 
         return user;
     }
 
     // TODO: Remove this endpoint and adjust 'GET /replays' to accept userWebId as filter
+    @ApiOperation({
+        summary: 'TODO: remove and use \'/replays\' with webId as filter',
+    })
     @Get(':webId/replays')
     getUserReplays(@Param('webId') webId: string): Promise<Replay[]> {
-        return this.replaysService.findUserReplaysByWebId(webId);
+        return this.replaysService.findReplaysFromUser(webId);
     }
 
     // TODO: Remove endpoint after auth guards are implemented, only used for session testing
+    @ApiOperation({
+        summary: 'TODO: Remove endpoint after auth guards are implemented',
+    })
     @Get('session/:sessionId')
     async getUserSession(@Param('sessionId') sessionId: string): Promise<User> {
         const user = await this.sessionsService.findUserBySessionId(sessionId);
 
         if (user === null) {
-            throw new NotFoundException(`Session with ID not found: ${sessionId}`);
+            throw new NotFoundException(`Session not found by ID: ${sessionId}`);
         }
 
         return user;

@@ -1,31 +1,60 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Map, MapDocument } from './schemas/map.schema';
-import { Replay, ReplayDocument } from '../replays/schemas/replay.schema';
+import { FilterQuery, Model } from 'mongoose';
+import { Map } from './schemas/map.schema';
+import { Replay } from '../replays/schemas/replay.schema';
 import { TmIoApiService } from '../common/services/tmIoApi/tmIoApi.service';
+import { ListMapsDto } from './dto/ListMaps.dto';
+import { regexPartialLowercaseStr as matchPartialLowercaseString } from '../common/db/filterRegex';
+import { calculateSkip } from '../common/db/pagination';
 
 @Injectable()
 export class MapsService {
-    constructor(
-        @InjectModel(Map.name) private mapModel: Model<MapDocument>,
-        @InjectModel(Replay.name) private replayModel: Model<ReplayDocument>,
-        private readonly tmIoApiService: TmIoApiService,
-    ) { }
+    logger: Logger;
 
-    findAll(): Promise<Map[]> {
-        return this.mapModel.find().exec();
+    constructor(
+        @InjectModel(Map.name) private mapModel: Model<Map>,
+        @InjectModel(Replay.name) private replayModel: Model<Replay>,
+        private readonly tmIoApiService: TmIoApiService,
+    ) {
+        this.logger = new Logger(MapsService.name);
     }
 
-    findAllWithReplayCounts(mapName?: string): Promise<any[]> {
-        return this.replayModel.aggregate()
+    findAll(listMapsDto: ListMapsDto) {
+        const {
+            mapName, mapUId, limit, skip, skipPage,
+        } = listMapsDto;
+
+        // Create filter
+        const filter: FilterQuery<Map> = {};
+        if (mapName !== undefined) filter.mapName = matchPartialLowercaseString(mapName);
+        if (mapUId !== undefined) filter.mapUId = mapUId;
+
+        return this.mapModel
+            .find(filter, { mapName: 1 })
+            .limit(limit)
+            .skip(calculateSkip({ limit, skip, skipPage }))
+            .exec();
+    }
+
+    aggregateReplaysByMap(listMapsDto: ListMapsDto) {
+        const {
+            mapName, mapUId, limit, skip, skipPage,
+        } = listMapsDto;
+        const calculatedSkip = calculateSkip({ limit, skip, skipPage });
+
+        const filter: FilterQuery<Map> = {};
+        if (mapName !== undefined) filter.mapName = matchPartialLowercaseString(mapName);
+        if (mapUId !== undefined) filter.mapUId = mapUId;
+
+        let agg = this.replayModel.aggregate()
             .group({
                 _id: '$mapRef',
                 count: { $sum: 1 },
                 lastUpdate: { $max: '$date' }, // pass the highest date (i.e. latest replay's timestamp)
             })
             .lookup({
-                from: 'maps',
+                from: Map.name,
                 localField: '_id',
                 foreignField: '_id',
                 as: 'map',
@@ -34,9 +63,13 @@ export class MapsService {
             .replaceRoot({
                 $mergeObjects: ['$map', '$$ROOT'],
             })
-            .match(mapName === undefined ? {} : {
-                mapName: { $regex: `.*${mapName}.*`, $options: 'i' },
-            })
+            .match(filter);
+
+        // Apply optional limit and skip
+        if (limit !== undefined) agg = agg.limit(limit);
+        if (calculatedSkip !== undefined) agg = agg.skip(calculatedSkip);
+
+        return agg
             .project({
                 _id: 0,
                 map: 0,

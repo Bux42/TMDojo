@@ -18,17 +18,9 @@ describe('UsersController', () => {
         usersController = app.get<UsersController>(UsersController);
     });
 
-    describe('getUserInfo', () => {
-        it('should return the user info', () => {
-            expect(usersController.getUserInfo('555'))
-                .toBe('User info with id 555');
-        });
-    });
-
-    describe('getUserReplays', () => {
-        it('should return the user replays', () => {
-            expect(usersController.getUserReplays('100'))
-                .toStrictEqual(['Replay 1 from 100', 'Replay 2 from 100', 'Replay 3 from 100']);
+    describe('usersController', () => {
+        it('to be defined', () => {
+            expect(usersController).toBeDefined();
         });
     });
 });

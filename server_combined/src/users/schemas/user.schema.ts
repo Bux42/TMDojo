@@ -12,9 +12,6 @@ export class User {
     playerName: string;
 
     @Prop()
-    playerLogin?: string;
-
-    @Prop()
     clientCode?: string;
 
     @Prop()

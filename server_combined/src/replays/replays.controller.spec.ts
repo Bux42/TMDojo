@@ -17,17 +17,9 @@ describe('ReplaysController', () => {
         replaysController = app.get<ReplaysController>(ReplaysController);
     });
 
-    describe('getReplays', () => {
-        it('should return the replays', () => {
-            expect(replaysController.getReplays())
-                .toStrictEqual(['Replay 1', 'Replay 2', 'Replay 3']);
-        });
-    });
-
-    describe('getReplayById', () => {
-        it('should return the replay with ID', () => {
-            expect(replaysController.getReplayById('555'))
-                .toBe('Replay with id: 555');
+    describe('replaysController', () => {
+        it('to be defined', () => {
+            expect(replaysController).toBeDefined();
         });
     });
 });

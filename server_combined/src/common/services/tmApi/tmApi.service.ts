@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { Injectable } from '@nestjs/common';
+import { TmApiUserInfoRo } from './ro/tmApiUserInfo.ro';
 
 @Injectable()
 export class TmApiService {
@@ -16,17 +17,17 @@ export class TmApiService {
         try {
             const res = await axios.get(displayNamesUrl, config);
             if (!res.data) {
-                console.log('Error while fetching display name, data empty');
+                console.error('Error while fetching display name, data empty');
                 return null;
             }
             data = res.data;
         } catch (e) {
-            console.log('Error while fetching display name');
+            console.error('Error while fetching display name');
             return null;
         }
 
         if (data[webId] === undefined) {
-            console.log('Error while fetching display name, response did not contain display name');
+            console.error('Error while fetching display name, response did not contain display name');
             return null;
         }
 
@@ -57,5 +58,60 @@ export class TmApiService {
         }
 
         return data.access_token;
+    }
+
+    async exchangeCodeForAccessToken(code: string, redirectUri: string): Promise<string | null> {
+        const authUrl = 'https://api.trackmania.com/api/access_token';
+        const params = {
+            grant_type: 'authorization_code',
+            client_id: process.env.TM_API_CLIENT_ID,
+            client_secret: process.env.TM_API_CLIENT_SECRET,
+            code,
+            redirect_uri: redirectUri,
+        };
+
+        // TODO: properly handle errors
+        let data;
+        try {
+            const res = await axios.post(authUrl, new URLSearchParams(params).toString());
+            if (!res.data) {
+                console.error('Error while exchanging access token, data empty');
+                return null;
+            }
+            data = res.data;
+        } catch (e) {
+            console.error('Error while exchanging access token');
+            return null;
+        }
+
+        if (!data.access_token) {
+            console.error('Error while exchanging access token, response dit not contain access_token');
+            return null;
+        }
+
+        return data.access_token;
+    }
+
+    async fetchUserInfo(accessToken: string): Promise<TmApiUserInfoRo | null> {
+        const userUrl = 'https://api.trackmania.com/api/user';
+        const config = {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        };
+
+        // TODO: properly handle errors
+        let data;
+        try {
+            const res = await axios.get(userUrl, config);
+            if (!res.data) {
+                console.error('Error while exchanging access token, data empty');
+                return null;
+            }
+            data = res.data;
+        } catch (e) {
+            console.error('Error while exchanging access token');
+            return null;
+        }
+
+        return data;
     }
 }

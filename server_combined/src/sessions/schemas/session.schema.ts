@@ -10,8 +10,8 @@ export class Session {
     @Prop({ required: true })
     sessionId: string;
 
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name })
-    userRef: User;
+    @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: User.name })
+    userRef: string;
 
     @Prop()
     clientCode?: string;
@@ -20,3 +20,10 @@ export class Session {
 export type SessionDocument = Session & Document;
 
 export const SessionSchema = SchemaFactory.createForClass(Session);
+
+SessionSchema.virtual('user', {
+    ref: User.name,
+    localField: 'userRef',
+    foreignField: '_id',
+    justOne: true,
+});

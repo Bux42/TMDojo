@@ -1,21 +1,22 @@
+/* eslint-disable max-classes-per-file */
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import * as mongoose from 'mongoose';
 import { User } from '../../users/schemas/user.schema';
 import { Map } from '../../maps/schemas/map.schema';
-import { ReplayRo } from '../ro/Replay.ro';
+// import { ReplayRo } from '../ro/Replay.ro';
 
 @Schema({
     versionKey: false,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
 })
 export class Replay {
-    _id: string;
-
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Map.name })
-    mapRef: Map;
+    mapRef: string;
 
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name })
-    userRef: User;
+    userRef: string;
 
     @Prop({ required: true })
     date: number;
@@ -38,19 +39,39 @@ export class Replay {
     @Prop()
     filePath?: string;
 
-    static toRo(replay: Replay): ReplayRo {
-        return {
-            _id: replay._id,
-            mapRef: replay.mapRef,
-            date: replay.date,
-            raceFinished: replay.raceFinished,
-            endRaceTime: replay.endRaceTime,
-            pluginVersion: replay.pluginVersion,
-            sectorTimes: replay.sectorTimes,
-        };
-    }
+    // toRo: () => ReplayRo;
+}
+
+export class ReplayWithMap extends Replay {
+    map: Map;
 }
 
 export type ReplayDocument = Replay & Document;
 
 export const ReplaySchema = SchemaFactory.createForClass(Replay);
+
+ReplaySchema.virtual('map', {
+    ref: Map.name,
+    localField: 'mapRef',
+    foreignField: '_id',
+    justOne: true,
+});
+
+ReplaySchema.virtual('user', {
+    ref: User.name,
+    localField: 'userRef',
+    foreignField: '_id',
+    justOne: true,
+});
+
+// ReplaySchema.method('toRo', function toRo(this: mongoose.HydratedDocument<Replay>): ReplayRo {
+//     return {
+//         _id: this._id,
+//         mapRef: this.mapRef instanceof Map ? this.mapRef.toRo() : undefined,
+//         date: this.date,
+//         raceFinished: this.raceFinished,
+//         endRaceTime: this.endRaceTime,
+//         pluginVersion: this.pluginVersion,
+//         sectorTimes: this.sectorTimes,
+//     };
+// });

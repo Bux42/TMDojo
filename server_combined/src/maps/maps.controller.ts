@@ -1,28 +1,57 @@
 import {
-    Controller, Get, NotFoundException, Param, Query,
+    Controller, Get, NotFoundException, Param, Post, Query, Logger,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ListMapsDto } from './dto/ListMaps.dto';
+import { TmIoApiService } from '../common/services/tmIoApi/tmIoApi.service';
 import { MapsService } from './maps.service';
-import { Map } from './schemas/map.schema';
+// import { MapRo } from './ro/Map.ro';
 
 @ApiTags('maps')
 @Controller('maps')
 export class MapsController {
-    constructor(private readonly mapsService: MapsService) { }
+    logger: Logger;
 
-    @Get()
-    getMapsWithReplayCounts(@Query('mapName') mapName: string): Promise<any[]> {
-        return this.mapsService.findAllWithReplayCounts(mapName);
+    constructor(
+        private readonly mapsService: MapsService,
+        private readonly tmIoApiService: TmIoApiService,
+    ) {
+        this.logger = new Logger(MapsController.name);
     }
 
+    @ApiOperation({
+        summary: 'TODO: Check functionality and return types',
+    })
+    @Get()
+    findAll(@Query() listMapsDto: ListMapsDto): Promise<any[]> {
+        console.log(listMapsDto);
+        return this.mapsService.findAll(listMapsDto);
+    }
+
+    @ApiOperation({
+        summary: 'TODO: Check functionality and return types',
+    })
     @Get([':mapUId', ':mapUId/info'])
-    async getMap(@Param('mapUId') mapUId: string): Promise<Map> {
+    async findOne(@Param('mapUId') mapUId: string) {
         const map = await this.mapsService.findByMapUId(mapUId);
 
         if (map === null) {
             throw new NotFoundException(`Map not found: ${mapUId}`);
         }
 
-        return map;
+        return map;// .toRo();
+    }
+
+    @Post(':mapUId/create')
+    async create(@Param('mapUId') mapUId: string) {
+        return this.mapsService.findOrCreateByMapUId(mapUId);
+    }
+
+    @ApiOperation({
+        summary: 'TODO: Remove',
+    })
+    @Get(':mapUId/tmio')
+    findOneFromTmIo(@Param('mapUId') mapUId: string) {
+        return this.tmIoApiService.getMapInfo(mapUId);
     }
 }

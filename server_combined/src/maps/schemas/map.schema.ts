@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { MapRo } from '../ro/Map.ro';
+// import { MapRo } from '../ro/Map.ro';
 
 export type Medals = {
     bronze: number;
@@ -11,10 +11,10 @@ export type Medals = {
 
 @Schema({
     versionKey: false,
+    toJSON: { virtuals: true, versionKey: false },
+    toObject: { virtuals: true, versionKey: false },
 })
-export class Map {
-    _id: string;
-
+export class Map extends Document {
     @Prop({ required: true })
     mapName: string;
 
@@ -31,26 +31,23 @@ export class Map {
     thumbnailUrl: string;
 
     @Prop({ required: true, type: 'object' })
-    medals: {
-        bronze: number;
-        silver: number;
-        gold: number;
-        author: number;
-    }
+    medals: Medals;
 
-    static toRo(map: Map): MapRo {
-        return {
-            _id: map._id,
-            mapName: map.mapName,
-            mapUId: map.mapUId,
-            authorName: map.authorName,
-            fileUrl: map.fileUrl,
-            thumbnailUrl: map.thumbnailUrl,
-            medals: map.medals,
-        };
-    }
+    // toRo: () => MapRo;
 }
 
-export type MapDocument = Map & Document;
-
 export const MapSchema = SchemaFactory.createForClass(Map);
+
+// MapSchema.methods.toRo = function toRo(this: HydratedDocument<Map>): MapRo {
+//     console.log('Running toRo');
+
+//     return {
+//         _id: this._id,
+//         mapName: this.mapName,
+//         mapUId: this.mapUId,
+//         authorName: this.authorName,
+//         fileUrl: this.fileUrl,
+//         thumbnailUrl: this.thumbnailUrl,
+//         medals: this.medals,
+//     };
+// };

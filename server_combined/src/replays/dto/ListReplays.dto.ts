@@ -1,21 +1,18 @@
-import { IsOptional } from 'class-validator';
+import { IsInt, IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { PaginationDto } from '../../common/dto/pagination.dto';
 
-export class ListReplaysDto {
+export class ListReplaysDto extends PaginationDto {
+    @IsString()
     @IsOptional()
-    mapName?: string;
+    userWebId?: string | undefined;
 
+    @IsString()
     @IsOptional()
-    playerName?: string;
+    mapUId?: string | undefined;
 
+    @IsInt()
+    @Type(() => Number)
     @IsOptional()
-    mapUId?: string;
-
-    @IsOptional()
-    raceFinished?: boolean;
-
-    @IsOptional()
-    orderBy?: string;
-
-    @IsOptional()
-    maxResults?: number;
+    raceFinished?: number | undefined;
 }

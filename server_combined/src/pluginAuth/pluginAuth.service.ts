@@ -18,11 +18,16 @@ export class PluginAuthService {
             return null;
         }
 
-        const pluginClientCode = this.generatePluginClientCode();
+        const clientCode = this.generatePluginClientCode();
 
-        await this.usersService.upsertUserWithClientCode(webId, playerName, pluginClientCode);
+        await this.usersService.upsertUser({
+            webId,
+            playerName,
+            clientCode,
+        });
+        // await this.usersService.upsertUserWithClientCode(webId, playerName, pluginClientCode);
 
-        return this.buildAuthUrl(pluginClientCode);
+        return this.buildAuthUrl(clientCode);
     }
 
     private buildAuthUrl(state: string): string {
@@ -31,12 +36,15 @@ export class PluginAuthService {
         url.searchParams.append('response_type', 'code');
         url.searchParams.append('client_id', process.env.TM_API_CLIENT_ID);
         url.searchParams.append('redirect_uri', `${process.env.TMDOJO_UI_URL}/auth_redirect`);
+
+        // State is used on front-end to check if auth URL is from plugin or site
         url.searchParams.append('state', state);
 
         return url.toString();
     }
 
     private generatePluginClientCode(): string {
+        // Do not remove 'plugin-' prefix, is used on front-end to check if the auth URL originates from the plugin
         return `plugin-${uuid()}`;
     }
 }

@@ -2,7 +2,7 @@ import { MapRo } from '../../maps/ro/Map.ro';
 
 export class ReplayRo {
     _id: string;
-    mapRef: MapRo;
+    mapRef?: MapRo;
     // userRef: User;
     date: number;
     raceFinished: number;
