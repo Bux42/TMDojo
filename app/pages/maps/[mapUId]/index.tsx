@@ -153,9 +153,9 @@ const Home = (): JSX.Element => {
             <Layout>
                 <MapHeader mapInfo={mapInfo} title="Replay viewer" backUrl="/">
                     <CleanButton
-                        url={`/maps/${mapInfo?.mapUid}/stats`}
+                        url={`/maps/${mapUId}/stats`}
                         backColor="hsl(0, 0%, 15%)"
-                        disabled={mapInfo === undefined}
+                        disabled={mapUId === undefined}
                     >
                         <div className="flex gap-2 items-center">
                             <PieChartOutlined />
