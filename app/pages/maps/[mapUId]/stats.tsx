@@ -28,21 +28,20 @@ const MapStats = () => {
     const [mapStatsType, setMapStatsType] = useState(MapStatsType.GLOBAL);
 
     const router = useRouter();
-    const { mapUId } = router.query;
+    const { mapUId: rawMapUId } = router.query;
+    const mapUId = useMemo(() => (typeof rawMapUId === 'string' ? rawMapUId : undefined), [rawMapUId]);
 
     const {
         data: mapReplayData,
         isLoading: isLoadingReplays,
-    } = useMapReplays(typeof mapUId === 'string' ? mapUId : undefined);
+    } = useMapReplays(mapUId);
 
     const replays = useMemo(
         () => mapReplayData?.replays || [],
         [mapReplayData?.replays],
     );
 
-    const {
-        data: mapInfo,
-    } = useMapInfo(typeof mapUId === 'string' ? mapUId : undefined);
+    const { data: mapInfo } = useMapInfo(mapUId);
 
     // If user object changes, set the according map stats type
     useEffect(() => {
@@ -111,9 +110,9 @@ const MapStats = () => {
                 backUrl="/"
             >
                 <CleanButton
-                    url={`/maps/${mapInfo?.mapUid}`}
+                    url={`/maps/${mapUId}`}
                     backColor="hsl(0, 0%, 15%)"
-                    disabled={mapInfo === undefined}
+                    disabled={mapUId === undefined}
                 >
                     <div className="flex gap-2 items-center">
                         <PlaySquareOutlined />
