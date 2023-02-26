@@ -20,7 +20,14 @@ export const authorizeWithAccessCode = async (
 
     const { data } = await apiInstance.post('/auth/login', params, { withCredentials: true });
 
-    return data;
+    apiInstance.defaults.headers.common.Authorization = `Bearer ${data.access_token}`;
+
+    const { data: userInfo } = await apiInstance.get('/auth/me');
+
+    return {
+        accountId: userInfo.webId,
+        displayName: userInfo.playerName,
+    };
 };
 
 export interface AuthUserInfo {
