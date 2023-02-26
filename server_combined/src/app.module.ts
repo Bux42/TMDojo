@@ -7,6 +7,7 @@ import { PluginAuthModule } from './pluginAuth/pluginAuth.module';
 import { ReplaysModule } from './replays/replays.module';
 import { UsersModule } from './users/users.module';
 import { AuthorizeModule } from './authorize/authorize.module';
+import { AuthModule } from './auth/auth.module';
 
 config();
 
@@ -18,6 +19,7 @@ config();
         ReplaysModule,
         PluginAuthModule,
         AuthorizeModule,
+        AuthModule,
     ],
     controllers: [],
     providers: [],

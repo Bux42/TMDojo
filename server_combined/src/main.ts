@@ -22,6 +22,7 @@ async function bootstrap() {
             .setTitle('TMDojo API')
             .setDescription('Documentation for the TMDojo API')
             .setVersion('1.0')
+            .addBearerAuth()
             .build();
         const document = SwaggerModule.createDocument(app, swaggerConfig);
         SwaggerModule.setup('api', app, document);
