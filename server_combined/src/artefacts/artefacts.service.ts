@@ -10,7 +10,7 @@ export class ArtefactsService {
     constructor(
         private readonly s3Service: S3Service,
         private readonly localArtefactsService: LocalArtefactsService,
-    ) {}
+    ) { }
 
     async retrieveReplayObject(replay: Replay): Promise<Buffer> {
         let buffer: Buffer = null;

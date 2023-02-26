@@ -1,3 +1,4 @@
+// import { Express } from 'express';
 import { Logger, NotFoundException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
@@ -90,15 +91,20 @@ export class ReplaysService {
             .exec();
     }
 
-    async uploadReplay({
-        webId, mapUId, raceFinished, endRaceTime, pluginVersion, sectorTimes,
-    }: UploadReplayDto): Promise<Replay> {
+    async uploadReplay(file: Express.Multer.File, uploadReplayDto: UploadReplayDto): Promise<Replay> {
+        const {
+            webId, mapUId, raceFinished, endRaceTime, pluginVersion, sectorTimes,
+        } = uploadReplayDto;
+        console.log(file);
+
+        this.logger.log(`Uploading replay for user '${webId}' on map '${mapUId}'`);
+
         const map = await this.mapsService.findOrCreateByMapUId(mapUId);
         if (!map) {
             throw new NotFoundException('Map not found');
         }
 
-        // TODO: Use UsersModule, fix circular dependency
+        // TODO: Using userModel directly instead of UsersService, will later use auth service to get logged in user
         const user = await this.userModel.findOne({ webId }).exec();
         if (!user) {
             throw new NotFoundException('User not found');

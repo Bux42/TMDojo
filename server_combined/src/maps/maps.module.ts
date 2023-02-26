@@ -1,12 +1,11 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Map } from 'mongodb';
 import { TmApiModule } from '../common/services/tmApi/tmApi.module';
 import { TmIoApiModule } from '../common/services/tmIoApi/tmIoApi.module';
 import { Replay, ReplaySchema } from '../replays/schemas/replay.schema';
 import { MapsController } from './maps.controller';
 import { MapsService } from './maps.service';
-import { MapSchema } from './schemas/map.schema';
+import { Map, MapSchema } from './schemas/map.schema';
 
 @Module({
     imports: [

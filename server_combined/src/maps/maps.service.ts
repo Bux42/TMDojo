@@ -31,7 +31,7 @@ export class MapsService {
         if (mapUId !== undefined) filter.mapUId = mapUId;
 
         return this.mapModel
-            .find(filter, { mapName: 1 })
+            .find(filter)
             .limit(limit)
             .skip(calculateSkip({ limit, skip, skipPage }))
             .exec();
@@ -47,7 +47,7 @@ export class MapsService {
         if (mapName !== undefined) filter.mapName = matchPartialLowercaseString(mapName);
         if (mapUId !== undefined) filter.mapUId = mapUId;
 
-        let agg = this.replayModel.aggregate()
+        return this.replayModel.aggregate()
             .group({
                 _id: '$mapRef',
                 count: { $sum: 1 },
@@ -63,13 +63,9 @@ export class MapsService {
             .replaceRoot({
                 $mergeObjects: ['$map', '$$ROOT'],
             })
-            .match(filter);
-
-        // Apply optional limit and skip
-        if (limit !== undefined) agg = agg.limit(limit);
-        if (calculatedSkip !== undefined) agg = agg.skip(calculatedSkip);
-
-        return agg
+            .match(filter)
+            .limit(limit)
+            .skip(calculatedSkip)
             .project({
                 _id: 0,
                 map: 0,

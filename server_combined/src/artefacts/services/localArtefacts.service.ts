@@ -3,12 +3,14 @@ import * as path from 'path';
 import { readFile } from 'fs/promises';
 import { decompress } from '../../common/util/compression';
 
+const LOCAL_ARTEFACT_FOLDER = `${__dirname}/../../..`;
+
 @Injectable()
 export class LocalArtefactsService {
-    constructor() {}
+    constructor() { }
 
     async retrieveObject(key: string): Promise<Buffer> {
-        const fullPath = path.resolve(`${__dirname}/../../../${key}`);
+        const fullPath = path.resolve(`${LOCAL_ARTEFACT_FOLDER}/${key}`);
 
         try {
             const data = await readFile(fullPath);
