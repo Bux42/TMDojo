@@ -1,12 +1,10 @@
 import {
-    Body,
     Controller, Get, Post, Request, UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { LoginDto } from './dto/login.dto';
-import { LocalAuthGuard } from './guards/local-auth.guard';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { TmOAuthGuard } from './guards/tm-oauth.guard';
 
 @ApiTags('auth')
 @ApiBearerAuth()
@@ -14,9 +12,9 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 export class AuthController {
     constructor(private readonly authService: AuthService) { }
 
-    @UseGuards(LocalAuthGuard)
+    @UseGuards(TmOAuthGuard)
     @Post('login')
-    async login(@Body() body: LoginDto, @Request() req: any) {
+    async loginTmOAuth(@Request() req: any) {
         return this.authService.login(req.user);
     }
 

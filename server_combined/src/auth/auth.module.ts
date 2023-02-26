@@ -5,8 +5,9 @@ import { config } from 'dotenv';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { UsersModule } from '../users/users.module';
-import { LocalStrategy } from './strategies/local.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { TmOAuthStrategy } from './strategies/tmOAuth.strategy';
+import { TmApiModule } from '../common/services/tmApi/tmApi.module';
 
 config();
 
@@ -14,13 +15,14 @@ config();
     imports: [
         UsersModule,
         PassportModule,
+        TmApiModule,
         JwtModule.register({
             secret: process.env.JWT_SECRET,
-            signOptions: { expiresIn: '60s' },
+            signOptions: { expiresIn: '5m' },
         }),
     ],
     controllers: [AuthController],
-    providers: [AuthService, LocalStrategy, JwtStrategy],
+    providers: [AuthService, JwtStrategy, TmOAuthStrategy],
     exports: [],
 })
 export class AuthModule { }

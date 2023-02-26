@@ -15,6 +15,15 @@ export class UsersService {
             .exec();
     }
 
+    findById(webId: string, projection?: ProjectionType<UserDocument>) {
+        return this.userModel
+            .findById(
+                webId,
+                projection,
+            )
+            .exec();
+    }
+
     findByWebId(webId: string, projection?: ProjectionType<UserDocument>) {
         return this.userModel
             .findOne(

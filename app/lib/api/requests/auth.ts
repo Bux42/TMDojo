@@ -18,7 +18,7 @@ export const authorizeWithAccessCode = async (
         params.clientCode = clientCode;
     }
 
-    const { data } = await apiInstance.post('/authorize', params, { withCredentials: true });
+    const { data } = await apiInstance.post('/auth/login', params, { withCredentials: true });
 
     return data;
 };
