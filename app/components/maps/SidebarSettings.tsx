@@ -16,13 +16,14 @@ const SidebarSettings = (): JSX.Element => {
     const windowDimensions = useWindowDimensions();
     const {
         lineType, changeLineType,
-        showGearChanges, setShowGearChanges,
-        showFPS, setShowFPS,
-        showInputOverlay, setShowInputOverlay,
-        replayLineOpacity, setReplayLineOpacity,
-        replayCarOpacity, setReplayCarOpacity,
-        showFullTrail, setShowFullTrail,
-        showTrailToStart, setShowTrailToStart,
+        showGearChanges, changeShowGearChanges,
+        showFPS, changeShowFPS,
+        showInputOverlay, changeShowInputOverlay,
+        replayLineOpacity, changeReplayLineOpacity,
+        replayCarOpacity, changeReplayCarOpacity,
+        showFullTrail, changeShowFullTrail,
+        showTrailToStart, changeShowTrailToStart,
+        revealTrailTime, changeRevealTrailTime,
     } = useContext(
         SettingsContext,
     );
@@ -95,7 +96,7 @@ const SidebarSettings = (): JSX.Element => {
                                     className="w-full m-0"
                                     min={0}
                                     max={1}
-                                    onChange={(e: number) => setReplayLineOpacity(e)}
+                                    onChange={(e: number) => changeReplayLineOpacity(e)}
                                     value={typeof replayLineOpacity === 'number' ? replayLineOpacity : 0}
                                     step={0.1}
                                     dots
@@ -109,7 +110,7 @@ const SidebarSettings = (): JSX.Element => {
                                     className="w-full m-0"
                                     min={0}
                                     max={1}
-                                    onChange={(e: number) => setReplayCarOpacity(e)}
+                                    onChange={(e: number) => changeReplayCarOpacity(e)}
                                     value={typeof replayCarOpacity === 'number' ? replayCarOpacity : 0}
                                     step={0.1}
                                     dots
@@ -125,7 +126,7 @@ const SidebarSettings = (): JSX.Element => {
                                 className="select-none"
                                 checked={showFullTrail}
                                 onChange={(e) => {
-                                    setShowFullTrail(e.target.checked);
+                                    changeShowFullTrail(e.target.checked);
                                     timeLineGlobal.showFullTrail = e.target.checked;
                                 }}
                             >
@@ -138,7 +139,7 @@ const SidebarSettings = (): JSX.Element => {
                                 disabled={showFullTrail}
                                 checked={showTrailToStart}
                                 onChange={(e) => {
-                                    setShowTrailToStart(e.target.checked);
+                                    changeShowTrailToStart(e.target.checked);
                                     timeLineGlobal.showTrailToStart = e.target.checked;
                                 }}
                             >
@@ -154,13 +155,13 @@ const SidebarSettings = (): JSX.Element => {
                                     addonAfter="ms"
                                     className="w-full"
                                     disabled={showFullTrail || showTrailToStart}
-                                    defaultValue={timeLineGlobal.revealTrailTime}
+                                    defaultValue={revealTrailTime}
                                     min={0}
                                     step={100}
                                     precision={0}
                                     onChange={(e) => {
                                         if (typeof e === 'number') {
-                                            timeLineGlobal.revealTrailTime = e;
+                                            changeRevealTrailTime(e);
                                         }
                                     }}
                                 />
@@ -173,7 +174,7 @@ const SidebarSettings = (): JSX.Element => {
                         <Col>
                             <Checkbox
                                 className="w-full select-none"
-                                onChange={(e: CheckboxChangeEvent) => setShowGearChanges(e.target.checked)}
+                                onChange={(e: CheckboxChangeEvent) => changeShowGearChanges(e.target.checked)}
                                 checked={showGearChanges}
                             >
                                 Show Gear Changes
@@ -182,7 +183,7 @@ const SidebarSettings = (): JSX.Element => {
                         <Col>
                             <Checkbox
                                 className="w-full select-none"
-                                onChange={(e: CheckboxChangeEvent) => setShowInputOverlay(e.target.checked)}
+                                onChange={(e: CheckboxChangeEvent) => changeShowInputOverlay(e.target.checked)}
                                 checked={showInputOverlay}
                             >
                                 Show Input Overlay
@@ -195,7 +196,7 @@ const SidebarSettings = (): JSX.Element => {
                         <Col>
                             <Checkbox
                                 className="w-full select-none"
-                                onChange={(e: CheckboxChangeEvent) => setShowFPS(e.target.checked)}
+                                onChange={(e: CheckboxChangeEvent) => changeShowFPS(e.target.checked)}
                                 checked={showFPS}
                             >
                                 Show FPS
