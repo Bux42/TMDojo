@@ -16,11 +16,11 @@ const SidebarSettings = (): JSX.Element => {
     const windowDimensions = useWindowDimensions();
     const {
         lineType, changeLineType,
-        showGearChanges, changeShowGearChanges,
-        showFPS, changeShowFPS,
-        showInputOverlay, changeShowInputOverlay,
-        replayLineOpacity, changeReplayLineOpacity,
-        replayCarOpacity, changeReplayCarOpacity,
+        showGearChanges, setShowGearChanges,
+        showFPS, setShowFPS,
+        showInputOverlay, setShowInputOverlay,
+        replayLineOpacity, setReplayLineOpacity,
+        replayCarOpacity, setReplayCarOpacity,
         showFullTrail, changeShowFullTrail,
         showTrailToStart, changeShowTrailToStart,
         revealTrailTime, changeRevealTrailTime,
@@ -96,7 +96,7 @@ const SidebarSettings = (): JSX.Element => {
                                     className="w-full m-0"
                                     min={0}
                                     max={1}
-                                    onChange={(e: number) => changeReplayLineOpacity(e)}
+                                    onChange={(e: number) => setReplayLineOpacity(e)}
                                     value={typeof replayLineOpacity === 'number' ? replayLineOpacity : 0}
                                     step={0.1}
                                     dots
@@ -110,7 +110,7 @@ const SidebarSettings = (): JSX.Element => {
                                     className="w-full m-0"
                                     min={0}
                                     max={1}
-                                    onChange={(e: number) => changeReplayCarOpacity(e)}
+                                    onChange={(e: number) => setReplayCarOpacity(e)}
                                     value={typeof replayCarOpacity === 'number' ? replayCarOpacity : 0}
                                     step={0.1}
                                     dots
@@ -174,7 +174,7 @@ const SidebarSettings = (): JSX.Element => {
                         <Col>
                             <Checkbox
                                 className="w-full select-none"
-                                onChange={(e: CheckboxChangeEvent) => changeShowGearChanges(e.target.checked)}
+                                onChange={(e: CheckboxChangeEvent) => setShowGearChanges(e.target.checked)}
                                 checked={showGearChanges}
                             >
                                 Show Gear Changes
@@ -183,7 +183,7 @@ const SidebarSettings = (): JSX.Element => {
                         <Col>
                             <Checkbox
                                 className="w-full select-none"
-                                onChange={(e: CheckboxChangeEvent) => changeShowInputOverlay(e.target.checked)}
+                                onChange={(e: CheckboxChangeEvent) => setShowInputOverlay(e.target.checked)}
                                 checked={showInputOverlay}
                             >
                                 Show Input Overlay
@@ -196,7 +196,7 @@ const SidebarSettings = (): JSX.Element => {
                         <Col>
                             <Checkbox
                                 className="w-full select-none"
-                                onChange={(e: CheckboxChangeEvent) => changeShowFPS(e.target.checked)}
+                                onChange={(e: CheckboxChangeEvent) => setShowFPS(e.target.checked)}
                                 checked={showFPS}
                             >
                                 Show FPS

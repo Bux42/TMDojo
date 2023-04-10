@@ -2,6 +2,15 @@ import React, { createContext, useState } from 'react';
 import store from 'store2';
 import { LineType, LineTypes } from '../../components/viewer/ReplayLines';
 import GlobalTimeLineInfos from '../singletons/timeLineInfos';
+import useLocalStorage from '../api/reactQuery/hooks/localStorage/localStorage';
+import {
+    REPLAY_CAR_OPACITY,
+    REPLAY_LINE_OPACITY,
+    REVEAL_TRAIL_TIME,
+    SHOW_FPS, SHOW_FULL_TRAIL, SHOW_GEAR_CHANGE,
+    SHOW_INPUT_OVERLAY,
+    SHOW_TRAIL_TO_START,
+} from './SettingsContext.constants';
 
 // eslint false positive https://stackoverflow.com/questions/63961803/
 // eslint-disable-next-line no-shadow
@@ -17,15 +26,15 @@ export interface SettingsContextProps {
     lineType: LineType;
     changeLineType: (lineType: LineType) => void;
     showGearChanges: boolean;
-    changeShowGearChanges: (showGearChanges: boolean) => void;
+    setShowGearChanges: (showGearChanges: boolean) => void;
     showFPS: boolean;
-    changeShowFPS: (showFPS: boolean) => void;
+    setShowFPS: (showFPS: boolean) => void;
     showInputOverlay: boolean;
-    changeShowInputOverlay: (showInputs: boolean) => void;
+    setShowInputOverlay: (showInputs: boolean) => void;
     replayLineOpacity: number;
-    changeReplayLineOpacity: (setLineOpacity: number) => void;
+    setReplayLineOpacity: (setLineOpacity: number) => void;
     replayCarOpacity: number;
-    changeReplayCarOpacity: (setReplayCarOpacity: number) => void;
+    setReplayCarOpacity: (setReplayCarOpacity: number) => void;
     numColorChange: number;
     setNumColorChange: (numColorChange: number) => void;
     showFullTrail: boolean;
@@ -39,23 +48,23 @@ export interface SettingsContextProps {
 export const SettingsContext = createContext<SettingsContextProps>({
     lineType: LineTypes.default,
     changeLineType: () => { },
-    showGearChanges: false,
-    changeShowGearChanges: () => { },
-    showFPS: false,
-    changeShowFPS: () => { },
-    showInputOverlay: true,
-    changeShowInputOverlay: () => { },
-    replayLineOpacity: 0.5,
-    changeReplayLineOpacity: () => { },
-    replayCarOpacity: 0.5,
-    changeReplayCarOpacity: () => { },
+    showGearChanges: SHOW_GEAR_CHANGE,
+    setShowGearChanges: () => { },
+    showFPS: SHOW_FPS,
+    setShowFPS: () => { },
+    showInputOverlay: SHOW_INPUT_OVERLAY,
+    setShowInputOverlay: () => { },
+    replayLineOpacity: REPLAY_LINE_OPACITY,
+    setReplayLineOpacity: () => { },
+    replayCarOpacity: REPLAY_CAR_OPACITY,
+    setReplayCarOpacity: () => { },
     numColorChange: 0,
     setNumColorChange: () => { },
-    showFullTrail: timeLineInfos.showFullTrail,
+    showFullTrail: SHOW_FULL_TRAIL,
     changeShowFullTrail: () => { },
-    showTrailToStart: timeLineInfos.showTrailToStart,
+    showTrailToStart: SHOW_TRAIL_TO_START,
     changeShowTrailToStart: () => { },
-    revealTrailTime: timeLineInfos.revealTrailTime,
+    revealTrailTime: REVEAL_TRAIL_TIME,
     changeRevealTrailTime: () => { },
 });
 
@@ -70,56 +79,6 @@ const getLineType = (): LineType => {
     return LineTypes.default;
 };
 
-const getShowGearChanges = (): boolean => {
-    const storedShowGearChanges = store.get('showGearChanges');
-
-    if (storedShowGearChanges !== null) {
-        return storedShowGearChanges;
-    }
-
-    return false;
-};
-
-const getShowFPS = (): boolean => {
-    const storedShowFPS = store.get('showFPS');
-
-    if (storedShowFPS !== null) {
-        return storedShowFPS;
-    }
-
-    return false;
-};
-
-const getShowInputOverlay = (): boolean => {
-    const storedShowInputOverlay = store.get('showInputOverlay');
-
-    if (storedShowInputOverlay !== null) {
-        return storedShowInputOverlay;
-    }
-
-    return true;
-};
-
-const getReplayLineOpacity = (): number => {
-    const storedReplayLineOpacity = store.get('replayLineOpacity');
-
-    if (storedReplayLineOpacity !== null) {
-        return storedReplayLineOpacity;
-    }
-
-    return 0.5;
-};
-
-const getReplayCarOpacity = (): number => {
-    const storedReplayCarOpacity = store.get('replayCarOpacity');
-
-    if (storedReplayCarOpacity !== null) {
-        return storedReplayCarOpacity;
-    }
-
-    return 0.5;
-};
-
 const getShowFullTrail = (): boolean => {
     const storedShowFullTrail = store.get('showFullTrail');
 
@@ -128,10 +87,9 @@ const getShowFullTrail = (): boolean => {
         return storedShowFullTrail;
     }
 
-    timeLineInfos.showFullTrail = true;
-    return true;
+    timeLineInfos.showFullTrail = SHOW_FULL_TRAIL;
+    return SHOW_FULL_TRAIL;
 };
-
 const getShowTrailToStart = (): boolean => {
     const storedShowTrailToStart = store.get('showTrailToStart');
 
@@ -140,8 +98,8 @@ const getShowTrailToStart = (): boolean => {
         return storedShowTrailToStart;
     }
 
-    timeLineInfos.showTrailToStart = true;
-    return true;
+    timeLineInfos.showTrailToStart = SHOW_TRAIL_TO_START;
+    return SHOW_TRAIL_TO_START;
 };
 
 const getRevealTrailTime = (): number => {
@@ -152,52 +110,25 @@ const getRevealTrailTime = (): number => {
         return storedRevealTrailTime;
     }
 
-    timeLineInfos.revealTrailTime = 1000;
-    return 1000;
+    timeLineInfos.revealTrailTime = REVEAL_TRAIL_TIME;
+    return REVEAL_TRAIL_TIME;
 };
 
 export const SettingsProvider = ({ children }: any): JSX.Element => {
     const [lineType, setLineType] = useState<LineType>(getLineType());
-    const [showGearChanges, setShowGearChanges] = useState(getShowGearChanges());
-    const [showFPS, setShowFPS] = useState(getShowFPS());
-    const [showInputOverlay, setShowInputOverlay] = useState(getShowInputOverlay());
-    const [replayLineOpacity, setReplayLineOpacity] = useState(getReplayLineOpacity());
-    const [replayCarOpacity, setReplayCarOpacity] = useState(getReplayCarOpacity());
+    const [showGearChanges, setShowGearChanges] = useLocalStorage('showGearChanges', SHOW_GEAR_CHANGE);
+    const [showFPS, setShowFPS] = useLocalStorage('showFPS', SHOW_FPS);
+    const [showInputOverlay, setShowInputOverlay] = useLocalStorage('showInputOverlay', SHOW_INPUT_OVERLAY);
+    const [replayLineOpacity, setReplayLineOpacity] = useLocalStorage('replayLineOpacity', REPLAY_LINE_OPACITY);
+    const [replayCarOpacity, setReplayCarOpacity] = useLocalStorage('replayCarOpacity', REPLAY_CAR_OPACITY);
     const [numColorChange, setNumColorChange] = useState(0);
     const [showFullTrail, setShowFullTrail] = useState(getShowFullTrail());
     const [showTrailToStart, setShowTrailToStart] = useState(getShowTrailToStart());
     const [revealTrailTime, setRevealTrailTime] = useState(getRevealTrailTime());
 
-    // console.log("showFullTrail", showFullTrail)
-
     const changeLineType = (type: LineType) => {
         setLineType(type);
         store.set('lineType', type.name);
-    };
-
-    const changeShowGearChanges = (gearChanges: boolean) => {
-        setShowGearChanges(gearChanges);
-        store.set('showGearChanges', gearChanges);
-    };
-
-    const changeShowFPS = (show: boolean) => {
-        setShowFPS(show);
-        store.set('showFPS', show);
-    };
-
-    const changeShowInputOverlay = (show: boolean) => {
-        setShowInputOverlay(show);
-        store.set('showInputOverlay', show);
-    };
-
-    const changeReplayLineOpacity = (opacity: number) => {
-        setReplayLineOpacity(opacity);
-        store.set('replayLineOpacity', opacity);
-    };
-
-    const changeReplayCarOpacity = (opacity: number) => {
-        setReplayCarOpacity(opacity);
-        store.set('replayCarOpacity', opacity);
     };
 
     const changeShowFullTrail = (show: boolean) => {
@@ -205,7 +136,6 @@ export const SettingsProvider = ({ children }: any): JSX.Element => {
         timeLineInfos.showFullTrail = show;
         store.set('showFullTrail', show);
     };
-
     const changeShowTrailToStart = (show: boolean) => {
         setShowTrailToStart(show);
         timeLineInfos.showTrailToStart = show;
@@ -224,15 +154,15 @@ export const SettingsProvider = ({ children }: any): JSX.Element => {
                 lineType,
                 changeLineType,
                 showGearChanges,
-                changeShowGearChanges,
+                setShowGearChanges,
                 showFPS,
-                changeShowFPS,
+                setShowFPS,
                 showInputOverlay,
-                changeShowInputOverlay,
+                setShowInputOverlay,
                 replayLineOpacity,
-                changeReplayLineOpacity,
+                setReplayLineOpacity,
                 replayCarOpacity,
-                changeReplayCarOpacity,
+                setReplayCarOpacity,
                 numColorChange,
                 setNumColorChange,
                 showFullTrail,
