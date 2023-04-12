@@ -18,7 +18,7 @@ export class UsersController {
     ) { }
 
     @ApiOperation({
-        summary: 'TODO: Check functionality and return types',
+        summary: 'TODO: Remove',
     })
     @Get()
     async findAll(): Promise<User[]> {
