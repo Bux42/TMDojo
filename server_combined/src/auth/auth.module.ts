@@ -6,8 +6,8 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { UsersModule } from '../users/users.module';
 import { JwtStrategy } from './strategies/jwt.strategy';
-import { TmOAuthStrategy } from './strategies/tmOAuth.strategy';
 import { TmApiModule } from '../common/services/tmApi/tmApi.module';
+import { OpApiModule } from '../common/services/op-api/op-api.module';
 
 config();
 
@@ -16,13 +16,14 @@ config();
         UsersModule,
         PassportModule,
         TmApiModule,
+        OpApiModule,
         JwtModule.register({
             secret: process.env.JWT_SECRET,
             signOptions: { expiresIn: '5m' },
         }),
     ],
     controllers: [AuthController],
-    providers: [AuthService, JwtStrategy, TmOAuthStrategy],
+    providers: [AuthService, JwtStrategy],
     exports: [],
 })
 export class AuthModule { }
