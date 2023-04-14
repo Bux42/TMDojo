@@ -1,7 +1,8 @@
 import {
-    Body, Controller, Get, Post, UnauthorizedException, UseGuards,
+    Body, Controller, Get, Post, Req, Res, UnauthorizedException, UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Request, Response } from 'express';
 import { UserRo } from '../users/dto/user.ro';
 import { AuthService } from './auth.service';
 import { User } from './decorators/user.decorator';
@@ -17,23 +18,31 @@ export class AuthController {
     constructor(private readonly authService: AuthService) { }
 
     @Post('login/oauth')
-    async loginTmOAuth(@Body() tmOAuthLoginDto: TmOAuthLoginDto): Promise<AccessTokenRo> {
+    async loginTmOAuth(
+        @Body() tmOAuthLoginDto: TmOAuthLoginDto,
+        @Req() req: Request,
+        @Res({ passthrough: true }) res: Response,
+    ): Promise<AccessTokenRo> {
         const validatedUser = await this.authService.validateOAuthCode(tmOAuthLoginDto);
         if (!validatedUser) {
             throw new UnauthorizedException('Failed to validate OAuth code');
         }
 
-        return this.authService.login(validatedUser);
+        return this.authService.login(validatedUser, req, res);
     }
 
     @Post('login/plugin')
-    async loginPlugin(@Body() pluginLoginDto: PluginLoginDto): Promise<AccessTokenRo> {
+    async loginPlugin(
+        @Body() pluginLoginDto: PluginLoginDto,
+        @Req() req: Request,
+        @Res({ passthrough: true }) res: Response,
+    ): Promise<AccessTokenRo> {
         const validatedUser = await this.authService.validatePluginToken(pluginLoginDto);
         if (!validatedUser) {
             throw new UnauthorizedException('Failed to validate Openplanet plugin token');
         }
 
-        return this.authService.login(validatedUser);
+        return this.authService.login(validatedUser, req, res);
     }
 
     @UseGuards(JwtAuthGuard)

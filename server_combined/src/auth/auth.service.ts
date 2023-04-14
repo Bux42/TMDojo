@@ -1,10 +1,12 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { Request, Response } from 'express';
 import { OpApiService } from '../common/services/op-api/op-api.service';
 import { TmApiService } from '../common/services/tmApi/tmApi.service';
 import { UserRo } from '../users/dto/user.ro';
 import { UsersService } from '../users/users.service';
-import { AccessTokenRo, JwtPayload } from './dto/jwt.dto';
+import { JWT_TOKEN_EXPIRATION_SECS } from './auth.module';
+import { AccessTokenRo, JwtPayloadData } from './dto/jwt.dto';
 import { PluginLoginDto } from './dto/plugin-login.dto';
 import { TmOAuthLoginDto } from './dto/tm-oauth-login.dto';
 
@@ -21,8 +23,8 @@ export class AuthService {
         this.logger = new Logger(AuthService.name);
     }
 
-    async login(user: UserRo): Promise<AccessTokenRo> {
-        const payload: JwtPayload = {
+    async login(user: UserRo, req: Request, res: Response): Promise<AccessTokenRo> {
+        const payload: JwtPayloadData = {
             sub: user._id,
             webId: user.webId,
             playerName: user.playerName,
@@ -31,6 +33,8 @@ export class AuthService {
         this.logger.log(`Signing payload: ${JSON.stringify(payload)}`);
 
         const accessToken = this.jwtService.sign(payload);
+
+        this.setNewAccessTokenCookie(accessToken, req, res);
 
         return {
             access_token: accessToken,
@@ -91,5 +95,24 @@ export class AuthService {
             webId: user.webId,
             playerName: user.playerName,
         };
+    }
+
+    setAccessTokenCookieWithAge(accessToken: string, age: number, req: Request, res: Response) {
+        this.logger.log(`setAccessTokenCookieWithAge: Setting access_token cookie with age ${age}`);
+        res.cookie('access_token', accessToken, {
+            path: '/',
+            secure: req.secure,
+            maxAge: age,
+            domain: process.env.NODE_ENV === 'prod' ? 'tmdojo.com' : 'localhost',
+        });
+    }
+
+    setNewAccessTokenCookie(accessToken: string, req: Request, res: Response) {
+        const age = JWT_TOKEN_EXPIRATION_SECS * 1000;
+        this.setAccessTokenCookieWithAge(accessToken, age, req, res);
+    }
+
+    setExpiredAccessTokenCookie(req: Request, res: Response) {
+        this.setAccessTokenCookieWithAge('', -1, req, res);
     }
 }

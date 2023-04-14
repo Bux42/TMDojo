@@ -11,6 +11,9 @@ import { OpApiModule } from '../common/services/op-api/op-api.module';
 
 config();
 
+// JWT token expiration time in seconds
+export const JWT_TOKEN_EXPIRATION_SECS = 60 * 60 * 24 * 31;
+
 @Module({
     imports: [
         UsersModule,
@@ -19,7 +22,7 @@ config();
         OpApiModule,
         JwtModule.register({
             secret: process.env.JWT_SECRET,
-            signOptions: { expiresIn: '5m' },
+            signOptions: { expiresIn: JWT_TOKEN_EXPIRATION_SECS },
         }),
     ],
     controllers: [AuthController],
