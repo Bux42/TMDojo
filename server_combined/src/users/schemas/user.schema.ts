@@ -3,6 +3,7 @@ import { Document } from 'mongoose';
 
 @Schema({
     versionKey: false,
+    // TODO: add `timestamps: true` and confirm results
 })
 export class User {
     @Prop({ required: true })
