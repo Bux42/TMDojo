@@ -35,18 +35,22 @@ export interface AuthUserInfo {
     accountId: string;
 }
 export const fetchLoggedInUser = async (): Promise<AuthUserInfo | undefined> => {
-    const hasSessionCookie = document.cookie
+    const hasAccessToken = document.cookie
         .split(';')
-        .filter((cookie) => cookie.trim().startsWith('sessionId='))
+        .filter((cookie) => cookie.trim().startsWith('access_token='))
         .length > 0;
 
-    if (!hasSessionCookie) {
+    if (!hasAccessToken) {
         return undefined;
     }
 
     try {
-        const { data } = await apiInstance.post('/me');
-        return data;
+        const { data: userInfo } = await apiInstance.get('/auth/me');
+
+        return {
+            accountId: userInfo.webId,
+            displayName: userInfo.playerName,
+        };
     } catch (e) {
         // TODO: find solution for being logged out on a server error?
         return undefined;
@@ -54,5 +58,5 @@ export const fetchLoggedInUser = async (): Promise<AuthUserInfo | undefined> => 
 };
 
 export const logout = async (): Promise<void> => {
-    await apiInstance.post('/logout');
+    await apiInstance.post('/auth/logout');
 };

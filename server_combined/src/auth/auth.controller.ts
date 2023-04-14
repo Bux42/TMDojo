@@ -1,5 +1,5 @@
 import {
-    Body, Controller, Get, Post, Req, Res, UnauthorizedException, UseGuards,
+    Body, Controller, Get, Logger, Post, Req, Res, UnauthorizedException, UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
@@ -15,7 +15,13 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 @ApiBearerAuth()
 @Controller('auth')
 export class AuthController {
-    constructor(private readonly authService: AuthService) { }
+    logger: Logger;
+
+    constructor(
+        private readonly authService: AuthService,
+    ) {
+        this.logger = new Logger(AuthController.name);
+    }
 
     @Post('login/oauth')
     async loginTmOAuth(
@@ -43,6 +49,17 @@ export class AuthController {
         }
 
         return this.authService.login(validatedUser, req, res);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Post('logout')
+    logout(
+        @User() user: UserRo,
+        @Req() req: Request,
+        @Res({ passthrough: true }) res: Response,
+    ) {
+        this.logger.log(`Logging out user: ${user.playerName} (${user._id})`);
+        this.authService.logout(req, res);
     }
 
     @UseGuards(JwtAuthGuard)

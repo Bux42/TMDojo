@@ -41,6 +41,10 @@ export class AuthService {
         };
     }
 
+    async logout(req: Request, res: Response) {
+        this.setExpiredAccessTokenCookie(req, res);
+    }
+
     async validateOAuthCode(tmOAuthLoginDto: TmOAuthLoginDto) {
         const { code, redirect_uri: redirectUri } = tmOAuthLoginDto;
 
