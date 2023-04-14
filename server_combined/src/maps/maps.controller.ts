@@ -23,9 +23,11 @@ export class MapsController {
         summary: 'TODO: Check functionality and return types',
     })
     @Get()
-    findAll(@Query() listMapsDto: ListMapsDto): Promise<any[]> {
+    findAll(@Query() listMapsDto: ListMapsDto): any[] {
         console.log(listMapsDto);
-        return this.mapsService.findAll(listMapsDto);
+        // TODO: Implement correctly, return empty array to prevent error on frontend
+        return [];
+        // return this.mapsService.findAll(listMapsDto);
     }
 
     @ApiOperation({

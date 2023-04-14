@@ -1,9 +1,11 @@
 import {
-    Body, Controller, Get, Post, Request, UnauthorizedException, UseGuards,
+    Body, Controller, Get, Post, UnauthorizedException, UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { AccessTokenRo } from '../common/ro/access-token.ro';
+import { UserRo } from '../users/dto/user.ro';
 import { AuthService } from './auth.service';
+import { User } from './decorators/user.decorator';
+import { AccessTokenRo } from './dto/jwt.dto';
 import { PluginLoginDto } from './dto/plugin-login.dto';
 import { TmOAuthLoginDto } from './dto/tm-oauth-login.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -36,7 +38,7 @@ export class AuthController {
 
     @UseGuards(JwtAuthGuard)
     @Get('me')
-    getProfile(@Request() req: any) {
-        return req.user;
+    getMe(@User() user: UserRo) {
+        return user;
     }
 }

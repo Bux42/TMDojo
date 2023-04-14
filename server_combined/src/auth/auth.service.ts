@@ -1,9 +1,10 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { AccessTokenRo } from '../common/ro/access-token.ro';
 import { OpApiService } from '../common/services/op-api/op-api.service';
 import { TmApiService } from '../common/services/tmApi/tmApi.service';
+import { UserRo } from '../users/dto/user.ro';
 import { UsersService } from '../users/users.service';
+import { AccessTokenRo, JwtPayload } from './dto/jwt.dto';
 import { PluginLoginDto } from './dto/plugin-login.dto';
 import { TmOAuthLoginDto } from './dto/tm-oauth-login.dto';
 
@@ -20,18 +21,19 @@ export class AuthService {
         this.logger = new Logger(AuthService.name);
     }
 
-    // TODO: fix types
-    async login(user: { _id: string, playerName: string, webId: string }): Promise<AccessTokenRo> {
-        const payload = {
+    async login(user: UserRo): Promise<AccessTokenRo> {
+        const payload: JwtPayload = {
             sub: user._id,
-            playerName: user.playerName,
             webId: user.webId,
+            playerName: user.playerName,
         };
 
         this.logger.log(`Signing payload: ${JSON.stringify(payload)}`);
 
+        const accessToken = this.jwtService.sign(payload);
+
         return {
-            access_token: this.jwtService.sign(payload),
+            access_token: accessToken,
         };
     }
 

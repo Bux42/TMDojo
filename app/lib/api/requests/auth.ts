@@ -18,7 +18,7 @@ export const authorizeWithAccessCode = async (
         params.clientCode = clientCode;
     }
 
-    const { data } = await apiInstance.post('/auth/login', params, { withCredentials: true });
+    const { data } = await apiInstance.post('/auth/login/oauth', params, { withCredentials: true });
 
     apiInstance.defaults.headers.common.Authorization = `Bearer ${data.access_token}`;
 

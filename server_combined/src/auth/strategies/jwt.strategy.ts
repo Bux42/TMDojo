@@ -4,6 +4,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { config } from 'dotenv';
 import { Request } from 'express';
 import { UsersService } from '../../users/users.service';
+import { JwtPayload } from '../dto/jwt.dto';
+import { UserRo } from '../../users/dto/user.ro';
 
 config();
 
@@ -25,10 +27,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         this.logger = new Logger(JwtStrategy.name);
     }
 
-    async validate(payload: any) {
-        this.logger.log(`Validate: ${JSON.stringify(payload)}`);
+    async validate(payload: JwtPayload): Promise<UserRo> {
+        this.logger.log(`Validated token, payload: ${JSON.stringify(payload)}`);
         const userId = payload.sub;
+
         const user = await this.usersService.findById(userId);
+
         return {
             _id: user._id,
             webId: user.webId,
