@@ -1,41 +1,39 @@
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
-import {
-    Input, Table, Tooltip, Button, Spin,
-} from 'antd';
+import React, { useMemo, useState } from 'react';
+import { Input, Table, Tag } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 
-import { PieChartOutlined, ReloadOutlined } from '@ant-design/icons';
+import { PieChartOutlined, SyncOutlined } from '@ant-design/icons';
 import Link from 'next/link';
-import { AvailableMap, getAvailableMaps } from '../../lib/api/apiRequests';
+import { useQueryClient } from '@tanstack/react-query';
 import { timeDifference } from '../../lib/utils/time';
 import CleanButton from '../common/CleanButton';
+import { useAllMaps } from '../../lib/api/reactQuery/hooks/query/maps';
+import { MapWithStats } from '../../lib/api/requests/maps';
+import QUERY_KEYS from '../../lib/api/reactQuery/queryKeys';
 
-interface ExtendedAvailableMap extends AvailableMap {
+interface ExtendedAvailableMap extends MapWithStats {
     key: string;
 }
 
 const MapReplayTableWithSearchbar = () => {
-    const router = useRouter();
+    const queryClient = useQueryClient();
 
-    const [maps, setMaps] = useState<ExtendedAvailableMap[]>([]);
-    const [loadingReplays, setLoadingReplays] = useState<boolean>(true);
     const [searchString, setSearchString] = useState<string>('');
 
-    const fetchMaps = async () => {
-        setLoadingReplays(true);
-        const fetchedMaps = await getAvailableMaps(searchString);
-        const preparedMaps = fetchedMaps.map((fetchedMap) => ({
-            ...fetchedMap,
-            key: fetchedMap.mapUId,
-        }));
-        setMaps(preparedMaps);
-        setLoadingReplays(false);
-    };
+    const { data: maps, isLoading, isFetching } = useAllMaps(searchString);
 
-    useEffect(() => {
-        fetchMaps();
-    }, [searchString]);
+    const totalReplays = useMemo(() => {
+        if (!maps) return 0;
+        return maps.reduce((acc, map) => acc + map.count, 0);
+    }, [maps]);
+
+    const tableData: ExtendedAvailableMap[] | undefined = useMemo(
+        () => maps?.map((map) => ({
+            ...map,
+            key: map.mapUId,
+        })),
+        [maps],
+    );
 
     const columns: ColumnsType<ExtendedAvailableMap> = [
         {
@@ -94,59 +92,69 @@ const MapReplayTableWithSearchbar = () => {
         {
             title: 'Replays',
             dataIndex: 'count',
+            render: (count) => count.toLocaleString(),
             sorter: (a, b) => a.count - b.count,
             width: '15%',
         },
     ];
 
     return (
-        <Spin spinning={loadingReplays}>
-            <div className="flex flex-col gap-4">
-                <div className="flex flex-row items-center gap-4">
-                    <Input.Search
-                        className="rounded-md"
-                        placeholder="Search"
-                        size="large"
-                        onSearch={(searchVal) => setSearchString(searchVal)}
-                        style={{ borderRadius: '10px' }}
-                    />
-                    <Tooltip title="Refresh">
-                        <Button
-                            shape="circle"
-                            className="mr-2"
-                            icon={<ReloadOutlined />}
-                            onClick={fetchMaps}
-                        />
-                    </Tooltip>
-                </div>
-
-                <Table
-                    className="overflow-x-auto select-none"
-                    dataSource={maps}
-                    columns={columns}
-                    onHeaderRow={() => ({
-                        style: {
-                            backgroundColor: '#1F1F1F',
-                            fontSize: '1rem',
-                        },
-                    })}
-                    onRow={() => ({
-                        style: {
-                            backgroundColor: '#1F1F1F',
-                        },
-                    })}
-                    showSorterTooltip={false}
-                    size="small"
-                    pagination={{
-                        pageSize: 10,
-                        hideOnSinglePage: true,
-                        position: ['bottomCenter'],
-                        showSizeChanger: false,
-                        size: 'small',
+        <div className="flex flex-col gap-4">
+            <div className="flex flex-col sm:flex-row place-self-center justify-center items-center gap-4 w-full">
+                <Input.Search
+                    className="w-full sm:w-1/2 bg-gray-800"
+                    placeholder="Map name"
+                    size="large"
+                    allowClear
+                    loading={isFetching}
+                    onSearch={(value) => {
+                        setSearchString(value);
+                        queryClient.invalidateQueries(QUERY_KEYS.allMaps(value));
                     }}
                 />
+
+                <div className="flex flex-row w-full sm:w-1/2 justify-center sm:justify-start">
+                    <Tag
+                        className="text-base rounded"
+                        icon={isLoading ? <SyncOutlined spin /> : null}
+                    >
+                        {`${(maps ? maps.length : 0).toLocaleString()} maps`}
+                    </Tag>
+                    <Tag
+                        className="text-base rounded"
+                        icon={isLoading ? <SyncOutlined spin /> : null}
+                    >
+                        {`${totalReplays.toLocaleString()} replays`}
+                    </Tag>
+                </div>
             </div>
-        </Spin>
+
+            <Table
+                className="overflow-x-auto select-none"
+                columns={columns}
+                dataSource={tableData}
+                loading={isLoading}
+                onHeaderRow={() => ({
+                    style: {
+                        backgroundColor: '#1F1F1F',
+                        fontSize: '1rem',
+                    },
+                })}
+                onRow={() => ({
+                    style: {
+                        backgroundColor: '#1F1F1F',
+                    },
+                })}
+                size="small"
+                pagination={{
+                    pageSize: 10,
+                    hideOnSinglePage: true,
+                    position: ['bottomCenter'],
+                    showSizeChanger: false,
+                    size: 'small',
+                }}
+            />
+        </div>
     );
 };
 

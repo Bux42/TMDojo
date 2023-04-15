@@ -1,14 +1,15 @@
 import React, { useContext, useState } from 'react';
-import Title from 'antd/lib/typography/Title';
 import {
-    Button, Checkbox, Drawer, Select, Col, Slider,
+    Checkbox, Drawer, Select, Col, Slider, InputNumber,
 } from 'antd';
 import { CheckboxChangeEvent } from 'antd/lib/checkbox';
-import { CaretLeftOutlined, SettingOutlined } from '@ant-design/icons';
+import { SettingOutlined } from '@ant-design/icons';
+import Text from 'antd/lib/typography/Text';
 import { SettingsContext } from '../../lib/contexts/SettingsContext';
 import { LineTypes } from '../viewer/ReplayLines';
 import SideDrawerExpandButton from '../common/SideDrawerExpandButton';
 import useWindowDimensions from '../../lib/hooks/useWindowDimensions';
+import GlobalTimeLineInfos from '../../lib/singletons/timeLineInfos';
 
 const SidebarSettings = (): JSX.Element => {
     const [visible, setVisible] = useState(false);
@@ -21,9 +22,13 @@ const SidebarSettings = (): JSX.Element => {
         replayLineOpacity, setReplayLineOpacity,
         replayCarOpacity, setReplayCarOpacity,
         showBlocks, setShowBlocks,
+        showFullTrail, setShowFullTrail,
+        showTrailToStart, setShowTrailToStart,
     } = useContext(
         SettingsContext,
     );
+
+    const timeLineGlobal = GlobalTimeLineInfos.getInstance();
 
     const onClose = () => {
         setVisible(false);
@@ -113,6 +118,56 @@ const SidebarSettings = (): JSX.Element => {
                                     value={typeof replayCarOpacity === 'number' ? replayCarOpacity : 0}
                                     step={0.1}
                                     dots
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col gap-4">
+                        <div className="text-xl font-semibold">Trails</div>
+                        <div className="flex items-center">
+                            <Checkbox
+                                className="select-none"
+                                checked={showFullTrail}
+                                onChange={(e) => {
+                                    setShowFullTrail(e.target.checked);
+                                    timeLineGlobal.showFullTrail = e.target.checked;
+                                }}
+                            >
+                                Show full trail
+                            </Checkbox>
+                        </div>
+                        <div className="flex items-center">
+                            <Checkbox
+                                className="select-none"
+                                disabled={showFullTrail}
+                                checked={showTrailToStart}
+                                onChange={(e) => {
+                                    setShowTrailToStart(e.target.checked);
+                                    timeLineGlobal.showTrailToStart = e.target.checked;
+                                }}
+                            >
+                                Show trail to start
+                            </Checkbox>
+                        </div>
+                        <div className="flex items-center">
+                            <div className="flex-grow">
+                                <Text disabled={showFullTrail || showTrailToStart}>Trail length:</Text>
+                            </div>
+                            <div className="w-3/5 px-1">
+                                <InputNumber
+                                    addonAfter="ms"
+                                    className="w-full"
+                                    disabled={showFullTrail || showTrailToStart}
+                                    defaultValue={timeLineGlobal.revealTrailTime}
+                                    min={0}
+                                    step={100}
+                                    precision={0}
+                                    onChange={(e) => {
+                                        if (typeof e === 'number') {
+                                            timeLineGlobal.revealTrailTime = e;
+                                        }
+                                    }}
                                 />
                             </div>
                         </div>

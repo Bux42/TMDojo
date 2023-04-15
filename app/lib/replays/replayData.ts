@@ -93,6 +93,16 @@ export class ReplayDataPoint {
         const z = this.readFloat(dataView);
         return new THREE.Vector3(x, y, z);
     };
+
+    clone(): ReplayDataPoint {
+        return {
+            ...this,
+            position: this.position.clone(),
+            velocity: this.velocity.clone(),
+            up: this.up.clone(),
+            dir: this.dir.clone(),
+        };
+    }
 }
 
 export interface DataViewResult {
@@ -104,7 +114,7 @@ export interface DataViewResult {
     intervalMedian: number;
 }
 
-export const readDataView = (dataView: DataView): DataViewResult => {
+export const readDataView = (dataView: DataView): Promise<DataViewResult> => new Promise((resolve) => {
     const samples = [];
     const sampleIntervals = [];
     let intervalMedian = 20; // default to 60fps
@@ -143,7 +153,7 @@ export const readDataView = (dataView: DataView): DataViewResult => {
         return arr.length % 2 !== 0 ? nums[mid] : (nums[mid - 1] + nums[mid]) / 2;
     };
     intervalMedian = median(sampleIntervals);
-    return {
+    resolve({
         samples, minPos, maxPos, dnfPos, color, intervalMedian,
-    };
-};
+    });
+});

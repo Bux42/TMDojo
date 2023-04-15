@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { MapInfo } from '../../../lib/api/apiRequests';
+import { MapInfo } from '../../../lib/api/requests/maps';
 import { AuthContext } from '../../../lib/contexts/AuthContext';
 import { cleanTMFormatting } from '../../../lib/utils/formatting';
 import CleanButton from '../../common/CleanButton';
@@ -21,7 +21,7 @@ interface MapStatsTypeSwitcherProps {
     mapData: MapInfo;
     toggleMapStatsType: () => void;
 }
-export const MapStatsTypeSwitcher = ({ mapStatsType, mapData, toggleMapStatsType } : MapStatsTypeSwitcherProps) => {
+export const MapStatsTypeSwitcher = ({ mapStatsType, mapData, toggleMapStatsType }: MapStatsTypeSwitcherProps) => {
     const { user, startAuthFlow } = useContext(AuthContext);
 
     return (

@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { Billboard, Text } from '@react-three/drei';
 import React, { useRef } from 'react';
 import { DoubleSide } from 'three';
-import { ReplayData } from '../../lib/api/apiRequests';
+import { ReplayData } from '../../lib/api/requests/replays';
 
 interface ReplayDnfProps {
   replay: ReplayData;

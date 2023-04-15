@@ -6,38 +6,38 @@ import Highcharts, { some } from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import dayjs from 'dayjs';
 import { getRaceTimeStr, timeDifference } from '../../../lib/utils/time';
-import { FileResponse } from '../../../lib/api/apiRequests';
 import calculateFastestTimeProgressions from '../../../lib/utils/fastestTimeProgression';
 import PlayerLink from '../../common/PlayerLink';
-import { UserInfo } from '../../../lib/api/auth';
+import { ReplayInfo } from '../../../lib/api/requests/replays';
+import { AuthUserInfo } from '../../../lib/api/requests/auth';
 
 interface ChartDataPoint {
     x: number;
     y: number;
-    replay: FileResponse;
+    replay: ReplayInfo;
 }
 
-const replaysToDataPoints = (replays_: FileResponse[]): ChartDataPoint[] => replays_.map((replay) => ({
+const replaysToDataPoints = (replays_: ReplayInfo[]): ChartDataPoint[] => replays_.map((replay) => ({
     x: replay.date,
     y: replay.endRaceTime,
     replay,
 }));
 
-const replaysToProgressionDataPoints = (replays: FileResponse[]) => {
+const replaysToProgressionDataPoints = (replays: ReplayInfo[]) => {
     const progression = calculateFastestTimeProgressions(replays);
     const dataPoints = replaysToDataPoints(progression);
     return dataPoints;
 };
 
-const filterReplaysByUser = (loggedInUser: UserInfo, inputReplays: FileResponse[]) => {
+const filterReplaysByUser = (loggedInUser: AuthUserInfo, inputReplays: ReplayInfo[]) => {
     const filtered = inputReplays.filter((r) => r.webId === loggedInUser.accountId);
     return filtered;
 };
 
 interface FastestTimeProgressionProps {
-    replays: FileResponse[];
+    replays: ReplayInfo[];
     onlyShowUserProgression: boolean;
-    userToShowProgression?: UserInfo;
+    userToShowProgression?: AuthUserInfo;
 }
 const FastestTimeProgression = ({
     replays,
@@ -178,6 +178,7 @@ const FastestTimeProgression = ({
             },
             series: {
                 turboThreshold: 0,
+                animation: false,
             },
         },
         series: [{

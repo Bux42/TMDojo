@@ -8,6 +8,7 @@ import * as fs from 'fs';
 import * as cors from 'cors';
 import * as bodyParser from 'body-parser';
 import * as cookieParser from 'cookie-parser';
+import * as compression from 'compression';
 
 import * as db from './lib/db';
 import { logError, logInfo, initLogger } from './lib/logger';
@@ -63,6 +64,9 @@ app.use(bodyParser.json({ limit: '5mb' }));
 
 // Cookie Parser middleware
 app.use(cookieParser());
+
+// Response compression (using fastest compression preset)
+app.use(compression({ level: 1 }));
 
 app.listen(defaultPort, () => {
     logInfo(`App listening on port ${defaultPort}`);

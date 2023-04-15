@@ -1,3 +1,5 @@
+import React from 'react';
+
 import CleanButton from '../components/common/CleanButton';
 import Footer from '../components/common/Footer';
 import UserDisplay from '../components/common/UserDisplay';

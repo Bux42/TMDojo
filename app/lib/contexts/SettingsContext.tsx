@@ -1,5 +1,6 @@
 import React, { createContext, useState } from 'react';
 import { LineType, LineTypes } from '../../components/viewer/ReplayLines';
+import GlobalTimeLineInfos from '../singletons/timeLineInfos';
 
 // eslint false positive https://stackoverflow.com/questions/63961803/
 // eslint-disable-next-line no-shadow
@@ -7,6 +8,9 @@ export enum CameraMode {
     Target,
     Follow,
 }
+
+// Timeline singleton used to intialize settings context values to the same values
+const timeLineInfos = GlobalTimeLineInfos.getInstance();
 
 export interface SettingsContextProps {
     lineType: LineType;
@@ -25,6 +29,10 @@ export interface SettingsContextProps {
     setNumColorChange: (numColorChange: number) => void;
     showBlocks: boolean;
     setShowBlocks: (showBlocks: boolean) => void;
+    showFullTrail: boolean;
+    setShowFullTrail: (showFullTrail: boolean) => void;
+    showTrailToStart: boolean;
+    setShowTrailToStart: (showFullTrail: boolean) => void;
 }
 
 const defaultProps: SettingsContextProps = {
@@ -42,6 +50,10 @@ const defaultProps: SettingsContextProps = {
     setReplayCarOpacity: () => { },
     numColorChange: 0,
     setNumColorChange: () => { },
+    showFullTrail: timeLineInfos.showFullTrail,
+    setShowFullTrail: () => { },
+    showTrailToStart: timeLineInfos.showTrailToStart,
+    setShowTrailToStart: () => { },
     showBlocks: true,
     setShowBlocks: () => { },
 };
@@ -57,6 +69,8 @@ export const SettingsProvider = ({ children }: any): JSX.Element => {
     const [replayCarOpacity, setReplayCarOpacity] = useState(0.5);
     const [numColorChange, setNumColorChange] = useState(0);
     const [showBlocks, setShowBlocks] = useState(defaultProps.showBlocks);
+    const [showFullTrail, setShowFullTrail] = useState(timeLineInfos.showFullTrail);
+    const [showTrailToStart, setShowTrailToStart] = useState(timeLineInfos.showTrailToStart);
 
     const changeLineType = (type: LineType) => {
         setLineType(type);
@@ -81,6 +95,10 @@ export const SettingsProvider = ({ children }: any): JSX.Element => {
                 setNumColorChange,
                 showBlocks,
                 setShowBlocks,
+                showFullTrail,
+                setShowFullTrail,
+                showTrailToStart,
+                setShowTrailToStart,
             }}
         >
             {children}

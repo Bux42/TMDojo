@@ -12,12 +12,14 @@
 		"@aws-sdk/client-s3": "^3.24.0",
 		"axios": "^0.21.1",
 		"body-parser": "^1.19.0",
+		"compression": "^1.7.4",
 		"cookie-parser": "^1.4.5",
 		"cors": "^2.8.5",
 		"dayjs": "^1.10.6",
 		"dotenv": "^8.2.0",
 		"express": "^4.17.1",
 		"mongodb": "^4.1.0",
+		"node-cache": "^5.1.2",
 		"ts-node": "^9.1.1",
 		"uuid": "^8.3.1",
 		"winston": "^3.4.0"
@@ -25,6 +27,7 @@
 	"devDependencies": {
 		"@aws-sdk/types": "^3.22.0",
 		"@types/axios": "^0.14.0",
+		"@types/compression": "^1.7.2",
 		"@types/cookie-parser": "^1.4.2",
 		"@types/cors": "^2.8.10",
 		"@types/express": "^4.17.13",
