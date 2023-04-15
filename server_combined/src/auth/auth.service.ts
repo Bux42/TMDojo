@@ -82,16 +82,16 @@ export class AuthService {
 
         // Fetch user info using personalized access token
         const validateTokenResponse = await this.opApiService.validatePluginToken(token);
-        if (validateTokenResponse.Error) {
-            throw new UnauthorizedException(`Failed to validate plugin token: ${validateTokenResponse.Error}`);
+        if (validateTokenResponse.error) {
+            throw new UnauthorizedException(`Failed to validate plugin token: ${validateTokenResponse.error}`);
         }
 
         // Add or get user if already exists
         // TODO: make sure that whenever a user changes names, the previous user is updated and does not create new user
-        const { AccountID, DisplayName } = validateTokenResponse;
+        const { accountID, displayName } = validateTokenResponse;
         const user = await this.usersService.upsertUser({
-            webId: AccountID,
-            playerName: DisplayName,
+            webId: accountID,
+            playerName: displayName,
         });
 
         return {

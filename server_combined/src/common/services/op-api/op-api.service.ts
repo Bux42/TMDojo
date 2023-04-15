@@ -41,10 +41,10 @@ export class OpApiService {
         const { data } = res;
 
         return {
-            Error: data.Error,
-            AccountID: data.Message,
-            DisplayName: data.DisplayName,
-            TokenTime: data.TokenTime,
+            error: data.error,
+            accountID: data.account_id,
+            displayName: data.display_name,
+            tokenTime: data.token_time,
         };
     }
 }

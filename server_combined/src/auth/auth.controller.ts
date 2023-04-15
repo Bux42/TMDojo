@@ -48,6 +48,8 @@ export class AuthController {
             throw new UnauthorizedException('Failed to validate Openplanet plugin token');
         }
 
+        this.logger.log(`Validated user: ${validatedUser.playerName} (${validatedUser.webId})`);
+
         return this.authService.login(validatedUser, req, res);
     }
 

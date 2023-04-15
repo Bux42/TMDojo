@@ -1,6 +1,6 @@
 export class ValidatePluginTokenRo {
-    Error?: string;
-    AccountID: string;
-    DisplayName: string
-    TokenTime: number;
+    error?: string;
+    accountID: string;
+    displayName: string
+    tokenTime: number;
 }
