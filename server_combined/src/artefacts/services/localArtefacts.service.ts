@@ -1,7 +1,6 @@
 import { Injectable, NotImplementedException } from '@nestjs/common';
 import * as path from 'path';
 import { readFile } from 'fs/promises';
-import { decompress } from '../../common/util/compression';
 
 const LOCAL_ARTEFACT_FOLDER = `${__dirname}/../../..`;
 
@@ -14,7 +13,7 @@ export class LocalArtefactsService {
 
         try {
             const data = await readFile(fullPath);
-            return decompress(data);
+            return data;
         } catch (error) {
             if (error?.code === 'ENOENT') {
                 // TODO: add log
@@ -25,12 +24,12 @@ export class LocalArtefactsService {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async saveObject(key: string, value: Buffer): Promise<unknown> {
+    async saveObject(key: string, buffer: Buffer) {
         throw new NotImplementedException('Saving local objects not implemented');
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async deleteObject(key: string): Promise<unknown> {
+    async deleteObject(key: string) {
         throw new NotImplementedException('Deleting local objects not implemented');
     }
 }

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, NotImplementedException } from '@nestjs/common';
-import { AWSError, S3 } from 'aws-sdk';
-import { PromiseResult } from 'aws-sdk/lib/request';
+import { compress, decompress } from '../common/util/compression';
+import { UploadReplayDto } from '../replays/dto/UploadReplay.dto';
 import { Replay } from '../replays/schemas/replay.schema';
 import { LocalArtefactsService } from './services/localArtefacts.service';
 import { S3Service } from './services/s3.service';
@@ -23,10 +23,33 @@ export class ArtefactsService {
             throw new NotFoundException('No object or file path in replay');
         }
 
-        return buffer;
+        if (buffer == null) {
+            throw new NotFoundException("Failed to retrieve replay's data buffer");
+        }
+
+        const decompressed = decompress(buffer);
+
+        return decompressed;
     }
 
-    async uploadReplayObject(): Promise<PromiseResult<S3.PutObjectOutput, AWSError>> {
+    async uploadReplayObject(uploadReplayDto: UploadReplayDto, replayBuffer: Buffer) {
+        // Create filePath
+        // TODO: add correct fields and correct filepath
+        const { mapUId, endRaceTime, webId } = uploadReplayDto;
+        const filePath = `${mapUId}/${webId}_${endRaceTime}_${Date.now()}`;
+
+        // Compress buffer
+        const compressedBuffer = compress(replayBuffer);
+
+        // Save buffer
+        if (process.env.PREFERRED_STORAGE_TYPE === 'FS') {
+            return this.localArtefactsService.saveObject(filePath, compressedBuffer);
+        }
+
+        if (process.env.PREFERRED_STORAGE_TYPE === 'S3') {
+            return this.s3Service.uploadObject(filePath, compressedBuffer);
+        }
+
         throw new NotImplementedException('Replay upload not implemented yet');
     }
 }

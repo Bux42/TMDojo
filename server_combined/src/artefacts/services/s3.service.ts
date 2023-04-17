@@ -1,12 +1,10 @@
 import { Injectable, NotFoundException, NotImplementedException } from '@nestjs/common';
-import { AWSError, S3 } from 'aws-sdk';
-import { PromiseResult } from 'aws-sdk/lib/request';
+import { S3 } from 'aws-sdk';
 import { InjectS3 } from 'nestjs-s3';
-import { compress, decompress } from '../../common/util/compression';
 
 @Injectable()
 export class S3Service {
-    constructor(@InjectS3() private readonly s3: S3) {}
+    constructor(@InjectS3() private readonly s3: S3) { }
 
     async retrieveObject(key: string): Promise<Buffer> {
         const params = {
@@ -24,14 +22,14 @@ export class S3Service {
             throw new NotFoundException('Retrieved object is not a buffer');
         }
 
-        return decompress(data.Body);
+        return data.Body;
     }
 
-    async uploadObject(key: string, value: Buffer): Promise<PromiseResult<S3.PutObjectOutput, AWSError>> {
+    async uploadObject(key: string, buffer: Buffer) {
         const params = {
             Bucket: process.env.AWS_S3_BUCKET_NAME,
             Key: key,
-            Body: compress(value),
+            Body: buffer,
         };
 
         return this.s3.putObject(params).promise();
