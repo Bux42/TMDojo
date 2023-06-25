@@ -12,6 +12,7 @@ import { SettingsContext } from '../../lib/contexts/SettingsContext';
 import FrameRate from './FrameRate';
 import ReplayCars from './ReplayCars';
 import TimeLine from './timeline/TimeLine';
+import CrashDetection from './CrashDetection';
 import SceneDirectionalLight from './SceneDirectionalLight';
 
 const BACKGROUND_COLOR = new THREE.Color(0.05, 0.05, 0.05);
@@ -81,6 +82,11 @@ const Viewer3D = ({ replaysData }: Props): JSX.Element => {
                     replayLineOpacity={replayLineOpacity}
                     showGearChanges={showGearChanges}
                 />
+
+                <CrashDetection
+                    replays={replaysData}
+                />
+
                 <Suspense fallback={null}>
                     <ReplayCars
                         replaysData={replaysData}
