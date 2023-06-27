@@ -1,11 +1,13 @@
 import {
-    Controller, Delete, Get, NotFoundException, Param, Post, Query, StreamableFile, UseInterceptors,
+    Controller, Delete, Get, NotFoundException, Param, Post, Query, StreamableFile,
 } from '@nestjs/common';
-import { UploadedFile } from '@nestjs/common/decorators';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { Req, UseGuards } from '@nestjs/common/decorators';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { Express } from 'express';
+import { Request } from 'express';
 import { ArtefactsService } from '../artefacts/artefacts.service';
+import { User } from '../auth/decorators/user.decorator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { UserRo } from '../users/dto/user.ro';
 import { ListReplaysDto } from './dto/ListReplays.dto';
 import { UploadReplayDto } from './dto/UploadReplay.dto';
 import { ReplaysService } from './replays.service';
@@ -45,13 +47,16 @@ export class ReplaysController {
     @ApiOperation({
         summary: 'TODO: Implement artefact upload and check functionality and return types',
     })
-    @UseInterceptors(FileInterceptor('file'))
+    @UseGuards(JwtAuthGuard)
     @Post()
-    uploadReplay(
-        @UploadedFile() file: Express.Multer.File,
+    async uploadReplay(
+        @User() loggedInUser: UserRo,
         @Query() uploadReplayDto: UploadReplayDto,
+        @Req() req: Request,
     ) {
-        return this.replaysService.uploadReplay(file, uploadReplayDto);
+        const rawReplayBuffer = await this.artefactsService.streamToBuffer(req);
+
+        return this.replaysService.uploadReplay(loggedInUser, uploadReplayDto, rawReplayBuffer);
     }
 
     @ApiOperation({

@@ -2,14 +2,14 @@ import { Injectable, NotImplementedException } from '@nestjs/common';
 import * as path from 'path';
 import { readFile } from 'fs/promises';
 
-const LOCAL_ARTEFACT_FOLDER = `${__dirname}/../../..`;
+const LOCAL_ARTEFACT_FOLDER = path.resolve(__dirname, '/../../../replays');
 
 @Injectable()
 export class LocalArtefactsService {
     constructor() { }
 
     async retrieveObject(key: string): Promise<Buffer> {
-        const fullPath = path.resolve(`${LOCAL_ARTEFACT_FOLDER}/${key}`);
+        const fullPath = path.resolve(LOCAL_ARTEFACT_FOLDER, key);
 
         try {
             const data = await readFile(fullPath);

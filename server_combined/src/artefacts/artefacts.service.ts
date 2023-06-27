@@ -1,7 +1,10 @@
 import { Injectable, NotFoundException, NotImplementedException } from '@nestjs/common';
+import { Readable } from 'stream';
 import { compress, decompress } from '../common/util/compression';
+import { Map } from '../maps/schemas/map.schema';
 import { UploadReplayDto } from '../replays/dto/UploadReplay.dto';
 import { Replay } from '../replays/schemas/replay.schema';
+import { UserRo } from '../users/dto/user.ro';
 import { LocalArtefactsService } from './services/localArtefacts.service';
 import { S3Service } from './services/s3.service';
 
@@ -27,15 +30,17 @@ export class ArtefactsService {
             throw new NotFoundException("Failed to retrieve replay's data buffer");
         }
 
-        const decompressed = decompress(buffer);
+        const decompressedBuffer = decompress(buffer);
 
-        return decompressed;
+        return decompressedBuffer;
     }
 
-    async uploadReplayObject(uploadReplayDto: UploadReplayDto, replayBuffer: Buffer) {
+    async uploadReplayObject(uploadReplayDto: UploadReplayDto, map: Map, user: UserRo, replayBuffer: Buffer) {
         // Create filePath
         // TODO: add correct fields and correct filepath
-        const { mapUId, endRaceTime, webId } = uploadReplayDto;
+        const { webId } = user;
+        const { endRaceTime } = uploadReplayDto;
+        const { mapUId } = map;
         const filePath = `${mapUId}/${webId}_${endRaceTime}_${Date.now()}`;
 
         // Compress buffer
@@ -51,5 +56,15 @@ export class ArtefactsService {
         }
 
         throw new NotImplementedException('Replay upload not implemented yet');
+    }
+
+    async streamToBuffer(stream: Readable): Promise<Buffer> {
+        const chunks: Buffer[] = [];
+
+        return new Promise((resolve, reject) => {
+            stream.on('data', (chunk: Buffer) => chunks.push(chunk));
+            stream.on('error', (err: Error) => reject(err));
+            stream.on('end', () => resolve(Buffer.concat(chunks)));
+        });
     }
 }

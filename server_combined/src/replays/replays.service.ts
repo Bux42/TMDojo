@@ -10,6 +10,8 @@ import { User, UserDocument } from '../users/schemas/user.schema';
 import { ListReplaysDto } from './dto/ListReplays.dto';
 import { UploadReplayDto } from './dto/UploadReplay.dto';
 import { Replay, ReplayDocument } from './schemas/replay.schema';
+import { ArtefactsService } from '../artefacts/artefacts.service';
+import { UserRo } from '../users/dto/user.ro';
 
 @Injectable()
 export class ReplaysService {
@@ -19,6 +21,7 @@ export class ReplaysService {
         @InjectModel(Replay.name) private replayModel: Model<ReplayDocument>,
         @InjectModel(User.name) private userModel: Model<UserDocument>,
         private readonly mapsService: MapsService,
+        private readonly artefactsService: ArtefactsService,
     ) {
         this.logger = new Logger(ReplaysService.name);
     }
@@ -91,28 +94,22 @@ export class ReplaysService {
             .exec();
     }
 
-    async uploadReplay(file: Express.Multer.File, uploadReplayDto: UploadReplayDto): Promise<Replay> {
+    async uploadReplay(loggedInUser: UserRo, uploadReplayDto: UploadReplayDto, replayBuffer: Buffer): Promise<Replay> {
         const {
-            webId, mapUId, raceFinished, endRaceTime, pluginVersion, sectorTimes,
+            mapUId, raceFinished, endRaceTime, pluginVersion, sectorTimes,
         } = uploadReplayDto;
-        console.log(file);
-
-        this.logger.log(`Uploading replay for user '${webId}' on map '${mapUId}'`);
+        this.logger.log(`Uploading replay for user '${loggedInUser.webId}' on map '${mapUId}'`);
 
         const map = await this.mapsService.findOrCreateByMapUId(mapUId);
         if (!map) {
-            throw new NotFoundException('Map not found');
+            throw new NotFoundException(`Map not found with ID: ${mapUId}`);
         }
 
-        // TODO: Using userModel directly instead of UsersService, will later use auth service to get logged in user
-        const user = await this.userModel.findOne({ webId }).exec();
-        if (!user) {
-            throw new NotFoundException('User not found');
-        }
+        await this.artefactsService.uploadReplayObject(uploadReplayDto, map, loggedInUser, replayBuffer);
 
         return this.replayModel.create({
             mapRef: map._id,
-            userRef: user._id,
+            userRef: loggedInUser._id,
             date: Date.now(),
             raceFinished,
             endRaceTime,
