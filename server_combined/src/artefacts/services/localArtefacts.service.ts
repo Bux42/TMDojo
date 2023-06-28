@@ -3,7 +3,7 @@ import * as path from 'path';
 import { readFile, writeFile } from 'fs/promises';
 import { existsSync, mkdirSync } from 'fs';
 
-const LOCAL_ARTEFACT_FOLDER = path.resolve(__dirname, '../../../replays');
+const LOCAL_ARTEFACT_FOLDER = path.resolve(__dirname, '../../..');
 
 @Injectable()
 export class LocalArtefactsService {

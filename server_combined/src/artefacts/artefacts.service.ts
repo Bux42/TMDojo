@@ -48,7 +48,7 @@ export class ArtefactsService {
         const { endRaceTime } = uploadReplayDto;
         const { authorName, mapName } = map;
         const fileName = `${endRaceTime}_${playerName}_${Date.now()}`;
-        const filePath = `${authorName}/${mapName}/${fileName}`;
+        const filePath = `maps/${authorName}/${mapName}/${fileName}`;
 
         this.logger.debug(`Storing replay object with path: ${filePath}`);
 
