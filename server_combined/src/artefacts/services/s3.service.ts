@@ -6,7 +6,7 @@ import { InjectS3 } from 'nestjs-s3';
 export class S3Service {
     constructor(@InjectS3() private readonly s3: S3) { }
 
-    async retrieveObject(key: string): Promise<Buffer> {
+    async getObject(key: string): Promise<Buffer> {
         const params = {
             Bucket: process.env.AWS_S3_BUCKET_NAME,
             Key: key,
@@ -25,7 +25,7 @@ export class S3Service {
         return data.Body;
     }
 
-    async uploadObject(key: string, buffer: Buffer) {
+    async storeObject(key: string, buffer: Buffer) {
         const params = {
             Bucket: process.env.AWS_S3_BUCKET_NAME,
             Key: key,

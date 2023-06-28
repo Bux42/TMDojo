@@ -1,19 +1,25 @@
-import { Injectable, NotImplementedException } from '@nestjs/common';
+import { Injectable, Logger, NotImplementedException } from '@nestjs/common';
 import * as path from 'path';
-import { readFile } from 'fs/promises';
+import { readFile, writeFile } from 'fs/promises';
+import { existsSync, mkdirSync } from 'fs';
 
-const LOCAL_ARTEFACT_FOLDER = path.resolve(__dirname, '/../../../replays');
+const LOCAL_ARTEFACT_FOLDER = path.resolve(__dirname, '../../../replays');
 
 @Injectable()
 export class LocalArtefactsService {
-    constructor() { }
+    logger: Logger;
 
-    async retrieveObject(key: string): Promise<Buffer> {
+    constructor() {
+        this.logger = new Logger(LocalArtefactsService.name);
+    }
+
+    async getObject(key: string): Promise<Buffer> {
         const fullPath = path.resolve(LOCAL_ARTEFACT_FOLDER, key);
 
+        this.logger.debug(`Getting object from ${fullPath}`);
+
         try {
-            const data = await readFile(fullPath);
-            return data;
+            return await readFile(fullPath);
         } catch (error) {
             if (error?.code === 'ENOENT') {
                 // TODO: add log
@@ -23,9 +29,19 @@ export class LocalArtefactsService {
         }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async saveObject(key: string, buffer: Buffer) {
-        throw new NotImplementedException('Saving local objects not implemented');
+    async storeObject(key: string, buffer: Buffer): Promise<void> {
+        const fullPath = path.resolve(LOCAL_ARTEFACT_FOLDER, key);
+        this.logger.debug(`Storing object at ${fullPath}`);
+
+        // Create directory if it doesn't exist
+        const directoryPath = path.resolve(fullPath, '../');
+        if (!existsSync(directoryPath)) {
+            this.logger.debug(`Parent directory does not exist, creating directory ${directoryPath}`);
+            mkdirSync(directoryPath, { recursive: true });
+        }
+
+        this.logger.debug(`Writing file to ${fullPath}`);
+        await writeFile(fullPath, buffer);
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

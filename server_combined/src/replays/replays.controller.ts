@@ -84,7 +84,7 @@ export class ReplaysController {
             throw new NotFoundException(`Replay not found with ID: ${replayId}`);
         }
 
-        const buffer = await this.artefactsService.retrieveReplayObject(replay);
+        const buffer = await this.artefactsService.getReplayObject(replay);
 
         if (buffer === null) {
             throw new NotFoundException('Unable to fetch replay file buffer');

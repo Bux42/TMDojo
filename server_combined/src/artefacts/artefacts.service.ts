@@ -1,4 +1,6 @@
-import { Injectable, NotFoundException, NotImplementedException } from '@nestjs/common';
+import {
+    Injectable, Logger, NotFoundException, NotImplementedException,
+} from '@nestjs/common';
 import { Readable } from 'stream';
 import { compress, decompress } from '../common/util/compression';
 import { Map } from '../maps/schemas/map.schema';
@@ -10,18 +12,22 @@ import { S3Service } from './services/s3.service';
 
 @Injectable()
 export class ArtefactsService {
+    logger: Logger;
+
     constructor(
         private readonly s3Service: S3Service,
         private readonly localArtefactsService: LocalArtefactsService,
-    ) { }
+    ) {
+        this.logger = new Logger(ArtefactsService.name);
+    }
 
-    async retrieveReplayObject(replay: Replay): Promise<Buffer> {
+    async getReplayObject(replay: Replay): Promise<Buffer> {
         let buffer: Buffer = null;
 
         if (replay.objectPath) {
-            buffer = await this.s3Service.retrieveObject(`${replay.objectPath}`);
+            buffer = await this.s3Service.getObject(`${replay.objectPath}`);
         } else if (replay.filePath) {
-            buffer = await this.localArtefactsService.retrieveObject(`${replay.filePath}`);
+            buffer = await this.localArtefactsService.getObject(`${replay.filePath}`);
         } else {
             throw new NotFoundException('No object or file path in replay');
         }
@@ -35,24 +41,32 @@ export class ArtefactsService {
         return decompressedBuffer;
     }
 
-    async uploadReplayObject(uploadReplayDto: UploadReplayDto, map: Map, user: UserRo, replayBuffer: Buffer) {
+    async storeReplayObject(uploadReplayDto: UploadReplayDto, map: Map, user: UserRo, replayBuffer: Buffer) {
         // Create filePath
         // TODO: add correct fields and correct filepath
-        const { webId } = user;
+        const { playerName } = user;
         const { endRaceTime } = uploadReplayDto;
-        const { mapUId } = map;
-        const filePath = `${mapUId}/${webId}_${endRaceTime}_${Date.now()}`;
+        const { authorName, mapName } = map;
+        const fileName = `${endRaceTime}_${playerName}_${Date.now()}`;
+        const filePath = `${authorName}/${mapName}/${fileName}`;
+
+        this.logger.debug(`Storing replay object with path: ${filePath}`);
 
         // Compress buffer
         const compressedBuffer = compress(replayBuffer);
 
+        // eslint-disable-next-line max-len
+        this.logger.debug(`Compressed replay object from ${(replayBuffer.byteLength / 1024).toFixed(1)} kb to ${(compressedBuffer.byteLength / 1024).toFixed(1)} kb.`);
+
         // Save buffer
         if (process.env.PREFERRED_STORAGE_TYPE === 'FS') {
-            return this.localArtefactsService.saveObject(filePath, compressedBuffer);
+            this.logger.debug('Storing replay object in local file system');
+            return this.localArtefactsService.storeObject(filePath, compressedBuffer);
         }
 
         if (process.env.PREFERRED_STORAGE_TYPE === 'S3') {
-            return this.s3Service.uploadObject(filePath, compressedBuffer);
+            this.logger.debug('Storing replay object in S3');
+            return this.s3Service.storeObject(filePath, compressedBuffer);
         }
 
         throw new NotImplementedException('Replay upload not implemented yet');

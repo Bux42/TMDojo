@@ -80,13 +80,9 @@ export class ReplaysService {
     async findReplaysFromUser(webId: string) {
         const user = await this.userModel.findOne({ webId }).exec();
 
-        console.log(user);
-
         if (user === null) {
             return [];
         }
-
-        console.log(user.id);
 
         return this.replayModel
             .find({ userRef: user.id })
@@ -105,9 +101,9 @@ export class ReplaysService {
             throw new NotFoundException(`Map not found with ID: ${mapUId}`);
         }
 
-        await this.artefactsService.uploadReplayObject(uploadReplayDto, map, loggedInUser, replayBuffer);
+        await this.artefactsService.storeReplayObject(uploadReplayDto, map, loggedInUser, replayBuffer);
 
-        return this.replayModel.create({
+        const replay = await this.replayModel.create({
             mapRef: map._id,
             userRef: loggedInUser._id,
             date: Date.now(),
@@ -116,6 +112,10 @@ export class ReplaysService {
             pluginVersion,
             sectorTimes,
         });
+
+        this.logger.debug(`Replay uploaded: '${JSON.stringify(replay)}`);
+
+        return replay;
     }
 
     async deleteReplay(replayId: string) {
