@@ -25,18 +25,49 @@ const DEFAULT_FILTERS = {
     orderBy: 'None',
 };
 
+// TODO: Remove old replay info interface
+// export interface ReplayInfo {
+//     sectorTimes?: number[];
+//     authorName: string;
+//     mapUId: string;
+//     date: number;
+//     endRaceTime: number;
+//     mapName: string;
+//     playerLogin: string;
+//     playerName: string;
+//     raceFinished: number;
+//     webId: string;
+//     _id: string;
+// }
+
 export interface ReplayInfo {
-    sectorTimes?: number[];
-    authorName: string;
-    mapUId: string;
+    _id: string;
     date: number;
     endRaceTime: number;
-    mapName: string;
-    playerLogin: string;
-    playerName: string;
     raceFinished: number;
-    webId: string;
-    _id: string;
+    sectorTimes?: number[];
+    pluginVersion: string;
+    userRef: string;
+    user: {
+        _id: string;
+        webId: string;
+        playerName: string;
+    }
+    mapRef: string;
+    map: {
+        _id: string;
+        authorName: string;
+        fileUrl: string;
+        mapName: string;
+        mapUId: string;
+        medals: {
+            author: number;
+            bronze: number;
+            silver: number;
+            gold: number;
+        };
+        thumbnailUrl: string;
+    }
 }
 
 export type AllReplaysResult = {
@@ -50,12 +81,12 @@ export const fetchReplays = async (filters: FilterParams = DEFAULT_FILTERS): Pro
     });
 
     return {
-        replays: data.files,
+        replays: data.replays,
         totalResults: data.totalResults,
     };
 };
 
-export interface ReplayData extends ReplayInfo, DataViewResult {}
+export interface ReplayData extends ReplayInfo, DataViewResult { }
 export const fetchReplayData = async (
     replay: ReplayInfo,
     downloadProgress?: (replay: ReplayInfo, progressEvent: ProgressEvent) => void,
@@ -66,7 +97,7 @@ export const fetchReplayData = async (
         progress: 0,
     };
 
-    const res = await apiInstance.get(`/replays/${replay._id}`, {
+    const res = await apiInstance.get(`/replays/${replay._id}/file`, {
         onDownloadProgress: (e) => {
             if (downloadProgress) {
                 downloadProgress(replay, e);

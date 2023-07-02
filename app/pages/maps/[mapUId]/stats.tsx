@@ -50,7 +50,7 @@ const MapStats = () => {
             if (user === undefined) {
                 setMapStatsType(MapStatsType.GLOBAL);
             } else {
-                const userReplays = replays.filter((r) => r.webId === user.accountId);
+                const userReplays = replays.filter((r) => r.user.webId === user.accountId);
                 if (userReplays.length > 0) {
                     setMapStatsType(MapStatsType.PERSONAL);
                 } else {
@@ -92,7 +92,7 @@ const MapStats = () => {
                 return finishedReplays;
             }
 
-            const filteredReplays = finishedReplays.filter((r) => r.webId === user.accountId);
+            const filteredReplays = finishedReplays.filter((r) => r.user.webId === user.accountId);
 
             return filteredReplays;
         },

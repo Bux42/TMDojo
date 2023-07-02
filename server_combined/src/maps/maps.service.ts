@@ -47,14 +47,15 @@ export class MapsService {
         if (mapName !== undefined) filter.mapName = matchPartialLowercaseString(mapName);
         if (mapUId !== undefined) filter.mapUId = mapUId;
 
-        return this.replayModel.aggregate()
+        return this.replayModel
+            .aggregate()
             .group({
                 _id: '$mapRef',
                 count: { $sum: 1 },
                 lastUpdate: { $max: '$date' }, // pass the highest date (i.e. latest replay's timestamp)
             })
             .lookup({
-                from: Map.name,
+                from: 'maps',
                 localField: '_id',
                 foreignField: '_id',
                 as: 'map',
@@ -64,8 +65,9 @@ export class MapsService {
                 $mergeObjects: ['$map', '$$ROOT'],
             })
             .match(filter)
-            .limit(limit)
-            .skip(calculatedSkip)
+            .sort({ lastUpdate: -1 })
+            .skip(calculatedSkip ?? 0)
+            .limit(limit ?? Infinity)
             .project({
                 _id: 0,
                 map: 0,

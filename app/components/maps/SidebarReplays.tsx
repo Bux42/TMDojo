@@ -87,7 +87,7 @@ const SidebarReplays = ({
                 return false;
             }
             return replays.some(
-                (replay) => replay.webId === user.accountId && replay.raceFinished,
+                (replay) => replay.user.webId === user.accountId && replay.raceFinished,
             );
         },
         [replays, user],
@@ -176,7 +176,7 @@ const SidebarReplays = ({
 
         // Filter finished replays and sort by time
         const filteredReplays = replays
-            .filter((replay) => replay.webId === user.accountId)
+            .filter((replay) => replay.user.webId === user.accountId)
             .filter((replay) => replay.raceFinished)
             .sort((a, b) => a.endRaceTime - b.endRaceTime);
 
@@ -193,7 +193,7 @@ const SidebarReplays = ({
     };
 
     // TODO: add useMemo to filters and columns
-    const nameFilters = getUniqueFilters((replay) => replay.playerName);
+    const nameFilters = getUniqueFilters((replay) => replay.user.playerName);
     nameFilters.sort((a, b) => {
         // If user is logged in, show the player filter on top:
         if (user && a.text === user?.displayName) return -1;
@@ -208,9 +208,9 @@ const SidebarReplays = ({
             title: 'Player',
             dataIndex: 'playerName',
             filters: nameFilters,
-            onFilter: (value, record) => record.playerName === value,
+            onFilter: (value, record) => record.user.playerName === value,
             render: (_, replay) => (
-                <PlayerLink webId={replay.webId} name={replay.playerName} />
+                <PlayerLink webId={replay.user.webId} name={replay.user.playerName} />
             ),
             filterSearch: true,
             filterIcon: () => (
@@ -325,7 +325,7 @@ const SidebarReplays = ({
                                 </span>
                             </Tooltip>
                         )}
-                        {user && user.accountId === replay.webId && (
+                        {user && user.accountId === replay.user.webId && (
                             <Popconfirm
                                 title="Delete this replay?"
                                 placement="right"

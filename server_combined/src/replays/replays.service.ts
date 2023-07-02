@@ -31,25 +31,37 @@ export class ReplaysService {
             mapUId, userWebId, limit, skip, skipPage, raceFinished,
         } = listReplayOptions;
 
+        this.logger.debug(`Finding replays with options: ${JSON.stringify(listReplayOptions)}`);
+
         // Handle map filter option
         let map;
         if (mapUId) {
             map = await this.mapsService.findByMapUId(mapUId);
-            if (map == null) return [];
+            if (map == null) {
+                this.logger.debug(`Map not found with ID: ${mapUId}`);
+                return [];
+            }
         }
 
         // Handle user filter option
         let user;
         if (userWebId) {
             user = await this.userModel.findOne({ webId: userWebId }).exec();
-            if (user == null) return [];
+            if (user == null) {
+                this.logger.debug(`User not found with webId: ${userWebId}`);
+                return [];
+            }
         }
 
         // Build filter query
         const filter: FilterQuery<Replay> = {};
         if (map !== undefined) filter.mapRef = map._id; // TODO: check if ._id works, otherwise use .id
         if (user !== undefined) filter.userRef = user._id; // TODO: check if ._id works, otherwise use .id
-        if (raceFinished !== undefined) filter.raceFinished = raceFinished;
+        if (raceFinished !== undefined && (raceFinished === 0 || raceFinished === 1)) {
+            filter.raceFinished = raceFinished;
+        }
+
+        this.logger.debug(`Filter query: ${JSON.stringify(filter)}`);
 
         // TODO: implement other query parameters for replayModel query
 
@@ -86,6 +98,8 @@ export class ReplaysService {
 
         return this.replayModel
             .find({ userRef: user.id })
+            .populate<{ map: Map }>('map')
+            .populate<{ user: User }>('user', '-clientCode')
             .lean()
             .exec();
     }

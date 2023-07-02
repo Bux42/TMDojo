@@ -8,7 +8,7 @@ const useDeleteReplay = (queryClient: QueryClient) => useMutation(
     {
         onSuccess: (_, replay) => {
             // Optimistic update of query data
-            queryClient.setQueryData(QUERY_KEYS.mapReplays(replay.mapUId),
+            queryClient.setQueryData(QUERY_KEYS.mapReplays(replay.map.mapUId),
                 (oldData?: AllReplaysResult) => {
                     // Should never happen, if a replay is deleted, old data should exist
                     if (!oldData) {
@@ -23,7 +23,7 @@ const useDeleteReplay = (queryClient: QueryClient) => useMutation(
                 });
 
             // Invalidate queries to force refetch from server
-            queryClient.invalidateQueries(QUERY_KEYS.mapReplays(replay.mapUId));
+            queryClient.invalidateQueries(QUERY_KEYS.mapReplays(replay.map.mapUId));
             queryClient.invalidateQueries(QUERY_KEYS.userReplays());
         },
     },

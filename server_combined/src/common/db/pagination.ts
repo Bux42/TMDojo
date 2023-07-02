@@ -4,7 +4,7 @@ interface SkipInput {
     skipPage?: number;
 }
 
-export const calculateSkip = ({ limit, skip, skipPage }: SkipInput) => {
+export const calculateSkip = ({ limit, skip, skipPage }: SkipInput): number | undefined => {
     if (skipPage !== undefined && limit !== undefined) {
         return skipPage * limit;
     }

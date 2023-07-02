@@ -25,9 +25,14 @@ export class ReplaysController {
         summary: 'TODO: Check functionality and return types',
     })
     @Get()
-    async findAll(@Query() listReplayOptions: ListReplaysDto): Promise<Replay[]> {
+    async findAll(@Query() listReplayOptions: ListReplaysDto) {
         const replays = await this.replaysService.findAll(listReplayOptions);
-        return replays.map((r) => r);
+        // TODO: better response type, and create Ro for it
+        return {
+            replays,
+            totalResults: replays.length,
+        };
+        // return replays.map((r) => r);
     }
 
     @ApiOperation({
@@ -77,7 +82,11 @@ export class ReplaysController {
         summary: 'TODO: Implement artefact fetching',
     })
     @Get(':replayId/file')
-    async s3Test(@Param('replayId') replayId: string): Promise<StreamableFile> {
+    async s3Test(
+        @Param('replayId') replayId: string,
+        // @Res() res: Response,
+    ): Promise<StreamableFile> {
+        // ) {
         const replay = await this.replaysService.findById(replayId);
 
         if (!replay) {

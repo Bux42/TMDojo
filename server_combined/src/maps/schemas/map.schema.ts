@@ -2,13 +2,6 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 // import { MapRo } from '../ro/Map.ro';
 
-export type Medals = {
-    bronze: number;
-    silver: number;
-    gold: number;
-    author: number;
-}
-
 @Schema({
     versionKey: false,
     toJSON: { virtuals: true, versionKey: false },
@@ -31,7 +24,12 @@ export class Map extends Document {
     thumbnailUrl: string;
 
     @Prop({ required: true, type: 'object' })
-    medals: Medals;
+    medals: {
+        bronze: number;
+        silver: number;
+        gold: number;
+        author: number;
+    };
 
     // toRo: () => MapRo;
 }

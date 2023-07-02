@@ -20,14 +20,12 @@ export class MapsController {
     }
 
     @ApiOperation({
-        summary: 'TODO: Check functionality and return types',
+        summary: 'TODO: Check functionality and add correct Ro return types',
     })
     @Get()
-    findAll(@Query() listMapsDto: ListMapsDto): any[] {
-        console.log(listMapsDto);
-        // TODO: Implement correctly, return empty array to prevent error on frontend
-        return [];
-        // return this.mapsService.findAll(listMapsDto);
+    findAll(@Query() listMapsDto: ListMapsDto): Promise<any[]> {
+        this.logger.log(listMapsDto);
+        return this.mapsService.aggregateReplaysByMap(listMapsDto);
     }
 
     @ApiOperation({

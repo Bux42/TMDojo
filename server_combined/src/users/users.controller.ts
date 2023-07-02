@@ -3,7 +3,6 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ReplaysService } from '../replays/replays.service';
-import { Replay } from '../replays/schemas/replay.schema';
 import { SessionsService } from '../sessions/sessions.service';
 import { User } from './schemas/user.schema';
 import { UsersService } from './users.service';
@@ -44,11 +43,16 @@ export class UsersController {
 
     // TODO: Remove this endpoint and adjust 'GET /replays' to accept userWebId as filter
     @ApiOperation({
-        summary: 'TODO: remove and use \'/replays\' with webId as filter',
+        summary: 'TODO: return type and remove and use \'/replays\' with webId as filter',
     })
     @Get(':webId/replays')
-    getUserReplays(@Param('webId') webId: string): Promise<Replay[]> {
-        return this.replaysService.findReplaysFromUser(webId);
+    async getUserReplays(@Param('webId') webId: string) {
+        const replays = await this.replaysService.findReplaysFromUser(webId);
+
+        return {
+            replays,
+            totalResults: replays.length,
+        };
     }
 
     // TODO: Remove endpoint after auth guards are implemented, only used for session testing

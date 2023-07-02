@@ -30,7 +30,7 @@ const replaysToProgressionDataPoints = (replays: ReplayInfo[]) => {
 };
 
 const filterReplaysByUser = (loggedInUser: AuthUserInfo, inputReplays: ReplayInfo[]) => {
-    const filtered = inputReplays.filter((r) => r.webId === loggedInUser.accountId);
+    const filtered = inputReplays.filter((r) => r.user.webId === loggedInUser.accountId);
     return filtered;
 };
 
@@ -232,7 +232,7 @@ const FastestTimeProgression = ({
                     <div className="text-xl mb-1">
                         {getRaceTimeStr(fastestTime.replay.endRaceTime)}
                         {' by '}
-                        <PlayerLink webId={fastestTime.replay.webId} name={fastestTime.replay.playerName} />
+                        <PlayerLink webId={fastestTime.replay.user.webId} name={fastestTime.replay.user.playerName} />
                     </div>
                     <div className="text-xs">{timeDifference(new Date().getTime(), fastestTime.replay.date)}</div>
                 </div>
