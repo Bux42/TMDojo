@@ -8,9 +8,12 @@ export interface BlockMaterialProps {
     color: THREE.Color;
     opacity: number;
 }
-export const BasicBlockMaterial = (props: BlockMaterialProps): JSX.Element => (
-    <meshPhongMaterial {...props} transparent={props.opacity < 1} />
-);
+export const BasicBlockMaterial = (props: BlockMaterialProps): JSX.Element => {
+    const { opacity, color } = props;
+    return (
+        <meshPhongMaterial color={color} transparent={opacity < 1} />
+    );
+};
 
 // Basic block component for regular box-shaped blocks
 export interface BasicBlockProps {
@@ -42,7 +45,7 @@ export const BasicBlockWithOffsets = ({
 
             return (
                 <BasicBlock
-                    key={`${block.name}-${i}`}
+                    key={`${block.name}-${offsetCoord.x}-${offsetCoord.y}-${offsetCoord.z}`}
                     meshCoord={offsetCoord}
                     materialProps={materialProps}
                 />

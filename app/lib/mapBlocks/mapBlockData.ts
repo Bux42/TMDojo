@@ -1,5 +1,4 @@
 import { Euler, Vector3 } from 'three';
-import BLOCK_OFFSETS from './blockOffsets';
 
 export interface Block {
     name: string;
