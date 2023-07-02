@@ -32,7 +32,13 @@ export const Instances = ({ geometry, transforms, material }: InstancesProps) =>
     }, [transforms]);
 
     return (
-        <instancedMesh ref={ref} args={[null, null, transforms.length]} geometry={geometry} castShadow receiveShadow>
+        <instancedMesh
+            ref={ref}
+            /* args={[null, null, transforms.length]} */
+            geometry={geometry}
+            castShadow
+            receiveShadow
+        >
             {material || <meshNormalMaterial />}
         </instancedMesh>
     );
