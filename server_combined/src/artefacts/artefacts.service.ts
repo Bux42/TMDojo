@@ -61,12 +61,15 @@ export class ArtefactsService {
         // Save buffer
         if (process.env.PREFERRED_STORAGE_TYPE === 'FS') {
             this.logger.debug('Storing replay object in local file system');
-            return this.localArtefactsService.storeObject(filePath, compressedBuffer);
+            await this.localArtefactsService.storeObject(filePath, compressedBuffer);
+            return { filePath } as const;
         }
 
         if (process.env.PREFERRED_STORAGE_TYPE === 'S3') {
             this.logger.debug('Storing replay object in S3');
-            return this.s3Service.storeObject(filePath, compressedBuffer);
+            const encodedUriFilePath = encodeURI(filePath);
+            await this.s3Service.storeObject(encodedUriFilePath, compressedBuffer);
+            return { objectPath: encodedUriFilePath } as const;
         }
 
         throw new NotImplementedException('Replay upload not implemented yet');

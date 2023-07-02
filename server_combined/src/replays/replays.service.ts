@@ -115,7 +115,10 @@ export class ReplaysService {
             throw new NotFoundException(`Map not found with ID: ${mapUId}`);
         }
 
-        await this.artefactsService.storeReplayObject(uploadReplayDto, map, loggedInUser, replayBuffer);
+        // eslint-disable-next-line max-len
+        const base64Decoded = Buffer.from(replayBuffer.toString('utf-8'), 'base64');
+        // eslint-disable-next-line max-len
+        const storeReplayObjectResponse = await this.artefactsService.storeReplayObject(uploadReplayDto, map, loggedInUser, base64Decoded);
 
         const replay = await this.replayModel.create({
             mapRef: map._id,
@@ -125,6 +128,9 @@ export class ReplaysService {
             endRaceTime,
             pluginVersion,
             sectorTimes,
+            // Only one of the following will be set, depending on whether FS or S3 is used
+            objectPath: storeReplayObjectResponse.objectPath ?? undefined,
+            filePath: storeReplayObjectResponse.filePath ?? undefined,
         });
 
         this.logger.debug(`Replay uploaded: '${JSON.stringify(replay)}`);
