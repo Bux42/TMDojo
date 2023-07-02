@@ -36,3 +36,4 @@ yarn-error.log*
 # .obj files
 /public/**/*.obj
 /public/**/*.mtl
+/public/**/*.png

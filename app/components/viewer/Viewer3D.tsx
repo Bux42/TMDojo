@@ -83,6 +83,9 @@ const Viewer3D = ({ replaysData, mapUId }: Props): JSX.Element => {
                     far: 50000,
                 }}
                 shadows
+                gl={{
+                    logarithmicDepthBuffer: true,
+                }}
             >
                 <Sky distance={100000000} inclination={0} turbidity={0} rayleigh={10} />
 
