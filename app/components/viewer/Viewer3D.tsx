@@ -92,10 +92,10 @@ const Viewer3D = ({ replaysData, mapUId }: Props): JSX.Element => {
                 <hemisphereLight
                     color={new THREE.Color(0.95, 0.95, 0.95)}
                     groundColor={new THREE.Color(0.1, 0.1, 0.1)}
-                    intensity={0.3}
+                    intensity={0.2}
                 />
 
-                <SceneDirectionalLight replays={replaysData} intensity={0.8} corner={0} />
+                <SceneDirectionalLight replays={replaysData} intensity={0.3} corner={0} />
                 <SceneDirectionalLight replays={replaysData} intensity={0.05} castShadow corner={0} />
 
                 <OrbitControls
