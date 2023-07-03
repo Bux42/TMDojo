@@ -1,4 +1,12 @@
-import { BoxBufferGeometry, BufferGeometry, Mesh } from 'three';
+import {
+    BoxBufferGeometry, BufferGeometry, Mesh, Group,
+} from 'three';
+import { MTLLoader, OBJLoader } from 'three-stdlib';
+
+import * as THREE from 'three';
+
+// TODO: Place this somewhere that makes more sense
+THREE.Cache.enabled = true;
 
 const tryCreatePrimitiveModel = (modelName: string): BufferGeometry | undefined => {
     if (modelName === 'DecoWallBasePillar'
@@ -20,21 +28,27 @@ const tryCreatePrimitiveModel = (modelName: string): BufferGeometry | undefined 
     return undefined;
 };
 
-const tryFetchModel = async (modelName: string): Promise<BufferGeometry | undefined> => {
-    const { OBJLoader } = await import('three/examples/jsm/loaders/OBJLoader');
-    const { BufferGeometryUtils } = await import('three/examples/jsm/utils/BufferGeometryUtils');
+const tryFetchModel = async (modelName: string): Promise<Group | undefined> => {
+    // TODO: make some generalized solution for alternate models, in case there are more like this example
+    if (modelName === 'DecoWallBasePillar') {
+        return tryFetchModel('DecoWallBase');
+    }
 
     const objPath = `/objs/${modelName}.obj`;
-    const loader = new OBJLoader();
+    const mtlPath = `/objs/${modelName}.mtl`;
+
+    const objLoader = new OBJLoader();
+    const mtlLoader = new MTLLoader();
 
     try {
-        const group = await loader.loadAsync(objPath);
+        const mtl = await mtlLoader.loadAsync(mtlPath);
+        mtl.preload();
 
-        const geometries = group.children.map((model) => (model as Mesh).geometry);
+        objLoader.setMaterials(mtl);
 
-        const mergedGeometry = BufferGeometryUtils.mergeBufferGeometries(geometries);
+        const group = await objLoader.loadAsync(objPath);
 
-        return mergedGeometry;
+        return group;
     } catch (e) {
         // Model load failed, model could be do nothing
         // TODO: Only catch errors of models not found. Currently ignores all other errors too
@@ -43,7 +57,9 @@ const tryFetchModel = async (modelName: string): Promise<BufferGeometry | undefi
     // If there's no mesh, try to create primitive models for some simple blocks as backup
     const primitiveModel = tryCreatePrimitiveModel(modelName);
     if (primitiveModel) {
-        return primitiveModel;
+        const group = new Group();
+        group.add(new Mesh(primitiveModel));
+        return group;
     }
 
     return undefined;

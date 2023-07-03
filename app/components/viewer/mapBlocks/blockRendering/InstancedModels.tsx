@@ -1,25 +1,27 @@
 import {
     useCallback, useEffect, useMemo, useState,
 } from 'react';
-import { BufferGeometry } from 'three';
+import { BufferGeometry, Mesh, Group } from 'three';
 import tryFetchModel from '../../../../lib/mapBlocks/fetchModel';
 import { Instances, Transform } from './Instances';
 
 interface InstancedModelsProps {
     modelName: string;
     transforms: Transform[];
-    material: React.ReactNode;
-    fallbackGeometry?: BufferGeometry;
+    material?: React.ReactNode;
+    fallbackGeometry?: Group;
     fallbackMaterial?: React.ReactNode;
 }
 const InstancedModels = ({
     modelName, transforms, material, fallbackGeometry, fallbackMaterial,
 }: InstancedModelsProps) => {
-    const [geometry, setGeometry] = useState<BufferGeometry>();
+    const [geometry, setGeometry] = useState<Group>();
 
     const tryLoadModel = useCallback(async (): Promise<void> => {
         const model = await tryFetchModel(modelName);
+
         if (!model) return;
+
         setGeometry(model);
     }, [modelName, setGeometry]);
 
@@ -48,11 +50,10 @@ const InstancedModels = ({
         <>
             {geometryToUse ? (
                 <Instances
-                    geometry={geometryToUse}
+                    group={geometryToUse}
                     transforms={transforms}
-                    material={materialToUse}
                 />
-            ) : (null)}
+            ) : null}
         </>
     );
 };

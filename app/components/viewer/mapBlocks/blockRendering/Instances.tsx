@@ -1,7 +1,8 @@
-import { useLayoutEffect, useRef } from 'react';
+import React, { useLayoutEffect, useRef } from 'react';
 import {
-    BufferGeometry, Euler, InstancedMesh, Object3D, Vector3,
+    Euler, InstancedMesh, Object3D, Vector3, Group, Mesh, Material, Color,
 } from 'three';
+import { BasicBlock } from './BasicBlocks';
 
 const o = new Object3D();
 
@@ -10,36 +11,57 @@ export interface Transform {
     rot: Euler;
 }
 interface InstancesProps {
-    geometry: BufferGeometry;
+    group: Group;
     transforms: Transform[];
-    material?: React.ReactNode;
 }
-export const Instances = ({ geometry, transforms, material }: InstancesProps) => {
-    const ref = useRef<InstancedMesh>();
+
+export const Instances = ({ group, transforms }: InstancesProps) => {
+    const refs = useRef<(InstancedMesh | undefined)[]>(group.children.map(() => undefined));
 
     useLayoutEffect(() => {
-        if (!ref.current) return;
+        for (let i = 0; i < refs.current.length; i++) {
+            const ref = refs.current[i];
 
-        for (let i = 0; i < transforms.length; i += 1) {
-            const { pos, rot } = transforms[i];
-            o.position.set(pos.x, pos.y, pos.z);
-            o.rotation.set(rot.x, rot.y, rot.z);
-            o.updateMatrix();
-            ref.current.setMatrixAt(i, o.matrix);
+            if (ref) {
+                for (let j = 0; j < transforms.length; j++) {
+                    const { pos, rot } = transforms[j];
+
+                    o.position.copy(pos);
+                    o.rotation.copy(rot);
+                    o.updateMatrix();
+
+                    ref.setMatrixAt(j, o.matrix);
+                }
+
+                ref.instanceMatrix.needsUpdate = true;
+            }
         }
-
-        ref.current.instanceMatrix.needsUpdate = true;
-    }, [transforms]);
+    }, [refs, transforms, transforms.length]);
 
     return (
-        <instancedMesh
-            ref={ref}
-            /* args={[null, null, transforms.length]} */
-            geometry={geometry}
-            castShadow
-            receiveShadow
-        >
-            {material || <meshNormalMaterial />}
-        </instancedMesh>
+        <>
+            {group.children.map((child, index) => (
+                child instanceof Mesh ? (
+                    <instancedMesh
+                        key={`instanced-mesh-of-child-${child.uuid}`}
+                        ref={(e) => {
+                            if (e && e instanceof InstancedMesh) {
+                                refs.current[index] = e;
+                            }
+                        }}
+                        args={[child.geometry, child.material, transforms.length]}
+                    />
+                ) : (
+                    <BasicBlock
+                        key={`placeholder-instanced-mesh-of-child-${group.children[index].uuid}`}
+                        meshCoord={new Vector3(index * 8, index * 8, index * 8)}
+                        materialProps={{
+                            color: new Color(1, 0, 0),
+                            opacity: 0.1,
+                        }}
+                    />
+                )
+            ))}
+        </>
     );
 };

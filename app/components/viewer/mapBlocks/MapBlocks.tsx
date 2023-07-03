@@ -1,4 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, {
+    Fragment, useEffect, useMemo, useState,
+} from 'react';
 import * as THREE from 'three';
 import { Euler } from 'three';
 import {
@@ -14,6 +16,8 @@ import {
 } from '../../../lib/mapBlocks/blockConstants';
 import { Transform } from './blockRendering/Instances';
 import { BLOCK_SIZE } from '../../../lib/constants/block';
+import InstancedModels from './blockRendering/InstancedModels';
+import tryFetchModel from '../../../lib/mapBlocks/fetchModel';
 
 const depthFunc = THREE.LessEqualDepth;
 const shadowOpacity = 0.4;
@@ -197,10 +201,10 @@ const MapBlocks = ({ mapBlockData }: Props): JSX.Element => {
 
     return (
         <>
-            {
+            {/* {
                 mapBlockData.nadeoBlocks.map((block: Block) => <BlockWithTexture block={block} />)
-            }
-            {/* {Array.from(blockTransformsGrouped.keys()).map((blockName: string) => {
+            } */}
+            {Array.from(blockTransformsGrouped.keys()).map((blockName: string) => {
                 const transforms = blockTransformsGrouped.get(blockName);
 
                 if (!transforms || transforms.length === 0) {
@@ -210,34 +214,35 @@ const MapBlocks = ({ mapBlockData }: Props): JSX.Element => {
                 const color = getBlockColor(blockName);
 
                 return (
-                    <>
+                    <Fragment key={`${blockName}-instances`}>
+                        {/* Temporarily remove shadow instances */}
+                        {/* <InstancedModels
+                            // key={`${blockName}-shadow`}
+                            // modelName={blockName}
+                            // transforms={transforms.map(({ transform }) => transform)}
+                        // material={(
+                        //     <shadowMaterial
+                        //         transparent
+                        //         opacity={shadowOpacity}
+                        //         depthFunc={depthFunc}
+                        //     />
+                        // )}
+                        // /> */}
                         <InstancedModels
-                            key={`${blockName}-shadow`}
+                            key={`${blockName}-block-instances`}
                             modelName={blockName}
                             transforms={transforms.map(({ transform }) => transform)}
-                            material={(
-                                <shadowMaterial
-                                    transparent
-                                    opacity={shadowOpacity}
-                                    depthFunc={depthFunc}
-                                />
-                            )}
+                        // material={(
+                        //     <meshStandardMaterial
+                        //         color={color || new THREE.Color(0.1, 0.1, 0.1)}
+                        //         roughness={0.4}
+                        //         depthFunc={depthFunc}
+                        //     />
+                        // )}
                         />
-                        <InstancedModels
-                            key={`${blockName}-block`}
-                            modelName={blockName}
-                            transforms={transforms.map(({ transform }) => transform)}
-                            material={(
-                                <meshStandardMaterial
-                                    color={color || new THREE.Color(0.1, 0.1, 0.1)}
-                                    roughness={0.4}
-                                    depthFunc={depthFunc}
-                                />
-                            )}
-                        />
-                    </>
+                    </Fragment>
                 );
-            })} */}
+            })}
 
             {/* Array.from(anchoredItemsTransformsGrouped.keys()).map((objectName: string) => {
                 const transforms = anchoredItemsTransformsGrouped.get(objectName);
