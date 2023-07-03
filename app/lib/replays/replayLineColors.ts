@@ -5,8 +5,9 @@ import { ColorMap, getColorFromMap } from '../utils/colormaps';
 import { ReplayDataPoint } from './replayData';
 
 const COLOR_MAP_SPEED: ColorMap = [
-    { value: 0, color: { r: 0xff, g: 0x00, b: 0 } },
-    { value: 200, color: { r: 0x00, g: 0xff, b: 0 } },
+    { value: 0, color: { r: 0, g: 0, b: 0.8 * 255 } },
+    { value: 300, color: { r: 0, g: 0.8 * 255, b: 0 } },
+    { value: 600, color: { r: 0.8 * 255, g: 0, b: 0 } },
 ];
 
 const COLOR_MAP_ACCELERATION: ColorMap = [
