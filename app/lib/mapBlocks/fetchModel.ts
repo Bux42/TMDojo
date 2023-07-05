@@ -8,6 +8,14 @@ import * as THREE from 'three';
 // TODO: Place this somewhere that makes more sense
 THREE.Cache.enabled = true;
 
+// Path to local block meshes folder, from /public folder
+const LOCAL_BLOCKS_MESHES_FOLDER = '/objs';
+
+const cloudFrontUrl = process.env.NEXT_PUBLIC_MAP_MESHES_CLOUDFRONT_URL;
+const baseBlockMeshesPath = cloudFrontUrl
+    ? `${cloudFrontUrl}/nadeo` // Remote CloudFront URL to block meshes folder
+    : LOCAL_BLOCKS_MESHES_FOLDER; // Fallback to local blocks meshes folder if CloudFront URL is not set
+
 const tryCreatePrimitiveModel = (modelName: string): BufferGeometry | undefined => {
     if (modelName === 'DecoWallBasePillar'
         || modelName === 'WaterWallPillar'
@@ -34,8 +42,8 @@ const tryFetchModel = async (modelName: string): Promise<Group | undefined> => {
         return tryFetchModel('DecoWallBase');
     }
 
-    const objPath = `/objs/${modelName}.obj`;
-    const mtlPath = `/objs/${modelName}.mtl`;
+    const objPath = `${baseBlockMeshesPath}/${modelName}.obj`;
+    const mtlPath = `${baseBlockMeshesPath}/${modelName}.mtl`;
 
     const objLoader = new OBJLoader();
     const mtlLoader = new MTLLoader();
