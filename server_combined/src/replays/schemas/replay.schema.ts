@@ -12,6 +12,9 @@ import { Map } from '../../maps/schemas/map.schema';
     toObject: { virtuals: true },
 })
 export class Replay {
+    @Prop({ type: mongoose.Schema.Types.ObjectId, _id: true, auto: true })
+    _id: string;
+
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Map.name })
     mapRef: string;
 

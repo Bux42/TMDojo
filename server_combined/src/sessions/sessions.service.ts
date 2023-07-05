@@ -4,12 +4,12 @@ import { Request, Response } from 'express';
 import { Model } from 'mongoose';
 import { v4 as uuid } from 'uuid';
 import { User } from '../users/schemas/user.schema';
-import { Session, SessionDocument } from './schemas/session.schema';
+import { Session } from './schemas/session.schema';
 
 @Injectable()
 export class SessionsService {
     constructor(
-        @InjectModel(Session.name) private sessionModel: Model<SessionDocument>,
+        @InjectModel(Session.name) private sessionModel: Model<Session>,
     ) { }
 
     async createSession(userRef: string) {

@@ -6,10 +6,10 @@ import * as mongoose from 'mongoose';
 import { calculateSkip } from '../common/db/pagination';
 import { MapsService } from '../maps/maps.service';
 import { Map } from '../maps/schemas/map.schema';
-import { User, UserDocument } from '../users/schemas/user.schema';
+import { User } from '../users/schemas/user.schema';
 import { ListReplaysDto } from './dto/ListReplays.dto';
 import { UploadReplayDto } from './dto/UploadReplay.dto';
-import { Replay, ReplayDocument } from './schemas/replay.schema';
+import { Replay } from './schemas/replay.schema';
 import { ArtefactsService } from '../artefacts/artefacts.service';
 import { UserRo } from '../users/dto/user.ro';
 
@@ -18,8 +18,8 @@ export class ReplaysService {
     logger: Logger;
 
     constructor(
-        @InjectModel(Replay.name) private replayModel: Model<ReplayDocument>,
-        @InjectModel(User.name) private userModel: Model<UserDocument>,
+        @InjectModel(Replay.name) private replayModel: Model<Replay>,
+        @InjectModel(User.name) private userModel: Model<User>,
         private readonly mapsService: MapsService,
         private readonly artefactsService: ArtefactsService,
     ) {

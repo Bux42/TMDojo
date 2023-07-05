@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import * as mongoose from 'mongoose';
 // import { MapRo } from '../ro/Map.ro';
 
 @Schema({
@@ -7,7 +8,10 @@ import { Document } from 'mongoose';
     toJSON: { virtuals: true, versionKey: false },
     toObject: { virtuals: true, versionKey: false },
 })
-export class Map extends Document {
+export class Map {
+    @Prop({ type: mongoose.Schema.Types.ObjectId, _id: true, auto: true })
+    _id: string;
+
     @Prop({ required: true })
     mapName: string;
 
@@ -33,6 +37,8 @@ export class Map extends Document {
 
     // toRo: () => MapRo;
 }
+
+export type MapDocument = Map & Document;
 
 export const MapSchema = SchemaFactory.createForClass(Map);
 

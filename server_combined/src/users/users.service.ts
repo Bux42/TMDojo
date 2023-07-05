@@ -1,30 +1,30 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ProjectionType } from 'mongoose';
-import { User, UserDocument } from './schemas/user.schema';
+import { User } from './schemas/user.schema';
 
 @Injectable()
 export class UsersService {
     constructor(
-        @InjectModel(User.name) private userModel: Model<UserDocument>,
+        @InjectModel(User.name) private userModel: Model<User>,
     ) { }
 
-    findAll(projection?: ProjectionType<UserDocument>) {
+    findAll(projection?: ProjectionType<User>) {
         return this.userModel
             .find({}, projection)
             .exec();
     }
 
-    findById(webId: string, projection?: ProjectionType<UserDocument>) {
+    findById(userId: string, projection?: ProjectionType<User>) {
         return this.userModel
             .findById(
-                webId,
+                userId,
                 projection,
             )
             .exec();
     }
 
-    findByWebId(webId: string, projection?: ProjectionType<UserDocument>) {
+    findByWebId(webId: string, projection?: ProjectionType<User>) {
         return this.userModel
             .findOne(
                 { webId },
@@ -37,11 +37,12 @@ export class UsersService {
         return this.userModel.create(user);
     }
 
-    upsertUser(user: User) {
+    // Omitting _id because we search user by webId
+    upsertUser(user: Omit<User, '_id'>) {
         return this.userModel.findOneAndUpdate(
-            { webId: user.webId },
-            user,
-            { upsert: true, new: true },
+            { webId: user.webId }, // Find user by web id
+            user, // Data to upsert with
+            { upsert: true, new: true }, // Settings to define upsert behavior
         );
     }
 
