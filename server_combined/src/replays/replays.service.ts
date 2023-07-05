@@ -1,5 +1,7 @@
 // import { Express } from 'express';
-import { Logger, NotFoundException, Injectable } from '@nestjs/common';
+import {
+    Logger, NotFoundException, Injectable,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
 import * as mongoose from 'mongoose';
@@ -82,7 +84,7 @@ export class ReplaysService {
         return this.replayModel
             .findById(id)
             .populate<{ map: Map }>('map')
-            .populate<{ user: User }>('user')
+            .populate<{ user: User }>('user', '-clientCode')
             .lean()
             .exec();
     }
@@ -138,10 +140,16 @@ export class ReplaysService {
         return replay;
     }
 
-    async deleteReplay(replayId: string) {
-        if (!mongoose.Types.ObjectId.isValid(replayId)) return null;
+    async deleteReplay(replay: Replay) {
+        const deleteReplayObjectResult = await this.artefactsService.deleteReplayObject(replay);
 
-        const replay = await this.replayModel.findByIdAndDelete(replayId);
+        if ('error' in deleteReplayObjectResult) {
+            this.logger.error(`Replay deletion failed, reason: ${deleteReplayObjectResult.error}`);
+            throw new Error('Failed to delete replay object');
+        }
+
+        await this.replayModel.findByIdAndDelete(replay._id);
+
         return replay;
     }
 }

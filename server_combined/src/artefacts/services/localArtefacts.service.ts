@@ -1,7 +1,8 @@
-import { Injectable, Logger, NotImplementedException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import * as path from 'path';
-import { readFile, writeFile } from 'fs/promises';
+import { readFile, unlink, writeFile } from 'fs/promises';
 import { existsSync, mkdirSync } from 'fs';
+import { DeleteReplayObjectResponse } from '../artefacts.service';
 
 const LOCAL_ARTEFACT_FOLDER = path.resolve(__dirname, '../../..');
 
@@ -44,8 +45,23 @@ export class LocalArtefactsService {
         await writeFile(fullPath, buffer);
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async deleteObject(key: string) {
-        throw new NotImplementedException('Deleting local objects not implemented');
+    async deleteObject(key: string): Promise<DeleteReplayObjectResponse> {
+        try {
+            const fullPath = path.resolve(LOCAL_ARTEFACT_FOLDER, key);
+            this.logger.debug(`Deleting object at ${fullPath}`);
+
+            // Specifically await this before returning to potentially catch an ENOENT error
+            await unlink(fullPath);
+
+            return { success: true } as const;
+        } catch (error) {
+            if (error.code && error.code === 'ENOENT') {
+                // Silently catch error if the file doesn't exist and therefore can't be deleted
+                // Return success since the file has already been deleted
+                return { success: true } as const;
+            }
+
+            return { error } as const;
+        }
     }
 }

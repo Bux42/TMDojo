@@ -1,8 +1,9 @@
 import {
-    Injectable, NotFoundException, NotImplementedException, Logger,
+    Injectable, NotFoundException, Logger,
 } from '@nestjs/common';
 import { S3 } from 'aws-sdk';
 import { InjectS3 } from 'nestjs-s3';
+import { DeleteReplayObjectResponse } from '../artefacts.service';
 
 @Injectable()
 export class S3Service {
@@ -51,8 +52,19 @@ export class S3Service {
         return this.s3.putObject(params).promise();
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async deleteObject(key: string): Promise<unknown> {
-        throw new NotImplementedException('Deleting S3 objects not implemented');
+    async deleteObject(key: string): Promise<DeleteReplayObjectResponse> {
+        const params = {
+            Bucket: process.env.AWS_S3_BUCKET_NAME,
+            Key: key,
+        };
+
+        const deleteRes = await this.s3.deleteObject(params).promise();
+
+        // Return error if deletion has failed
+        if (deleteRes.$response.error !== null && deleteRes.$response.error !== undefined) {
+            return { error: deleteRes.$response.error } as const;
+        }
+
+        return { success: true } as const;
     }
 }

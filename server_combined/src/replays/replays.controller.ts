@@ -1,5 +1,5 @@
 import {
-    Controller, Delete, Get, NotFoundException, Param, Post, Query, StreamableFile,
+    Controller, Delete, Get, NotFoundException, Param, Post, Query, StreamableFile, UnauthorizedException,
 } from '@nestjs/common';
 import { Req, UseGuards } from '@nestjs/common/decorators';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -67,13 +67,27 @@ export class ReplaysController {
     @ApiOperation({
         summary: 'TODO: Delete replay artefact (replay is being deleted from DB atm)',
     })
+    @UseGuards(JwtAuthGuard)
     @Delete(':replayId')
-    async delete(@Param('replayId') replayId: string): Promise<Replay> {
-        const replay = await this.replaysService.deleteReplay(replayId);
+    async delete(
+        @User() loggedInUser: UserRo,
+        @Param('replayId') replayId: string,
+    ): Promise<Replay> {
+        if (!loggedInUser) {
+            throw new UnauthorizedException('Please log in to delete replays.');
+        }
+
+        const replay = await this.replaysService.findById(replayId);
 
         if (!replay) {
-            throw new NotFoundException(`Replay not found with ID: ${replayId}`);
+            throw new NotFoundException(`Replay not found with replay ID: ${replayId}`);
         }
+
+        if (replay.user.webId !== loggedInUser.webId) {
+            throw new UnauthorizedException(`You are not authorized to delete replay with ID: ${replayId}`);
+        }
+
+        await this.replaysService.deleteReplay(replay);
 
         return replay;
     }

@@ -10,6 +10,12 @@ import { UserRo } from '../users/dto/user.ro';
 import { LocalArtefactsService } from './services/localArtefacts.service';
 import { S3Service } from './services/s3.service';
 
+export type DeleteReplayObjectResponse = {
+    success: true;
+} | {
+    error: any;
+}
+
 @Injectable()
 export class ArtefactsService {
     logger: Logger;
@@ -73,6 +79,20 @@ export class ArtefactsService {
         }
 
         throw new NotImplementedException('Replay upload not implemented yet');
+    }
+
+    async deleteReplayObject(replay: Replay): Promise<DeleteReplayObjectResponse> {
+        this.logger.debug(`Deleting replay object with ID: ${replay._id}`);
+
+        if (replay.objectPath) {
+            return this.s3Service.deleteObject(replay.objectPath);
+        }
+
+        if (replay.filePath) {
+            return this.localArtefactsService.deleteObject(replay.filePath);
+        }
+
+        throw new NotFoundException('No object or file path in replay');
     }
 
     async streamToBuffer(stream: Readable): Promise<Buffer> {
