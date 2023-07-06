@@ -45,7 +45,7 @@ const removeCollisionChildrenFromModel = (model: Group) => {
             model.remove(child);
         }
     });
-}
+};
 
 const tryFetchModel = async (modelName: string): Promise<Group | undefined> => {
     // TODO: make some generalized solution for alternate models, in case there are more like this example
