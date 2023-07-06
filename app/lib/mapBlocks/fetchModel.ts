@@ -16,22 +16,10 @@ const baseBlockMeshesPath = cloudFrontUrl
     ? `${cloudFrontUrl}/nadeo` // Remote CloudFront URL to block meshes folder
     : LOCAL_BLOCKS_MESHES_FOLDER; // Fallback to local blocks meshes folder if CloudFront URL is not set
 
+// eslint-disable-next-line arrow-body-style
 const tryCreatePrimitiveModel = (modelName: string): BufferGeometry | undefined => {
-    if (modelName === 'DecoWallBasePillar'
-        || modelName === 'WaterWallPillar'
-        || modelName === 'TrackWallStraightPillar') {
-        // TODO: Optimize geometry creation, getting instantiated for each block
-        const boxGeom = new BoxBufferGeometry(32, 8, 32);
-        boxGeom.translate(16, 4, 16);
-        return boxGeom;
-    }
-
-    if (modelName === 'StructurePillar') {
-        // TODO: Optimize geometry creation, getting instantiated for each block
-        const structurePillar = new BoxBufferGeometry(3, 8, 3);
-        structurePillar.translate(16, 4, 16);
-        return structurePillar;
-    }
+    // This method is replaced by a more general solution with replacing 'Pillar' in the name
+    // Keep this method around in case it's needed again
 
     return undefined;
 };
@@ -48,11 +36,6 @@ const removeCollisionChildrenFromModel = (model: Group) => {
 };
 
 const tryFetchModel = async (modelName: string): Promise<Group | undefined> => {
-    // TODO: make some generalized solution for alternate models, in case there are more like this example
-    if (modelName === 'DecoWallBasePillar') {
-        return tryFetchModel('DecoWallBase');
-    }
-
     const objPath = `${baseBlockMeshesPath}/${modelName}.obj`;
     const mtlPath = `${baseBlockMeshesPath}/${modelName}.mtl`;
 
@@ -73,6 +56,16 @@ const tryFetchModel = async (modelName: string): Promise<Group | undefined> => {
     } catch (e) {
         // Model load failed, model could be do nothing
         // TODO: Only catch errors of models not found. Currently ignores all other errors too
+    }
+
+    // Models with the suffix 'Pillar' usually map directly to their counterpart without 'Pillar' at the end
+    // Try to load the model without 'Pillar at the end
+    if (modelName.includes('Pillar')) {
+        const modelNameWithoutPillar = modelName.replace('Pillar', '');
+        const modelWithoutPillarInName = await tryFetchModel(modelNameWithoutPillar);
+        if (modelWithoutPillarInName) {
+            return modelWithoutPillarInName;
+        }
     }
 
     // If there's no mesh, try to create primitive models for some simple blocks as backup
