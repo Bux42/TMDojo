@@ -17,7 +17,6 @@ import {
 import { Transform } from './blockRendering/Instances';
 import { BLOCK_SIZE } from '../../../lib/constants/block';
 import InstancedModels from './blockRendering/InstancedModels';
-import tryFetchModel from '../../../lib/mapBlocks/fetchModel';
 
 const depthFunc = THREE.LessEqualDepth;
 const shadowOpacity = 0.4;

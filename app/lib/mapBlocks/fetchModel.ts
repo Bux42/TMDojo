@@ -36,6 +36,17 @@ const tryCreatePrimitiveModel = (modelName: string): BufferGeometry | undefined 
     return undefined;
 };
 
+// Remove all collision children, these have very odd meshes and do not need to be rendered
+const removeCollisionChildrenFromModel = (model: Group) => {
+    model.traverse((child) => {
+        if (!(child instanceof Mesh)) return;
+
+        if (child.name.includes('Collisions')) {
+            model.remove(child);
+        }
+    });
+}
+
 const tryFetchModel = async (modelName: string): Promise<Group | undefined> => {
     // TODO: make some generalized solution for alternate models, in case there are more like this example
     if (modelName === 'DecoWallBasePillar') {
@@ -54,9 +65,11 @@ const tryFetchModel = async (modelName: string): Promise<Group | undefined> => {
 
         objLoader.setMaterials(mtl);
 
-        const group = await objLoader.loadAsync(objPath);
+        const model = await objLoader.loadAsync(objPath);
 
-        return group;
+        removeCollisionChildrenFromModel(model);
+
+        return model;
     } catch (e) {
         // Model load failed, model could be do nothing
         // TODO: Only catch errors of models not found. Currently ignores all other errors too
