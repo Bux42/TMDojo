@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
 import { Map } from './schemas/map.schema';
@@ -7,17 +7,17 @@ import { TmIoApiService } from '../common/services/tmIoApi/tmIoApi.service';
 import { ListMapsDto } from './dto/ListMaps.dto';
 import { regexPartialLowercaseStr as matchPartialLowercaseString } from '../common/db/filterRegex';
 import { calculateSkip } from '../common/db/pagination';
+import { MyLogger } from '../common/logger/my-logger.service';
 
 @Injectable()
 export class MapsService {
-    logger: Logger;
-
     constructor(
         @InjectModel(Map.name) private mapModel: Model<Map>,
         @InjectModel(Replay.name) private replayModel: Model<Replay>,
         private readonly tmIoApiService: TmIoApiService,
+        private readonly logger: MyLogger,
     ) {
-        this.logger = new Logger(MapsService.name);
+        this.logger.setContext(MapsService.name);
     }
 
     findAll(listMapsDto: ListMapsDto) {

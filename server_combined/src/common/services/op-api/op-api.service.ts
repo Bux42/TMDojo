@@ -1,15 +1,16 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import axios from 'axios';
+import { MyLogger } from '../../logger/my-logger.service';
 import { ValidatePluginTokenRo } from './ro/validate-plugin-token.ro';
 
 const OP_PLUGIN_VALIDATE_URL = 'https://openplanet.dev/api/auth/validate';
 
 @Injectable()
 export class OpApiService {
-    logger: Logger;
-
-    constructor() {
-        this.logger = new Logger(OpApiService.name);
+    constructor(
+        private readonly logger: MyLogger,
+    ) {
+        this.logger.setContext(OpApiService.name);
     }
 
     // TODO: check if this works

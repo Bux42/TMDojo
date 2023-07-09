@@ -1,6 +1,7 @@
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request, Response } from 'express';
+import { MyLogger } from '../common/logger/my-logger.service';
 import { OpApiService } from '../common/services/op-api/op-api.service';
 import { TmApiService } from '../common/services/tmApi/tmApi.service';
 import { UserRo } from '../users/dto/user.ro';
@@ -12,15 +13,14 @@ import { TmOAuthLoginDto } from './dto/tm-oauth-login.dto';
 
 @Injectable()
 export class AuthService {
-    logger: Logger;
-
     constructor(
         private jwtService: JwtService,
         private readonly tmApiService: TmApiService,
         private readonly usersService: UsersService,
         private readonly opApiService: OpApiService,
+        private readonly logger: MyLogger,
     ) {
-        this.logger = new Logger(AuthService.name);
+        this.logger.setContext(AuthService.name);
     }
 
     async login(user: UserRo, req: Request, res: Response): Promise<AccessTokenRo> {

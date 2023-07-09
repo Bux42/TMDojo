@@ -1,8 +1,9 @@
 import {
-    Body, Controller, Get, Logger, Post, Req, Res, UnauthorizedException, UseGuards,
+    Body, Controller, Get, Post, Req, Res, UnauthorizedException, UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
+import { MyLogger } from '../common/logger/my-logger.service';
 import { UserRo } from '../users/dto/user.ro';
 import { AuthService } from './auth.service';
 import { User } from './decorators/user.decorator';
@@ -15,12 +16,11 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 @ApiBearerAuth()
 @Controller('auth')
 export class AuthController {
-    logger: Logger;
-
     constructor(
         private readonly authService: AuthService,
+        private readonly logger: MyLogger,
     ) {
-        this.logger = new Logger(AuthController.name);
+        this.logger.setContext(AuthController.name);
     }
 
     @Post('login/oauth')

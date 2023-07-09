@@ -1,22 +1,22 @@
 import {
-    Controller, Get, NotFoundException, Param, Post, Query, Logger,
+    Controller, Get, NotFoundException, Param, Post, Query,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ListMapsDto } from './dto/ListMaps.dto';
 import { TmIoApiService } from '../common/services/tmIoApi/tmIoApi.service';
 import { MapsService } from './maps.service';
+import { MyLogger } from '../common/logger/my-logger.service';
 // import { MapRo } from './ro/Map.ro';
 
 @ApiTags('maps')
 @Controller('maps')
 export class MapsController {
-    logger: Logger;
-
     constructor(
         private readonly mapsService: MapsService,
         private readonly tmIoApiService: TmIoApiService,
+        private readonly logger: MyLogger,
     ) {
-        this.logger = new Logger(MapsController.name);
+        this.logger.setContext(MapsController.name);
     }
 
     @ApiOperation({

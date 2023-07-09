@@ -1,7 +1,6 @@
-import {
-    Injectable, Logger, NotFoundException, NotImplementedException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, NotImplementedException } from '@nestjs/common';
 import { Readable } from 'stream';
+import { MyLogger } from '../common/logger/my-logger.service';
 import { compress, decompress } from '../common/util/compression';
 import { Map } from '../maps/schemas/map.schema';
 import { UploadReplayDto } from '../replays/dto/UploadReplay.dto';
@@ -18,13 +17,12 @@ export type DeleteReplayObjectResponse = {
 
 @Injectable()
 export class ArtefactsService {
-    logger: Logger;
-
     constructor(
         private readonly s3Service: S3Service,
         private readonly localArtefactsService: LocalArtefactsService,
+        private readonly logger: MyLogger,
     ) {
-        this.logger = new Logger(ArtefactsService.name);
+        this.logger.setContext(ArtefactsService.name);
     }
 
     async getReplayObject(replay: Replay): Promise<Buffer> {

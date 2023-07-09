@@ -1,18 +1,16 @@
-import {
-    Injectable, NotFoundException, Logger,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { S3 } from 'aws-sdk';
 import { InjectS3 } from 'nestjs-s3';
+import { MyLogger } from '../../common/logger/my-logger.service';
 import { DeleteReplayObjectResponse } from '../artefacts.service';
 
 @Injectable()
 export class S3Service {
-    logger: Logger;
-
     constructor(
         @InjectS3() private readonly s3: S3,
+        private readonly logger: MyLogger,
     ) {
-        this.logger = new Logger(S3Service.name);
+        this.logger.setContext(S3Service.name);
     }
 
     async getObject(key: string): Promise<Buffer> {

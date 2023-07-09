@@ -1,20 +1,20 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { config } from 'dotenv';
 import { Request } from 'express';
 import { UsersService } from '../../users/users.service';
 import { JwtPayload } from '../dto/jwt.dto';
 import { UserRo } from '../../users/dto/user.ro';
+import { MyLogger } from '../../common/logger/my-logger.service';
 
 config();
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-    logger: Logger;
-
     constructor(
         private readonly usersService: UsersService,
+        private readonly logger: MyLogger,
     ) {
         super({
             jwtFromRequest: ExtractJwt.fromExtractors([
@@ -24,7 +24,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
             ignoreExpiration: false,
             secretOrKey: process.env.JWT_SECRET,
         });
-        this.logger = new Logger(JwtStrategy.name);
+        this.logger.setContext(JwtStrategy.name);
     }
 
     async validate(payload: JwtPayload): Promise<UserRo> {

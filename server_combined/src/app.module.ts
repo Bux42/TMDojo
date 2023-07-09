@@ -8,6 +8,8 @@ import { ReplaysModule } from './replays/replays.module';
 import { UsersModule } from './users/users.module';
 import { AuthorizeModule } from './authorize/authorize.module';
 import { AuthModule } from './auth/auth.module';
+import { SetRequestIdMiddleware } from './common/middleware/setRequestId.middleware';
+import { LoggerModule } from './common/logger/my-logger.module';
 
 config();
 
@@ -20,12 +22,15 @@ config();
         PluginAuthModule,
         AuthorizeModule,
         AuthModule,
+        LoggerModule,
     ],
     controllers: [],
     providers: [],
+    exports: [],
 })
 export class AppModule {
     configure(consumer: MiddlewareConsumer): void {
+        consumer.apply(SetRequestIdMiddleware).forRoutes('*');
         consumer.apply(HttpLoggerMiddleware).forRoutes('*');
     }
 }

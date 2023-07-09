@@ -1,7 +1,5 @@
 // import { Express } from 'express';
-import {
-    Logger, NotFoundException, Injectable,
-} from '@nestjs/common';
+import { NotFoundException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
 import * as mongoose from 'mongoose';
@@ -14,18 +12,18 @@ import { UploadReplayDto } from './dto/UploadReplay.dto';
 import { Replay } from './schemas/replay.schema';
 import { ArtefactsService } from '../artefacts/artefacts.service';
 import { UserRo } from '../users/dto/user.ro';
+import { MyLogger } from '../common/logger/my-logger.service';
 
 @Injectable()
 export class ReplaysService {
-    logger: Logger;
-
     constructor(
         @InjectModel(Replay.name) private replayModel: Model<Replay>,
         @InjectModel(User.name) private userModel: Model<User>,
         private readonly mapsService: MapsService,
         private readonly artefactsService: ArtefactsService,
+        private readonly logger: MyLogger,
     ) {
-        this.logger = new Logger(ReplaysService.name);
+        this.logger.setContext(ReplaysService.name);
     }
 
     async findAll(listReplayOptions: ListReplaysDto) {

@@ -1,17 +1,17 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { v4 as uuid } from 'uuid';
+import { MyLogger } from '../common/logger/my-logger.service';
 import { TmApiService } from '../common/services/tmApi/tmApi.service';
 import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class PluginAuthService {
-    private readonly logger: Logger;
-
     constructor(
         private readonly tmApiService: TmApiService,
         private readonly usersService: UsersService,
+        private readonly logger: MyLogger,
     ) {
-        this.logger = new Logger(PluginAuthService.name);
+        this.logger.setContext(PluginAuthService.name);
     }
 
     async generateAuthUrl(webId: string): Promise<string> {

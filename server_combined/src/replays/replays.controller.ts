@@ -7,6 +7,7 @@ import { Request } from 'express';
 import { ArtefactsService } from '../artefacts/artefacts.service';
 import { User } from '../auth/decorators/user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { MyLogger } from '../common/logger/my-logger.service';
 import { UserRo } from '../users/dto/user.ro';
 import { ListReplaysDto } from './dto/ListReplays.dto';
 import { UploadReplayDto } from './dto/UploadReplay.dto';
@@ -19,7 +20,10 @@ export class ReplaysController {
     constructor(
         private readonly replaysService: ReplaysService,
         private readonly artefactsService: ArtefactsService,
-    ) { }
+        private readonly logger: MyLogger,
+    ) {
+        logger.setContext(ReplaysController.name);
+    }
 
     @ApiOperation({
         summary: 'TODO: Check functionality and return types',

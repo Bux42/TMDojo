@@ -1,17 +1,18 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import * as path from 'path';
 import { readFile, unlink, writeFile } from 'fs/promises';
 import { existsSync, mkdirSync } from 'fs';
 import { DeleteReplayObjectResponse } from '../artefacts.service';
+import { MyLogger } from '../../common/logger/my-logger.service';
 
 const LOCAL_ARTEFACT_FOLDER = path.resolve(__dirname, '../../..');
 
 @Injectable()
 export class LocalArtefactsService {
-    logger: Logger;
-
-    constructor() {
-        this.logger = new Logger(LocalArtefactsService.name);
+    constructor(
+        private readonly logger: MyLogger,
+    ) {
+        this.logger.setContext(LocalArtefactsService.name);
     }
 
     async getObject(key: string): Promise<Buffer> {
