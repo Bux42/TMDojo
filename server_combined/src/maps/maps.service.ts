@@ -82,7 +82,7 @@ export class MapsService {
             .exec();
     }
 
-    async findOrCreateByMapUId(mapUId: string): Promise<Map | null> {
+    async findOrCreateByMapUId(mapUId: string) {
         this.logger.debug("Find or create map with mapUId: " + mapUId)
 
         let map = await this.findByMapUId(mapUId);

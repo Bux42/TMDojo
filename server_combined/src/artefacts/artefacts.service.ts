@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, NotImplementedException } from '@nestjs/
 import { Readable } from 'stream';
 import { MyLogger } from '../common/logger/my-logger.service';
 import { compress, decompress } from '../common/util/compression';
-import { Map } from '../maps/schemas/map.schema';
+import { MapRo } from '../maps/ro/Map.ro';
 import { UploadReplayDto } from '../replays/dto/UploadReplay.dto';
 import { Replay } from '../replays/schemas/replay.schema';
 import { UserRo } from '../users/dto/user.ro';
@@ -45,7 +45,7 @@ export class ArtefactsService {
         return decompressedBuffer;
     }
 
-    async storeReplayObject(uploadReplayDto: UploadReplayDto, map: Map, user: UserRo, replayBuffer: Buffer) {
+    async storeReplayObject(uploadReplayDto: UploadReplayDto, map: MapRo, user: UserRo, replayBuffer: Buffer) {
         // Create filePath
         // TODO: add correct fields and correct filepath
         const { playerName } = user;
