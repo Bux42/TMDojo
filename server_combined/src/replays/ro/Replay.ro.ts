@@ -1,14 +1,15 @@
 import { MapRo } from '../../maps/ro/Map.ro';
+import { UserRo } from '../../users/dto/user.ro';
 
 export class ReplayRo {
     _id: string;
-    mapRef?: MapRo;
-    // userRef: User;
+    mapRef: string;
+    map?: MapRo;
+    userRef: string;
+    user?: UserRo;
     date: number;
     raceFinished: number;
     endRaceTime: number;
     pluginVersion?: string;
     sectorTimes?: number[];
-    objectPath?: string;
-    filePath?: string;
 }

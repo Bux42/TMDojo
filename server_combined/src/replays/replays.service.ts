@@ -71,8 +71,7 @@ export class ReplaysService {
             .limit(limit)
             .skip(calculateSkip({ limit, skip, skipPage }))
             .populate<{ map: Map }>('map')
-            .populate<{ user: User }>('user', '-clientCode')
-            .lean()
+            .populate<{ user: User }>('user')
             .exec();
     }
 
@@ -82,8 +81,7 @@ export class ReplaysService {
         return this.replayModel
             .findById(id)
             .populate<{ map: Map }>('map')
-            .populate<{ user: User }>('user', '-clientCode')
-            .lean()
+            .populate<{ user: User }>('user')
             .exec();
     }
 
@@ -99,8 +97,7 @@ export class ReplaysService {
         return this.replayModel
             .find({ userRef: user.id })
             .populate<{ map: Map }>('map')
-            .populate<{ user: User }>('user', '-clientCode')
-            .lean()
+            .populate<{ user: User }>('user')
             .exec();
     }
 

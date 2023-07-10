@@ -12,6 +12,8 @@ import { UserRo } from '../users/dto/user.ro';
 import { ListReplaysDto } from './dto/ListReplays.dto';
 import { UploadReplayDto } from './dto/UploadReplay.dto';
 import { ReplaysService } from './replays.service';
+import { ReplayRo } from './ro/Replay.ro';
+import { FindReplaysRo } from './ro/FindReplays.ro';
 import { Replay } from './schemas/replay.schema';
 
 @ApiTags('replays')
@@ -22,35 +24,34 @@ export class ReplaysController {
         private readonly artefactsService: ArtefactsService,
         private readonly logger: MyLogger,
     ) {
-        logger.setContext(ReplaysController.name);
+        this.logger.setContext(ReplaysController.name);
     }
 
     @ApiOperation({
         summary: 'TODO: Check functionality and return types',
     })
     @Get()
-    async findAll(@Query() listReplayOptions: ListReplaysDto) {
+    async findAll(@Query() listReplayOptions: ListReplaysDto): Promise<FindReplaysRo> {
         const replays = await this.replaysService.findAll(listReplayOptions);
-        // TODO: better response type, and create Ro for it
+
         return {
-            replays,
+            replays: replays.map((replay: Replay) => replay.toRo()),
             totalResults: replays.length,
         };
-        // return replays.map((r) => r);
     }
 
     @ApiOperation({
         summary: 'TODO: Check functionality and return types',
     })
     @Get(':replayId')
-    async findOne(@Param('replayId') replayId: string): Promise<Replay> {
+    async findOne(@Param('replayId') replayId: string): Promise<ReplayRo> {
         const replay = await this.replaysService.findById(replayId);
 
         if (!replay) {
             throw new NotFoundException(`Replay not found with replay ID: ${replayId}`);
         }
 
-        return replay;
+        return replay.toRo();
     }
 
     @ApiOperation({
@@ -62,10 +63,12 @@ export class ReplaysController {
         @User() loggedInUser: UserRo,
         @Query() uploadReplayDto: UploadReplayDto,
         @Req() req: Request,
-    ) {
+    ): Promise<ReplayRo> {
         const rawReplayBuffer = await this.artefactsService.streamToBuffer(req);
 
-        return this.replaysService.uploadReplay(loggedInUser, uploadReplayDto, rawReplayBuffer);
+        const replay = await this.replaysService.uploadReplay(loggedInUser, uploadReplayDto, rawReplayBuffer);
+
+        return replay.toRo();
     }
 
     @ApiOperation({
@@ -76,7 +79,7 @@ export class ReplaysController {
     async delete(
         @User() loggedInUser: UserRo,
         @Param('replayId') replayId: string,
-    ): Promise<Replay> {
+    ): Promise<ReplayRo> {
         if (!loggedInUser) {
             throw new UnauthorizedException('Please log in to delete replays.');
         }
@@ -93,7 +96,7 @@ export class ReplaysController {
 
         await this.replaysService.deleteReplay(replay);
 
-        return replay;
+        return replay.toRo();
     }
 
     @ApiOperation({

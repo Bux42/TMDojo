@@ -49,9 +49,8 @@ export class UsersController {
     async getUserReplays(@Param('webId') webId: string): Promise<UserReplaysRo> {
         const replays = await this.replaysService.findReplaysFromUser(webId);
 
-        // TODO: Map replays to ReplayRo when implemented
         return {
-            replays,
+            replays: replays.map((replay) => replay.toRo()),
             totalResults: replays.length,
         };
     }

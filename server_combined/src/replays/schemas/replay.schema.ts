@@ -4,12 +4,10 @@ import { Document } from 'mongoose';
 import * as mongoose from 'mongoose';
 import { User } from '../../users/schemas/user.schema';
 import { Map } from '../../maps/schemas/map.schema';
-// import { ReplayRo } from '../ro/Replay.ro';
+import { ReplayRo } from '../ro/Replay.ro';
 
 @Schema({
     versionKey: false,
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true },
 })
 export class Replay {
     @Prop({ type: mongoose.Schema.Types.ObjectId, _id: true, auto: true })
@@ -17,9 +15,11 @@ export class Replay {
 
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Map.name })
     mapRef: string;
+    map?: Map;
 
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name })
     userRef: string;
+    user?: User;
 
     @Prop({ required: true })
     date: number;
@@ -42,11 +42,7 @@ export class Replay {
     @Prop()
     filePath?: string;
 
-    // toRo: () => ReplayRo;
-}
-
-export class ReplayWithMap extends Replay {
-    map: Map;
+    toRo: () => ReplayRo;
 }
 
 export type ReplayDocument = Replay & Document;
@@ -67,14 +63,17 @@ ReplaySchema.virtual('user', {
     justOne: true,
 });
 
-// ReplaySchema.method('toRo', function toRo(this: mongoose.HydratedDocument<Replay>): ReplayRo {
-//     return {
-//         _id: this._id,
-//         mapRef: this.mapRef instanceof Map ? this.mapRef.toRo() : undefined,
-//         date: this.date,
-//         raceFinished: this.raceFinished,
-//         endRaceTime: this.endRaceTime,
-//         pluginVersion: this.pluginVersion,
-//         sectorTimes: this.sectorTimes,
-//     };
-// });
+ReplaySchema.methods.toRo = function toRo(this: Replay): ReplayRo {
+    return {
+        _id: this._id,
+        mapRef: this.mapRef,
+        map: this.map?.toRo(),
+        userRef: this.userRef,
+        user: this.user?.toRo(),
+        date: this.date,
+        raceFinished: this.raceFinished,
+        endRaceTime: this.endRaceTime,
+        pluginVersion: this.pluginVersion,
+        sectorTimes: this.sectorTimes,
+    };
+};
