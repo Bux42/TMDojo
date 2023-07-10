@@ -38,7 +38,7 @@ export class UsersService {
     }
 
     // Omitting _id because we search user by webId
-    upsertUser(user: Omit<User, '_id'>) {
+    upsertUser(user: Omit<User, '_id' | 'toRo'>) {
         return this.userModel.findOneAndUpdate(
             { webId: user.webId }, // Find user by web id
             user, // Data to upsert with
