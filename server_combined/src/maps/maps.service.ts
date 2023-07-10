@@ -76,10 +76,15 @@ export class MapsService {
     }
 
     findByMapUId(mapUId: string) {
-        return this.mapModel.findOne({ mapUId }).exec();
+        this.logger.debug("Finding map with mapUId: " + mapUId);
+        return this.mapModel
+            .findOne({ mapUId })
+            .exec();
     }
 
-    async findOrCreateByMapUId(mapUId: string) {
+    async findOrCreateByMapUId(mapUId: string): Promise<Map | null> {
+        this.logger.debug("Find or create map with mapUId: " + mapUId)
+
         let map = await this.findByMapUId(mapUId);
 
         if (!map) {
@@ -97,15 +102,18 @@ export class MapsService {
         }
 
         const {
-            name, authorplayer, fileUrl, thumbnailUrl, bronzeScore, silverScore, goldScore, authorScore,
+            name, exchangeid, authorplayer, fileUrl, thumbnailUrl, bronzeScore, silverScore, goldScore, authorScore, timestamp
         } = mapInfo;
 
         return this.mapModel.create({
             mapUId,
+            exchangeId: exchangeid,
             mapName: name,
             authorName: authorplayer.name,
+            authorId: authorplayer.id,
             fileUrl,
             thumbnailUrl,
+            timestamp,
             medals: {
                 bronze: bronzeScore,
                 silver: silverScore,
