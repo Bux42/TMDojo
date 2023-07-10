@@ -18,8 +18,17 @@ export class SetRequestIdMiddleware implements NestMiddleware {
     ) { }
 
     use(request: Request, _: Response, next: NextFunction): void {
-        request.requestId = uuidv4();
+        request.requestId = this.generateRequestId();
         this.logger.setRequestId(request.requestId);
         next();
+    }
+
+    private generateRequestId(): string {
+        const uuid = uuidv4();
+        const hexString = uuid.replace(/-/g, ""); // Remove '-' from uuid to keep only hex chars
+        const base64String = Buffer.from(hexString, 'hex')
+            .toString('base64') // Convert to base64
+            .replaceAll("=", ""); // Remove padding chars
+        return base64String;
     }
 }
