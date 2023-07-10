@@ -8,6 +8,7 @@ import { MapsService } from './maps.service';
 import { MyLogger } from '../common/logger/my-logger.service';
 import { MapRo } from './ro/Map.ro';
 import { TmIoMapDataDto } from '../common/services/tmIoApi/dto/TmIoMapData.dto';
+import { GroupedMapsByReplayRo } from './ro/GroupedMapsByReplay.ro';
 
 @ApiTags('maps')
 @Controller('maps')
@@ -24,7 +25,7 @@ export class MapsController {
         summary: 'TODO: Check functionality and add correct Ro return types',
     })
     @Get()
-    findAll(@Query() listMapsDto: ListMapsDto): Promise<any[]> {
+    findAll(@Query() listMapsDto: ListMapsDto): Promise<GroupedMapsByReplayRo[]> {
         this.logger.log(listMapsDto);
         return this.mapsService.aggregateReplaysByMap(listMapsDto);
     }
