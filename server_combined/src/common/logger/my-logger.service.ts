@@ -6,6 +6,8 @@ import { LogLevel } from '@nestjs/common/services';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 
+const MESSAGE_PREFIX = '[Nest] - ';
+
 @Injectable()
 export class MyLogger extends ConsoleLogger {
     @Optional() @Inject(REQUEST) private request?: Request;
@@ -19,10 +21,10 @@ export class MyLogger extends ConsoleLogger {
         timestampDiff: string,
     ): string {
         const output = this.stringifyMessage(message, logLevel);
-        const pidMessageColored = this.colorize(pidMessage, logLevel);
+        const prefixColored = this.colorize(MESSAGE_PREFIX, logLevel);
         const formattedLogLevelColored = this.colorize(formattedLogLevel, logLevel);
         const requestId = this.colorize(this.getRequestIdString(), logLevel);
-        return `${pidMessageColored}${this.getTimestamp()} - ${requestId} ${formattedLogLevelColored} ${contextMessage}${output}${timestampDiff}\n`;
+        return `${prefixColored}${this.getTimestamp()} - ${requestId} ${formattedLogLevelColored} ${contextMessage}${output}${timestampDiff}\n`;
     }
 
     private getRequestIdString(): string {
