@@ -5,6 +5,7 @@ import { MapRo } from '../ro/Map.ro';
 
 @Schema({
     versionKey: false,
+    timestamps: true,
 })
 export class Map {
     @Prop({ type: mongoose.Schema.Types.ObjectId, _id: true, auto: true })
@@ -42,6 +43,12 @@ export class Map {
         author: number;
     };
 
+    @Prop({ required: true })
+    createdAt: Date;
+
+    @Prop({ required: true })
+    updatedAt: Date;
+
     toRo: () => MapRo;
 }
 
@@ -61,5 +68,7 @@ MapSchema.methods.toRo = function toRo(this: Map): MapRo {
         thumbnailUrl: this.thumbnailUrl,
         timestamp: this.timestamp,
         medals: this.medals,
+        createdAt: this.createdAt,
+        updatedAt: this.updatedAt,
     };
 };

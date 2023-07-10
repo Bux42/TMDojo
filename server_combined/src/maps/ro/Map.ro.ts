@@ -14,4 +14,6 @@ export class MapRo {
         gold: number;
         author: number;
     };
+    createdAt: Date;
+    updatedAt: Date;
 }
