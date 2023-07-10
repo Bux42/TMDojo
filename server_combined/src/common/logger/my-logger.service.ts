@@ -1,16 +1,22 @@
 /* eslint-disable max-len */
-import {
-    ConsoleLogger, Inject, Injectable, Optional,
-} from '@nestjs/common';
+import { ConsoleLogger, Injectable } from '@nestjs/common';
 import { LogLevel } from '@nestjs/common/services';
-import { REQUEST } from '@nestjs/core';
-import { Request } from 'express';
+import { UserRo } from '../../users/dto/user.ro';
 
 const MESSAGE_PREFIX = '[Nest] - ';
 
 @Injectable()
 export class MyLogger extends ConsoleLogger {
-    @Optional() @Inject(REQUEST) private request?: Request;
+    private requestId?: string;
+    private user?: UserRo;
+
+    setRequestId(requestId: string | undefined): void {
+        this.requestId = requestId;
+    }
+
+    setUser(user: UserRo | undefined): void {
+        this.user = user;
+    }
 
     protected formatMessage(
         logLevel: LogLevel,
@@ -23,20 +29,19 @@ export class MyLogger extends ConsoleLogger {
         const output = this.stringifyMessage(message, logLevel);
         const prefixColored = this.colorize(MESSAGE_PREFIX, logLevel);
         const formattedLogLevelColored = this.colorize(formattedLogLevel, logLevel);
-        const requestId = this.colorize(this.getRequestIdString(), logLevel);
-        return `${prefixColored}${this.getTimestamp()} - ${requestId} ${formattedLogLevelColored} ${contextMessage}${output}${timestampDiff}\n`;
+        const requestId = this.getRequestIdString();
+        const userString = this.getUserString();
+        return `${prefixColored}${this.getTimestamp()} - ${requestId} ${userString} ${formattedLogLevelColored} ${contextMessage}${output}${timestampDiff}\n`;
     }
 
     private getRequestIdString(): string {
-        const requestId = this.getRequestId();
-        return requestId
-            ? `[${requestId}]`
+        return this.requestId
+            ? `[${this.requestId}]`
             : '';
     }
-
-    private getRequestId(): string | undefined {
-        return this.request
-            ? this.request.requestId
-            : undefined;
+    private getUserString(): string {
+        return this.user
+            ? "[" + this.user.webId + " - " + this.user.playerName + "]"
+            : "";
     }
 }

@@ -13,11 +13,10 @@ export class HttpLoggerMiddleware implements NestMiddleware {
 
     use(request: Request, response: Response, next: NextFunction): void {
         const {
-            ip, method, originalUrl: url, body, query,
+            method, originalUrl: url, body, query,
         } = request;
-        const userAgent = request.get('user-agent') || '';
 
-        const reqInfo = `${method} ${url} - ${userAgent} ${ip}`;
+        const reqInfo = `${method} ${url}`;
         let reqBody = '';
         if (query && Object.keys(query).length > 0) {
             reqBody += `\n${JSON.stringify({ query }, null, 2)}`;
@@ -28,14 +27,14 @@ export class HttpLoggerMiddleware implements NestMiddleware {
 
         const reqMsg = reqInfo + reqBody;
 
-        this.logger.log(`REQ: ${reqMsg}`);
+        this.logger.log(`Req: ${reqMsg}`);
 
         response.on('close', () => {
             const { statusCode } = response;
             const contentLength = parseInt(response.get('content-length'), 10);
             // const contentLengthKb = (contentLength / 1024).toFixed(1);
 
-            const resInfo = `RES: [${statusCode}] ${contentLength} bytes`;
+            const resInfo = `Res: [${statusCode}] ${contentLength} bytes`;
 
             const resMsg = resInfo;
 

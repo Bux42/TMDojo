@@ -33,11 +33,15 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
         const user = await this.usersService.findById(userId);
 
-        return {
+        const loggedInUser = {
             _id: user._id,
             webId: user.webId,
             playerName: user.playerName,
-        };
+        }
+
+        this.logger.setUser(loggedInUser);
+
+        return loggedInUser;
     }
 
     private static extractJwtFromCookies(req: Request): string | null {
