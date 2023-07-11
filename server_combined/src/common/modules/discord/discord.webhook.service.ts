@@ -4,6 +4,8 @@ import { Map } from '../../../maps/schemas/map.schema';
 import { Replay } from '../../../replays/schemas/replay.schema';
 import { UserRo } from '../../../users/dto/user.ro';
 import { MyLogger } from '../../logger/my-logger.service';
+import { formatRaceTime, formatRaceTimeDelta } from '../../util/raceTime/formatRaceTime';
+import { getMedalFromRaceTime } from '../../util/raceTime/medals';
 import { createDiscWebhookMessage, DiscordWebhookMsgParams } from './create-disc-webhook-message';
 import { DiscordWebhook, DISCORD_WEBHOOKS } from './webhooks';
 
@@ -38,10 +40,42 @@ export class DiscordWebhookService {
 
         this.logger.debug(`DiscordWebhook: Sending '${webhook.name}' discord alert for new replay: ${user.playerName}`);
 
+        const timeStr = formatRaceTime(replay.endRaceTime);
+        const medal = getMedalFromRaceTime(replay.endRaceTime, map);
+
         await this.sendWebhookMessage(webhook, {
             username: DOJO_BOT_NAME,
             title: `New replay from ${user.playerName}`,
-            description: `Map: ${map.mapName}\nTime: ${replay.endRaceTime}\nPlugin version: ${replay.pluginVersion}`,
+            description:
+                `Map: ${map.mapName}
+                Time: ${timeStr}
+                Medal: ${medal}`,
+            color: '#B68FB8',
+            thumbnailURL: map.thumbnailUrl,
+        });
+    }
+
+
+    async sendNewPersonalBestAlert(replay: Replay, previousBestTime: Replay, user: UserRo, map: Map) {
+        const webhook = DISCORD_WEBHOOKS.TESTING;
+
+        this.logger.debug(`DiscordWebhook: Sending '${webhook.name}' discord alert for new personal best: ${user.playerName}`);
+
+        const pbTimeStr = formatRaceTime(replay.endRaceTime);
+        const prevPbTimeStr = formatRaceTime(previousBestTime.endRaceTime);
+        const delta = replay.endRaceTime - previousBestTime.endRaceTime;
+        const deltaStr = formatRaceTimeDelta(delta);
+        const medal = getMedalFromRaceTime(replay.endRaceTime, map);
+
+        await this.sendWebhookMessage(webhook, {
+            username: DOJO_BOT_NAME,
+            title: `New personal best from ${user.playerName}`,
+            description:
+                `Map: ${map.mapName}
+                PB: ${pbTimeStr}
+                Previous PB: ${prevPbTimeStr}
+                Delta: ${deltaStr}
+                Medal: ${medal}`,
             color: '#B68FB8',
             thumbnailURL: map.thumbnailUrl,
         });

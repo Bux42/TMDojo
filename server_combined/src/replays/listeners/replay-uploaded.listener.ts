@@ -30,6 +30,17 @@ export class ReplayUploadedListener {
         const numReplaysOnMap = await this.replaysService.countReplays({ mapRef: replay.mapRef });
         this.logger.log(`Replay #${numReplaysOnMap} on map: ${map.mapName} (${map.mapUId})`);
 
-        this.discordWebhookService.sendNewReplayAlert(replay, user, map);
+        await this.discordWebhookService.sendNewReplayAlert(replay, user, map);
+
+        const replaysOfUserOnMap = await this.replaysService.findAll({ mapUId: map.mapUId, userWebId: user.webId });
+        if (replaysOfUserOnMap.length > 1) {
+            const sortedReplays = replaysOfUserOnMap.sort((a, b) => a.endRaceTime > b.endRaceTime ? 1 : -1);
+            this.logger.debug(sortedReplays);
+            const curBest = sortedReplays[0];
+            const prevBest = sortedReplays[1];
+            if (curBest.endRaceTime === replay.endRaceTime && curBest._id !== replay._id) {
+                await this.discordWebhookService.sendNewPersonalBestAlert(curBest, prevBest, user, map);
+            }
+        }
     }
 }
