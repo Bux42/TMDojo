@@ -1,4 +1,4 @@
-import { MapRo } from '../../maps/ro/map.ro';
+import { MapRo } from '../../maps/dto/map.ro';
 import { UserRo } from '../../users/dto/user.ro';
 
 export class ReplayRo {

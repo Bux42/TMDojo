@@ -5,7 +5,7 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ReplaysService } from '../replays/replays.service';
 import { SessionsService } from '../sessions/sessions.service';
 import { UserRo } from './dto/user.ro';
-import { UserReplaysRo } from './ro/user-replays.ro';
+import { UserReplaysRo } from './dto/user-replays.ro';
 import { User } from './schemas/user.schema';
 import { UsersService } from './users.service';
 

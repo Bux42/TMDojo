@@ -5,7 +5,7 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { AuthorizeService } from './authorize.service';
 import { AuthorizeUserDto } from './dto/authorize-user.dto';
-import { AuthorizedUserRo } from './ro/authorized-user.ro';
+import { AuthorizedUserRo } from './dto/authorized-user.ro';
 
 @ApiTags('authorize')
 @Controller('authorize')

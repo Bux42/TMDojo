@@ -9,11 +9,11 @@ import { User } from '../auth/decorators/user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { MyLogger } from '../common/logger/my-logger.service';
 import { UserRo } from '../users/dto/user.ro';
-import { ListReplaysDto } from './dto/list-replays.dto';
+import { FindReplaysDto } from './dto/find-replays.dto';
 import { UploadReplayDto } from './dto/upload-replay.dto';
 import { ReplaysService } from './replays.service';
-import { ReplayRo } from './ro/replay.ro';
-import { FindReplaysRo } from './ro/find-replays.ro';
+import { ReplayRo } from './dto/replay.ro';
+import { FindReplaysRo } from './dto/find-replays.ro';
 import { Replay } from './schemas/replay.schema';
 
 @ApiTags('replays')
@@ -31,8 +31,8 @@ export class ReplaysController {
         summary: 'TODO: Check functionality and return types',
     })
     @Get()
-    async findAll(@Query() listReplayOptions: ListReplaysDto): Promise<FindReplaysRo> {
-        const replays = await this.replaysService.findAll(listReplayOptions);
+    async findAll(@Query() findReplayOptions: FindReplaysDto): Promise<FindReplaysRo> {
+        const replays = await this.replaysService.findAll(findReplayOptions);
 
         return {
             replays: replays.map((replay: Replay) => replay.toRo()),

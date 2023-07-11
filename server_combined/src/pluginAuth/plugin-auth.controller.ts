@@ -4,8 +4,8 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { SessionsService } from '../sessions/sessions.service';
-import { AuthUrlRo } from './ro/auth-url.ro';
-import { SessionIdRo } from '../common/ro/session-id.ro';
+import { AuthUrlRo } from './dto/auth-url.ro';
+import { SessionIdRo } from '../common/dto/session-id.ro';
 import { PluginAuthService } from './plugin-auth.service';
 import { UseClientCodeDto } from './dto/use-client-code.dto';
 

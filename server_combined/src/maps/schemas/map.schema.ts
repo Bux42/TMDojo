@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import * as mongoose from 'mongoose';
-import { MapRo } from '../ro/map.ro';
+import { MapRo } from '../dto/map.ro';
 
 @Schema({
     versionKey: false,

@@ -6,8 +6,8 @@ import { ListMapsDto } from './dto/list-maps.dto';
 import { TmIoApiService } from '../common/modules/tm-io-api/tm-io-api.service';
 import { MapsService } from './maps.service';
 import { MyLogger } from '../common/logger/my-logger.service';
-import { MapRo } from './ro/map.ro';
-import { GroupedMapsByReplayRo } from './ro/grouped-maps-by-replay.ro';
+import { MapRo } from './dto/map.ro';
+import { GroupedMapsByReplayRo } from './dto/grouped-maps-by-replay.ro';
 import { TmIoMapDataDto } from '../common/modules/tm-io-api/dto/tm-io-map-data.dto';
 
 @ApiTags('maps')

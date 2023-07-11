@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, NotImplementedException } from '@nestjs/
 import { Readable } from 'stream';
 import { MyLogger } from '../../logger/my-logger.service';
 import { compress, decompress } from '../../util/compression';
-import { MapRo } from '../../../maps/ro/map.ro';
+import { MapRo } from '../../../maps/dto/map.ro';
 import { UploadReplayDto } from '../../../replays/dto/upload-replay.dto';
 import { Replay } from '../../../replays/schemas/replay.schema';
 import { UserRo } from '../../../users/dto/user.ro';

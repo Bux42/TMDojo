@@ -1,4 +1,4 @@
-import { ReplayRo } from '../../replays/ro/replay.ro';
+import { ReplayRo } from '../../replays/dto/replay.ro';
 
 export class UserReplaysRo {
     replays: ReplayRo[];

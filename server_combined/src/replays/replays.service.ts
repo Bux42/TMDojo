@@ -8,7 +8,7 @@ import { calculateSkip } from '../common/util/db/pagination';
 import { MapsService } from '../maps/maps.service';
 import { Map } from '../maps/schemas/map.schema';
 import { User } from '../users/schemas/user.schema';
-import { ListReplaysDto } from './dto/list-replays.dto';
+import { FindReplaysDto } from './dto/find-replays.dto';
 import { UploadReplayDto } from './dto/upload-replay.dto';
 import { Replay } from './schemas/replay.schema';
 import { UserRo } from '../users/dto/user.ro';
@@ -29,12 +29,12 @@ export class ReplaysService {
         this.logger.setContext(ReplaysService.name);
     }
 
-    async findAll(listReplayOptions: ListReplaysDto) {
+    async findAll(findReplayOptions: FindReplaysDto) {
         const {
             mapUId, userWebId, limit, skip, skipPage, raceFinished,
-        } = listReplayOptions;
+        } = findReplayOptions;
 
-        this.logger.debug(`Finding replays with options: ${JSON.stringify(listReplayOptions)}`);
+        this.logger.debug(`Finding replays with options: ${JSON.stringify(findReplayOptions)}`);
 
         // Handle map filter option
         let map;
