@@ -6,14 +6,23 @@ import { ValidationPipe } from '@nestjs/common/pipes';
 import { AppModule } from './app.module';
 import { corsConfig } from './common/util/cors/cors-config';
 import { MyLogger } from './common/logger/my-logger.service';
+import { tryGetHttpsOptions } from './common/util/https/httpsOptions';
 
 config();
 
 async function bootstrap() {
+    const bootstrapLogger = new MyLogger('Bootstrap');
+
+    const httpsOptions = tryGetHttpsOptions();
+    if (!httpsOptions) {
+        bootstrapLogger.warn('No HTTPS key/certificate found, using HTTP instead');
+    }
+
     const app = await NestFactory.create(AppModule, {
         cors: corsConfig,
         bufferLogs: true,
         logger: new MyLogger(),
+        httpsOptions,
     });
 
     app.useGlobalPipes(new ValidationPipe({ transform: true }));
