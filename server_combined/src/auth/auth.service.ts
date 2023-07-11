@@ -64,11 +64,7 @@ export class AuthService {
         const { accountId, displayName } = userInfo;
 
         // Add or get user if already exists
-        // TODO: make sure that whenever a user changes names, the previous user is updated and does not create new user
-        const user = await this.usersService.upsertUser({
-            webId: accountId,
-            playerName: displayName,
-        });
+        const user = await this.createOrUpdateUser(accountId, displayName);
 
         return {
             _id: user._id,
@@ -89,16 +85,34 @@ export class AuthService {
         // Add or get user if already exists
         // TODO: make sure that whenever a user changes names, the previous user is updated and does not create new user
         const { accountID, displayName } = validateTokenResponse;
-        const user = await this.usersService.upsertUser({
-            webId: accountID,
-            playerName: displayName,
-        });
+
+        const user = await this.createOrUpdateUser(accountID, displayName);
 
         return {
             _id: user._id,
             webId: user.webId,
             playerName: user.playerName,
         };
+    }
+
+    private async createOrUpdateUser(webId: string, playerName: string) {
+        let user = await this.usersService.findByWebId(webId);
+
+        if (!user) {
+            // Implicitly call createUser() for events
+            user = await this.usersService.createUser({
+                webId,
+                playerName,
+            });
+        } else {
+            // Update display name if the user already exists
+            user = await this.usersService.upsertUser({
+                webId,
+                playerName,
+            });
+        }
+
+        return user;
     }
 
     setAccessTokenCookieWithAge(accessToken: string, age: number, req: Request, res: Response) {
