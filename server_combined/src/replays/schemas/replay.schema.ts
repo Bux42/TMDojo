@@ -8,6 +8,7 @@ import { ReplayRo } from '../dto/replay.ro';
 
 @Schema({
     versionKey: false,
+    timestamps: true,
 })
 export class Replay {
     @Prop({ type: mongoose.Schema.Types.ObjectId, _id: true, auto: true })
@@ -41,6 +42,12 @@ export class Replay {
 
     @Prop()
     filePath?: string;
+
+    @Prop({ auto: true })
+    createdAt: Date;
+
+    @Prop({ auto: true })
+    updatedAt: Date;
 
     toRo: () => ReplayRo;
 }

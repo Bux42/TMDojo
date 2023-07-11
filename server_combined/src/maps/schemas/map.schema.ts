@@ -43,10 +43,10 @@ export class Map {
         author: number;
     };
 
-    @Prop({ required: true })
+    @Prop({ auto: true })
     createdAt: Date;
 
-    @Prop({ required: true })
+    @Prop({ auto: true })
     updatedAt: Date;
 
     toRo: () => MapRo;

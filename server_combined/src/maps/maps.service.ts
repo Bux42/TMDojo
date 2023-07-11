@@ -88,6 +88,7 @@ export class MapsService {
         let map = await this.findByMapUId(mapUId);
 
         if (!map) {
+            this.logger.debug("Map not found, creating map with mapUId: ${mapUId}");
             map = await this.createMapByMapUId(mapUId);
         }
 
