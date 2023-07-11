@@ -3,18 +3,18 @@ import { NotFoundException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
 import * as mongoose from 'mongoose';
-import { calculateSkip } from '../common/db/pagination';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { calculateSkip } from '../common/util/db/pagination';
 import { MapsService } from '../maps/maps.service';
 import { Map } from '../maps/schemas/map.schema';
 import { User } from '../users/schemas/user.schema';
 import { ListReplaysDto } from './dto/ListReplays.dto';
 import { UploadReplayDto } from './dto/UploadReplay.dto';
 import { Replay } from './schemas/replay.schema';
-import { ArtefactsService } from '../artefacts/artefacts.service';
 import { UserRo } from '../users/dto/user.ro';
 import { MyLogger } from '../common/logger/my-logger.service';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ReplayUploadedEvent } from './events/replay-uploaded.event';
+import { ArtefactsService } from '../common/modules/artefacts/artefacts.service';
 
 @Injectable()
 export class ReplaysService {
@@ -24,7 +24,7 @@ export class ReplaysService {
         private readonly mapsService: MapsService,
         private readonly artefactsService: ArtefactsService,
         private readonly logger: MyLogger,
-        private readonly eventEmitter: EventEmitter2
+        private readonly eventEmitter: EventEmitter2,
     ) {
         this.logger.setContext(ReplaysService.name);
     }
@@ -144,8 +144,8 @@ export class ReplaysService {
             new ReplayUploadedEvent(
                 replay,
                 loggedInUser,
-                map
-            )
+                map,
+            ),
         );
 
         return replay;

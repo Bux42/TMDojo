@@ -4,7 +4,7 @@ import {
 import { Req, UseGuards } from '@nestjs/common/decorators';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
-import { ArtefactsService } from '../artefacts/artefacts.service';
+import { ArtefactsService } from '../common/modules/artefacts/artefacts.service';
 import { User } from '../auth/decorators/user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { MyLogger } from '../common/logger/my-logger.service';

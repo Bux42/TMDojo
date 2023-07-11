@@ -4,7 +4,7 @@ import { config } from 'dotenv';
 import * as cookieParser from 'cookie-parser';
 import { ValidationPipe } from '@nestjs/common/pipes';
 import { AppModule } from './app.module';
-import { corsConfig } from './common/cors/corsConfig';
+import { corsConfig } from './common/util/cors/corsConfig';
 import { MyLogger } from './common/logger/my-logger.service';
 
 config();

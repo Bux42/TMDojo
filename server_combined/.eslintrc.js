@@ -20,7 +20,7 @@ module.exports = {
         'no-underscore-dangle': 'off',
         // TS-enforced stuff that only leads to false positives
         'no-unused-vars': 'off',
-        '@typescript-eslint/no-unused-vars': 'warning',
+        '@typescript-eslint/no-unused-vars': 'warn',
         'no-shadow': 'off',
         '@typescript-eslint/no-shadow': 'error',
         // preferences

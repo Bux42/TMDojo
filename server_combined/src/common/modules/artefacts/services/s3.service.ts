@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { S3 } from 'aws-sdk';
 import { InjectS3 } from 'nestjs-s3';
-import { MyLogger } from '../../common/logger/my-logger.service';
+import { MyLogger } from '../../../logger/my-logger.service';
 import { DeleteReplayObjectResponse } from '../artefacts.service';
 
 @Injectable()

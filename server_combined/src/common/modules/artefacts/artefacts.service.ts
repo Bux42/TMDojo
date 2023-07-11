@@ -1,11 +1,11 @@
 import { Injectable, NotFoundException, NotImplementedException } from '@nestjs/common';
 import { Readable } from 'stream';
-import { MyLogger } from '../common/logger/my-logger.service';
-import { compress, decompress } from '../common/util/compression';
-import { MapRo } from '../maps/ro/Map.ro';
-import { UploadReplayDto } from '../replays/dto/UploadReplay.dto';
-import { Replay } from '../replays/schemas/replay.schema';
-import { UserRo } from '../users/dto/user.ro';
+import { MyLogger } from '../../logger/my-logger.service';
+import { compress, decompress } from '../../util/compression';
+import { MapRo } from '../../../maps/ro/Map.ro';
+import { UploadReplayDto } from '../../../replays/dto/UploadReplay.dto';
+import { Replay } from '../../../replays/schemas/replay.schema';
+import { UserRo } from '../../../users/dto/user.ro';
 import { LocalArtefactsService } from './services/localArtefacts.service';
 import { S3Service } from './services/s3.service';
 

@@ -3,10 +3,10 @@ import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
 import { Map } from './schemas/map.schema';
 import { Replay } from '../replays/schemas/replay.schema';
-import { TmIoApiService } from '../common/services/tmIoApi/tmIoApi.service';
+import { TmIoApiService } from '../common/modules/tmIoApi/tmIoApi.service';
 import { ListMapsDto } from './dto/ListMaps.dto';
-import { regexPartialLowercaseStr as matchPartialLowercaseString } from '../common/db/filterRegex';
-import { calculateSkip } from '../common/db/pagination';
+import { regexPartialLowercaseStr as matchPartialLowercaseString } from '../common/util/db/filterRegex';
+import { calculateSkip } from '../common/util/db/pagination';
 import { MyLogger } from '../common/logger/my-logger.service';
 
 @Injectable()

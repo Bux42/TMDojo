@@ -3,7 +3,7 @@ import * as path from 'path';
 import { readFile, unlink, writeFile } from 'fs/promises';
 import { existsSync, mkdirSync } from 'fs';
 import { DeleteReplayObjectResponse } from '../artefacts.service';
-import { MyLogger } from '../../common/logger/my-logger.service';
+import { MyLogger } from '../../../logger/my-logger.service';
 
 const LOCAL_ARTEFACT_FOLDER = path.resolve(__dirname, '../../..');
 

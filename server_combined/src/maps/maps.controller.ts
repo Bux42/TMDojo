@@ -3,11 +3,11 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ListMapsDto } from './dto/ListMaps.dto';
-import { TmIoApiService } from '../common/services/tmIoApi/tmIoApi.service';
+import { TmIoApiService } from '../common/modules/tmIoApi/tmIoApi.service';
 import { MapsService } from './maps.service';
 import { MyLogger } from '../common/logger/my-logger.service';
 import { MapRo } from './ro/Map.ro';
-import { TmIoMapDataDto } from '../common/services/tmIoApi/dto/TmIoMapData.dto';
+import { TmIoMapDataDto } from '../common/modules/tmIoApi/dto/TmIoMapData.dto';
 import { GroupedMapsByReplayRo } from './ro/GroupedMapsByReplay.ro';
 
 @ApiTags('maps')

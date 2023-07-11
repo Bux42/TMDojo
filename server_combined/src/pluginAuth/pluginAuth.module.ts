@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { TmApiModule } from '../common/services/tmApi/tmApi.module';
+import { TmApiModule } from '../common/modules/tmApi/tmApi.module';
 import { Session, SessionSchema } from '../sessions/schemas/session.schema';
 import { SessionsModule } from '../sessions/sessions.module';
 import { User, UserSchema } from '../users/schemas/user.schema';

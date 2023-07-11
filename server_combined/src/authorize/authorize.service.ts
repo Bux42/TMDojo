@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { TmApiService } from '../common/services/tmApi/tmApi.service';
+import { TmApiService } from '../common/modules/tmApi/tmApi.service';
 import { UsersService } from '../users/users.service';
 import { SessionsService } from '../sessions/sessions.service';
 import { AuthorizeUserDto } from './dto/authorizeUser.dto';
@@ -11,7 +11,7 @@ export class AuthorizeService {
         private readonly tmApiService: TmApiService,
         private readonly usersService: UsersService,
         private readonly sessionsService: SessionsService,
-    ) {}
+    ) { }
 
     async authorizeUser(
         req: Request,
