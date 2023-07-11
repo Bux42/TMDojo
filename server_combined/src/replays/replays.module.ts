@@ -6,6 +6,7 @@ import { Replay, ReplaySchema } from './schemas/replay.schema';
 import { ArtefactsModule } from '../artefacts/artefacts.module';
 import { MapsModule } from '../maps/maps.module';
 import { User, UserSchema } from '../users/schemas/user.schema';
+import { ReplayUploadedListener } from './listeners/replay-uploaded.listener';
 
 @Module({
     imports: [
@@ -15,7 +16,10 @@ import { User, UserSchema } from '../users/schemas/user.schema';
         MapsModule,
     ],
     controllers: [ReplaysController],
-    providers: [ReplaysService],
+    providers: [
+        ReplaysService,
+        ReplayUploadedListener
+    ],
     exports: [ReplaysService],
 })
 export class ReplaysModule { }

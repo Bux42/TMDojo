@@ -13,6 +13,8 @@ import { Replay } from './schemas/replay.schema';
 import { ArtefactsService } from '../artefacts/artefacts.service';
 import { UserRo } from '../users/dto/user.ro';
 import { MyLogger } from '../common/logger/my-logger.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { ReplayUploadedEvent } from './events/replay-uploaded.event';
 
 @Injectable()
 export class ReplaysService {
@@ -22,6 +24,7 @@ export class ReplaysService {
         private readonly mapsService: MapsService,
         private readonly artefactsService: ArtefactsService,
         private readonly logger: MyLogger,
+        private readonly eventEmitter: EventEmitter2
     ) {
         this.logger.setContext(ReplaysService.name);
     }
@@ -101,6 +104,10 @@ export class ReplaysService {
             .exec();
     }
 
+    countReplays(filter: FilterQuery<Replay> = {}): Promise<number> {
+        return this.replayModel.count(filter).exec();
+    }
+
     async uploadReplay(loggedInUser: UserRo, uploadReplayDto: UploadReplayDto, replayBuffer: Buffer): Promise<Replay> {
         const {
             mapUId, raceFinished, endRaceTime, pluginVersion, sectorTimes,
@@ -131,6 +138,15 @@ export class ReplaysService {
         });
 
         this.logger.debug(`Replay uploaded: '${JSON.stringify(replay)}`);
+
+        this.eventEmitter.emit(
+            ReplayUploadedEvent.KEY,
+            new ReplayUploadedEvent(
+                replay,
+                loggedInUser,
+                map
+            )
+        );
 
         return replay;
     }

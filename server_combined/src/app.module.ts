@@ -10,12 +10,14 @@ import { AuthorizeModule } from './authorize/authorize.module';
 import { AuthModule } from './auth/auth.module';
 import { SetRequestIdMiddleware } from './common/middleware/setRequestId.middleware';
 import { LoggerModule } from './common/logger/my-logger.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 config();
 
 @Module({
     imports: [
         MongooseModule.forRoot(process.env.MONGO_URL, { useUnifiedTopology: true }),
+        EventEmitterModule.forRoot(),
         MapsModule,
         UsersModule,
         ReplaysModule,

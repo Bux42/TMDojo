@@ -105,9 +105,7 @@ export class ReplaysController {
     @Get(':replayId/file')
     async s3Test(
         @Param('replayId') replayId: string,
-        // @Res() res: Response,
     ): Promise<StreamableFile> {
-        // ) {
         const replay = await this.replaysService.findById(replayId);
 
         if (!replay) {
