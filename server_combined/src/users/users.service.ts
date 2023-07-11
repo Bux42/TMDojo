@@ -51,6 +51,13 @@ export class UsersService {
         return createdUser;
     }
 
+    updatePlayerNameByWebId({ webId, playerName }: { webId: string, playerName: string }) {
+        return this.userModel.findOneAndUpdate(
+            { webId },
+            { playerName },
+        );
+    }
+
     // Omitting _id because we search user by webId
     upsertUser(user: Omit<User, '_id' | 'toRo'>) {
         return this.userModel.findOneAndUpdate(

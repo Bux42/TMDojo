@@ -106,7 +106,7 @@ export class AuthService {
             });
         } else {
             // Update display name if the user already exists
-            user = await this.usersService.upsertUser({
+            user = await this.usersService.updatePlayerNameByWebId({
                 webId,
                 playerName,
             });
