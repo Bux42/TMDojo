@@ -1,5 +1,7 @@
 // import { Express } from 'express';
-import { NotFoundException, Injectable } from '@nestjs/common';
+import {
+    NotFoundException, Injectable, Inject, forwardRef,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
 import * as mongoose from 'mongoose';
@@ -15,12 +17,14 @@ import { UserRo } from '../users/dto/user.ro';
 import { MyLogger } from '../common/logger/my-logger.service';
 import { ReplayUploadedEvent } from './events/replay-uploaded.event';
 import { ArtefactsService } from '../common/modules/artefacts/artefacts.service';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class ReplaysService {
     constructor(
         @InjectModel(Replay.name) private replayModel: Model<Replay>,
-        @InjectModel(User.name) private userModel: Model<User>,
+        @Inject(forwardRef(() => UsersService))
+        private readonly usersService: UsersService,
         private readonly mapsService: MapsService,
         private readonly artefactsService: ArtefactsService,
         private readonly logger: MyLogger,
@@ -49,7 +53,7 @@ export class ReplaysService {
         // Handle user filter option
         let user;
         if (userWebId) {
-            user = await this.userModel.findOne({ webId: userWebId }).exec();
+            user = await this.usersService.findByWebId(userWebId);
             if (user == null) {
                 this.logger.debug(`User not found with webId: ${userWebId}`);
                 return [];
@@ -91,7 +95,7 @@ export class ReplaysService {
     // TODO: replace this with a getReplays method with all filters
     //     This was made temporarily to complete the /users/:webId/replays endpoint
     async findReplaysFromUser(webId: string) {
-        const user = await this.userModel.findOne({ webId }).exec();
+        const user = await this.usersService.findByWebId(webId);
 
         if (user === null) {
             return [];
