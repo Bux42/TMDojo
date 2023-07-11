@@ -1,12 +1,15 @@
 import { Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ProjectionType } from 'mongoose';
+import { UserCreatedEvent } from './events/new-user.event';
 import { User } from './schemas/user.schema';
 
 @Injectable()
 export class UsersService {
     constructor(
         @InjectModel(User.name) private userModel: Model<User>,
+        private readonly eventEmitter: EventEmitter2,
     ) { }
 
     findAll(projection?: ProjectionType<User>) {
@@ -33,8 +36,19 @@ export class UsersService {
             .exec();
     }
 
-    createUser(user: User) {
-        return this.userModel.create(user);
+    count() {
+        return this.userModel.countDocuments().exec();
+    }
+
+    async createUser(user: Omit<User, '_id' | 'toRo'>) {
+        const createdUser = await this.userModel.create(user);
+
+        this.eventEmitter.emit(
+            UserCreatedEvent.KEY,
+            new UserCreatedEvent(createdUser),
+        );
+
+        return createdUser;
     }
 
     // Omitting _id because we search user by webId
