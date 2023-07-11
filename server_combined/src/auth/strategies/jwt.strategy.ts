@@ -33,6 +33,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
         const user = await this.usersService.findById(userId);
 
+        if (!user) {
+            return null;
+        }
+
         const loggedInUser = {
             _id: user._id,
             webId: user.webId,
