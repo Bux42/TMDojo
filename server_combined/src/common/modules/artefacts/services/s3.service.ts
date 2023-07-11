@@ -1,10 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { S3, GetObjectCommandInput } from '@aws-sdk/client-s3';
+import { Readable } from 'stream';
 import { InjectS3 } from 'nestjs-s3';
 import { MyLogger } from '../../../logger/my-logger.service';
 import { DeleteReplayObjectResponse } from '../artefacts.service';
 import { streamToBuffer } from '../../../util/streams';
-import { Readable } from 'stream';
 
 @Injectable()
 export class S3Service {
@@ -31,6 +31,7 @@ export class S3Service {
         }
 
         if (!(data.Body instanceof Readable)) {
+            // eslint-disable-next-line max-len
             this.logger.debug(`Retrieved object with key: ${key}, from bucket: ${process.env.AWS_S3_BUCKET_NAME} is not a readable stream`);
             throw new NotFoundException('Retrieved object is not a readable stream');
         }

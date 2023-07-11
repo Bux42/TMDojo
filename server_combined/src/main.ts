@@ -29,7 +29,7 @@ async function bootstrap() {
 
     app.use(cookieParser());
 
-    if (process.env.NODE_ENV === 'dev') {
+    if (process.env.NODE_ENV === 'DEV') {
         const swaggerConfig = new DocumentBuilder()
             .setTitle('TMDojo API')
             .setDescription('Documentation for the TMDojo API')

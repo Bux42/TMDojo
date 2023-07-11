@@ -32,8 +32,8 @@ export class MapsService {
 
         return this.mapModel
             .find(filter)
-            .limit(limit)
-            .skip(calculateSkip({ limit, skip, skipPage }))
+            .limit(limit || Infinity)
+            .skip(calculateSkip({ limit, skip, skipPage }) || 0)
             .exec();
     }
 
@@ -88,7 +88,7 @@ export class MapsService {
         let map = await this.findByMapUId(mapUId);
 
         if (!map) {
-            this.logger.debug("Map not found, creating map with mapUId: ${mapUId}");
+            this.logger.debug(`Map not found, creating map with mapUId: ${mapUId}`);
             map = await this.createMapByMapUId(mapUId);
         }
 
@@ -98,7 +98,7 @@ export class MapsService {
     async createMapByMapUId(mapUId: string) {
         const mapInfo = await this.tmIoApiService.getMapInfo(mapUId);
 
-        if (!mapInfo) {
+        if (mapInfo === null) {
             return null;
         }
 

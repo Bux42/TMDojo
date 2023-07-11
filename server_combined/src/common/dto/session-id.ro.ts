@@ -1,3 +1,3 @@
 export class SessionIdRo {
-    sessionId: string;
+    sessionId!: string;
 }

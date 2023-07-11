@@ -25,7 +25,8 @@
 			"@types",
 			"src/types/*.ts",
 			"node_modules/**/*.d.ts"
-		]
+		],
+		"strict": true
 	},
 	"include": [
 		"src/",

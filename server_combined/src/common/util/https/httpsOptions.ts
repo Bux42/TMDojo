@@ -8,7 +8,7 @@ const tryGetFile = (path: string) => {
     try {
         return readFileSync(path);
     } catch (e) {
-        if (e.code === 'ENOENT') {
+        if (e instanceof Object && 'code' in e && e.code === 'ENOENT' && 'path' in e) {
             const logger = new MyLogger('HttpsOptions');
             logger.warn(`File not found: ${e.path}`);
         }

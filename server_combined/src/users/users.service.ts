@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ProjectionType } from 'mongoose';
+import { UserReplaysRo } from './dto/user-replays.ro';
 import { UserCreatedEvent } from './events/new-user.event';
 import { User } from './schemas/user.schema';
 
@@ -48,10 +49,13 @@ export class UsersService {
             new UserCreatedEvent(createdUser),
         );
 
+        type x = typeof createdUser & null;
+
         return createdUser;
     }
 
     updatePlayerNameByWebId({ webId, playerName }: { webId: string, playerName: string }) {
+        const test = new UserReplaysRo();
         return this.userModel.findOneAndUpdate(
             { webId },
             { playerName },

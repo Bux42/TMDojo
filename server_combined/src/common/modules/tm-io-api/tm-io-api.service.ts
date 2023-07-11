@@ -11,7 +11,7 @@ export class TmIoApiService {
         this.logger.setContext(TmIoApiService.name);
     }
 
-    async getMapInfo(mapUId: string): Promise<TmIoMapDataDto> {
+    async getMapInfo(mapUId: string): Promise<TmIoMapDataDto | null> {
         try {
             const res = await axios.get(`https://trackmania.io/api/map/${mapUId}`, {
                 withCredentials: true,

@@ -1,3 +1,3 @@
 export class AuthUrlRo {
-    authUrl: string;
+    authUrl!: string;
 }

@@ -15,7 +15,7 @@ export class LocalArtefactsService {
         this.logger.setContext(LocalArtefactsService.name);
     }
 
-    async getObject(key: string): Promise<Buffer> {
+    async getObject(key: string): Promise<Buffer | null> {
         const fullPath = path.resolve(LOCAL_ARTEFACT_FOLDER, key);
 
         this.logger.debug(`Getting object from ${fullPath}`);
@@ -23,7 +23,7 @@ export class LocalArtefactsService {
         try {
             return await readFile(fullPath);
         } catch (error) {
-            if (error?.code === 'ENOENT') {
+            if (error instanceof Object && 'code' in error && error?.code === 'ENOENT') {
                 // TODO: add log
                 return null;
             }
@@ -56,7 +56,7 @@ export class LocalArtefactsService {
 
             return { success: true } as const;
         } catch (error) {
-            if (error.code && error.code === 'ENOENT') {
+            if (error instanceof Object && 'code' in error && error?.code === 'ENOENT') {
                 // Silently catch error if the file doesn't exist and therefore can't be deleted
                 // Return success since the file has already been deleted
                 return { success: true } as const;

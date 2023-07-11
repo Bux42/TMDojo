@@ -1,4 +1,4 @@
 export class AuthorizedUserRo {
-    accountId: string;
-    displayName: string;
+    accountId!: string;
+    displayName!: string;
 }

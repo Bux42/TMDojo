@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import * as mongoose from 'mongoose';
@@ -9,18 +10,18 @@ import { UserRo } from '../dto/user.ro';
 })
 export class User {
     @Prop({ type: mongoose.Schema.Types.ObjectId, _id: true, auto: true })
-    _id: string;
+    _id!: string;
 
     @Prop({ required: true })
-    webId: string;
+    webId!: string;
 
     @Prop({ required: true })
-    playerName: string;
+    playerName!: string;
 
     @Prop()
     clientCode?: string;
 
-    toRo: () => UserRo;
+    toRo!: () => UserRo;
 }
 
 export type UserDocument = User & Document;

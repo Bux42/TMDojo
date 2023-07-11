@@ -14,7 +14,7 @@ export class PluginAuthService {
         this.logger.setContext(PluginAuthService.name);
     }
 
-    async generateAuthUrl(webId: string): Promise<string> {
+    async generateAuthUrl(webId: string): Promise<string | null> {
         const playerName = await this.tmApiService.fetchPlayerName(webId);
 
         if (!playerName) {

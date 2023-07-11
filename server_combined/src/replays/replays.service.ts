@@ -75,8 +75,8 @@ export class ReplaysService {
         return this.replayModel
             .find(filter)
             .sort({ date: -1 })
-            .limit(limit)
-            .skip(calculateSkip({ limit, skip, skipPage }))
+            .limit(limit || Infinity)
+            .skip(calculateSkip({ limit, skip, skipPage }) || 0)
             .populate<{ map: Map }>('map')
             .populate<{ user: User }>('user')
             .exec();

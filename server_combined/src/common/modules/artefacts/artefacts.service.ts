@@ -26,7 +26,7 @@ export class ArtefactsService {
     }
 
     async getReplayObject(replay: Replay): Promise<Buffer> {
-        let buffer: Buffer = null;
+        let buffer: Buffer | null = null;
 
         if (replay.objectPath) {
             buffer = await this.s3Service.getObject(`${replay.objectPath}`);

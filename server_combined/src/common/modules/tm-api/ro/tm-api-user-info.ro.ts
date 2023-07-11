@@ -1,4 +1,4 @@
 export class TmApiUserInfoRo {
-    accountId: string
-    displayName: string
+    accountId!: string;
+    displayName!: string;
 }

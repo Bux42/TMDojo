@@ -5,6 +5,7 @@ import { MyLogger } from '../common/logger/my-logger.service';
 import { OpApiService } from '../common/modules/op-api/op-api.service';
 import { TmApiService } from '../common/modules/tm-api/tm-api.service';
 import { UserRo } from '../users/dto/user.ro';
+import { User } from '../users/schemas/user.schema';
 import { UsersService } from '../users/users.service';
 import { JWT_TOKEN_EXPIRATION_SECS } from './auth.module';
 import { AccessTokenRo, JwtPayloadData } from './dto/jwt.dto';
@@ -78,7 +79,8 @@ export class AuthService {
 
         // Fetch user info using personalized access token
         const validateTokenResponse = await this.opApiService.validatePluginToken(token);
-        if (validateTokenResponse.error) {
+
+        if ('error' in validateTokenResponse) {
             throw new UnauthorizedException(`Failed to validate plugin token: ${validateTokenResponse.error}`);
         }
 
@@ -95,7 +97,7 @@ export class AuthService {
         };
     }
 
-    private async createOrUpdateUser(webId: string, playerName: string) {
+    private async createOrUpdateUser(webId: string, playerName: string): Promise<User> {
         let user = await this.usersService.findByWebId(webId);
 
         if (!user) {
@@ -104,9 +106,9 @@ export class AuthService {
                 webId,
                 playerName,
             });
-        } else {
+        } else if (user.playerName === playerName) {
             // Update display name if the user already exists
-            user = await this.usersService.updatePlayerNameByWebId({
+            await this.usersService.updatePlayerNameByWebId({
                 webId,
                 playerName,
             });
@@ -121,7 +123,7 @@ export class AuthService {
             path: '/',
             secure: req.secure,
             maxAge: age,
-            domain: process.env.NODE_ENV === 'prod' ? 'tmdojo.com' : 'localhost',
+            domain: process.env.NODE_ENV === 'PROD' ? 'tmdojo.com' : 'localhost',
         });
     }
 

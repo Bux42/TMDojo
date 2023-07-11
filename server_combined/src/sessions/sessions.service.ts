@@ -54,7 +54,7 @@ export class SessionsService {
             path: '/',
             secure: req.secure,
             maxAge: age,
-            domain: process.env.NODE_ENV === 'prod' ? 'tmdojo.com' : 'localhost',
+            domain: process.env.NODE_ENV === 'PROD' ? 'tmdojo.com' : 'localhost',
         });
     }
 

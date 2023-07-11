@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 import { Type } from 'class-transformer';
 import { IsInt, IsOptional } from 'class-validator';
 

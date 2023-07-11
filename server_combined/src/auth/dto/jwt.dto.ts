@@ -2,16 +2,16 @@
 /* eslint-disable camelcase */
 
 export class JwtPayloadData {
-    sub: string;
-    webId: string;
-    playerName: string;
+    sub!: string;
+    webId!: string;
+    playerName!: string;
 }
 
 export class JwtPayload extends JwtPayloadData {
-    iat: number;
-    exp: number;
+    iat!: number;
+    exp!: number;
 }
 
 export class AccessTokenRo {
-    access_token: string;
+    access_token!: string;
 }

@@ -14,7 +14,7 @@ export class OpApiService {
     }
 
     // TODO: check if this works
-    async validatePluginToken(token: string): Promise<ValidatePluginTokenRo> {
+    async validatePluginToken(token: string): Promise<ValidatePluginTokenRo | { error: any }> {
         // Prepare data to send to the Openplanet backend
         const params = new URLSearchParams();
         params.set('token', token);
@@ -30,19 +30,18 @@ export class OpApiService {
             });
         } catch (error) {
             this.logger.error(error);
-            return null;
+            return { error };
         }
 
         // Handle response
         if (!res.data) {
             this.logger.error('No data in response from Openplanet backend.');
-            return null;
+            return { error: 'No data in response from Openplanet backend.' };
         }
 
         const { data } = res;
 
         return {
-            error: data.error,
             accountID: data.account_id,
             displayName: data.display_name,
             tokenTime: data.token_time,

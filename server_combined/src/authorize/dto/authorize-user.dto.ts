@@ -1,6 +1,6 @@
 export class AuthorizeUserDto {
-    code: string;
+    code!: string;
 
     // eslint-disable-next-line camelcase
-    redirect_uri: string;
+    redirect_uri!: string;
 }
