@@ -14,9 +14,8 @@ export class ReplayUploadedListener {
     ) {
         this.logger.setContext(ReplayUploadedListener.name);
     }
-
     @OnEvent(ReplayUploadedEvent.KEY)
-    async handleReplayUploadedEvent(event: ReplayUploadedEvent) {
+    async logNewReplayEvents(event: ReplayUploadedEvent) {
         const { replay, user, map } = event;
 
         this.logger.log('New event: Replay uploaded!');
@@ -29,18 +28,27 @@ export class ReplayUploadedListener {
 
         const numReplaysOnMap = await this.replaysService.countReplays({ mapRef: replay.mapRef });
         this.logger.log(`Replay #${numReplaysOnMap} on map: ${map.mapName} (${map.mapUId})`);
+    }
 
+    @OnEvent(ReplayUploadedEvent.KEY)
+    async handleNewReplayEventAlert(event: ReplayUploadedEvent) {
+        const { replay, user, map } = event;
         await this.discordWebhookService.sendNewReplayAlert(replay, user, map);
+    }
 
+    @OnEvent(ReplayUploadedEvent.KEY)
+    async handleNewPbAlert(event: ReplayUploadedEvent) {
+        const { replay, user, map } = event;
         const replaysOfUserOnMap = await this.replaysService.findAll({ mapUId: map.mapUId, userWebId: user.webId });
-        if (replaysOfUserOnMap.length > 1) {
-            const sortedReplays = replaysOfUserOnMap.sort((a, b) => a.endRaceTime > b.endRaceTime ? 1 : -1);
-            this.logger.debug(sortedReplays);
-            const curBest = sortedReplays[0];
-            const prevBest = sortedReplays[1];
-            if (curBest.endRaceTime === replay.endRaceTime && curBest._id !== replay._id) {
-                await this.discordWebhookService.sendNewPersonalBestAlert(curBest, prevBest, user, map);
-            }
+
+        if (replaysOfUserOnMap.length <= 1) return;
+
+        const sortedReplays = replaysOfUserOnMap.sort((a, b) => a.endRaceTime > b.endRaceTime ? 1 : -1);
+        const curBest = sortedReplays[0];
+        const prevBest = sortedReplays[1];
+
+        if (curBest.endRaceTime === replay.endRaceTime && curBest._id !== replay._id) {
+            await this.discordWebhookService.sendNewPersonalBestAlert(curBest, prevBest, user, map);
         }
     }
 }
