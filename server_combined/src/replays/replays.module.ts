@@ -7,6 +7,7 @@ import { ArtefactsModule } from '../common/modules/artefacts/artefacts.module';
 import { MapsModule } from '../maps/maps.module';
 import { User, UserSchema } from '../users/schemas/user.schema';
 import { ReplayUploadedListener } from './listeners/replay-uploaded.listener';
+import { DiscordWebhookModule } from '../common/modules/discord/discord-webhook.module';
 
 @Module({
     imports: [
@@ -14,6 +15,7 @@ import { ReplayUploadedListener } from './listeners/replay-uploaded.listener';
         MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
         ArtefactsModule,
         MapsModule,
+        DiscordWebhookModule,
     ],
     controllers: [ReplaysController],
     providers: [

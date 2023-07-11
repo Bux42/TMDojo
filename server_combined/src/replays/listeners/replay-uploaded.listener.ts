@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { MyLogger } from '../../common/logger/my-logger.service';
+import { DiscordWebhookService } from '../../common/modules/discord/discord.webhook.service';
 import { ReplayUploadedEvent } from '../events/replay-uploaded.event';
 import { ReplaysService } from '../replays.service';
 
@@ -8,6 +9,7 @@ import { ReplaysService } from '../replays.service';
 export class ReplayUploadedListener {
     constructor(
         private replaysService: ReplaysService,
+        private discordWebhookService: DiscordWebhookService,
         private logger: MyLogger,
     ) {
         this.logger.setContext(ReplayUploadedListener.name);
@@ -27,5 +29,7 @@ export class ReplayUploadedListener {
 
         const numReplaysOnMap = await this.replaysService.countReplays({ mapRef: replay.mapRef });
         this.logger.log(`Replay #${numReplaysOnMap} on map: ${map.mapName} (${map.mapUId})`);
+
+        this.discordWebhookService.sendNewReplayAlert(replay, user, map);
     }
 }
