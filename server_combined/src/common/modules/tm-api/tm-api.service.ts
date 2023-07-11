@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { Injectable } from '@nestjs/common';
-import { TmApiUserInfoRo } from './ro/tmApiUserInfo.ro';
+import { TmApiUserInfoRo } from './ro/tm-api-user-info.ro';
 
 @Injectable()
 export class TmApiService {

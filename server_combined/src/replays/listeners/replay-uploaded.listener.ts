@@ -8,7 +8,7 @@ import { ReplaysService } from '../replays.service';
 export class ReplayUploadedListener {
     constructor(
         private replaysService: ReplaysService,
-        private logger: MyLogger
+        private logger: MyLogger,
     ) {
         this.logger.setContext(ReplayUploadedListener.name);
     }
@@ -17,10 +17,10 @@ export class ReplayUploadedListener {
     async handleReplayUploadedEvent(event: ReplayUploadedEvent) {
         const { replay, user, map } = event;
 
-        this.logger.log("New event: Replay uploaded!")
+        this.logger.log('New event: Replay uploaded!');
 
         const numReplays = await this.replaysService.countReplays();
-        this.logger.log("Replay #" + numReplays + " in total");
+        this.logger.log(`Replay #${numReplays} in total`);
 
         const numReplaysOfUser = await this.replaysService.countReplays({ userRef: user._id });
         this.logger.log(`Replay #${numReplaysOfUser} of user: ${user.playerName} (${user.webId})`);

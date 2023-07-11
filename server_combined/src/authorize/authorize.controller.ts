@@ -4,13 +4,13 @@ import {
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { AuthorizeService } from './authorize.service';
-import { AuthorizeUserDto } from './dto/authorizeUser.dto';
-import { AuthorizedUserRo } from './ro/authorizedUser.ro';
+import { AuthorizeUserDto } from './dto/authorize-user.dto';
+import { AuthorizedUserRo } from './ro/authorized-user.ro';
 
 @ApiTags('authorize')
 @Controller('authorize')
 export class AuthorizeController {
-    constructor(private readonly authorizeService: AuthorizeService) {}
+    constructor(private readonly authorizeService: AuthorizeService) { }
 
     @ApiOperation({
         summary: 'TODO: Check for missing functionality with current back-end, and integrate auth guard',

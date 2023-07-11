@@ -2,8 +2,8 @@ import {
     beforeEach, describe, expect, it,
 } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
-import { PluginAuthController } from './pluginAuth.controller';
-import { PluginAuthService } from './pluginAuth.service';
+import { PluginAuthController } from './plugin-auth.controller';
+import { PluginAuthService } from './plugin-auth.service';
 
 describe('PluginAuthController', () => {
     let pluginAuthController: PluginAuthController;

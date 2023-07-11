@@ -3,9 +3,9 @@ import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
 import { Map } from './schemas/map.schema';
 import { Replay } from '../replays/schemas/replay.schema';
-import { TmIoApiService } from '../common/modules/tmIoApi/tmIoApi.service';
-import { ListMapsDto } from './dto/ListMaps.dto';
-import { regexPartialLowercaseStr as matchPartialLowercaseString } from '../common/util/db/filterRegex';
+import { TmIoApiService } from '../common/modules/tm-io-api/tm-io-api.service';
+import { ListMapsDto } from './dto/list-maps.dto';
+import { regexPartialLowercaseStr as matchPartialLowercaseString } from '../common/util/db/filter-regex';
 import { calculateSkip } from '../common/util/db/pagination';
 import { MyLogger } from '../common/logger/my-logger.service';
 
@@ -76,14 +76,14 @@ export class MapsService {
     }
 
     findByMapUId(mapUId: string) {
-        this.logger.debug("Finding map with mapUId: " + mapUId);
+        this.logger.debug(`Finding map with mapUId: ${mapUId}`);
         return this.mapModel
             .findOne({ mapUId })
             .exec();
     }
 
     async findOrCreateByMapUId(mapUId: string) {
-        this.logger.debug("Find or create map with mapUId: " + mapUId)
+        this.logger.debug(`Find or create map with mapUId: ${mapUId}`);
 
         let map = await this.findByMapUId(mapUId);
 
@@ -102,7 +102,8 @@ export class MapsService {
         }
 
         const {
-            name, exchangeid, authorplayer, fileUrl, thumbnailUrl, bronzeScore, silverScore, goldScore, authorScore, timestamp
+            // eslint-disable-next-line max-len
+            name, exchangeid, authorplayer, fileUrl, thumbnailUrl, bronzeScore, silverScore, goldScore, authorScore, timestamp,
         } = mapInfo;
 
         return this.mapModel.create({

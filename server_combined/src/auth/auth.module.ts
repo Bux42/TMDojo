@@ -6,7 +6,7 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { UsersModule } from '../users/users.module';
 import { JwtStrategy } from './strategies/jwt.strategy';
-import { TmApiModule } from '../common/modules/tmApi/tmApi.module';
+import { TmApiModule } from '../common/modules/tm-api/tm-api.module';
 import { OpApiModule } from '../common/modules/op-api/op-api.module';
 
 config();

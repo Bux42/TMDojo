@@ -9,11 +9,11 @@ import { User } from '../auth/decorators/user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { MyLogger } from '../common/logger/my-logger.service';
 import { UserRo } from '../users/dto/user.ro';
-import { ListReplaysDto } from './dto/ListReplays.dto';
-import { UploadReplayDto } from './dto/UploadReplay.dto';
+import { ListReplaysDto } from './dto/list-replays.dto';
+import { UploadReplayDto } from './dto/upload-replay.dto';
 import { ReplaysService } from './replays.service';
-import { ReplayRo } from './ro/Replay.ro';
-import { FindReplaysRo } from './ro/FindReplays.ro';
+import { ReplayRo } from './ro/replay.ro';
+import { FindReplaysRo } from './ro/find-replays.ro';
 import { Replay } from './schemas/replay.schema';
 
 @ApiTags('replays')

@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Request, Response } from 'express';
 import { MyLogger } from '../common/logger/my-logger.service';
 import { OpApiService } from '../common/modules/op-api/op-api.service';
-import { TmApiService } from '../common/modules/tmApi/tmApi.service';
+import { TmApiService } from '../common/modules/tm-api/tm-api.service';
 import { UserRo } from '../users/dto/user.ro';
 import { UsersService } from '../users/users.service';
 import { JWT_TOKEN_EXPIRATION_SECS } from './auth.module';

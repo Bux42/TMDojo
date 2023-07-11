@@ -4,7 +4,7 @@ import { Document } from 'mongoose';
 import * as mongoose from 'mongoose';
 import { User } from '../../users/schemas/user.schema';
 import { Map } from '../../maps/schemas/map.schema';
-import { ReplayRo } from '../ro/Replay.ro';
+import { ReplayRo } from '../ro/replay.ro';
 
 @Schema({
     versionKey: false,

@@ -4,10 +4,10 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { SessionsService } from '../sessions/sessions.service';
-import { AuthUrlRo } from './ro/authUrl.ro';
-import { SessionIdRo } from '../common/ro/sessionId.ro';
-import { PluginAuthService } from './pluginAuth.service';
-import { UseClientCodeDto } from './dto/useClientCode.dto';
+import { AuthUrlRo } from './ro/auth-url.ro';
+import { SessionIdRo } from '../common/ro/session-id.ro';
+import { PluginAuthService } from './plugin-auth.service';
+import { UseClientCodeDto } from './dto/use-client-code.dto';
 
 @ApiTags('pluginAuth')
 @Controller('pluginAuth')

@@ -1,9 +1,9 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { TmApiService } from '../common/modules/tmApi/tmApi.service';
+import { TmApiService } from '../common/modules/tm-api/tm-api.service';
 import { UsersService } from '../users/users.service';
 import { SessionsService } from '../sessions/sessions.service';
-import { AuthorizeUserDto } from './dto/authorizeUser.dto';
+import { AuthorizeUserDto } from './dto/authorize-user.dto';
 
 @Injectable()
 export class AuthorizeService {

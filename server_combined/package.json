@@ -12,8 +12,8 @@
 		"test:watch": "jest --watch",
 		"test:cov": "jest --coverage",
 		"test:e2e": "jest --config ./test/jest-e2e.json",
-		"lint": "eslint . --ext ts --ext js",
-		"lint:fix": "eslint . --ext ts --ext js --fix"
+		"lint": "eslint ./src --ext ts --ext js",
+		"lint:fix": "eslint ./src --ext ts --ext js --fix"
 	},
 	"dependencies": {
 		"@aws-sdk/client-s3": "^3.24.0",

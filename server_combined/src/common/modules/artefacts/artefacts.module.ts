@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { S3Module } from 'nestjs-s3';
 import { ArtefactsService } from './artefacts.service';
-import { LocalArtefactsService } from './services/localArtefacts.service';
+import { LocalArtefactsService } from './services/local-artefacts.service';
 import { S3Service } from './services/s3.service';
 
 @Module({

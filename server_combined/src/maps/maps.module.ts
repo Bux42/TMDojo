@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { TmApiModule } from '../common/modules/tmApi/tmApi.module';
-import { TmIoApiModule } from '../common/modules/tmIoApi/tmIoApi.module';
+import { TmApiModule } from '../common/modules/tm-api/tm-api.module';
+import { TmIoApiModule } from '../common/modules/tm-io-api/tm-io-api.module';
 import { Replay, ReplaySchema } from '../replays/schemas/replay.schema';
 import { MapsController } from './maps.controller';
 import { MapsService } from './maps.service';

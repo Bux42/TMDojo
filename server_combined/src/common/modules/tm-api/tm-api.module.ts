@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { TmApiService } from './tmApi.service';
+import { TmApiService } from './tm-api.service';
 
 @Module({
     providers: [TmApiService],

@@ -1,4 +1,4 @@
-import { ReplayRo } from "./Replay.ro";
+import { ReplayRo } from './replay.ro';
 
 export class FindReplaysRo {
     replays: ReplayRo[];

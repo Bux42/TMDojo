@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Injectable } from '@nestjs/common';
-import { TmIoMapDataDto } from './dto/TmIoMapData.dto';
 import { MyLogger } from '../../logger/my-logger.service';
+import { TmIoMapDataDto } from './dto/tm-io-map-data.dto';
 
 @Injectable()
 export class TmIoApiService {

@@ -1,4 +1,4 @@
-import { MapRo } from "./Map.ro";
+import { MapRo } from './map.ro';
 
 export class GroupedMapsByReplayRo extends MapRo {
     count: number;

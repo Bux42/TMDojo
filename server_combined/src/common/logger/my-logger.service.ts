@@ -41,7 +41,7 @@ export class MyLogger extends ConsoleLogger {
     }
     private getUserString(): string {
         return this.user
-            ? "[" + this.user.webId + " - " + this.user.playerName + "]"
-            : "";
+            ? `[${this.user.webId} - ${this.user.playerName}]`
+            : '';
     }
 }

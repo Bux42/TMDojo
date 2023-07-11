@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { v4 as uuid } from 'uuid';
 import { MyLogger } from '../common/logger/my-logger.service';
-import { TmApiService } from '../common/modules/tmApi/tmApi.service';
+import { TmApiService } from '../common/modules/tm-api/tm-api.service';
 import { UsersService } from '../users/users.service';
 
 @Injectable()

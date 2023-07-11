@@ -37,7 +37,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
             _id: user._id,
             webId: user.webId,
             playerName: user.playerName,
-        }
+        };
 
         this.logger.setUser(loggedInUser);
 

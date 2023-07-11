@@ -2,11 +2,11 @@ import { Injectable, NotFoundException, NotImplementedException } from '@nestjs/
 import { Readable } from 'stream';
 import { MyLogger } from '../../logger/my-logger.service';
 import { compress, decompress } from '../../util/compression';
-import { MapRo } from '../../../maps/ro/Map.ro';
-import { UploadReplayDto } from '../../../replays/dto/UploadReplay.dto';
+import { MapRo } from '../../../maps/ro/map.ro';
+import { UploadReplayDto } from '../../../replays/dto/upload-replay.dto';
 import { Replay } from '../../../replays/schemas/replay.schema';
 import { UserRo } from '../../../users/dto/user.ro';
-import { LocalArtefactsService } from './services/localArtefacts.service';
+import { LocalArtefactsService } from './services/local-artefacts.service';
 import { S3Service } from './services/s3.service';
 
 export type DeleteReplayObjectResponse = {

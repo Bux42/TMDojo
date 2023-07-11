@@ -2,13 +2,13 @@ import {
     Controller, Get, NotFoundException, Param, Post, Query,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ListMapsDto } from './dto/ListMaps.dto';
-import { TmIoApiService } from '../common/modules/tmIoApi/tmIoApi.service';
+import { ListMapsDto } from './dto/list-maps.dto';
+import { TmIoApiService } from '../common/modules/tm-io-api/tm-io-api.service';
 import { MapsService } from './maps.service';
 import { MyLogger } from '../common/logger/my-logger.service';
-import { MapRo } from './ro/Map.ro';
-import { TmIoMapDataDto } from '../common/modules/tmIoApi/dto/TmIoMapData.dto';
-import { GroupedMapsByReplayRo } from './ro/GroupedMapsByReplay.ro';
+import { MapRo } from './ro/map.ro';
+import { GroupedMapsByReplayRo } from './ro/grouped-maps-by-replay.ro';
+import { TmIoMapDataDto } from '../common/modules/tm-io-api/dto/tm-io-map-data.dto';
 
 @ApiTags('maps')
 @Controller('maps')
