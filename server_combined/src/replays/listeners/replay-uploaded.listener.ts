@@ -14,6 +14,7 @@ export class ReplayUploadedListener {
     ) {
         this.logger.setContext(ReplayUploadedListener.name);
     }
+
     @OnEvent(ReplayUploadedEvent.KEY)
     async logNewReplayEvents(event: ReplayUploadedEvent) {
         const { replay, user, map } = event;
