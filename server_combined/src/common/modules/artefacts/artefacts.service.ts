@@ -92,14 +92,4 @@ export class ArtefactsService {
 
         throw new NotFoundException('No object or file path in replay');
     }
-
-    async streamToBuffer(stream: Readable): Promise<Buffer> {
-        const chunks: Buffer[] = [];
-
-        return new Promise((resolve, reject) => {
-            stream.on('data', (chunk: Buffer) => chunks.push(chunk));
-            stream.on('error', (err: Error) => reject(err));
-            stream.on('end', () => resolve(Buffer.concat(chunks)));
-        });
-    }
 }

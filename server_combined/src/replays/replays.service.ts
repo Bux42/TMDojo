@@ -33,7 +33,7 @@ export class ReplaysService {
         this.logger.setContext(ReplaysService.name);
     }
 
-    async findAll(findReplayOptions: FindReplaysDto) {
+    async findAll(findReplayOptions: FindReplaysDto): Promise<Replay[]> {
         const {
             mapUId, userWebId, limit, skip, skipPage, raceFinished,
         } = findReplayOptions;

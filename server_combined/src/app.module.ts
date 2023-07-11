@@ -16,7 +16,7 @@ config();
 
 @Module({
     imports: [
-        MongooseModule.forRoot(process.env.MONGO_URL, { useUnifiedTopology: true }),
+        MongooseModule.forRoot(process.env.MONGO_URL),
         EventEmitterModule.forRoot(),
         MapsModule,
         UsersModule,

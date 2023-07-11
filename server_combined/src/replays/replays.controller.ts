@@ -15,6 +15,7 @@ import { ReplaysService } from './replays.service';
 import { ReplayRo } from './dto/replay.ro';
 import { FindReplaysRo } from './dto/find-replays.ro';
 import { Replay } from './schemas/replay.schema';
+import { streamToBuffer } from '../common/util/streams';
 
 @ApiTags('replays')
 @Controller('replays')
@@ -64,7 +65,7 @@ export class ReplaysController {
         @Query() uploadReplayDto: UploadReplayDto,
         @Req() req: Request,
     ): Promise<ReplayRo> {
-        const rawReplayBuffer = await this.artefactsService.streamToBuffer(req);
+        const rawReplayBuffer = await streamToBuffer(req);
 
         const replay = await this.replaysService.uploadReplay(loggedInUser, uploadReplayDto, rawReplayBuffer);
 
