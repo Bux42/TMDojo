@@ -9,10 +9,10 @@ import { User } from '../../users/schemas/user.schema';
 })
 export class Session {
     @Prop({ required: true })
-    sessionId!: string;
+    sessionId: string;
 
     @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: User.name })
-    userRef!: string;
+    userRef: string;
 
     @Prop()
     clientCode?: string;

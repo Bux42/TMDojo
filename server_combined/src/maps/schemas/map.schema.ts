@@ -10,34 +10,34 @@ import { MapRo } from '../dto/map.ro';
 })
 export class Map {
     @Prop({ type: mongoose.Schema.Types.ObjectId, _id: true, auto: true })
-    _id!: string;
+    _id: string;
 
     @Prop({ required: true })
-    mapName!: string;
+    mapName: string;
 
     @Prop({ required: true })
-    mapUId!: string;
+    mapUId: string;
 
     @Prop({ required: true })
-    exchangeId!: number;
+    exchangeId: number;
 
     @Prop({ required: true })
-    authorName!: string;
+    authorName: string;
 
     @Prop({ required: true })
-    authorId!: string;
+    authorId: string;
 
     @Prop({ required: true })
-    fileUrl!: string;
+    fileUrl: string;
 
     @Prop({ required: true })
-    thumbnailUrl!: string;
+    thumbnailUrl: string;
 
     @Prop({ required: true })
-    timestamp!: string;
+    timestamp: string;
 
     @Prop({ required: true, type: 'object' })
-    medals!: {
+    medals: {
         bronze: number;
         silver: number;
         gold: number;
@@ -45,12 +45,12 @@ export class Map {
     };
 
     @Prop({ auto: true })
-    createdAt!: Date;
+    createdAt: Date;
 
     @Prop({ auto: true })
-    updatedAt!: Date;
+    updatedAt: Date;
 
-    toRo!: () => MapRo;
+    toRo: () => MapRo;
 }
 
 export type MapDocument = Map & Document;

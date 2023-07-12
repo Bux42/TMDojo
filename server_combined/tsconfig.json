@@ -14,7 +14,8 @@
 		"outDir": "./dist",
 		"noImplicitReturns": true,
 		"noImplicitThis": true,
-		"alwaysStrict": true,
+		"strict": true,
+		"strictPropertyInitialization": false,
 		"noUnusedParameters": false,
 		"pretty": true,
 		"emitDecoratorMetadata": true,
@@ -26,7 +27,6 @@
 			"src/types/*.ts",
 			"node_modules/**/*.d.ts"
 		],
-		"strict": true
 	},
 	"include": [
 		"src/",

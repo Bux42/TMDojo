@@ -13,24 +13,24 @@ import { ReplayRo } from '../dto/replay.ro';
 })
 export class Replay {
     @Prop({ type: mongoose.Schema.Types.ObjectId, _id: true, auto: true })
-    _id!: string;
+    _id: string;
 
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Map.name })
-    mapRef!: string;
+    mapRef: string;
     map?: Map;
 
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name })
-    userRef!: string;
+    userRef: string;
     user?: User;
 
     @Prop({ required: true })
-    date!: number;
+    date: number;
 
     @Prop({ required: true })
-    raceFinished!: number;
+    raceFinished: number;
 
     @Prop({ required: true })
-    endRaceTime!: number;
+    endRaceTime: number;
 
     @Prop()
     pluginVersion?: string;
@@ -45,12 +45,12 @@ export class Replay {
     filePath?: string;
 
     @Prop({ auto: true })
-    createdAt!: Date;
+    createdAt: Date;
 
     @Prop({ auto: true })
-    updatedAt!: Date;
+    updatedAt: Date;
 
-    toRo!: () => ReplayRo;
+    toRo: () => ReplayRo;
 }
 
 export type ReplayDocument = Replay & Document;

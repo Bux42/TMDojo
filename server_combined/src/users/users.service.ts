@@ -49,13 +49,10 @@ export class UsersService {
             new UserCreatedEvent(createdUser),
         );
 
-        type x = typeof createdUser & null;
-
         return createdUser;
     }
 
     updatePlayerNameByWebId({ webId, playerName }: { webId: string, playerName: string }) {
-        const test = new UserReplaysRo();
         return this.userModel.findOneAndUpdate(
             { webId },
             { playerName },

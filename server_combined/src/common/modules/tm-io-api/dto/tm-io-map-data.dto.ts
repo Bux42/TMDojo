@@ -1,10 +1,10 @@
 /* eslint-disable max-classes-per-file */
 
 export class TmIoPlayerDto {
-    name!: string;
-    id!: string;
+    name: string;
+    id: string;
     tag?: string;
-    zone!: {
+    zone: {
         name: string;
         flag: string;
         parent: {
@@ -20,7 +20,7 @@ export class TmIoPlayerDto {
             }
         }
     };
-    meta!: {
+    meta: {
         nadeo?: boolean;
         tmgl?: boolean;
         mastodon?: string;
@@ -32,26 +32,26 @@ export class TmIoPlayerDto {
 }
 
 export class TmIoMapDataDto {
-    author!: string;
-    name!: string;
-    mapType!: string;
-    mapStyle!: string;
-    authorScore!: number;
-    goldScore!: number;
-    silverScore!: number;
-    bronzeScore!: number;
-    collectionName!: string;
-    filename!: string;
-    isPlayable!: boolean;
-    mapId!: string;
-    mapUid!: string;
-    submitter!: string;
-    timestamp!: string;
-    fileUrl!: string;
-    thumbnailUrl!: string;
-    authorplayer!: TmIoPlayerDto;
-    submitterplayer!: TmIoPlayerDto;
-    exchangeid!: number;
+    author: string;
+    name: string;
+    mapType: string;
+    mapStyle: string;
+    authorScore: number;
+    goldScore: number;
+    silverScore: number;
+    bronzeScore: number;
+    collectionName: string;
+    filename: string;
+    isPlayable: boolean;
+    mapId: string;
+    mapUid: string;
+    submitter: string;
+    timestamp: string;
+    fileUrl: string;
+    thumbnailUrl: string;
+    authorplayer: TmIoPlayerDto;
+    submitterplayer: TmIoPlayerDto;
+    exchangeid: number;
 }
 
 /*

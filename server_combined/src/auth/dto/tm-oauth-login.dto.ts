@@ -4,8 +4,8 @@ import { IsString } from 'class-validator';
 
 export class TmOAuthLoginDto {
     @IsString()
-    code!: string;
+    code: string;
 
     @IsString()
-    redirect_uri!: string;
+    redirect_uri: string;
 }
