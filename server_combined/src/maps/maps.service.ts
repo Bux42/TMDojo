@@ -25,29 +25,40 @@ export class MapsService {
             mapName, mapUId, limit, skip, skipPage,
         } = listMapsDto;
 
+        const calculatedSkip = calculateSkip({ limit, skip, skipPage });
+
         // Create filter
         const filter: FilterQuery<Map> = {};
         if (mapName !== undefined) filter.mapName = matchPartialLowercaseString(mapName);
         if (mapUId !== undefined) filter.mapUId = mapUId;
 
-        return this.mapModel
-            .find(filter)
-            .limit(limit || Infinity)
-            .skip(calculateSkip({ limit, skip, skipPage }) || 0)
-            .exec();
+        // Build and perform query
+        let query = this.mapModel
+            .find(filter);
+
+        if (calculatedSkip) {
+            query = query.skip(calculatedSkip);
+        }
+        if (limit) {
+            query = query.limit(limit);
+        }
+
+        return query.exec();
     }
 
     aggregateReplaysByMap(listMapsDto: ListMapsDto) {
         const {
             mapName, mapUId, limit, skip, skipPage,
         } = listMapsDto;
+
         const calculatedSkip = calculateSkip({ limit, skip, skipPage });
 
         const filter: FilterQuery<Map> = {};
         if (mapName !== undefined) filter.mapName = matchPartialLowercaseString(mapName);
         if (mapUId !== undefined) filter.mapUId = mapUId;
 
-        return this.replayModel
+        // Build and execute query
+        let query = this.replayModel
             .aggregate()
             .group({
                 _id: '$mapRef',
@@ -65,9 +76,16 @@ export class MapsService {
                 $mergeObjects: ['$map', '$$ROOT'],
             })
             .match(filter)
-            .sort({ lastUpdate: -1 })
-            .skip(calculatedSkip ?? 0)
-            .limit(limit ?? Infinity)
+            .sort({ lastUpdate: -1 });
+
+        if (calculatedSkip) {
+            query = query.skip(calculatedSkip);
+        }
+        if (limit) {
+            query = query.limit(limit);
+        }
+
+        return query
             .project({
                 _id: 0,
                 map: 0,

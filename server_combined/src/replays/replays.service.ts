@@ -70,13 +70,21 @@ export class ReplaysService {
 
         this.logger.debug(`Filter query: ${JSON.stringify(filter)}`);
 
-        // TODO: implement other query parameters for replayModel query
+        const calculatedSkip = calculateSkip({ limit, skip, skipPage });
 
-        return this.replayModel
+        // Build and perform query
+        let query = this.replayModel
             .find(filter)
-            .sort({ date: -1 })
-            .limit(limit || Infinity)
-            .skip(calculateSkip({ limit, skip, skipPage }) || 0)
+            .sort({ date: -1 });
+
+        if (limit) {
+            query = query.limit(limit);
+        }
+        if (calculatedSkip) {
+            query = query.skip(calculatedSkip);
+        }
+
+        return query
             .populate<{ map: Map }>('map')
             .populate<{ user: User }>('user')
             .exec();
