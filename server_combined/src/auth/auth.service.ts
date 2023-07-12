@@ -86,9 +86,7 @@ export class AuthService {
         }
 
         // Add or get user if already exists
-        // TODO: make sure that whenever a user changes names, the previous user is updated and does not create new user
         const { accountID, displayName } = validateTokenResponse;
-
         const user = await this.createOrUpdateUser(accountID, displayName);
 
         return {
@@ -107,8 +105,8 @@ export class AuthService {
                 webId,
                 playerName,
             });
-        } else if (user.playerName === playerName) {
-            // Update display name if the user already exists
+        } else if (user.playerName !== playerName) {
+            // If the player already exists, update the name if the user has a different username
             await this.usersService.updatePlayerNameByWebId({
                 webId,
                 playerName,
