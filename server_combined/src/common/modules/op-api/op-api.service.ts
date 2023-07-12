@@ -29,17 +29,19 @@ export class OpApiService {
                 },
             });
         } catch (error) {
-            this.logger.error(error);
             return { error };
         }
 
         // Handle response
         if (!res.data) {
-            this.logger.error('No data in response from Openplanet backend.');
             return { error: 'No data in response from Openplanet backend.' };
         }
 
         const { data } = res;
+
+        if (data.error) {
+            return { error: data.error };
+        }
 
         return {
             accountID: data.account_id,

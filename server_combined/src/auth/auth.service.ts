@@ -81,7 +81,8 @@ export class AuthService {
         const validateTokenResponse = await this.opApiService.validatePluginToken(token);
 
         if ('error' in validateTokenResponse) {
-            throw new UnauthorizedException(`Failed to validate plugin token: ${validateTokenResponse.error}`);
+            this.logger.error(`Error while validating token with OP: ${JSON.stringify(validateTokenResponse.error)}`);
+            throw new UnauthorizedException('Failed to validate plugin token using OP.');
         }
 
         // Add or get user if already exists
