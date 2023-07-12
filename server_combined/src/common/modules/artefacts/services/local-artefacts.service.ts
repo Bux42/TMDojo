@@ -25,6 +25,7 @@ export class LocalArtefactsService {
         } catch (error) {
             if (error instanceof Object && 'code' in error && error?.code === 'ENOENT') {
                 // TODO: add log
+                this.logger.debug(`File does not exist at ${fullPath}`);
                 return null;
             }
             throw error;
