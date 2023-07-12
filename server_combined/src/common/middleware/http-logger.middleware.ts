@@ -31,7 +31,10 @@ export class HttpLoggerMiddleware implements NestMiddleware {
 
         response.on('close', () => {
             const { statusCode } = response;
-            const contentLength = parseInt(response.get('content-length') || '0', 10);
+            const responseContentLength = response.get('content-length');
+            const contentLength = responseContentLength
+                ? parseInt(responseContentLength, 10)
+                : 0;
             // const contentLengthKb = (contentLength / 1024).toFixed(1);
 
             const resInfo = `Res: [${statusCode}] ${contentLength} bytes`;
