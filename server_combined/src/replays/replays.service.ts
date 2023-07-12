@@ -77,11 +77,11 @@ export class ReplaysService {
             .find(filter)
             .sort({ date: -1 });
 
-        if (limit) {
-            query = query.limit(limit);
-        }
         if (calculatedSkip) {
             query = query.skip(calculatedSkip);
+        }
+        if (limit) {
+            query = query.limit(limit);
         }
 
         return query
