@@ -14,17 +14,17 @@ const envObject = {
     TMDOJO_UI_URL: z
         .string().url().min(1),
     HTTP_PORT: z
-        .number().int().min(1).max(65535)
-        .transform(Number.toString),
+        .coerce.number().int().min(1).max(65535)
+        .transform((v) => v.toString()),
     HTTPS_PORT: z
-        .number().int().min(1).max(65535)
-        .transform(Number.toString),
+        .coerce.number().int().min(1).max(65535)
+        .transform((v) => v.toString()),
     TM_API_CLIENT_ID: z
         .string().min(1),
     TM_API_CLIENT_SECRET: z
         .string().min(1),
     PREFERRED_STORAGE_TYPE: z
-        .enum(['S3', 'FS']).describe('MongoDB connection string'),
+        .enum(['S3', 'FS']),
     AWS_S3_REGION: z
         .string().min(1),
     AWS_S3_BUCKET_NAME: z

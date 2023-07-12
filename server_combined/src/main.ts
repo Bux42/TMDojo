@@ -1,14 +1,17 @@
+/* eslint-disable import/first */
+// eslint-disable-next-line import/order
+import { configEnv } from './env';
+
+configEnv();
+
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { config } from 'dotenv';
 import * as cookieParser from 'cookie-parser';
 import { ValidationPipe } from '@nestjs/common/pipes';
 import { AppModule } from './app.module';
 import { corsConfig } from './common/util/cors/cors-config';
 import { MyLogger } from './common/logger/my-logger.service';
 import { tryGetHttpsOptions } from './common/util/https/httpsOptions';
-
-config();
 
 async function bootstrap() {
     const bootstrapLogger = new MyLogger('Bootstrap');
