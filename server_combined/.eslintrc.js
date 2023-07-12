@@ -15,7 +15,7 @@ module.exports = {
     plugins: ['@typescript-eslint'],
     rules: {
         // indentation rules
-        indent: ['error', 4],
+        indent: ['error', 4, { ignoredNodes: ['PropertyDefinition'] }],
         // due to DB IDs we have to disable this
         'no-underscore-dangle': 'off',
         // TS-enforced stuff that only leads to false positives

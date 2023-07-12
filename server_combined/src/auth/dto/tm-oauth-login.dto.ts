@@ -1,4 +1,3 @@
-/* eslint-disable indent */
 /* eslint-disable camelcase */
 import { IsString } from 'class-validator';
 
