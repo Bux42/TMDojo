@@ -42,6 +42,7 @@ export class DiscordWebhookService {
 
         const timeStr = formatRaceTime(replay.endRaceTime);
         const medal = getMedalFromRaceTime(replay.endRaceTime, map);
+        const sectorsStr = replay.sectorTimes ? replay.sectorTimes.map((t) => formatRaceTime(t)).join(', ') : 'N/A';
 
         await this.sendWebhookMessage(webhook, {
             username: DOJO_BOT_NAME,
@@ -49,7 +50,8 @@ export class DiscordWebhookService {
             description:
                 `Map: ${map.mapName}
                 Time: ${timeStr}
-                Medal: ${medal}`,
+                Medal: ${medal}
+                Sectors: ${sectorsStr}`,
             color: '#B68FB8',
             thumbnailURL: map.thumbnailUrl,
         });
