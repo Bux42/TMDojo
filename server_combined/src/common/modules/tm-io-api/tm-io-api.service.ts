@@ -12,8 +12,15 @@ export class TmIoApiService {
     }
 
     async getMapInfo(mapUId: string): Promise<TmIoMapDataDto | null> {
+        // Trim map UId to make sure we don't request empty strings
+        // This redirects to the tm.io page instead of requesting through the API
+        const trimmedMapUId = mapUId.trim();
+        if (trimmedMapUId === '') {
+            return null;
+        }
+
         try {
-            const res = await axios.get(`https://trackmania.io/api/map/${mapUId}`, {
+            const res = await axios.get(`https://trackmania.io/api/map/${trimmedMapUId}`, {
                 withCredentials: true,
                 headers: { 'User-Agent': 'TMDojo API - https://github.com/Bux42/TMDojo' },
             });
