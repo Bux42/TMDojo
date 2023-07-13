@@ -21,7 +21,7 @@ export class MapsService {
         this.logger.setContext(MapsService.name);
     }
 
-    findAll(listMapsDto: ListMapsDto) {
+    findAll(listMapsDto: ListMapsDto = {}) {
         const {
             mapName, mapUId, limit, skip, skipPage,
         } = listMapsDto;
@@ -47,7 +47,7 @@ export class MapsService {
         return query.exec();
     }
 
-    async findAllWithReplayCounts(listMapsDto: ListMapsDto) {
+    async findAllWithReplayCounts(listMapsDto: ListMapsDto = {}) {
         const {
             mapName, mapUId, limit, skip, skipPage,
         } = listMapsDto;
