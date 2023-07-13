@@ -1,4 +1,4 @@
-import { MapRo } from "../../../maps/dto/map.ro";
+import { MapRo } from '../../../maps/dto/map.ro';
 
 type MedalString = 'Author' | 'Gold' | 'Silver' | 'Bronze' | 'None';
 
@@ -8,4 +8,4 @@ export const getMedalFromRaceTime = (raceTime: number, map: MapRo): MedalString 
     if (raceTime <= map.medals.silver) return 'Silver';
     if (raceTime <= map.medals.bronze) return 'Bronze';
     return 'None';
-}
+};

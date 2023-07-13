@@ -44,7 +44,7 @@ export class ReplayUploadedListener {
 
         if (replaysOfUserOnMap.length <= 1) return;
 
-        const sortedReplays = replaysOfUserOnMap.sort((a, b) => a.endRaceTime > b.endRaceTime ? 1 : -1);
+        const sortedReplays = replaysOfUserOnMap.sort((a, b) => (a.endRaceTime > b.endRaceTime ? 1 : -1));
         const curBest = sortedReplays[0];
         const prevBest = sortedReplays[1];
 

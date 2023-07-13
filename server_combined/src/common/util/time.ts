@@ -1,4 +1,3 @@
-
 // Utility constants for time in milliseconds
 export const TIME_IN_MS = {
     SECOND: 1_000,

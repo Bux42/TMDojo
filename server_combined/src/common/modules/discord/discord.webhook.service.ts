@@ -53,8 +53,7 @@ export class DiscordWebhookService {
             color: '#B68FB8',
             thumbnailURL: map.thumbnailUrl,
         });
-    }
-
+    };
 
     async sendNewPersonalBestAlert(replay: Replay, previousBestTime: Replay, user: UserRo, map: Map) {
         const webhook = DISCORD_WEBHOOKS.TESTING;
@@ -94,5 +93,5 @@ export class DiscordWebhookService {
             this.logger.error('Error sending discord webhook message:');
             this.logger.error(e);
         }
-    }
+    };
 }

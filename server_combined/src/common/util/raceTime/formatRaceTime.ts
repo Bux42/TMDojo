@@ -1,4 +1,4 @@
-import { TIME_IN_MS } from "../time";
+import { TIME_IN_MS } from '../time';
 
 export const formatRaceTime = (raceTime: number): string => {
     const sign = raceTime < 0 ? '-' : '';
