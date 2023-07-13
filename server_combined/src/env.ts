@@ -6,9 +6,11 @@ config();
 
 const envObject = {
     NODE_ENV: z
-        .enum(['DEV', 'PROD']).default('DEV'),
+        .enum(['DEV', 'PROD'])
+        .default('DEV'),
     USE_CERTIFICATES: z
-        .enum(['true', 'false']),
+        .enum(['true', 'false'])
+        .default('false'),
     MONGO_URL: z
         .string().url().min(1),
     TMDOJO_UI_URL: z
@@ -43,7 +45,7 @@ const envObject = {
         .string().min(1),
 } as const;
 
-const envZodSchema = z.object(envObject).required();
+const envZodSchema = z.object(envObject);
 
 export const configEnv = () => createEnv({
     server: envObject,
