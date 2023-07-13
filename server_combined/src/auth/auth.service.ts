@@ -107,6 +107,7 @@ export class AuthService {
             });
         } else if (user.playerName !== playerName) {
             // If the player already exists, update the name if the user has a different username
+            this.logger.log(`Updating player name for user ${user.webId} from ${user.playerName} to ${playerName}`);
             await this.usersService.updatePlayerNameByWebId({
                 webId,
                 playerName,
