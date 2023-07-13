@@ -27,7 +27,7 @@ export class MapsController {
     @Get()
     findAll(@Query() listMapsDto: ListMapsDto): Promise<GroupedMapsByReplayRo[]> {
         this.logger.log(listMapsDto);
-        return this.mapsService.aggregateReplaysByMap(listMapsDto);
+        return this.mapsService.findAllWithReplayCounts(listMapsDto);
     }
 
     @ApiOperation({

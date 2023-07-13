@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
+import { NotFoundException } from '@nestjs/common/exceptions';
 import { Map } from './schemas/map.schema';
 import { Replay } from '../replays/schemas/replay.schema';
 import { TmIoApiService } from '../common/modules/tm-io-api/tm-io-api.service';
@@ -46,16 +47,26 @@ export class MapsService {
         return query.exec();
     }
 
-    aggregateReplaysByMap(listMapsDto: ListMapsDto) {
+    async findAllWithReplayCounts(listMapsDto: ListMapsDto) {
         const {
             mapName, mapUId, limit, skip, skipPage,
         } = listMapsDto;
 
         const calculatedSkip = calculateSkip({ limit, skip, skipPage });
 
+        // Fetch map if map UID is provided
+        let map: Map | null = null;
+        if (mapUId) {
+            map = await this.findByMapUId(mapUId);
+            if (map === null) {
+                throw new NotFoundException(`Map not found with map UID: '${mapUId}'`);
+            }
+        }
+
+        // Setup filters
         const filter: FilterQuery<Map> = {};
         if (mapName !== undefined) filter.mapName = matchPartialLowercaseString(mapName);
-        if (mapUId !== undefined) filter.mapUId = mapUId;
+        if (map !== null) filter._id = map._id;
 
         // Build and execute query
         let query = this.replayModel
