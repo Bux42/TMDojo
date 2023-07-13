@@ -25,7 +25,7 @@ export class PluginAuthController {
         const authUrl = await this.pluginAuthService.generateAuthUrl(webId);
 
         if (!authUrl) {
-            throw new NotFoundException(`User not found with webId: ${webId}`);
+            throw new NotFoundException(`User not found with webId: '${webId}'`);
         }
 
         return { authUrl };
@@ -39,7 +39,7 @@ export class PluginAuthController {
         const session = await this.sessionsService.findSessionByClientCode(clientCode);
 
         if (!session) {
-            throw new NotFoundException(`Session not found with client code: ${clientCode}`);
+            throw new NotFoundException(`Session not found with client code: '${clientCode}'`);
         }
 
         await this.sessionsService.removeClientCodeFromSession(session.sessionId);

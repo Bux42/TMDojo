@@ -35,7 +35,7 @@ export class UsersController {
         const user = await this.usersService.findByWebId(webId);
 
         if (user === null) {
-            throw new NotFoundException(`User not found by webId: ${webId}`);
+            throw new NotFoundException(`User not found by webId: '${webId}'`);
         }
 
         return user.toRo();
@@ -64,7 +64,7 @@ export class UsersController {
         const user = await this.sessionsService.findUserBySessionId(sessionId);
 
         if (user === null) {
-            throw new NotFoundException(`Session not found by ID: ${sessionId}`);
+            throw new NotFoundException(`Session not found by ID: '${sessionId}'`);
         }
 
         return user.toRo();

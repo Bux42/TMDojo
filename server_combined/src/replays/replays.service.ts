@@ -127,7 +127,7 @@ export class ReplaysService {
 
         const map = await this.mapsService.findOrCreateByMapUId(mapUId);
         if (!map) {
-            throw new NotFoundException(`Map not found with ID: ${mapUId}`);
+            throw new NotFoundException(`Map not found with ID: '${mapUId}'`);
         }
 
         // eslint-disable-next-line max-len

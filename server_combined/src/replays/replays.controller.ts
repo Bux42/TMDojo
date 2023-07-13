@@ -49,7 +49,7 @@ export class ReplaysController {
         const replay = await this.replaysService.findById(replayId);
 
         if (!replay) {
-            throw new NotFoundException(`Replay not found with replay ID: ${replayId}`);
+            throw new NotFoundException(`Replay not found with replay ID: '${replayId}'`);
         }
 
         return replay.toRo();
@@ -88,11 +88,11 @@ export class ReplaysController {
         const replay = await this.replaysService.findById(replayId);
 
         if (!replay) {
-            throw new NotFoundException(`Replay not found with replay ID: ${replayId}`);
+            throw new NotFoundException(`Replay not found with replay ID: '${replayId}'`);
         }
 
         if (replay.user.webId !== loggedInUser.webId) {
-            throw new UnauthorizedException(`You are not authorized to delete replay with ID: ${replayId}`);
+            throw new UnauthorizedException(`You are not authorized to delete replay with ID: '${replayId}'`);
         }
 
         await this.replaysService.deleteReplay(replay);
@@ -110,7 +110,7 @@ export class ReplaysController {
         const replay = await this.replaysService.findById(replayId);
 
         if (!replay) {
-            throw new NotFoundException(`Replay not found with ID: ${replayId}`);
+            throw new NotFoundException(`Replay not found with ID: '${replayId}'`);
         }
 
         const buffer = await this.artefactsService.getReplayObject(replay);

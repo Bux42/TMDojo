@@ -38,7 +38,7 @@ export class MapsController {
         const map = await this.mapsService.findByMapUId(mapUId);
 
         if (map === null) {
-            throw new NotFoundException(`Map not found: ${mapUId}`);
+            throw new NotFoundException(`Map not found with map UID: '${mapUId}'`);
         }
 
         return map.toRo();
@@ -49,7 +49,7 @@ export class MapsController {
         const map = await this.mapsService.findOrCreateByMapUId(mapUId);
 
         if (map === null) {
-            throw new NotFoundException(`Unable to find or create map with ID: ${mapUId}`);
+            throw new NotFoundException(`Unable to find or create map with UID: '${mapUId}'`);
         }
 
         return map.toRo();
@@ -63,7 +63,7 @@ export class MapsController {
         const tmIoMapData = await this.tmIoApiService.getMapInfo(mapUId);
 
         if (tmIoMapData === null) {
-            throw new NotFoundException(`Unable to find info of map with ID: ${mapUId}`);
+            throw new NotFoundException(`Unable to find info of map with ID: '${mapUId}'`);
         }
 
         return tmIoMapData;
