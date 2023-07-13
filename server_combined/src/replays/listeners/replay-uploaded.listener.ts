@@ -48,7 +48,7 @@ export class ReplayUploadedListener {
         const curBest = sortedReplays[0];
         const prevBest = sortedReplays[1];
 
-        if (curBest.endRaceTime === replay.endRaceTime && curBest._id !== replay._id) {
+        if (replay.endRaceTime < curBest.endRaceTime && replay._id !== curBest._id) {
             await this.discordWebhookService.sendNewPersonalBestAlert(curBest, prevBest, user, map);
         }
     }
