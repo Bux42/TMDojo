@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { DiscordWebhookService } from './discord.webhook.service';
+import { DiscordWebhookService } from './discord-webhook.service';
 
 @Module({
     providers: [DiscordWebhookService],
