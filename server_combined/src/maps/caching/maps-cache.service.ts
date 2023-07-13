@@ -5,9 +5,11 @@ import { Cache } from 'cache-manager';
 import { MyLogger } from '../../common/logger/my-logger.service';
 import { calculateSkip } from '../../common/util/db/pagination';
 import { TIME_IN_MS } from '../../common/util/time';
+import { ReplayRo } from '../../replays/dto/replay.ro';
 import { ReplayUploadedEvent } from '../../replays/events/replay-uploaded.event';
 import { GroupedMapsByReplayRo } from '../dto/grouped-maps-by-replay.ro';
 import { ListMapsDto } from '../dto/list-maps.dto';
+import { MapRo } from '../dto/map.ro';
 import { MapsService } from '../maps.service';
 
 const MAPS_WITH_REPLAY_COUNTS_CACHE_KEY = 'MAPS_WITH_REPLAY_COUNTS_CACHE_KEY';
@@ -68,24 +70,34 @@ export class MapsCacheService {
     // Increment map cache whenever a replay is uploaded
     @OnEvent(ReplayUploadedEvent.KEY)
     private async handleReplayUploadedEvent(replayUploadedEvent: ReplayUploadedEvent) {
-        await this.incrementMapReplayCount(replayUploadedEvent.map.mapUId, replayUploadedEvent.replay.date);
+        await this.incrementMapReplayCount(replayUploadedEvent.map, replayUploadedEvent.replay);
     }
 
-    private async incrementMapReplayCount(mapUId: string, lastUpdate: number) {
-        const cached = await this.getMapsCache();
+    private async incrementMapReplayCount(map: MapRo, replay: ReplayRo) {
+        const cached = await this.findOrCacheMapsWithoutFilter();
         if (!cached) return;
 
-        const updatedMaps = cached.map((map) => {
-            if (map.mapUId !== mapUId) return map;
+        const { mapUId } = map;
+        const { date } = replay;
 
-            return {
+        const mapFromCache = cached.find((cachedMap) => cachedMap.mapUId === mapUId);
+
+        if (mapFromCache) {
+            this.logger.debug('New replay: map found in cache, incrementing replay count');
+            mapFromCache.count++;
+            mapFromCache.lastUpdate = date;
+        } else {
+            this.logger.debug('New replay: map not found in cache, adding to cache');
+            cached.push({
                 ...map,
-                count: map.count + 1,
-                lastUpdate,
-            };
-        });
+                count: 1,
+                lastUpdate: date,
+            });
+        }
 
-        await this.updateMapsCache(updatedMaps);
+        this.logger.debug(map);
+
+        await this.updateMapsCache(cached);
     }
 
     // Set new cache with TTL
