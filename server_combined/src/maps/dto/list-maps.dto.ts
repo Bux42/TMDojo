@@ -1,6 +1,12 @@
+import { IsNotEmpty, IsOptional } from 'class-validator';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 
 export class ListMapsDto extends PaginationDto {
-    mapUId?: string | undefined;
-    mapName?: string | undefined;
+    @IsOptional()
+    @IsNotEmpty()
+    mapUId?: string;
+
+    @IsOptional()
+    @IsNotEmpty()
+    mapName?: string;
 }

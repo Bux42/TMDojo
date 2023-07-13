@@ -1,6 +1,11 @@
+import { IsNotEmpty, IsString, IsUrl } from 'class-validator';
+
 export class AuthorizeUserDto {
+    @IsNotEmpty()
+    @IsString()
     code: string;
 
-    // eslint-disable-next-line camelcase
+    @IsNotEmpty()
+    @IsUrl({ require_tld: false })
     redirect_uri: string;
 }

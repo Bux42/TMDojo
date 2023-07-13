@@ -1,24 +1,27 @@
 import { Type } from 'class-transformer';
-import { IsInt, IsOptional } from 'class-validator';
+import { IsInt, IsNotEmpty, IsOptional } from 'class-validator';
 
 // type SortAsc = 'asc' | 'ASC' | 1
 // type SortDesc = 'desc' | 'DESC' | -1
 
 export class PaginationDto {
+    @IsOptional()
+    @IsNotEmpty()
     @IsInt()
     @Type(() => Number)
-    @IsOptional()
-    limit?: number | undefined;
+    limit?: number;
 
+    @IsOptional()
+    @IsNotEmpty()
     @IsInt()
     @Type(() => Number)
-    @IsOptional()
-    skip?: number | undefined;
+    skip?: number;
 
+    @IsOptional()
+    @IsNotEmpty()
     @IsInt()
     @Type(() => Number)
-    @IsOptional()
-    skipPage?: number | undefined;
+    skipPage?: number;
 
     // sortBy?: string;
     // sortOrder?: SortAsc | SortDesc

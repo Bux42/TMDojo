@@ -1,18 +1,23 @@
-import { IsInt, IsOptional, IsString } from 'class-validator';
+import {
+    IsInt, IsNotEmpty, IsOptional, IsString,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 
 export class FindReplaysDto extends PaginationDto {
-    @IsString()
     @IsOptional()
-    userWebId?: string | undefined;
-
+    @IsNotEmpty()
     @IsString()
-    @IsOptional()
-    mapUId?: string | undefined;
+    userWebId?: string;
 
+    @IsOptional()
+    @IsNotEmpty()
+    @IsString()
+    mapUId?: string;
+
+    @IsOptional()
+    @IsNotEmpty()
     @IsInt()
     @Type(() => Number)
-    @IsOptional()
-    raceFinished?: number | undefined;
+    raceFinished?: number;
 }

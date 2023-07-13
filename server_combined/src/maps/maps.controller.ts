@@ -8,7 +8,7 @@ import { MapsService } from './maps.service';
 import { MyLogger } from '../common/logger/my-logger.service';
 import { MapRo } from './dto/map.ro';
 import { GroupedMapsByReplayRo } from './dto/grouped-maps-by-replay.ro';
-import { TmIoMapDataDto } from '../common/modules/tm-io-api/dto/tm-io-map-data.dto';
+import { TmIoMapDataRo } from '../common/modules/tm-io-api/dto/tm-io-map-data.ro';
 
 @ApiTags('maps')
 @Controller('maps')
@@ -59,7 +59,7 @@ export class MapsController {
         summary: 'TODO: Remove',
     })
     @Get(':mapUId/tmio')
-    async findOneFromTmIo(@Param('mapUId') mapUId: string): Promise<TmIoMapDataDto> {
+    async findOneFromTmIo(@Param('mapUId') mapUId: string): Promise<TmIoMapDataRo> {
         const tmIoMapData = await this.tmIoApiService.getMapInfo(mapUId);
 
         if (tmIoMapData === null) {

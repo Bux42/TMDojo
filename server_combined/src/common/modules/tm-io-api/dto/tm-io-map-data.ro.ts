@@ -1,6 +1,6 @@
 /* eslint-disable max-classes-per-file */
 
-export class TmIoPlayerDto {
+export class TmIoPlayerRo {
     name: string;
     id: string;
     tag?: string;
@@ -31,7 +31,7 @@ export class TmIoPlayerDto {
     };
 }
 
-export class TmIoMapDataDto {
+export class TmIoMapDataRo {
     author: string;
     name: string;
     mapType: string;
@@ -49,8 +49,8 @@ export class TmIoMapDataDto {
     timestamp: string;
     fileUrl: string;
     thumbnailUrl: string;
-    authorplayer: TmIoPlayerDto;
-    submitterplayer: TmIoPlayerDto;
+    authorplayer: TmIoPlayerRo;
+    submitterplayer: TmIoPlayerRo;
     exchangeid: number;
 }
 

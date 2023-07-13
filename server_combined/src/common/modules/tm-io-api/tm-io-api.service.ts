@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Injectable } from '@nestjs/common';
 import { MyLogger } from '../../logger/my-logger.service';
-import { TmIoMapDataDto } from './dto/tm-io-map-data.dto';
+import { TmIoMapDataRo } from './dto/tm-io-map-data.ro';
 
 @Injectable()
 export class TmIoApiService {
@@ -11,7 +11,7 @@ export class TmIoApiService {
         this.logger.setContext(TmIoApiService.name);
     }
 
-    async getMapInfo(mapUId: string): Promise<TmIoMapDataDto | null> {
+    async getMapInfo(mapUId: string): Promise<TmIoMapDataRo | null> {
         // Trim map UId to make sure we don't request empty strings
         // This redirects to the tm.io page instead of requesting through the API
         const trimmedMapUId = mapUId.trim();

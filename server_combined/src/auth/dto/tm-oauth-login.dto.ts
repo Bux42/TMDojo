@@ -1,10 +1,11 @@
-/* eslint-disable camelcase */
-import { IsString } from 'class-validator';
+import { IsNotEmpty, IsString, IsUrl } from 'class-validator';
 
 export class TmOAuthLoginDto {
+    @IsNotEmpty()
     @IsString()
     code: string;
 
-    @IsString()
+    @IsNotEmpty()
+    @IsUrl({ require_tld: false })
     redirect_uri: string;
 }
