@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Webhook } from 'webhook-discord';
+import { MapRo } from '../../../maps/dto/map.ro';
 import { Map } from '../../../maps/schemas/map.schema';
 import { Replay } from '../../../replays/schemas/replay.schema';
 import { UserRo } from '../../../users/dto/user.ro';
@@ -35,7 +36,7 @@ export class DiscordWebhookService {
         });
     };
 
-    sendNewReplayAlert = async (replay: Replay, user: UserRo, map: Map) => {
+    sendNewReplayAlert = async (replay: Replay, user: UserRo, map: MapRo) => {
         const webhook = DISCORD_WEBHOOKS.TESTING;
 
         this.logger.debug(`DiscordWebhook: Sending '${webhook.name}' discord alert for new replay: ${user.playerName}`);
@@ -57,7 +58,7 @@ export class DiscordWebhookService {
         });
     };
 
-    async sendNewPersonalBestAlert(replay: Replay, previousBestTime: Replay, user: UserRo, map: Map) {
+    async sendNewPersonalBestAlert(replay: Replay, previousBestTime: Replay, user: UserRo, map: MapRo) {
         const webhook = DISCORD_WEBHOOKS.TESTING;
 
         this.logger.debug(`DiscordWebhook: Sending '${webhook.name}' discord alert for new personal best: ${user.playerName}`);

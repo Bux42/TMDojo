@@ -153,9 +153,9 @@ export class ReplaysService {
         this.eventEmitter.emit(
             ReplayUploadedEvent.KEY,
             new ReplayUploadedEvent(
-                replay,
+                replay.toRo(),
                 loggedInUser,
-                map,
+                map.toRo(),
             ),
         );
 
