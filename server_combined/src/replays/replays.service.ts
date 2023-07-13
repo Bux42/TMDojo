@@ -74,8 +74,7 @@ export class ReplaysService {
 
         // Build and perform query
         let query = this.replayModel
-            .find(filter)
-            .sort({ date: -1 });
+            .find(filter);
 
         if (calculatedSkip) {
             query = query.skip(calculatedSkip);
