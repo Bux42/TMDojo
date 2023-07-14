@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Webhook } from 'webhook-discord';
 import { MapRo } from '../../../maps/dto/map.ro';
-import { Map } from '../../../maps/schemas/map.schema';
+import { ReplayRo } from '../../../replays/dto/replay.ro';
 import { Replay } from '../../../replays/schemas/replay.schema';
 import { UserRo } from '../../../users/dto/user.ro';
 import { MyLogger } from '../../logger/my-logger.service';
@@ -36,7 +36,7 @@ export class DiscordWebhookService {
         });
     };
 
-    sendNewReplayAlert = async (replay: Replay, user: UserRo, map: MapRo) => {
+    sendNewReplayAlert = async (replay: ReplayRo, user: UserRo, map: MapRo) => {
         const webhook = DISCORD_WEBHOOKS.TESTING;
 
         this.logger.debug(`DiscordWebhook: Sending '${webhook.name}' discord alert for new replay: ${user.playerName}`);
