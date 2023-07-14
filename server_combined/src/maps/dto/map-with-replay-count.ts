@@ -1,6 +1,6 @@
 import { MapRo } from './map.ro';
 
-export class GroupedMapsByReplayRo extends MapRo {
+export class MapWithReplayCountRo extends MapRo {
     count: number;
     lastUpdate: number;
 }

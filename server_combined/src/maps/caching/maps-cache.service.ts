@@ -7,7 +7,7 @@ import { calculateSkip } from '../../common/util/db/pagination';
 import { TIME_IN_MS } from '../../common/util/time';
 import { ReplayRo } from '../../replays/dto/replay.ro';
 import { ReplayUploadedEvent } from '../../replays/events/replay-uploaded.event';
-import { GroupedMapsByReplayRo } from '../dto/grouped-maps-by-replay.ro';
+import { MapWithReplayCountRo } from '../dto/map-with-replay-count';
 import { ListMapsDto } from '../dto/list-maps.dto';
 import { MapRo } from '../dto/map.ro';
 import { MapsService } from '../maps.service';
@@ -101,18 +101,18 @@ export class MapsCacheService {
     }
 
     // Set new cache with TTL
-    private async setMapsCache(maps: GroupedMapsByReplayRo[]): Promise<void> {
+    private async setMapsCache(maps: MapWithReplayCountRo[]): Promise<void> {
         await this.cacheManager.set(MAPS_WITH_REPLAY_COUNTS_CACHE_KEY, maps, CACHE_TTL);
     }
 
     // Update cache without changing TTL
-    private async updateMapsCache(maps: GroupedMapsByReplayRo[]): Promise<void> {
+    private async updateMapsCache(maps: MapWithReplayCountRo[]): Promise<void> {
         const prevTTL = await this.cacheManager.store.ttl(MAPS_WITH_REPLAY_COUNTS_CACHE_KEY);
         await this.cacheManager.set(MAPS_WITH_REPLAY_COUNTS_CACHE_KEY, maps, prevTTL);
     }
 
     // Get cache
-    private async getMapsCache(): Promise<GroupedMapsByReplayRo[] | undefined> {
+    private async getMapsCache(): Promise<MapWithReplayCountRo[] | undefined> {
         return this.cacheManager.get(MAPS_WITH_REPLAY_COUNTS_CACHE_KEY);
     }
 }

@@ -7,7 +7,7 @@ import { TmIoApiService } from '../common/modules/tm-io-api/tm-io-api.service';
 import { MapsService } from './maps.service';
 import { MyLogger } from '../common/logger/my-logger.service';
 import { MapRo } from './dto/map.ro';
-import { GroupedMapsByReplayRo } from './dto/grouped-maps-by-replay.ro';
+import { MapWithReplayCountRo } from './dto/map-with-replay-count';
 import { TmIoMapDataRo } from '../common/modules/tm-io-api/dto/tm-io-map-data.ro';
 import { MapsCacheService } from './caching/maps-cache.service';
 
@@ -27,7 +27,7 @@ export class MapsController {
         summary: 'TODO: Check functionality and add correct Ro return types',
     })
     @Get()
-    async findAll(@Query() listMapsDto: ListMapsDto): Promise<GroupedMapsByReplayRo[]> {
+    async findAll(@Query() listMapsDto: ListMapsDto): Promise<MapWithReplayCountRo[]> {
         this.logger.log(listMapsDto);
 
         const mapsGroupedByReplays = await this.mapsCacheService.findAllWithReplayCounts(listMapsDto);

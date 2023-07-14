@@ -9,6 +9,7 @@ import { ListMapsDto } from './dto/list-maps.dto';
 import { regexPartialLowercaseStr as matchPartialLowercaseString } from '../common/util/db/filter-regex';
 import { calculateSkip } from '../common/util/db/pagination';
 import { MyLogger } from '../common/logger/my-logger.service';
+import { MapWithReplayCountRo } from './dto/map-with-replay-count';
 
 @Injectable()
 export class MapsService {
@@ -47,7 +48,7 @@ export class MapsService {
         return query.exec();
     }
 
-    async findAllWithReplayCounts(listMapsDto: ListMapsDto = {}) {
+    async findAllWithReplayCounts(listMapsDto: ListMapsDto = {}): Promise<MapWithReplayCountRo[]> {
         const {
             mapName, mapUId, limit, skip, skipPage,
         } = listMapsDto;
