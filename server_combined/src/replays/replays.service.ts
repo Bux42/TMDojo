@@ -35,7 +35,7 @@ export class ReplaysService {
 
     async findAll(findReplayOptions: FindReplaysDto): Promise<Replay[]> {
         const {
-            mapUId, userWebId, limit, skip, skipPage, raceFinished,
+            mapUId, userWebId, limit, skip, skipPage, raceFinished, withMap,
         } = findReplayOptions;
 
         this.logger.debug(`Finding replays with options: ${JSON.stringify(findReplayOptions)}`);
@@ -83,10 +83,13 @@ export class ReplaysService {
             query = query.limit(limit);
         }
 
-        return query
-            .populate<{ map: Map }>('map')
-            .populate<{ user: User }>('user')
-            .exec();
+        if (withMap) {
+            query = query.populate<{ map: Map }>('map');
+        }
+
+        query = query.populate<{ user: User }>('user');
+
+        return query.exec();
     }
 
     findById(id: string) {
@@ -94,22 +97,6 @@ export class ReplaysService {
 
         return this.replayModel
             .findById(id)
-            .populate<{ map: Map }>('map')
-            .populate<{ user: User }>('user')
-            .exec();
-    }
-
-    // TODO: replace this with a getReplays method with all filters
-    //     This was made temporarily to complete the /users/:webId/replays endpoint
-    async findReplaysFromUser(webId: string) {
-        const user = await this.usersService.findByWebId(webId);
-
-        if (user === null) {
-            return [];
-        }
-
-        return this.replayModel
-            .find({ userRef: user.id })
             .populate<{ map: Map }>('map')
             .populate<{ user: User }>('user')
             .exec();

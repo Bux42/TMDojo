@@ -1,5 +1,5 @@
 import {
-    Controller, Get, NotFoundException, Param,
+    Controller, Get, NotFoundException, Param, Query,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ReplaysService } from '../replays/replays.service';
@@ -8,6 +8,7 @@ import { UserRo } from './dto/user.ro';
 import { UserReplaysRo } from './dto/user-replays.ro';
 import { User } from './schemas/user.schema';
 import { UsersService } from './users.service';
+import { FindReplaysDto } from '../replays/dto/find-replays.dto';
 
 @ApiTags('users')
 @Controller('users')
@@ -46,8 +47,14 @@ export class UsersController {
         summary: 'TODO: return type and remove and use \'/replays\' with webId as filter',
     })
     @Get(':webId/replays')
-    async getUserReplays(@Param('webId') webId: string): Promise<UserReplaysRo> {
-        const replays = await this.replaysService.findReplaysFromUser(webId);
+    async getUserReplays(
+        @Param('webId') webId: string,
+        @Query() findReplayOptions: FindReplaysDto,
+    ): Promise<UserReplaysRo> {
+        const replays = await this.replaysService.findAll({
+            ...findReplayOptions,
+            userWebId: webId,
+        });
 
         return {
             replays: replays.map((replay) => replay.toRo()),
