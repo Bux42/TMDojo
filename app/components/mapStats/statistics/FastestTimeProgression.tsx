@@ -156,7 +156,7 @@ const FastestTimeProgression = ({
                     <span style="font-size: 13px">
                         <b>${getRaceTimeStr(this.point.replay.endRaceTime)}</b>
                         ${' by '}
-                        <b>${this.point.replay.playerName}</b>
+                        <b>${this.point.replay.user.playerName}</b>
                     </span>
                 `;
             },
@@ -168,7 +168,7 @@ const FastestTimeProgression = ({
                     enabled: true,
                     formatter: function dataLabelFormatter(this: any) {
                         // eslint-disable-next-line react/no-this-in-sfc
-                        return `${this.point.replay.playerName} - ${getRaceTimeStr(this.y)}`;
+                        return `${this.point.replay.user.playerName} - ${getRaceTimeStr(this.y)}`;
                     },
                     color: 'white',
                     shadow: false,

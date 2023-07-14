@@ -60,7 +60,7 @@ const MapStats = () => {
         }
     }, [replays, user]);
 
-    const getTitle = () => (mapInfo?.name ? `${cleanTMFormatting(mapInfo.name)} - TMDojo` : 'TMDojo');
+    const getTitle = () => (mapInfo?.mapName ? `${cleanTMFormatting(mapInfo.mapName)} - TMDojo` : 'TMDojo');
 
     const calcBinSize = (inputReplays: ReplayInfo[]) => {
         if (inputReplays.length === 0) {
@@ -106,12 +106,12 @@ const MapStats = () => {
         <div className="flex flex-col items-center min-h-screen bg-page-back">
             <HeadTitle title={getTitle()} />
             <MapHeader
-                mapInfo={mapInfo || {}}
+                mapInfo={mapInfo}
                 title="Map statistics"
                 backUrl="/"
             >
                 <CleanButton
-                    url={`/maps/${mapInfo?.mapUid}`}
+                    url={`/maps/${mapInfo?.mapUId}`}
                     backColor="hsl(0, 0%, 15%)"
                     disabled={mapInfo === undefined}
                 >

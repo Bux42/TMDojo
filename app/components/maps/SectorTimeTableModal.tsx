@@ -236,7 +236,7 @@ const SectorTimeTableModal = ({
 
         let data: Entry[] = filteredReplays.map((replay, replayIndex) => ({
             date: replay.date,
-            playerName: replay.playerName,
+            playerName: replay.user.playerName,
             time: replay.endRaceTime,
             gap: replay.endRaceTime - referenceFinishTime,
             sectorTimes: allIndividualSectorTimes[replayIndex],

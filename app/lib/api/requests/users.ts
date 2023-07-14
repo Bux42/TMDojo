@@ -2,13 +2,12 @@ import apiInstance from '../apiInstance';
 import { AllReplaysResult } from './replays';
 
 export type UserInfo = {
-    webId?: string;
-    playerLogin?: string;
-    playerName?: string;
-    _id?: number;
+    _id: number;
+    webId: string;
+    playerName: string;
 };
 export const getUserInfo = async (webId: string): Promise<UserInfo> => {
-    const { data } = await apiInstance.get(`/users/${webId}/info`);
+    const { data } = await apiInstance.get(`/users/${webId}`);
     return data;
 };
 

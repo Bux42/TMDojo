@@ -54,7 +54,9 @@ export interface ReplayInfo {
         playerName: string;
     }
     mapRef: string;
-    map: {
+    mapName: string;
+    mapUId: string;
+    map?: {
         _id: string;
         authorName: string;
         fileUrl: string;

@@ -1,17 +1,24 @@
 import apiInstance from '../apiInstance';
 
 export type MapInfo = {
-    mapUid?: string;
-    name?: string;
-    authorScore?: number;
-    goldScore?: number;
-    silverScore?: number;
-    bronzeScore?: number;
-    authordisplayname?: string;
-    exchangeid?: number;
+    _id: string;
+    mapName: string;
+    mapUId: string;
+    exchangeId: number;
+    authorName: string;
+    authorId: string;
+    fileUrl: string;
+    thumbnailUrl: string;
+    timestamp: string;
+    medals: {
+        bronze: number;
+        silver: number;
+        gold: number;
+        author: number;
+    };
 };
 export const getMapInfo = async (mapUId: string): Promise<MapInfo> => {
-    const { data } = await apiInstance.get(`/maps/${mapUId}/info`);
+    const { data } = await apiInstance.get(`/maps/${mapUId}`);
     return data;
 };
 

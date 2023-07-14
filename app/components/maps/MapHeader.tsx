@@ -15,16 +15,16 @@ interface Props {
 const MapHeader = ({
     mapInfo, title, backUrl, children,
 }: Props): JSX.Element => {
-    const hasExchangeId = mapInfo?.exchangeid !== undefined && mapInfo.exchangeid !== 0;
-    const hasMapUid = mapInfo?.mapUid !== undefined && mapInfo.mapUid !== '';
+    const hasExchangeId = mapInfo?.exchangeId !== undefined && mapInfo.exchangeId !== 0;
+    const hasMapUid = mapInfo?.mapUId !== undefined && mapInfo.mapUId !== '';
 
-    const tmioURL = mapInfo?.mapUid ? `https://trackmania.io/#/leaderboard/${mapInfo.mapUid}` as const : undefined;
-    const tmxURL = mapInfo?.exchangeid ? `https://trackmania.exchange/maps/${mapInfo.exchangeid}` as const : undefined;
+    const tmioURL = mapInfo?.mapUId ? `https://trackmania.io/#/leaderboard/${mapInfo.mapUId}` as const : undefined;
+    const tmxURL = mapInfo?.exchangeId ? `https://trackmania.exchange/maps/${mapInfo.exchangeId}` as const : undefined;
 
     return (
         <PageHeaderBar
             title={title}
-            subtitle={cleanTMFormatting(mapInfo?.name || '')}
+            subtitle={cleanTMFormatting(mapInfo?.mapName || '')}
             backUrl={backUrl}
         >
             <CleanButton

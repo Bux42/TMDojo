@@ -137,7 +137,7 @@ const LoadedReplay = ({
                         onPointerEnter={() => hoveredReplayChanged(replay)}
                         onPointerLeave={() => hoveredReplayChanged(undefined)}
                     >
-                        {replay.playerName}
+                        {replay.user.playerName}
                     </div>
                 </div>
             </Col>

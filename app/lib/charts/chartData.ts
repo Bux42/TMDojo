@@ -5,7 +5,7 @@ import { ChartDataInfo } from './chartTypes';
 
 export const chartDataTemplate = (replay: ReplayData): any => {
     const chartData: any = {
-        name: `${replay.playerName} ${getRaceTimeStr(replay.endRaceTime)}`,
+        name: `${replay.user.playerName} ${getRaceTimeStr(replay.endRaceTime)}`,
         data: [],
         marker: {
             enabled: false,

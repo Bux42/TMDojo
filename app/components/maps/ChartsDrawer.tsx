@@ -51,7 +51,7 @@ export const ReplayChart = ({
             for (let i = 0; i < metric.chartData.length; i++) {
                 const serie = metricChartData(replay, allRaceTimes, metric.chartData[i]);
                 const serieTitle = metric.chartData[i].name;
-                serie.name = `${replay.playerName} ${getRaceTimeStr(replay.endRaceTime)} ${serieTitle}`;
+                serie.name = `${replay.user.playerName} ${getRaceTimeStr(replay.endRaceTime)} ${serieTitle}`;
 
                 if (i === 0) {
                     serie.yAxis = i + 1;

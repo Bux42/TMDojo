@@ -143,8 +143,8 @@ const Home = (): JSX.Element => {
         });
     };
 
-    const title = mapInfo?.name
-        ? `${cleanTMFormatting(mapInfo.name)} - TMDojo`
+    const title = mapInfo?.mapName
+        ? `${cleanTMFormatting(mapInfo.mapName)} - TMDojo`
         : 'TMDojo';
 
     return (
@@ -153,7 +153,7 @@ const Home = (): JSX.Element => {
             <Layout>
                 <MapHeader mapInfo={mapInfo} title="Replay viewer" backUrl="/">
                     <CleanButton
-                        url={`/maps/${mapInfo?.mapUid}/stats`}
+                        url={`/maps/${mapInfo?.mapUId}/stats`}
                         backColor="hsl(0, 0%, 15%)"
                         disabled={mapInfo === undefined}
                     >

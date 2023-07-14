@@ -30,10 +30,10 @@ export const MapStatsTypeSwitcher = ({ mapStatsType, mapData, toggleMapStatsType
                 {`You are currently viewing ${mapStatsType === MapStatsType.GLOBAL ? 'the' : 'your'} `}
                 <b>{mapStatsType}</b>
                 {' statistics'}
-                {mapData.name && (
+                {mapData.mapName && (
                     <>
                         {' for '}
-                        <b>{cleanTMFormatting(mapData.name)}</b>
+                        <b>{cleanTMFormatting(mapData.mapName)}</b>
                     </>
                 )}
             </div>
