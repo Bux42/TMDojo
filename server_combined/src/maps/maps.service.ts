@@ -136,10 +136,12 @@ export class MapsService {
             name, exchangeid, authorplayer, fileUrl, thumbnailUrl, bronzeScore, silverScore, goldScore, authorScore, timestamp,
         } = mapInfo;
 
+        const cleanMapName = this.removeMapNameFormatting(name);
+
         return this.mapModel.create({
             mapUId,
             exchangeId: exchangeid,
-            mapName: name,
+            mapName: cleanMapName,
             authorName: authorplayer.name,
             authorId: authorplayer.id,
             fileUrl,
@@ -152,5 +154,9 @@ export class MapsService {
                 author: authorScore,
             },
         });
+    }
+
+    private removeMapNameFormatting(mapName: string) {
+        return mapName.replace(/\$([0-9a-fA-F]{1,3}|[iIoOnNmMwWsSzZtTgG<>]|[lLhHpP](\\[[^\\]]+\\])?)/g, '');
     }
 }
