@@ -18,6 +18,12 @@ export class Replay {
     mapRef: string;
     map?: Map;
 
+    @Prop({ required: true })
+    mapUId: string;
+
+    @Prop({ required: true })
+    mapName: string;
+
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name })
     userRef: string;
     user?: User;
@@ -74,6 +80,8 @@ ReplaySchema.methods.toRo = function toRo(this: Replay): ReplayRo {
     return {
         _id: this._id,
         mapRef: this.mapRef,
+        mapUId: this.mapUId,
+        mapName: this.mapName,
         map: this.map?.toRo(),
         userRef: this.userRef,
         user: this.user?.toRo(),

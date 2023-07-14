@@ -4,6 +4,8 @@ import { UserRo } from '../../users/dto/user.ro';
 export class ReplayRo {
     _id: string;
     mapRef: string;
+    mapUId: string;
+    mapName: string;
     map?: MapRo;
     userRef: string;
     user?: UserRo;

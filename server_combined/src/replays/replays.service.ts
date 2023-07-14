@@ -137,6 +137,8 @@ export class ReplaysService {
 
         const replay = await this.replayModel.create({
             mapRef: map._id,
+            mapUId: map.mapUId,
+            mapName: map.mapName,
             userRef: loggedInUser._id,
             date: Date.now(),
             raceFinished,
