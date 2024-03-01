@@ -54,3 +54,13 @@ export const deleteReplay = async (replay: any) => {
         dbCache.set('maps', cachedMaps);
     }
 };
+
+export const getMapNameByUId = async (mapUId: string) => {
+    const cachedMaps = await getMapsCache();
+    const mapCacheMatch = cachedMaps.find((map: any) => map.mapUId === mapUId);
+
+    if (mapCacheMatch) {
+        return mapCacheMatch.mapName;
+    }
+    return null;
+};
