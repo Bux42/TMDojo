@@ -21,8 +21,9 @@ const SidebarSettings = (): JSX.Element => {
         showInputOverlay, setShowInputOverlay,
         replayLineOpacity, setReplayLineOpacity,
         replayCarOpacity, setReplayCarOpacity,
-        showFullTrail, setShowFullTrail,
-        showTrailToStart, setShowTrailToStart,
+        showFullTrail, changeShowFullTrail,
+        showTrailToStart, changeShowTrailToStart,
+        revealTrailTime, changeRevealTrailTime,
     } = useContext(
         SettingsContext,
     );
@@ -125,7 +126,7 @@ const SidebarSettings = (): JSX.Element => {
                                 className="select-none"
                                 checked={showFullTrail}
                                 onChange={(e) => {
-                                    setShowFullTrail(e.target.checked);
+                                    changeShowFullTrail(e.target.checked);
                                     timeLineGlobal.showFullTrail = e.target.checked;
                                 }}
                             >
@@ -138,7 +139,7 @@ const SidebarSettings = (): JSX.Element => {
                                 disabled={showFullTrail}
                                 checked={showTrailToStart}
                                 onChange={(e) => {
-                                    setShowTrailToStart(e.target.checked);
+                                    changeShowTrailToStart(e.target.checked);
                                     timeLineGlobal.showTrailToStart = e.target.checked;
                                 }}
                             >
@@ -154,13 +155,13 @@ const SidebarSettings = (): JSX.Element => {
                                     addonAfter="ms"
                                     className="w-full"
                                     disabled={showFullTrail || showTrailToStart}
-                                    defaultValue={timeLineGlobal.revealTrailTime}
+                                    defaultValue={revealTrailTime}
                                     min={0}
                                     step={100}
                                     precision={0}
                                     onChange={(e) => {
                                         if (typeof e === 'number') {
-                                            timeLineGlobal.revealTrailTime = e;
+                                            changeRevealTrailTime(e);
                                         }
                                     }}
                                 />
