@@ -220,6 +220,11 @@ const LoadedReplays = ({
                         onChange={(e: RadioChangeEvent) => { timeLineGlobal.cameraMode = e.target.value; }}
                         className="flex gap-4"
                     >
+                        {timeLineGlobal.followedReplay && (
+                            <Radio.Button value={CameraMode.Lock}>
+                                Lock
+                            </Radio.Button>
+                        )}
                         <Radio.Button value={CameraMode.Target}>
                             Target
                         </Radio.Button>

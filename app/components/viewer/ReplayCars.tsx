@@ -42,6 +42,9 @@ const ReplayCar = ({
 
     const smoothSample: ReplayDataPoint = replay.samples[0].clone();
 
+    // keep track of the camera mode switches
+    let prevCamMode = timeLineGlobal.cameraMode;
+
     // Get own material from loaded car model
     const carMesh: THREE.Mesh = fbx.children[0] as THREE.Mesh;
     const material: THREE.MeshPhongMaterial = carMesh.material as THREE.MeshPhongMaterial;
@@ -114,6 +117,21 @@ const ReplayCar = ({
                 if (orbitControlsRef && orbitControlsRef.current) {
                     orbitControlsRef.current.target.lerp(smoothSample.position, 0.2);
 
+                    if (timeLineGlobal.cameraMode === CameraMode.Lock) {
+                        // Set camPosRef to camera position only once
+                        if (prevCamMode !== timeLineGlobal.cameraMode) {
+                            camPosRef.current.position.set(
+                                camera.position.x - mesh.current.position.x,
+                                camera.position.y - mesh.current.position.y,
+                                camera.position.z - mesh.current.position.z,
+                            );
+                        }
+                        // move camera to camPosMesh world position
+                        const camWorldPos: THREE.Vector3 = new THREE.Vector3();
+                        camPosRef.current.getWorldPosition(camWorldPos);
+                        camera.position.lerp(camWorldPos, 0.3);
+                    }
+
                     if (timeLineGlobal.cameraMode === CameraMode.Follow) {
                         // move camPosMesh to Follow position
                         camPosRef.current.rotation.setFromQuaternion(carRotation);
@@ -149,6 +167,7 @@ const ReplayCar = ({
                     stadiumCarMesh.current.scale.lerp(new THREE.Vector3(0.01, 0.01, 0.01), 0.2);
                 }
             }
+            prevCamMode = timeLineGlobal.cameraMode;
         }
     });
 

@@ -7,6 +7,7 @@ import GlobalTimeLineInfos from '../singletons/timeLineInfos';
 export enum CameraMode {
     Target,
     Follow,
+    Lock
 }
 
 // Timeline singleton used to intialize settings context values to the same values
