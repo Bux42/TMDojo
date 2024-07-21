@@ -9,10 +9,9 @@
 import { Request, Response } from 'express';
 import * as express from 'express';
 
-import axios from 'axios';
-
 import * as db from '../lib/db';
 import * as artefacts from '../lib/artefacts';
+import { getMapNameByUId } from '../cache';
 
 const router = express.Router();
 /**
@@ -56,13 +55,8 @@ router.get('/:mapUID/info', async (req: Request, res: Response) => {
 
     // fetch tm.io data
     try {
-        const tmxRes = await axios.get(`https://trackmania.io/api/map/${req.params.mapUID}`, {
-            withCredentials: true,
-            headers: { 'User-Agent': 'TMDojo API - https://github.com/Bux42/TMDojo' },
-        });
-
-        const tmioData = tmxRes.data;
-        mapData = { ...mapData, ...tmioData };
+        const mapName = await getMapNameByUId(req.params.mapUID);
+        mapData = { name: mapName };
     } catch (error) {
         req.log.error(`mapsRouter: tm.io request failed with error ${error.toString()}`);
     }
