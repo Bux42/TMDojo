@@ -48,9 +48,7 @@ const Home = (): JSX.Element => {
         isFetching: isFetchingReplays,
     } = useMapReplays(mapUId);
 
-    const { user } = useContext(AuthContext);
-    const mapInfoQueryKey = user ? mapUId : undefined;
-    const { data: mapInfo } = useMapInfo(mapInfoQueryKey);
+    const { data: mapInfo } = useMapInfo(mapUId);
 
     const selectedReplaysWithValidSectors = useMemo(
         () => filterReplaysWithValidSectorTimes(selectedReplayData, mapReplaysResult?.replays || []),

@@ -54,20 +54,24 @@ router.get('/:mapUID', async (req: Request, res: Response, next: Function) => {
 router.get('/:mapUID/info', async (req: Request, res: Response) => {
     let mapData = {};
 
-    // fetch tm.io data
-    try {
-        const tmxRes = await axios.get(`https://trackmania.io/api/map/${req.params.mapUID}`, {
-            withCredentials: true,
-            headers: { 'User-Agent': 'TMDojo API - https://github.com/Bux42/TMDojo' },
-        });
+    if (!req.user) {
+        // Only call tm.io if user is authenticated
+        res.status(401).send();
+    } else {
+        // fetch tm.io data
+        try {
+            const tmxRes = await axios.get(`https://trackmania.io/api/map/${req.params.mapUID}`, {
+                withCredentials: true,
+                headers: { 'User-Agent': 'TMDojo API - https://github.com/Bux42/TMDojo' },
+            });
 
-        const tmioData = tmxRes.data;
-        mapData = { ...mapData, ...tmioData };
-    } catch (error) {
-        req.log.error(`mapsRouter: tm.io request failed with error ${error.toString()}`);
+            const tmioData = tmxRes.data;
+            mapData = { ...mapData, ...tmioData };
+        } catch (error) {
+            req.log.error(`mapsRouter: tm.io request failed with error ${error.toString()}`);
+        }
+        res.send(mapData);
     }
-
-    res.send(mapData);
 });
 
 /**
