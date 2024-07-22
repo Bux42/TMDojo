@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import { Layout } from 'antd';
 import { useRouter } from 'next/router';
 
@@ -27,6 +27,7 @@ import {
 import SectorTimeTableButton from '../../../components/maps/SectorTimeTableButton';
 import { filterReplaysWithValidSectorTimes } from '../../../lib/replays/sectorTimes';
 import useViewerPerformancePopupConfirmations from '../../../lib/hooks/useViewerPerformancePopupConfirmations';
+import { AuthContext } from '../../../lib/contexts/AuthContext';
 
 const Home = (): JSX.Element => {
     const queryClient = useQueryClient();
@@ -47,7 +48,9 @@ const Home = (): JSX.Element => {
         isFetching: isFetchingReplays,
     } = useMapReplays(mapUId);
 
-    const { data: mapInfo } = useMapInfo(mapUId);
+    const { user } = useContext(AuthContext);
+    const mapInfoQueryKey = user ? mapUId : undefined;
+    const { data: mapInfo } = useMapInfo(mapInfoQueryKey);
 
     const selectedReplaysWithValidSectors = useMemo(
         () => filterReplaysWithValidSectorTimes(selectedReplayData, mapReplaysResult?.replays || []),
