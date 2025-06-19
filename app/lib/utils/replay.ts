@@ -30,13 +30,11 @@ export const getSampleIndexNearTime = (replay: ReplayData, raceTime: number): nu
     sampleIndex = Math.min(Math.max(0, sampleIndex), replay.samples.length - 1);
 
     // If we are past the race time, iterate backward in time
-    while (sampleIndex > 0
-        && replay.samples[sampleIndex].currentRaceTime > raceTime) {
+    while (sampleIndex > 0 && replay.samples[sampleIndex].currentRaceTime > raceTime) {
         sampleIndex--;
     }
     // If we are before the race time, iterate forward in time
-    while (sampleIndex + 1 < replay.samples.length
-        && replay.samples[sampleIndex].currentRaceTime < raceTime) {
+    while (sampleIndex + 1 < replay.samples.length && replay.samples[sampleIndex].currentRaceTime < raceTime) {
         sampleIndex++;
     }
 

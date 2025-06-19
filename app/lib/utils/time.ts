@@ -13,11 +13,11 @@ export const getRaceTimeStr = (raceTime: number): string => {
     const msPadded = String(milliseconds).padStart(3, '0');
 
     return (
-        `${sign}`
-        + `${`${hours > 0 ? `${hours}:` : ''}`
-        + `${hours > 0 ? `${minutesPadded}:` : (minutes > 0 ? `${minutes}:` : '')}`
-        + `${minutes > 0 ? secondsPadded : seconds}`
-        + '.'}${msPadded}`
+        `${sign}` +
+        `${`${hours > 0 ? `${hours}:` : ''}` +
+        `${hours > 0 ? `${minutesPadded}:` : (minutes > 0 ? `${minutes}:` : '')}` +
+        `${minutes > 0 ? secondsPadded : seconds}` +
+        '.'}${msPadded}`
     );
 };
 

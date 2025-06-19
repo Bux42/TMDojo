@@ -7,7 +7,8 @@ const STOP_SHOWING_PERFORMANCE_WARNING_KEY = 'stopShowingPerformanceWarning';
 
 const showPerformanceWarning = () => {
     // Don't show the warning if the user has already dismissed it
-    const stopShowingPerformanceWarning = localStorage.getItem(STOP_SHOWING_PERFORMANCE_WARNING_KEY) !== null;
+    const stopShowingPerformanceWarning =
+        localStorage.getItem(STOP_SHOWING_PERFORMANCE_WARNING_KEY) !== null;
     if (stopShowingPerformanceWarning) return;
 
     // Assign key to notification so we can close it later
@@ -17,13 +18,17 @@ const showPerformanceWarning = () => {
     notification.warning({
         key,
         message: 'Potential performance issues',
-        description: 'Based on your detected hardware, you may get lower framerates in the 3D viewer. '
-            + 'If you experience issues, try using a different device.',
+        description:
+            'Based on your detected hardware, you may get lower framerates in the 3D viewer. ' +
+            'If you experience issues, try using a different device.',
         btn: (
             <Button
                 type="ghost"
                 onClick={() => {
-                    localStorage.setItem(STOP_SHOWING_PERFORMANCE_WARNING_KEY, dayjs().unix().toString());
+                    localStorage.setItem(
+                        STOP_SHOWING_PERFORMANCE_WARNING_KEY,
+                        dayjs().unix().toString(),
+                    );
                     notification.close(key);
                 }}
             >

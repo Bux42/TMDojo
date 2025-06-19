@@ -1,15 +1,16 @@
 import React, { useCallback, useEffect, useRef } from 'react';
-import {
-    Color, DirectionalLight, Group, Vector3,
-} from 'three';
+import { Color, DirectionalLight, Group, Vector3 } from 'three';
 import { Sphere } from '@react-three/drei';
 import { ReplayData } from '../../lib/api/requests/replays';
 
 interface SceneDirectionalLightProps {
     replays: ReplayData[];
-    showDebugLocation?: boolean
+    showDebugLocation?: boolean;
 }
-const SceneDirectionalLight = ({ replays, showDebugLocation }: SceneDirectionalLightProps) => {
+const SceneDirectionalLight = ({
+    replays,
+    showDebugLocation,
+}: SceneDirectionalLightProps) => {
     const ref = useRef<DirectionalLight>();
     const targetRef = useRef<Group>();
 
@@ -79,7 +80,10 @@ const SceneDirectionalLight = ({ replays, showDebugLocation }: SceneDirectionalL
                 {/* Debug Location */}
                 {showDebugLocation && (
                     <Sphere args={[8, 8, 8]}>
-                        <meshStandardMaterial attach="material" color={new Color('yellow')} />
+                        <meshStandardMaterial
+                            attach="material"
+                            color={new Color('yellow')}
+                        />
                     </Sphere>
                 )}
             </directionalLight>
@@ -88,7 +92,10 @@ const SceneDirectionalLight = ({ replays, showDebugLocation }: SceneDirectionalL
             {showDebugLocation && (
                 <group ref={targetRef}>
                     <Sphere args={[8, 8, 8]} castShadow>
-                        <meshStandardMaterial attach="material" color={new Color('red')} />
+                        <meshStandardMaterial
+                            attach="material"
+                            color={new Color('red')}
+                        />
                     </Sphere>
                 </group>
             )}

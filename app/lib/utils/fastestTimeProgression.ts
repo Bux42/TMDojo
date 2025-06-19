@@ -12,8 +12,7 @@ const calculateFastestTimeProgression = (replayList: ReplayInfo[]): ReplayInfo[]
     for (let i = 1; i < sortedReplays.length; i++) {
         const currentReplay = sortedReplays[i];
         const latestFastestReplay = fastestTimeProgressions[fastestTimeProgressions.length - 1];
-        if (currentReplay.raceFinished
-            && currentReplay.endRaceTime < latestFastestReplay.endRaceTime) {
+        if (currentReplay.raceFinished && currentReplay.endRaceTime < latestFastestReplay.endRaceTime) {
             fastestTimeProgressions.push(currentReplay);
         }
     }

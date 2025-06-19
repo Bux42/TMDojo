@@ -5,9 +5,7 @@ interface SliderProps {
     onChange: (value: number) => void;
     yDragMargin?: number;
 }
-const TimelineSlider = ({
-    onChange, yDragMargin,
-}: SliderProps) => {
+const TimelineSlider = ({ onChange, yDragMargin }: SliderProps) => {
     const ref = useRef<HTMLDivElement>(null);
 
     const timeLineGlobal = GlobalTimeLineInfos.getInstance();
@@ -32,14 +30,16 @@ const TimelineSlider = ({
 
         if (ref.current) {
             const { clientX, clientY } = e;
-            const {
-                x, y, width, height,
-            } = ref.current.getBoundingClientRect();
+            const { x, y, width, height } = ref.current.getBoundingClientRect();
 
             const dragMargin = yDragMargin || 0;
 
-            if (clientX >= x && clientX <= x + width
-                && clientY >= y - dragMargin && clientY <= y + height + dragMargin) {
+            if (
+                clientX >= x &&
+                clientX <= x + width &&
+                clientY >= y - dragMargin &&
+                clientY <= y + height + dragMargin
+            ) {
                 isDraggingSlider = true;
                 updateValueUsingMousePos(clientX);
             }
@@ -88,7 +88,10 @@ const TimelineSlider = ({
                 className="h-full"
                 style={{
                     backgroundColor: '#007CD6',
-                    width: `${mapValueToPercent(timeLineGlobal.currentRaceTime) * 100.0}%`,
+                    width: `${
+                        mapValueToPercent(timeLineGlobal.currentRaceTime) *
+                        100.0
+                    }%`,
                 }}
             />
 

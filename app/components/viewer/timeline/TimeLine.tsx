@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { Slider } from 'antd';
-import {
-    CaretRightOutlined, PauseOutlined,
-} from '@ant-design/icons';
+import { CaretRightOutlined, PauseOutlined } from '@ant-design/icons';
 import { ReplayData } from '../../../lib/api/requests/replays';
 import { getRaceTimeStr } from '../../../lib/utils/time';
 import GlobalTimeLineInfos from '../../../lib/singletons/timeLineInfos';
@@ -33,7 +31,12 @@ const TimeLineView = ({ replaysData }: TimeLineViewProps) => {
     timeLineGlobal.currentRaceTime = timeLineTime;
 
     if (timeLineGlobal.followedReplay !== null) {
-        if (!replaysData.some((replay: ReplayData) => replay._id === timeLineGlobal.followedReplay?._id)) {
+        if (
+            !replaysData.some(
+                (replay: ReplayData) =>
+                    replay._id === timeLineGlobal.followedReplay?._id,
+            )
+        ) {
             timeLineGlobal.followedReplay = undefined;
         }
     }
@@ -50,8 +53,12 @@ const TimeLineView = ({ replaysData }: TimeLineViewProps) => {
     }
 
     replaysData.forEach((replay) => {
-        if (replay.samples[replay.samples.length - 1].currentRaceTime > timeLineGlobal.maxRaceTime) {
-            timeLineGlobal.maxRaceTime = replay.samples[replay.samples.length - 1].currentRaceTime;
+        if (
+            replay.samples[replay.samples.length - 1].currentRaceTime >
+            timeLineGlobal.maxRaceTime
+        ) {
+            timeLineGlobal.maxRaceTime =
+                replay.samples[replay.samples.length - 1].currentRaceTime;
         }
     });
 
@@ -83,7 +90,8 @@ const TimeLineView = ({ replaysData }: TimeLineViewProps) => {
 
         const intervalCallback = () => {
             const raceTimeIncrement = timeLineGlobal.tickTime * speed;
-            const nextRaceTime = timeLineGlobal.currentRaceTime + raceTimeIncrement;
+            const nextRaceTime =
+                timeLineGlobal.currentRaceTime + raceTimeIncrement;
             if (nextRaceTime > timeLineGlobal.maxRaceTime || nextRaceTime < 0) {
                 // Loop time back to 0 if time is past the max
                 //  and ensure time stays at least 0
@@ -93,7 +101,10 @@ const TimeLineView = ({ replaysData }: TimeLineViewProps) => {
             }
         };
 
-        playInterval = setTimeout(() => startSteadyLoop(intervalCallback), timeLineGlobal.tickTime);
+        playInterval = setTimeout(
+            () => startSteadyLoop(intervalCallback),
+            timeLineGlobal.tickTime,
+        );
     };
 
     const onTogglePlay = (shouldPlay: boolean = !playing) => {
@@ -116,7 +127,8 @@ const TimeLineView = ({ replaysData }: TimeLineViewProps) => {
         }
     };
 
-    const timeFormat = (v: number | undefined) => (v !== undefined ? `${getRaceTimeStr(v)}` : '');
+    const timeFormat = (v: number | undefined) =>
+        v !== undefined ? `${getRaceTimeStr(v)}` : '';
 
     return (
         <div
@@ -134,9 +146,7 @@ const TimeLineView = ({ replaysData }: TimeLineViewProps) => {
                     />
                 </div>
                 <div className="flex-grow-0 w-24 h-full py-2">
-                    <div
-                        className="flex w-full h-full items-center justify-center bg-gray-750"
-                    >
+                    <div className="flex w-full h-full items-center justify-center bg-gray-750">
                         {timeFormat(timeLineTime)}
                     </div>
                 </div>
@@ -147,19 +157,14 @@ const TimeLineView = ({ replaysData }: TimeLineViewProps) => {
                     role="button"
                     tabIndex={0}
                 >
-                    {playing
-                        ? <PauseOutlined />
-                        : <CaretRightOutlined />}
+                    {playing ? <PauseOutlined /> : <CaretRightOutlined />}
                 </div>
                 <div className="flex flex-col items-center justify-center">
                     <div className="text-xs">
                         {`Speed: ${timelineSpeed.toFixed(2)}x`}
                     </div>
                     <div className="flex flex-row items-center">
-                        <div className="text-xs">
-                            {MIN_SPEED}
-                            x
-                        </div>
+                        <div className="text-xs">{MIN_SPEED}x</div>
                         <div className="px-1">
                             <Slider
                                 style={{
@@ -176,10 +181,7 @@ const TimeLineView = ({ replaysData }: TimeLineViewProps) => {
                                 tooltipVisible={false}
                             />
                         </div>
-                        <div className="text-xs">
-                            {MAX_SPEED}
-                            x
-                        </div>
+                        <div className="text-xs">{MAX_SPEED}x</div>
                     </div>
                 </div>
             </div>
@@ -191,11 +193,12 @@ interface TimeLineProps {
     replaysData: ReplayData[];
 }
 
-const TimeLine = ({
-    replaysData,
-}: TimeLineProps): JSX.Element => (
+const TimeLine = ({ replaysData }: TimeLineProps): JSX.Element => (
     <>
-        <TimeLineView key="timeLine" replaysData={replaysData} />
+        <TimeLineView
+            key="timeLine"
+            replaysData={replaysData}
+        />
     </>
 );
 

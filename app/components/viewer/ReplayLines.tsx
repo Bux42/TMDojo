@@ -1,6 +1,4 @@
-import React, {
-    useCallback, useEffect, useMemo, useRef,
-} from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { ReplayData } from '../../lib/api/requests/replays';
 import useUpdateReplayLineTrail from '../../lib/hooks/viewer/replayLines/useUpdateReplayLineTrail';
@@ -28,7 +26,10 @@ export interface LineType {
 export const LineTypes: { [name: string]: LineType } = {
     default: { name: 'Default', colorsCallback: defaultReplayColors },
     speed: { name: 'Speed', colorsCallback: speedReplayColors },
-    acceleration: { name: 'Acceleration', colorsCallback: accelerationReplayColors },
+    acceleration: {
+        name: 'Acceleration',
+        colorsCallback: accelerationReplayColors,
+    },
     gear: { name: 'Gear', colorsCallback: gearReplayColors },
     rpm: { name: 'RPM', colorsCallback: rpmReplayColors },
     inputs: { name: 'Inputs', colorsCallback: inputReplayColors },
@@ -40,10 +41,15 @@ interface ReplayLineProps {
     replayLineOpacity: number;
 }
 const ReplayLine = ({
-    replay, lineType, replayLineOpacity,
+    replay,
+    lineType,
+    replayLineOpacity,
 }: ReplayLineProps) => {
     const bufferGeom = useRef<THREE.BufferGeometry>();
-    const points = useMemo(() => replay.samples.map((sample) => sample.position), [replay.samples]);
+    const points = useMemo(
+        () => replay.samples.map((sample) => sample.position),
+        [replay.samples],
+    );
     const colorBuffer = useMemo(() => {
         const colors = lineType.colorsCallback(replay);
 
@@ -55,7 +61,7 @@ const ReplayLine = ({
     }, [replay, replay.color, lineType]);
 
     const onUpdate = useCallback(
-        (self) => {
+        (self: THREE.BufferGeometry) => {
             self.setFromPoints(points);
             self.setAttribute('color', colorBuffer);
         },
@@ -63,7 +69,11 @@ const ReplayLine = ({
     );
 
     // Update the replay line trail based on trail settings
-    const { manualLineTrailUpdate } = useUpdateReplayLineTrail(bufferGeom, replay, TRAIL_FADE_SEGMENT_TIME);
+    const { manualLineTrailUpdate } = useUpdateReplayLineTrail(
+        bufferGeom,
+        replay,
+        TRAIL_FADE_SEGMENT_TIME,
+    );
 
     useEffect(() => {
         if (!bufferGeom.current) return;
@@ -114,11 +124,19 @@ export const ReplayLines = ({
                     replay={replay}
                 />
                 {showGearChanges && (
-                    <ReplayGears key={`replay-${replay._id}-gears`} replay={replay} />
+                    <ReplayGears
+                        key={`replay-${replay._id}-gears`}
+                        replay={replay}
+                    />
                 )}
-                {(replay.dnfPos.x !== 0 && replay.dnfPos.y !== 0 && replay.dnfPos.z !== 0) && (
-                    <ReplayDnf key={`replay-${replay._id}-dnf`} replay={replay} />
-                )}
+                {replay.dnfPos.x !== 0 &&
+                    replay.dnfPos.y !== 0 &&
+                    replay.dnfPos.z !== 0 && (
+                        <ReplayDnf
+                            key={`replay-${replay._id}-dnf`}
+                            replay={replay}
+                        />
+                    )}
 
                 {/* Removed until fully implemented: */}
                 {/*

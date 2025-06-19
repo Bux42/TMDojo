@@ -1,26 +1,24 @@
 import { useRouter } from 'next/router';
-import React, {
-    createContext, useCallback, useEffect, useState,
-} from 'react';
+import React, { createContext, useCallback, useEffect, useState } from 'react';
 import API from '../api/apiWrapper';
 import { AuthUserInfo } from '../api/requests/auth';
 import { generateAuthUrl } from '../utils/auth';
 import openAuthWindow from '../utils/authPopup';
 
 export interface AuthContextProps {
-    user?: AuthUserInfo,
-    setUser: (user?: AuthUserInfo) => void,
-    loginUser: (code: string, state?: string) => Promise<void>,
-    logoutUser: () => Promise<void>
-    startAuthFlow: () => void
+    user?: AuthUserInfo;
+    setUser: (user?: AuthUserInfo) => void;
+    loginUser: (code: string, state?: string) => Promise<void>;
+    logoutUser: () => Promise<void>;
+    startAuthFlow: () => void;
 }
 
 export const AuthContext = createContext<AuthContextProps>({
     user: undefined,
-    setUser: (user?: AuthUserInfo) => { },
-    loginUser: async (code: string, state?: string) => { },
-    logoutUser: async () => { },
-    startAuthFlow: () => { },
+    setUser: (user?: AuthUserInfo) => {},
+    loginUser: async (code: string, state?: string) => {},
+    logoutUser: async () => {},
+    startAuthFlow: () => {},
 });
 
 export const AuthProvider = ({ children }: any): JSX.Element => {
@@ -71,14 +69,20 @@ export const AuthProvider = ({ children }: any): JSX.Element => {
         if (code === undefined || code === null || typeof code !== 'string') {
             return;
         }
-        if (state === undefined || state === null || typeof state !== 'string') {
+        if (
+            state === undefined ||
+            state === null ||
+            typeof state !== 'string'
+        ) {
             return;
         }
 
         const storedState = localStorage.getItem('state');
         localStorage.removeItem('state');
         if (storedState !== state) {
-            console.log(`Stored state (${storedState}) did not match incoming state (${state})`);
+            console.log(
+                `Stored state (${storedState}) did not match incoming state (${state})`,
+            );
             return;
         }
 
@@ -88,7 +92,10 @@ export const AuthProvider = ({ children }: any): JSX.Element => {
     // helper function to make login callable from outside the Context
     const loginUser = async (code: string, state?: string) => {
         try {
-            const userInfo = await API.auth.authorizeWithAccessCode(code, state);
+            const userInfo = await API.auth.authorizeWithAccessCode(
+                code,
+                state,
+            );
             setUser(userInfo);
         } catch (e) {
             console.log(e);

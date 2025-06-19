@@ -98,8 +98,7 @@ export const chartOptionsTemplate = (): Highcharts.Options => {
             shared: true,
             formatter() {
                 return [`<b>${getRaceTimeStr(this.x)}</b><br>`].concat(
-                    this.points
-                        ? this.points.map((point) => `
+                    this.points ? this.points.map((point) => `
                     <b style="color: ${point.color}">▉ </b>${point.series.name}: <b>${point.y.toFixed(3)}</b>
                     <br>`) : [],
                 );

@@ -1,19 +1,13 @@
-import {
-    useFrame, useThree, Camera,
-} from '@react-three/fiber';
+import { useFrame, useThree, Camera } from '@react-three/fiber';
 import * as THREE from 'three';
-import React, {
-    useRef, useState,
-} from 'react';
+import React, { useRef, useState } from 'react';
 import { useFBX } from '@react-three/drei';
 import { ReplayData } from '../../lib/api/requests/replays';
 import { ReplayDataPoint } from '../../lib/replays/replayData';
 import vecToQuat from '../../lib/utils/math';
 import { CameraMode } from '../../lib/contexts/SettingsContext';
 import InputOverlay from './InputOverlay';
-import {
-    getSampleNearTime, interpolateSamples,
-} from '../../lib/utils/replay';
+import { getSampleNearTime, interpolateSamples } from '../../lib/utils/replay';
 import GlobalTimeLineInfos from '../../lib/singletons/timeLineInfos';
 
 const BACK_WHEEL_Y = 35.232017517089844;
@@ -29,7 +23,12 @@ interface ReplayCarProps {
 }
 
 const ReplayCar = ({
-    replay, camera, orbitControlsRef, showInputOverlay, fbx, replayCarOpacity,
+    replay,
+    camera,
+    orbitControlsRef,
+    showInputOverlay,
+    fbx,
+    replayCarOpacity,
 }: ReplayCarProps) => {
     const mesh = useRef<THREE.Mesh>();
     const stadiumCarMesh = useRef<THREE.Mesh>();
@@ -44,7 +43,8 @@ const ReplayCar = ({
 
     // Get own material from loaded car model
     const carMesh: THREE.Mesh = fbx.children[0] as THREE.Mesh;
-    const material: THREE.MeshPhongMaterial = carMesh.material as THREE.MeshPhongMaterial;
+    const material: THREE.MeshPhongMaterial =
+        carMesh.material as THREE.MeshPhongMaterial;
     const matClone = material.clone();
     matClone.opacity = replayCarOpacity;
     matClone.color = new THREE.Color(
@@ -64,21 +64,38 @@ const ReplayCar = ({
 
     useFrame((state, delta) => {
         timeLineGlobal.tickTime = delta * 1000;
-        if (mesh.current
-            && camPosRef.current) {
-            const followed = timeLineGlobal.followedReplay != null && timeLineGlobal.followedReplay._id === replay._id;
-            const hovered = timeLineGlobal.hoveredReplay != null && timeLineGlobal.hoveredReplay._id === replay._id;
+        if (mesh.current && camPosRef.current) {
+            const followed =
+                timeLineGlobal.followedReplay != null &&
+                timeLineGlobal.followedReplay._id === replay._id;
+            const hovered =
+                timeLineGlobal.hoveredReplay != null &&
+                timeLineGlobal.hoveredReplay._id === replay._id;
 
             // Get closest sample to TimeLine.currentRaceTime
-            const curSample = getSampleNearTime(replay, timeLineGlobal.currentRaceTime);
+            const curSample = getSampleNearTime(
+                replay,
+                timeLineGlobal.currentRaceTime,
+            );
 
             currentSampleRef.current = curSample;
-            prevSampleRef.current = replay.samples[replay.samples.indexOf(curSample) - 1];
+            prevSampleRef.current =
+                replay.samples[replay.samples.indexOf(curSample) - 1];
 
             if (timeLineGlobal.currentRaceTime < replay.endRaceTime) {
-                interpolateSamples(prevSampleRef.current, curSample, smoothSample, timeLineGlobal.currentRaceTime);
+                interpolateSamples(
+                    prevSampleRef.current,
+                    curSample,
+                    smoothSample,
+                    timeLineGlobal.currentRaceTime,
+                );
             } else {
-                interpolateSamples(prevSampleRef.current, curSample, smoothSample, curSample.currentRaceTime);
+                interpolateSamples(
+                    prevSampleRef.current,
+                    curSample,
+                    smoothSample,
+                    curSample.currentRaceTime,
+                );
             }
 
             // Get car rotation
@@ -88,7 +105,11 @@ const ReplayCar = ({
             );
 
             // Move & rotate 3D car from current sample rot & pos
-            mesh.current.position.set(smoothSample.position.x, smoothSample.position.y, smoothSample.position.z);
+            mesh.current.position.set(
+                smoothSample.position.x,
+                smoothSample.position.y,
+                smoothSample.position.z,
+            );
 
             if (stadiumCarMesh.current) {
                 stadiumCarMesh.current.rotation.setFromQuaternion(carRotation);
@@ -103,35 +124,51 @@ const ReplayCar = ({
                 frontRigthWheel.rotation.y = smoothSample.wheelAngle; // FR
 
                 // Set wheel suspensions
-                rearRightWheel.position.setY(BACK_WHEEL_Y - (smoothSample.rRDamperLen * 100)); // RR
-                frontLeftWheel.position.setY(FRONT_WHEEL_Y - (smoothSample.fLDamperLen * 100)); // FL
-                rearLeftWheel.position.setY(BACK_WHEEL_Y - (smoothSample.rLDamperLen * 100)); // RL
-                frontRigthWheel.position.setY(FRONT_WHEEL_Y - (smoothSample.fRDamperLen * 100)); // FR
+                rearRightWheel.position.setY(
+                    BACK_WHEEL_Y - smoothSample.rRDamperLen * 100,
+                ); // RR
+                frontLeftWheel.position.setY(
+                    FRONT_WHEEL_Y - smoothSample.fLDamperLen * 100,
+                ); // FL
+                rearLeftWheel.position.setY(
+                    BACK_WHEEL_Y - smoothSample.rLDamperLen * 100,
+                ); // RL
+                frontRigthWheel.position.setY(
+                    FRONT_WHEEL_Y - smoothSample.fRDamperLen * 100,
+                ); // FR
             }
 
             // Camera target replay if selected
             if (followed) {
                 if (orbitControlsRef && orbitControlsRef.current) {
-                    orbitControlsRef.current.target.lerp(smoothSample.position, 0.2);
+                    orbitControlsRef.current.target.lerp(
+                        smoothSample.position,
+                        0.2,
+                    );
 
                     if (timeLineGlobal.cameraMode === CameraMode.Follow) {
                         // move camPosMesh to Follow position
-                        camPosRef.current.rotation.setFromQuaternion(carRotation);
+                        camPosRef.current.rotation.setFromQuaternion(
+                            carRotation,
+                        );
                         // move toward where the car is heading
 
                         const velocitySpeed = smoothSample.velocity.length();
                         // Set camera position behind the car
                         const backwardMax = 6;
-                        const backward = (backwardMax - (velocitySpeed / backwardMax));
+                        const backward =
+                            backwardMax - velocitySpeed / backwardMax;
 
                         camPosRef.current.position.set(
-                            (-smoothSample.velocity.x / 4),
-                            (-smoothSample.velocity.y / 4),
-                            (-smoothSample.velocity.z / 4),
+                            -smoothSample.velocity.x / 4,
+                            -smoothSample.velocity.y / 4,
+                            -smoothSample.velocity.z / 4,
                         );
 
                         // Do not force camera behind the car above a certain speed
-                        camPosRef.current.translateZ(backward < 0 ? 0 : -backward);
+                        camPosRef.current.translateZ(
+                            backward < 0 ? 0 : -backward,
+                        );
                         camPosRef.current.translateY(3);
                         // move camera to camPosMesh world position
                         const camWorldPos: THREE.Vector3 = new THREE.Vector3();
@@ -144,9 +181,15 @@ const ReplayCar = ({
             // Scale car up if hovered in LoadedReplays
             if (stadiumCarMesh.current) {
                 if (hovered) {
-                    stadiumCarMesh.current.scale.lerp(new THREE.Vector3(0.02, 0.02, 0.02), 0.2);
+                    stadiumCarMesh.current.scale.lerp(
+                        new THREE.Vector3(0.02, 0.02, 0.02),
+                        0.2,
+                    );
                 } else {
-                    stadiumCarMesh.current.scale.lerp(new THREE.Vector3(0.01, 0.01, 0.01), 0.2);
+                    stadiumCarMesh.current.scale.lerp(
+                        new THREE.Vector3(0.01, 0.01, 0.01),
+                        0.2,
+                    );
                 }
             }
         }
@@ -169,10 +212,7 @@ const ReplayCar = ({
 
     return (
         <>
-            <mesh
-                ref={mesh}
-                scale={1}
-            >
+            <mesh ref={mesh} scale={1}>
                 {replayCarOpacity > 0 && (
                     <primitive
                         object={fbx}
@@ -184,15 +224,24 @@ const ReplayCar = ({
                     />
                 )}
 
-                {showInputOverlay
-                    && <InputOverlay sampleRef={currentSampleRef} camera={camera} />}
-                <mesh
-                    ref={camPosRef}
-                >
-                    <sphereBufferGeometry args={[0.1, 30, 30]} attach="geometry" />
-                    <meshBasicMaterial color={replay.color} transparent opacity={0} attach="material" />
+                {showInputOverlay && (
+                    <InputOverlay
+                        sampleRef={currentSampleRef}
+                        camera={camera}
+                    />
+                )}
+                <mesh ref={camPosRef}>
+                    <sphereBufferGeometry
+                        args={[0.1, 30, 30]}
+                        attach="geometry"
+                    />
+                    <meshBasicMaterial
+                        color={replay.color}
+                        transparent
+                        opacity={0}
+                        attach="material"
+                    />
                 </mesh>
-
             </mesh>
         </>
     );

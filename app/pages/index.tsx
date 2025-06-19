@@ -35,9 +35,7 @@ const Home = (): JSX.Element => (
 
         <PageContainer>
             <div className="flex flex-col md:flex-row gap-8">
-                <div
-                    className="flex flex-col w-full md:w-3/4 pt-4 pb-6 px-4 sm:px-8 rounded-md gap-6 bg-gray-750"
-                >
+                <div className="flex flex-col w-full md:w-3/4 pt-4 pb-6 px-4 sm:px-8 rounded-md gap-6 bg-gray-750">
                     <ExplanationInfo />
                 </div>
 
@@ -94,12 +92,8 @@ const Home = (): JSX.Element => (
                 </div>
             </div>
 
-            <div
-                className="flex flex-col gap-8 w-full mt-10 px-2 py-6 md:px-6 rounded-md bg-gray-750"
-            >
-                <div className="self-center text-2xl font-bold">
-                    Maps
-                </div>
+            <div className="flex flex-col gap-8 w-full mt-10 px-2 py-6 md:px-6 rounded-md bg-gray-750">
+                <div className="self-center text-2xl font-bold">Maps</div>
                 <MapReplayTableWithSearchbar />
             </div>
         </PageContainer>

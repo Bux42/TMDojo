@@ -6,7 +6,7 @@ module.exports = {
     extends: [
         'plugin:react/recommended',
         'airbnb',
-        'plugin:react-hooks/recommended',
+        'plugin:react-hooks/recommended'
     ],
     globals: {
         React: true,
@@ -43,6 +43,11 @@ module.exports = {
         'no-use-before-define': 'off',
         'no-unused-vars': 'off',
         'react/require-default-props': 'off',
+        'operator-linebreak': ['error', 'after'],
+        'object-curly-newline': ["error", { "consistent": true }],
+        "react/no-unknown-property": "off",
+        "react/jsx-one-expression-per-line": "off",
+        "implicit-arrow-linebreak": "beside",
         // due to DB IDs we have to disable this
         'no-underscore-dangle': 'off',
         camelcase: ['error', {
