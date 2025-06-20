@@ -82,20 +82,22 @@ const ReplayCar = ({
             prevSampleRef.current =
                 replay.samples[replay.samples.indexOf(curSample) - 1];
 
-            if (timeLineGlobal.currentRaceTime < replay.endRaceTime) {
-                interpolateSamples(
-                    prevSampleRef.current,
-                    curSample,
-                    smoothSample,
-                    timeLineGlobal.currentRaceTime,
-                );
-            } else {
-                interpolateSamples(
-                    prevSampleRef.current,
-                    curSample,
-                    smoothSample,
-                    curSample.currentRaceTime,
-                );
+            if (prevSampleRef.current) {
+                if (timeLineGlobal.currentRaceTime < replay.endRaceTime) {
+                    interpolateSamples(
+                        prevSampleRef.current,
+                        curSample,
+                        smoothSample,
+                        timeLineGlobal.currentRaceTime,
+                    );
+                } else {
+                    interpolateSamples(
+                        prevSampleRef.current,
+                        curSample,
+                        smoothSample,
+                        curSample.currentRaceTime,
+                    );
+                }
             }
 
             // Get car rotation
@@ -212,7 +214,10 @@ const ReplayCar = ({
 
     return (
         <>
-            <mesh ref={mesh} scale={1}>
+            <mesh
+                ref={mesh}
+                scale={1}
+            >
                 {replayCarOpacity > 0 && (
                     <primitive
                         object={fbx}
