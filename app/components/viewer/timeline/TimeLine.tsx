@@ -127,8 +127,12 @@ const TimeLineView = ({ replaysData }: TimeLineViewProps) => {
         }
     };
 
-    const timeFormat = (v: number | undefined) =>
-        v !== undefined ? `${getRaceTimeStr(v)}` : '';
+    const timeFormat = (v: number | undefined) => {
+        if (v === undefined) {
+            return '';
+        }
+        return getRaceTimeStr(v);
+    };
 
     return (
         <div
@@ -139,11 +143,8 @@ const TimeLineView = ({ replaysData }: TimeLineViewProps) => {
             }}
         >
             <div className="flex flex-row items-center gap-4 w-full h-full">
-                <div className="flex-grow h-full py-3 items-center">
-                    <TimelineSlider
-                        onChange={onChange}
-                        yDragMargin={20}
-                    />
+                <div className="flex-grow h-full py-2 items-center">
+                    <TimelineSlider onChange={onChange} />
                 </div>
                 <div className="flex-grow-0 w-24 h-full py-2">
                     <div className="flex w-full h-full items-center justify-center bg-gray-750">
