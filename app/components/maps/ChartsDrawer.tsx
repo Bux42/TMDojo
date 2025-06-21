@@ -216,7 +216,9 @@ export const ChartsDrawer = ({ replaysData }: Props): JSX.Element => {
             const maxHeight = 800;
 
             if (offsetBottom > minHeight && offsetBottom < maxHeight && el1) {
-                el1.style.height = `${offsetBottom}px`;
+                el1.getElementsByClassName(
+                    'ant-drawer-content-wrapper',
+                )[0].style.height = `${offsetBottom}px`;
             }
         }
     };
