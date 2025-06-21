@@ -91,7 +91,10 @@ const SceneDirectionalLight = ({
             {/* Debug Target Location */}
             {showDebugLocation && (
                 <group ref={targetRef}>
-                    <Sphere args={[8, 8, 8]} castShadow>
+                    <Sphere
+                        args={[8, 8, 8]}
+                        castShadow
+                    >
                         <meshStandardMaterial
                             attach="material"
                             color={new Color('red')}

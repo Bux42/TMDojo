@@ -161,16 +161,18 @@ const FastestTimeProgression = ({
         tooltip: {
             // Highchart only accepts string tooltips, that's why this returns a HTML string
             formatter: function tooltipFormatter(this: any) {
+                const timeDiff = timeDifference(
+                    new Date().getTime(),
+                    this.point.replay.date,
+                );
+
                 return `
                     <span style="font-size: 10px">
                         ${dayjs(this.key).format('MMM D YYYY, HH:mm:ss')}
                     </span>
                     </br>
                     <span style="font-size: 13px">
-                        ${timeDifference(
-                            new Date().getTime(),
-                            this.point.replay.date,
-                        )}
+                        ${timeDiff}
                     </span>
                     </br>
                     <span style="font-size: 13px">
@@ -236,16 +238,22 @@ const FastestTimeProgression = ({
     // Filter series for which the data is undefined
     options.series = options.series.filter((s) => s.data !== undefined);
 
-    const allFastestTime =
-        timeProgressionData && timeProgressionData.length > 0
-            ? timeProgressionData[0]
-            : undefined;
+    const allFastestTime = useMemo(() => {
+        if (timeProgressionData && timeProgressionData.length > 0) {
+            return timeProgressionData[0];
+        }
+        return undefined;
+    }, [timeProgressionData]);
 
-    const personalFastestTime =
-        personalTimeProgressionData !== undefined &&
-        personalTimeProgressionData.length > 0
-            ? personalTimeProgressionData[0]
-            : undefined;
+    const personalFastestTime = useMemo(() => {
+        if (
+            personalTimeProgressionData &&
+            personalTimeProgressionData.length > 0
+        ) {
+            return personalTimeProgressionData[0];
+        }
+        return undefined;
+    }, [personalTimeProgressionData]);
 
     const fastestTime = allFastestTime || personalFastestTime;
 
@@ -275,7 +283,10 @@ const FastestTimeProgression = ({
                     )}
                 </div>
             </div>
-            <HighchartsReact highcharts={Highcharts} options={options} />
+            <HighchartsReact
+                highcharts={Highcharts}
+                options={options}
+            />
         </>
     ) : null;
 };

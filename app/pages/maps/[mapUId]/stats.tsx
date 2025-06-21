@@ -1,11 +1,7 @@
 /* eslint-disable no-nested-ternary */
-import React, {
-    useContext, useEffect, useMemo, useState,
-} from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
-import {
-    Card, Empty, Skeleton, Spin,
-} from 'antd';
+import { Card, Empty, Skeleton, Spin } from 'antd';
 import { PlaySquareOutlined } from '@ant-design/icons';
 import Title from 'antd/lib/typography/Title';
 import HeadTitle from '../../../components/common/HeadTitle';
@@ -17,7 +13,10 @@ import FastestTimeProgression from '../../../components/mapStats/statistics/Fast
 import { useMapReplays } from '../../../lib/api/reactQuery/hooks/query/replays';
 import { useMapInfo } from '../../../lib/api/reactQuery/hooks/query/maps';
 import { AuthContext } from '../../../lib/contexts/AuthContext';
-import { MapStatsType, MapStatsTypeSwitcher } from '../../../components/mapStats/common/MapStatsTypeSwitcher';
+import {
+    MapStatsType,
+    MapStatsTypeSwitcher,
+} from '../../../components/mapStats/common/MapStatsTypeSwitcher';
 import Footer from '../../../components/common/Footer';
 import CleanButton from '../../../components/common/CleanButton';
 import PageContainer from '../../../components/containers/PageContainer';
@@ -29,12 +28,13 @@ const MapStats = () => {
 
     const router = useRouter();
     const { mapUId: rawMapUId } = router.query;
-    const mapUId = useMemo(() => (typeof rawMapUId === 'string' ? rawMapUId : undefined), [rawMapUId]);
+    const mapUId = useMemo(
+        () => (typeof rawMapUId === 'string' ? rawMapUId : undefined),
+        [rawMapUId],
+    );
 
-    const {
-        data: mapReplayData,
-        isLoading: isLoadingReplays,
-    } = useMapReplays(mapUId);
+    const { data: mapReplayData, isLoading: isLoadingReplays } =
+        useMapReplays(mapUId);
 
     const replays = useMemo(
         () => mapReplayData?.replays || [],
@@ -49,7 +49,9 @@ const MapStats = () => {
             if (user === undefined) {
                 setMapStatsType(MapStatsType.GLOBAL);
             } else {
-                const userReplays = replays.filter((r) => r.webId === user.accountId);
+                const userReplays = replays.filter(
+                    (r) => r.webId === user.accountId,
+                );
                 if (userReplays.length > 0) {
                     setMapStatsType(MapStatsType.PERSONAL);
                 } else {
@@ -59,7 +61,12 @@ const MapStats = () => {
         }
     }, [replays, user]);
 
-    const getTitle = () => (mapInfo?.name ? `${cleanTMFormatting(mapInfo.name)} - TMDojo` : 'TMDojo');
+    const mapName = useMemo(() => {
+        if (!mapInfo?.name) {
+            return 'TMDojo';
+        }
+        return cleanTMFormatting(mapInfo.name);
+    }, [mapInfo]);
 
     const calcBinSize = (inputReplays: ReplayInfo[]) => {
         if (inputReplays.length === 0) {
@@ -83,27 +90,32 @@ const MapStats = () => {
         }
     };
 
-    const allReplaysFilteredByCurrentUser = useMemo(
-        () => {
-            const finishedReplays = replays.filter((r) => r.raceFinished === 1);
+    const allReplaysFilteredByCurrentUser = useMemo(() => {
+        const finishedReplays = replays.filter((r) => r.raceFinished === 1);
 
-            if (mapStatsType === MapStatsType.GLOBAL || user === undefined) {
-                return finishedReplays;
-            }
+        if (mapStatsType === MapStatsType.GLOBAL || user === undefined) {
+            return finishedReplays;
+        }
 
-            const filteredReplays = finishedReplays.filter((r) => r.webId === user.accountId);
+        const filteredReplays = finishedReplays.filter(
+            (r) => r.webId === user.accountId,
+        );
 
-            return filteredReplays;
-        },
-        [user, replays, mapStatsType],
+        return filteredReplays;
+    }, [user, replays, mapStatsType]);
+
+    const noReplays =
+        allReplaysFilteredByCurrentUser === undefined ||
+        allReplaysFilteredByCurrentUser.length === 0;
+
+    const binSize = useMemo(
+        () => calcBinSize(allReplaysFilteredByCurrentUser),
+        [allReplaysFilteredByCurrentUser],
     );
-
-    const binSize = useMemo(() => calcBinSize(allReplaysFilteredByCurrentUser),
-        [allReplaysFilteredByCurrentUser]);
 
     return (
         <div className="flex flex-col items-center min-h-screen bg-page-back">
-            <HeadTitle title={getTitle()} />
+            <HeadTitle title={mapName} />
             <MapHeader
                 mapInfo={mapInfo || {}}
                 title="Map statistics"
@@ -123,73 +135,91 @@ const MapStats = () => {
 
             <PageContainer>
                 <div className="w-full mb-8 bg-gray-750 rounded-md p-8">
-                    {mapInfo === undefined ? (
-                        <Skeleton loading active title={false} />
-                    ) : (
-                        <MapStatsTypeSwitcher
-                            mapStatsType={mapStatsType}
-                            mapData={mapInfo}
-                            toggleMapStatsType={toggleMapStatsType}
-                        />
-                    )}
+                    <MapStatsTypeSwitcher
+                        mapStatsType={mapStatsType}
+                        mapName={mapInfo?.name}
+                        toggleMapStatsType={toggleMapStatsType}
+                    />
                 </div>
                 <div className="w-full p-8 bg-gray-750 rounded-md">
                     <div className="flex flex-col h-full gap-4">
-                        {allReplaysFilteredByCurrentUser === undefined || allReplaysFilteredByCurrentUser.length === 0
-                            ? (
-                                isLoadingReplays ? (
-                                    <div className="flex flex-col items-center gap-4">
-                                        <Spin size="large" />
-                                        <Title level={5}>Fetching replays...</Title>
-                                    </div>
-                                ) : (
-                                    <Empty
-                                        image={Empty.PRESENTED_IMAGE_SIMPLE}
-                                        description="No finished replays yet"
-                                    />
-                                )
+                        {noReplays ? (
+                            isLoadingReplays ? (
+                                <div className="flex flex-col items-center gap-4">
+                                    <Spin size="large" />
+                                    <Title level={5}>Fetching replays...</Title>
+                                </div>
                             ) : (
-                                <>
-                                    <Card
-                                        title="Replays"
-                                        type="inner"
-                                        className="bg-gray-850"
+                                <Empty
+                                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                                    description="No finished replays yet"
+                                />
+                            )
+                        ) : (
+                            <>
+                                <Card
+                                    title="Replays"
+                                    type="inner"
+                                    className="bg-gray-850"
+                                >
+                                    <Skeleton
+                                        loading={isLoadingReplays}
+                                        active
+                                        title={false}
                                     >
-                                        <Skeleton loading={isLoadingReplays} active title={false}>
-                                            <AggregateMapStats replays={allReplaysFilteredByCurrentUser} />
-                                        </Skeleton>
-                                    </Card>
+                                        <AggregateMapStats
+                                            replays={
+                                                allReplaysFilteredByCurrentUser
+                                            }
+                                        />
+                                    </Skeleton>
+                                </Card>
 
-                                    <Card
-                                        title={`Finish Time Histogram ${binSize ? `(${binSize}ms bins)` : ''}`}
-                                        type="inner"
-                                        className="bg-gray-850"
+                                <Card
+                                    title={`Finish Time Histogram ${
+                                        binSize ? `(${binSize}ms bins)` : ''
+                                    }`}
+                                    type="inner"
+                                    className="bg-gray-850"
+                                >
+                                    <Skeleton
+                                        loading={isLoadingReplays}
+                                        active
                                     >
-                                        <Skeleton loading={isLoadingReplays} active>
-                                            {binSize ? (
-                                                <ReplayTimesHistogram
-                                                    replays={allReplaysFilteredByCurrentUser}
-                                                    binSize={binSize}
-                                                />
-                                            ) : null}
-                                        </Skeleton>
-                                    </Card>
-
-                                    <Card
-                                        title="Fastest time progression"
-                                        type="inner"
-                                        className="bg-gray-850"
-                                    >
-                                        <Skeleton loading={isLoadingReplays} active>
-                                            <FastestTimeProgression
-                                                replays={allReplaysFilteredByCurrentUser}
-                                                userToShowProgression={user}
-                                                onlyShowUserProgression={mapStatsType === MapStatsType.PERSONAL}
+                                        {binSize ? (
+                                            <ReplayTimesHistogram
+                                                replays={
+                                                    allReplaysFilteredByCurrentUser
+                                                }
+                                                binSize={binSize}
                                             />
-                                        </Skeleton>
-                                    </Card>
-                                </>
-                            )}
+                                        ) : null}
+                                    </Skeleton>
+                                </Card>
+
+                                <Card
+                                    title="Fastest time progression"
+                                    type="inner"
+                                    className="bg-gray-850"
+                                >
+                                    <Skeleton
+                                        loading={isLoadingReplays}
+                                        active
+                                    >
+                                        <FastestTimeProgression
+                                            replays={
+                                                allReplaysFilteredByCurrentUser
+                                            }
+                                            userToShowProgression={user}
+                                            onlyShowUserProgression={
+                                                mapStatsType ===
+                                                MapStatsType.PERSONAL
+                                            }
+                                        />
+                                    </Skeleton>
+                                </Card>
+                            </>
+                        )}
                     </div>
                 </div>
             </PageContainer>

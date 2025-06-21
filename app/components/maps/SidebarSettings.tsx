@@ -1,7 +1,5 @@
 import React, { useContext, useState } from 'react';
-import {
-    Checkbox, Drawer, Select, Col, Slider, InputNumber,
-} from 'antd';
+import { Checkbox, Drawer, Select, Col, Slider, InputNumber } from 'antd';
 import { CheckboxChangeEvent } from 'antd/lib/checkbox';
 import { SettingOutlined } from '@ant-design/icons';
 import Text from 'antd/lib/typography/Text';
@@ -15,17 +13,23 @@ const SidebarSettings = (): JSX.Element => {
     const [visible, setVisible] = useState(false);
     const windowDimensions = useWindowDimensions();
     const {
-        lineType, changeLineType,
-        showGearChanges, setShowGearChanges,
-        showFPS, setShowFPS,
-        showInputOverlay, setShowInputOverlay,
-        replayLineOpacity, setReplayLineOpacity,
-        replayCarOpacity, setReplayCarOpacity,
-        showFullTrail, setShowFullTrail,
-        showTrailToStart, setShowTrailToStart,
-    } = useContext(
-        SettingsContext,
-    );
+        lineType,
+        changeLineType,
+        showGearChanges,
+        setShowGearChanges,
+        showFPS,
+        setShowFPS,
+        showInputOverlay,
+        setShowInputOverlay,
+        replayLineOpacity,
+        setReplayLineOpacity,
+        replayCarOpacity,
+        setReplayCarOpacity,
+        showFullTrail,
+        setShowFullTrail,
+        showTrailToStart,
+        setShowTrailToStart,
+    } = useContext(SettingsContext);
 
     const timeLineGlobal = GlobalTimeLineInfos.getInstance();
 
@@ -49,12 +53,12 @@ const SidebarSettings = (): JSX.Element => {
             <SideDrawerExpandButton
                 onClick={toggleSidebar}
                 side="right"
-                content={(
+                content={
                     <>
                         Settings
                         <SettingOutlined className="mx-2" />
                     </>
-                )}
+                }
             />
             <Drawer
                 title="Settings"
@@ -77,14 +81,20 @@ const SidebarSettings = (): JSX.Element => {
                                     value={lineType.name}
                                     onChange={onChangeLineType}
                                 >
-                                    {Object.keys(LineTypes).map((lineTypeKey) => {
-                                        const { name } = LineTypes[lineTypeKey];
-                                        return (
-                                            <Select.Option key={name} value={lineTypeKey}>
-                                                {name}
-                                            </Select.Option>
-                                        );
-                                    })}
+                                    {Object.keys(LineTypes).map(
+                                        (lineTypeKey) => {
+                                            const { name } =
+                                                LineTypes[lineTypeKey];
+                                            return (
+                                                <Select.Option
+                                                    key={name}
+                                                    value={lineTypeKey}
+                                                >
+                                                    {name}
+                                                </Select.Option>
+                                            );
+                                        },
+                                    )}
                                 </Select>
                             </div>
                         </div>
@@ -95,8 +105,10 @@ const SidebarSettings = (): JSX.Element => {
                                     className="w-full m-0"
                                     min={0}
                                     max={1}
-                                    onChange={(e: number) => setReplayLineOpacity(e)}
-                                    value={typeof replayLineOpacity === 'number' ? replayLineOpacity : 0}
+                                    onChange={(e: number) =>
+                                        setReplayLineOpacity(e)
+                                    }
+                                    value={replayLineOpacity}
                                     step={0.1}
                                     dots
                                 />
@@ -109,8 +121,8 @@ const SidebarSettings = (): JSX.Element => {
                                     className="w-full m-0"
                                     min={0}
                                     max={1}
-                                    onChange={(e: number) => setReplayCarOpacity(e)}
-                                    value={typeof replayCarOpacity === 'number' ? replayCarOpacity : 0}
+                                    onChange={setReplayCarOpacity}
+                                    value={replayCarOpacity}
                                     step={0.1}
                                     dots
                                 />
@@ -126,7 +138,8 @@ const SidebarSettings = (): JSX.Element => {
                                 checked={showFullTrail}
                                 onChange={(e) => {
                                     setShowFullTrail(e.target.checked);
-                                    timeLineGlobal.showFullTrail = e.target.checked;
+                                    timeLineGlobal.showFullTrail =
+                                        e.target.checked;
                                 }}
                             >
                                 Show full trail
@@ -139,7 +152,8 @@ const SidebarSettings = (): JSX.Element => {
                                 checked={showTrailToStart}
                                 onChange={(e) => {
                                     setShowTrailToStart(e.target.checked);
-                                    timeLineGlobal.showTrailToStart = e.target.checked;
+                                    timeLineGlobal.showTrailToStart =
+                                        e.target.checked;
                                 }}
                             >
                                 Show trail to start
@@ -147,14 +161,20 @@ const SidebarSettings = (): JSX.Element => {
                         </div>
                         <div className="flex items-center">
                             <div className="flex-grow">
-                                <Text disabled={showFullTrail || showTrailToStart}>Trail length:</Text>
+                                <Text
+                                    disabled={showFullTrail || showTrailToStart}
+                                >
+                                    Trail length:
+                                </Text>
                             </div>
                             <div className="w-3/5 px-1">
                                 <InputNumber
                                     addonAfter="ms"
                                     className="w-full"
                                     disabled={showFullTrail || showTrailToStart}
-                                    defaultValue={timeLineGlobal.revealTrailTime}
+                                    defaultValue={
+                                        timeLineGlobal.revealTrailTime
+                                    }
                                     min={0}
                                     step={100}
                                     precision={0}
@@ -173,7 +193,9 @@ const SidebarSettings = (): JSX.Element => {
                         <Col>
                             <Checkbox
                                 className="w-full select-none"
-                                onChange={(e: CheckboxChangeEvent) => setShowGearChanges(e.target.checked)}
+                                onChange={(e: CheckboxChangeEvent) =>
+                                    setShowGearChanges(e.target.checked)
+                                }
                                 checked={showGearChanges}
                             >
                                 Show Gear Changes
@@ -182,7 +204,9 @@ const SidebarSettings = (): JSX.Element => {
                         <Col>
                             <Checkbox
                                 className="w-full select-none"
-                                onChange={(e: CheckboxChangeEvent) => setShowInputOverlay(e.target.checked)}
+                                onChange={(e: CheckboxChangeEvent) =>
+                                    setShowInputOverlay(e.target.checked)
+                                }
                                 checked={showInputOverlay}
                             >
                                 Show Input Overlay
@@ -195,7 +219,9 @@ const SidebarSettings = (): JSX.Element => {
                         <Col>
                             <Checkbox
                                 className="w-full select-none"
-                                onChange={(e: CheckboxChangeEvent) => setShowFPS(e.target.checked)}
+                                onChange={(e: CheckboxChangeEvent) =>
+                                    setShowFPS(e.target.checked)
+                                }
                                 checked={showFPS}
                             >
                                 Show FPS

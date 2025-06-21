@@ -7,11 +7,9 @@ interface PlayerLinkProps {
     webId: string;
     name: string;
     className?: string;
-    style?: React.CSSProperties
+    style?: React.CSSProperties;
 }
-const PlayerLink = ({
-    webId, name, className, style,
-}: PlayerLinkProps) => (
+const PlayerLink = ({ webId, name, className, style }: PlayerLinkProps) => (
     <Link href={`${ABSOLUTE_USERS_PATH}/${webId}`}>
         <a
             target="_blank"

@@ -7,7 +7,11 @@ import { BLOCK_SIZE } from '../../lib/constants/block';
 const GRID_COLOR = new THREE.Color(0, 0, 0);
 const DEFAULT_GRID_SIZE = 48 * 32;
 const DEFAULT_GRID_DIVISIONS = DEFAULT_GRID_SIZE / 32;
-export const DEFAULT_GRID_POS = new THREE.Vector3(DEFAULT_GRID_SIZE / 2, 0, DEFAULT_GRID_SIZE / 2);
+export const DEFAULT_GRID_POS = new THREE.Vector3(
+    DEFAULT_GRID_SIZE / 2,
+    0,
+    DEFAULT_GRID_SIZE / 2,
+);
 
 interface GridProps {
     replaysData: ReplayData[];
@@ -34,7 +38,11 @@ export const Grid = ({ replaysData, blockPadding }: GridProps): JSX.Element => {
         maxPos = maxPos.divide(BLOCK_SIZE).ceil().multiply(BLOCK_SIZE);
 
         // Set grid pos to middle of min and max, then round to a block pos
-        gridPos = new Vector3((minPos.x + maxPos.x) / 2, minPos.y - 8, (minPos.z + maxPos.z) / 2);
+        gridPos = new Vector3(
+            (minPos.x + maxPos.x) / 2,
+            minPos.y - 8,
+            (minPos.z + maxPos.z) / 2,
+        );
         gridPos = gridPos
             .divide(BLOCK_SIZE)
             .round()
@@ -56,9 +64,20 @@ export const Grid = ({ replaysData, blockPadding }: GridProps): JSX.Element => {
                 args={[gridSize, gridDivisions, GRID_COLOR, GRID_COLOR]}
                 position={gridPos}
             />
-            <mesh rotation={[-Math.PI / 2, 0, 0]} position={gridPos} receiveShadow>
-                <planeBufferGeometry attach="geometry" args={[gridSize, gridSize]} />
-                <shadowMaterial attach="material" transparent opacity={0.5} />
+            <mesh
+                rotation={[-Math.PI / 2, 0, 0]}
+                position={gridPos}
+                receiveShadow
+            >
+                <planeBufferGeometry
+                    attach="geometry"
+                    args={[gridSize, gridSize]}
+                />
+                <shadowMaterial
+                    attach="material"
+                    transparent
+                    opacity={0.5}
+                />
             </mesh>
         </>
     );

@@ -21,7 +21,9 @@ export type MapWithStats = {
     count: number;
     lastUpdate: number;
 };
-export const getAllMaps = async (searchString: string): Promise<MapWithStats[]> => {
+export const getAllMaps = async (
+    searchString: string,
+): Promise<MapWithStats[]> => {
     const { data } = await apiInstance.get('/maps', {
         params: {
             mapName: searchString,

@@ -1,9 +1,11 @@
 import React, {
-    createRef, useContext, useEffect, useMemo, useState,
+    createRef,
+    useContext,
+    useEffect,
+    useMemo,
+    useState,
 } from 'react';
-import {
-    Button, Checkbox, Drawer,
-} from 'antd';
+import { Button, Checkbox, Drawer } from 'antd';
 import Highcharts, { AxisSetExtremesEventObject } from 'highcharts/highstock';
 import HighchartsReact from 'highcharts-react-official';
 import { CheckboxChangeEvent } from 'antd/lib/checkbox';
@@ -18,18 +20,18 @@ import { globalChartOptions } from '../../lib/charts/chartOptions';
 import { metricChartData } from '../../lib/charts/chartData';
 
 export interface RangeUpdateInfos {
-    event: AxisSetExtremesEventObject,
-    chartType: ChartType,
+    event: AxisSetExtremesEventObject;
+    chartType: ChartType;
 }
 
 type ChartRefContent = {
     chart: Highcharts.Chart;
     container: React.RefObject<HTMLDivElement>;
-}
-type ChartRef = React.RefObject<ChartRefContent>
+};
+type ChartRef = React.RefObject<ChartRefContent>;
 
 interface ReplayChartProps {
-    chartRef: ChartRef,
+    chartRef: ChartRef;
     replaysData: ReplayData[];
     chartType: ChartType;
     allRaceTimes: number[];
@@ -41,7 +43,12 @@ let globalInterval: ReturnType<typeof setTimeout>;
 let prevCurrentRacetime: number = 0;
 
 export const ReplayChart = ({
-    chartRef, replaysData, chartType: metric, allRaceTimes, rangeUpdatedCallback, syncWithTimeLine,
+    chartRef,
+    replaysData,
+    chartType: metric,
+    allRaceTimes,
+    rangeUpdatedCallback,
+    syncWithTimeLine,
 }: ReplayChartProps): JSX.Element => {
     const timeLineGlobal = GlobalTimeLineInfos.getInstance();
 
@@ -49,9 +56,15 @@ export const ReplayChart = ({
     replaysData.forEach((replay: ReplayData) => {
         if (metric.chartData.length > 1) {
             for (let i = 0; i < metric.chartData.length; i++) {
-                const serie = metricChartData(replay, allRaceTimes, metric.chartData[i]);
+                const serie = metricChartData(
+                    replay,
+                    allRaceTimes,
+                    metric.chartData[i],
+                );
                 const serieTitle = metric.chartData[i].name;
-                serie.name = `${replay.playerName} ${getRaceTimeStr(replay.endRaceTime)} ${serieTitle}`;
+                serie.name = `${replay.playerName} ${getRaceTimeStr(
+                    replay.endRaceTime,
+                )} ${serieTitle}`;
 
                 if (i === 0) {
                     serie.yAxis = i + 1;
@@ -59,7 +72,11 @@ export const ReplayChart = ({
                 replaySeries.push(serie);
             }
         } else {
-            const serie = metricChartData(replay, allRaceTimes, metric.chartData[0]);
+            const serie = metricChartData(
+                replay,
+                allRaceTimes,
+                metric.chartData[0],
+            );
             replaySeries.push(serie);
         }
     });
@@ -84,7 +101,9 @@ export const ReplayChart = ({
     const hoverMarkerAtCurrentTime = (chart: any) => {
         chart.series.forEach((serie: any) => {
             for (let i = 0; i < serie.points.length; i++) {
-                if (serie.points[i].category >= timeLineGlobal.currentRaceTime) {
+                if (
+                    serie.points[i].category >= timeLineGlobal.currentRaceTime
+                ) {
                     serie.points[i].setState('hover');
                     break;
                 }
@@ -96,7 +115,10 @@ export const ReplayChart = ({
 
     if (syncWithTimeLine) {
         globalInterval = setInterval(() => {
-            if (timeLineGlobal.isPlaying || prevCurrentRacetime !== timeLineGlobal.currentRaceTime) {
+            if (
+                timeLineGlobal.isPlaying ||
+                prevCurrentRacetime !== timeLineGlobal.currentRaceTime
+            ) {
                 prevCurrentRacetime = timeLineGlobal.currentRaceTime;
                 let validCharts: boolean = false;
                 highCharts.props.highcharts.charts.forEach((chart: any) => {
@@ -114,24 +136,21 @@ export const ReplayChart = ({
         clearInterval(globalInterval);
     }
 
-    return (
-        highCharts
-    );
+    return highCharts;
 };
 
 interface Props {
     replaysData: ReplayData[];
 }
 
-export const ChartsDrawer = ({
-    replaysData,
-}: Props): JSX.Element => {
+export const ChartsDrawer = ({ replaysData }: Props): JSX.Element => {
     const [visible, setVisible] = useState<boolean>(false);
     const [syncWithTimeLine, setSyncWithTimeLine] = useState<boolean>(true);
     const [selectedChartTypes, setSelectedCharts] = useState<ChartType[]>([]);
-    const {
-        numColorChange,
-    } = useContext(SettingsContext);
+    const { numColorChange } = useContext(SettingsContext);
+    const [chartElement, setChartElement] = useState<HTMLDivElement | null>(
+        null,
+    );
 
     // Get each different currentRaceTime for all replays to get matching chart tooltips
     const allRaceTimes = useMemo(() => {
@@ -158,7 +177,9 @@ export const ChartsDrawer = ({
         return raceTimes;
     }, [replaysData]);
 
-    const chartRefs: ChartRef[] = selectedChartTypes.map(() => createRef<ChartRefContent>());
+    const chartRefs: ChartRef[] = selectedChartTypes.map(() =>
+        createRef<ChartRefContent>(),
+    );
 
     let el1: any;
     let isResizing = false;
@@ -183,12 +204,17 @@ export const ChartsDrawer = ({
         if (isResizing) {
             let elBottomPos = 0;
             const elBottom = el1.style.bottom;
+
             if (typeof elBottom === 'string' && elBottom.endsWith('px')) {
                 elBottomPos = parseInt(elBottom.replace('px', ''), 10);
             }
-            const offsetBottom = document.body.offsetHeight - (e.clientY - document.body.offsetTop) - elBottomPos;
+            const offsetBottom =
+                document.body.offsetHeight -
+                (e.clientY - document.body.offsetTop) -
+                elBottomPos;
             const minHeight = 50;
             const maxHeight = 800;
+
             if (offsetBottom > minHeight && offsetBottom < maxHeight && el1) {
                 el1.style.height = `${offsetBottom}px`;
             }
@@ -196,6 +222,7 @@ export const ChartsDrawer = ({
     };
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         el1 = document.querySelector('.ChartDrawer');
 
         document.addEventListener('mousemove', onMouseMove);
@@ -207,30 +234,39 @@ export const ChartsDrawer = ({
         };
     });
 
-    const toggleSyncCheckbox = (e: any) => {
-        setSyncWithTimeLine(e.target.checked);
-    };
-
-    const onToggleCheckbox = (chartTypeKey: string, checked: boolean) => {
-        const chartType = ChartTypes[chartTypeKey];
+    const onToggleCheckbox = (e: CheckboxChangeEvent) => {
+        const chartType = ChartTypes[e.target.name as keyof typeof ChartTypes];
         if (chartType) {
-            if (checked) {
+            if (e.target.checked) {
                 if (!selectedChartTypes.includes(chartType)) {
                     setSelectedCharts([...selectedChartTypes, chartType]);
                 }
             } else {
-                setSelectedCharts(selectedChartTypes.filter((x) => x.name !== chartType.name));
+                setSelectedCharts(
+                    selectedChartTypes.filter((x) => x.name !== chartType.name),
+                );
             }
         }
     };
 
     const changeAllChartRanges = (rangeUpdate: RangeUpdateInfos) => {
         chartRefs.forEach((chartRef: ChartRef, i) => {
-            if (chartRef && typeof chartRef !== 'function' && chartRef.current) {
+            if (
+                chartRef &&
+                typeof chartRef !== 'function' &&
+                chartRef.current
+            ) {
                 if (chartRef.current.chart.xAxis) {
-                    if (selectedChartTypes[i].name !== rangeUpdate.chartType.name) {
-                        chartRef.current.chart.xAxis[0]
-                            .setExtremes(rangeUpdate.event.min, rangeUpdate.event.max, true, false);
+                    if (
+                        selectedChartTypes[i].name !==
+                        rangeUpdate.chartType.name
+                    ) {
+                        chartRef.current.chart.xAxis[0].setExtremes(
+                            rangeUpdate.event.min,
+                            rangeUpdate.event.max,
+                            true,
+                            false,
+                        );
                     }
                 }
             }
@@ -242,28 +278,30 @@ export const ChartsDrawer = ({
     };
 
     return (
-        <div className="absolute right-0 left-0 bottom-0 mb-10 mx-auto z-10" style={{ width: '50px' }}>
-            {!visible
-                && (
-                    <Button
-                        onClick={toggleSidebar}
-                        className="mb-4 py-6 px-2 flex flex-row items-center justify-center"
-                        size="large"
-                        style={{
-                            backgroundColor: '#1f1f1f',
-                            border: 0,
-                            borderTopRightRadius: 8,
-                            borderTopLeftRadius: 8,
-                        }}
-                    >
-                        <CaretUpOutlined className="mx-4" />
-                        <div>
-                            <LineChartOutlined className="mx-1" />
-                            Charts
-                        </div>
-                        <CaretUpOutlined className="mx-4" />
-                    </Button>
-                )}
+        <div
+            className="absolute right-0 left-0 bottom-0 mb-10 mx-auto z-10"
+            style={{ width: '50px' }}
+        >
+            {!visible && (
+                <Button
+                    onClick={toggleSidebar}
+                    className="mb-4 py-6 px-2 flex flex-row items-center justify-center"
+                    size="large"
+                    style={{
+                        backgroundColor: '#1f1f1f',
+                        border: 0,
+                        borderTopRightRadius: 8,
+                        borderTopLeftRadius: 8,
+                    }}
+                >
+                    <CaretUpOutlined className="mx-4" />
+                    <div>
+                        <LineChartOutlined className="mx-1" />
+                        Charts
+                    </div>
+                    <CaretUpOutlined className="mx-4" />
+                </Button>
+            )}
             <Drawer
                 mask={false}
                 title="Charts"
@@ -301,7 +339,7 @@ export const ChartsDrawer = ({
                                 style={{ textTransform: 'capitalize' }}
                                 name={chartType}
                                 key={chartType}
-                                onChange={(e: CheckboxChangeEvent) => onToggleCheckbox(chartType, e.target.checked)}
+                                onChange={onToggleCheckbox}
                             >
                                 {ChartTypes[chartType].name}
                             </Checkbox>

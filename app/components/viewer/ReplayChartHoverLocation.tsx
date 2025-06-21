@@ -38,7 +38,10 @@ const ReplayChartHoverLocation = ({
     });
 
     return globalChartsData.hoveredRaceTime === undefined ? (
-        <Sphere ref={sphereRef} args={[0.5]}>
+        <Sphere
+            ref={sphereRef}
+            args={[0.5]}
+        >
             <meshBasicMaterial
                 attach="material"
                 side={DoubleSide}

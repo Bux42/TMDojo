@@ -35,8 +35,14 @@ export const metricChartData = (
     allRaceTimes.forEach((raceTime: number) => {
         for (let i = 0; i < replay.samples.length; i++) {
             lastSample = replay.samples[i];
-            if (lastSample.currentRaceTime === raceTime || lastSample.currentRaceTime > raceTime) {
-                chartData.data.push([raceTime, chartDataInfo.dataCallback(lastSample)]);
+            if (
+                lastSample.currentRaceTime === raceTime ||
+                lastSample.currentRaceTime > raceTime
+            ) {
+                chartData.data.push([
+                    raceTime,
+                    chartDataInfo.dataCallback(lastSample),
+                ]);
                 break;
             }
         }

@@ -6,7 +6,7 @@ module.exports = {
     extends: [
         'plugin:react/recommended',
         'airbnb',
-        'plugin:react-hooks/recommended'
+        'plugin:react-hooks/recommended',
     ],
     globals: {
         React: true,
@@ -27,7 +27,10 @@ module.exports = {
         'react/jsx-indent': ['error', 4],
         'react/jsx-indent-props': ['error', 4],
         // project structure
-        'react/jsx-filename-extension': ['error', { extensions: ['.js', '.jsx', '.ts', '.tsx'] }],
+        'react/jsx-filename-extension': [
+            'error',
+            { extensions: ['.js', '.jsx', '.ts', '.tsx'] },
+        ],
         'import/extensions': [
             'error',
             'ignorePackages',
@@ -43,16 +46,31 @@ module.exports = {
         'no-use-before-define': 'off',
         'no-unused-vars': 'off',
         'react/require-default-props': 'off',
-        'operator-linebreak': ['error', 'after'],
-        'object-curly-newline': ["error", { "consistent": true }],
-        "react/no-unknown-property": "off",
-        "react/jsx-one-expression-per-line": "off",
-        "implicit-arrow-linebreak": "beside",
+        'operator-linebreak': 'off',
+        'object-curly-newline': ['error', { consistent: true }],
+        'react/no-unknown-property': 'off',
+        'react/jsx-one-expression-per-line': 'off',
+        'implicit-arrow-linebreak': 0,
+        'react/jsx-curly-newline': 'off',
+        'react/jsx-wrap-multilines': [
+            'error',
+            {
+                declaration: 'parens',
+                assignment: 'parens',
+                return: 'parens',
+                arrow: 'parens',
+            },
+        ],
+        // 'function-paren-newline': ['error', 'multiline'],
+        'function-paren-newline': ['off', 'multiline'],
         // due to DB IDs we have to disable this
         'no-underscore-dangle': 'off',
-        camelcase: ['error', {
-            allow: ['redirect_uri', 'client_id', 'response_type'],
-        }],
+        camelcase: [
+            'error',
+            {
+                allow: ['redirect_uri', 'client_id', 'response_type'],
+            },
+        ],
         // preferences
         '@typescript-eslint/no-use-before-define': 'off',
         'no-plusplus': 'off',

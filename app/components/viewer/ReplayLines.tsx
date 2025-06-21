@@ -83,7 +83,10 @@ const ReplayLine = ({
 
     return (
         <line>
-            <bufferGeometry ref={bufferGeom} onUpdate={onUpdate} />
+            <bufferGeometry
+                ref={bufferGeom}
+                onUpdate={onUpdate}
+            />
             <lineBasicMaterial
                 linewidth={10}
                 transparent
@@ -129,14 +132,15 @@ export const ReplayLines = ({
                         replay={replay}
                     />
                 )}
-                {replay.dnfPos.x !== 0 &&
+                {/* Removed because it is no longer possible to upload an unfinished run */}
+                {/* {replay.dnfPos.x !== 0 &&
                     replay.dnfPos.y !== 0 &&
                     replay.dnfPos.z !== 0 && (
                         <ReplayDnf
                             key={`replay-${replay._id}-dnf`}
                             replay={replay}
                         />
-                    )}
+                    )} */}
 
                 {/* Removed until fully implemented: */}
                 {/*

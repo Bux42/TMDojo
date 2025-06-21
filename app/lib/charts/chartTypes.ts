@@ -33,7 +33,8 @@ export const ChartTypes: { [name: string]: ChartType } = {
         chartData: [
             {
                 name: 'acceleration',
-                dataCallback: (replayData: ReplayDataPoint) => replayData.acceleration,
+                dataCallback: (replayData: ReplayDataPoint) =>
+                    replayData.acceleration,
             },
         ],
         chartOptionsCallback: defaultChartOptions,
@@ -43,7 +44,8 @@ export const ChartTypes: { [name: string]: ChartType } = {
         chartData: [
             {
                 name: 'inputSteer',
-                dataCallback: (replayData: ReplayDataPoint) => replayData.inputSteer,
+                dataCallback: (replayData: ReplayDataPoint) =>
+                    replayData.inputSteer,
             },
         ],
         chartOptionsCallback: inputSteerChartOptions,
@@ -53,7 +55,8 @@ export const ChartTypes: { [name: string]: ChartType } = {
         chartData: [
             {
                 name: 'engineRpm',
-                dataCallback: (replayData: ReplayDataPoint) => replayData.engineRpm,
+                dataCallback: (replayData: ReplayDataPoint) =>
+                    replayData.engineRpm,
             },
         ],
         chartOptionsCallback: defaultChartOptions,
@@ -63,7 +66,8 @@ export const ChartTypes: { [name: string]: ChartType } = {
         chartData: [
             {
                 name: 'engineCurGear',
-                dataCallback: (replayData: ReplayDataPoint) => replayData.engineCurGear,
+                dataCallback: (replayData: ReplayDataPoint) =>
+                    replayData.engineCurGear,
             },
         ],
         chartOptionsCallback: defaultChartOptions,
@@ -73,11 +77,13 @@ export const ChartTypes: { [name: string]: ChartType } = {
         chartData: [
             {
                 name: 'engineCurGear',
-                dataCallback: (replayData: ReplayDataPoint) => replayData.engineCurGear,
+                dataCallback: (replayData: ReplayDataPoint) =>
+                    replayData.engineCurGear,
             },
             {
                 name: 'engineRpm',
-                dataCallback: (replayData: ReplayDataPoint) => replayData.engineRpm,
+                dataCallback: (replayData: ReplayDataPoint) =>
+                    replayData.engineRpm,
             },
         ],
         chartOptionsCallback: rpmAndGearChartOptions,
@@ -87,11 +93,13 @@ export const ChartTypes: { [name: string]: ChartType } = {
         chartData: [
             {
                 name: 'inputIsBraking',
-                dataCallback: (replayData: ReplayDataPoint) => replayData.inputIsBraking,
+                dataCallback: (replayData: ReplayDataPoint) =>
+                    replayData.inputIsBraking,
             },
             {
                 name: 'inputGasPedal',
-                dataCallback: (replayData: ReplayDataPoint) => replayData.inputGasPedal,
+                dataCallback: (replayData: ReplayDataPoint) =>
+                    replayData.inputGasPedal,
             },
         ],
         chartOptionsCallback: accelAndBrakeChartOptions,

@@ -48,17 +48,19 @@ const UserDisplay = () => {
         }
     };
 
-    return user === undefined
-        ? <LoginButton onClick={startAuthFlow} />
-        : (
-            <div className="flex flex-col md:flex-row gap-1 md:gap-6 items-center text-sm md:text-base text-right">
-                {`Welcome, ${user.displayName}!`}
-                <div className="flex gap-4">
-                    <ProfileButton webId={user.accountId} />
-                    <LogoutButton onClick={onLogout} />
-                </div>
+    if (user === undefined) {
+        return <LoginButton onClick={startAuthFlow} />;
+    }
+
+    return (
+        <div className="flex flex-col md:flex-row gap-1 md:gap-6 items-center text-sm md:text-base text-right">
+            {`Welcome, ${user.displayName}!`}
+            <div className="flex gap-4">
+                <ProfileButton webId={user.accountId} />
+                <LogoutButton onClick={onLogout} />
             </div>
-        );
+        </div>
+    );
 };
 
 export default UserDisplay;

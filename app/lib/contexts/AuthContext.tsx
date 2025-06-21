@@ -25,18 +25,18 @@ export const AuthProvider = ({ children }: any): JSX.Element => {
     const [user, setUser] = useState<AuthUserInfo>();
     const { asPath } = useRouter();
 
-    useEffect(() => {
-        updateLoggedInUser();
-    }, [asPath]);
-
-    const updateLoggedInUser = async () => {
+    const updateLoggedInUser = useCallback(async () => {
         const me = await API.auth.fetchLoggedInUser();
         if (me === undefined) {
             setUser(undefined);
         } else if (me?.accountId !== user?.accountId) {
             setUser(me);
         }
-    };
+    }, [user?.accountId]);
+
+    useEffect(() => {
+        updateLoggedInUser();
+    }, [asPath, updateLoggedInUser]);
 
     const startAuthFlow = () => {
         // Generate and store random string as state
@@ -80,6 +80,7 @@ export const AuthProvider = ({ children }: any): JSX.Element => {
         const storedState = localStorage.getItem('state');
         localStorage.removeItem('state');
         if (storedState !== state) {
+            // eslint-disable-next-line no-console
             console.log(
                 `Stored state (${storedState}) did not match incoming state (${state})`,
             );
@@ -98,6 +99,7 @@ export const AuthProvider = ({ children }: any): JSX.Element => {
             );
             setUser(userInfo);
         } catch (e) {
+            // eslint-disable-next-line no-console
             console.log(e);
         }
     };

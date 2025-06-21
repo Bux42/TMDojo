@@ -9,7 +9,10 @@ interface SideDrawerExpandButtonProps {
     includeArrowIcon?: boolean;
 }
 const SideDrawerExpandButton = ({
-    onClick, content, side, includeArrowIcon = true,
+    onClick,
+    content,
+    side,
+    includeArrowIcon = true,
 }: SideDrawerExpandButtonProps) => (
     <Button
         onClick={onClick}

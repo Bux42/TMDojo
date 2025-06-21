@@ -1,11 +1,19 @@
 import React from 'react';
-
+import dynamic from 'next/dynamic';
 import CleanButton from '../components/common/CleanButton';
 import Footer from '../components/common/Footer';
 import UserDisplay from '../components/common/UserDisplay';
 import PageContainer from '../components/containers/PageContainer';
-import ExplanationInfo from '../components/landing/ExplanationInfo';
-import MapReplayTableWithSearchbar from '../components/landing/MapReplayTableWithSearchbar';
+
+const ExplanationInfo = dynamic(
+    () => import('../components/landing/ExplanationInfo'),
+    { ssr: false },
+);
+
+const MapReplayTableWithSearchbar = dynamic(
+    () => import('../components/landing/MapReplayTableWithSearchbar'),
+    { ssr: false },
+);
 
 const DISCORD_URL = 'https://discord.gg/RPbZHvxNRG';
 const SPONSOR_URL = 'https://github.com/sponsors/tm-dojo';

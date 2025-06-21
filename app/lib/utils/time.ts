@@ -14,10 +14,12 @@ export const getRaceTimeStr = (raceTime: number): string => {
 
     return (
         `${sign}` +
-        `${`${hours > 0 ? `${hours}:` : ''}` +
-        `${hours > 0 ? `${minutesPadded}:` : (minutes > 0 ? `${minutes}:` : '')}` +
-        `${minutes > 0 ? secondsPadded : seconds}` +
-        '.'}${msPadded}`
+        `${
+            `${hours > 0 ? `${hours}:` : ''}` +
+            `${hours > 0 ? `${minutesPadded}:` : minutes > 0 ? `${minutes}:` : ''}` +
+            `${minutes > 0 ? secondsPadded : seconds}` +
+            '.'
+        }${msPadded}`
     );
 };
 
@@ -36,16 +38,20 @@ export const timeDifference = (current: number, previous: number): string => {
     if (elapsed < msPerMinute) {
         const time = Math.round(elapsed / 1000);
         return `${time} second${addPlural(time)} ago`;
-    } if (elapsed < msPerHour) {
+    }
+    if (elapsed < msPerHour) {
         const time = Math.round(elapsed / msPerMinute);
         return `${time} minute${addPlural(time)} ago`;
-    } if (elapsed < msPerDay) {
+    }
+    if (elapsed < msPerDay) {
         const time = Math.round(elapsed / msPerHour);
         return `${time} hour${addPlural(time)} ago`;
-    } if (elapsed < msPerMonth) {
+    }
+    if (elapsed < msPerMonth) {
         const time = Math.round(elapsed / msPerDay);
         return `${time} day${addPlural(time)} ago`;
-    } if (elapsed < msPerYear) {
+    }
+    if (elapsed < msPerYear) {
         const time = Math.round(elapsed / msPerMonth);
         return `${time} month${addPlural(time)} ago`;
     }
@@ -58,7 +64,7 @@ export const msToTime = (duration: number) => {
     const minutes = Math.floor((duration / TIME_IN_MS.MINUTE) % 60);
     const hours = Math.floor((duration / TIME_IN_MS.HOUR) % 24);
     const days = Math.floor((duration / TIME_IN_MS.DAY) % 7);
-    const weeks = Math.floor((duration / TIME_IN_MS.WEEK));
+    const weeks = Math.floor(duration / TIME_IN_MS.WEEK);
 
     if (weeks) {
         return `${weeks} week${addPlural(weeks)}, 
@@ -82,7 +88,7 @@ export const msToTime = (duration: number) => {
     if (seconds) {
         return `${seconds} second${addPlural(seconds)}`;
     }
-    return ('');
+    return '';
 };
 
 // Utility constants for time in milliseconds

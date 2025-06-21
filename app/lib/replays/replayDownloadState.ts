@@ -3,7 +3,7 @@ import { ReplayData } from '../api/requests/replays';
 export enum DownloadState {
     DOWNLOADING = 'Downloading',
     LOADED = 'Loaded',
-    ERROR = 'Error'
+    ERROR = 'Error',
 }
 
 export interface ReplayDownloadState {

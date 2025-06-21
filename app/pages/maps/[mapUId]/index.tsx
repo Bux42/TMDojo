@@ -2,6 +2,7 @@ import React, { useContext, useMemo, useState } from 'react';
 import { Layout } from 'antd';
 import { useRouter } from 'next/router';
 
+import dynamic from 'next/dynamic';
 import { useQueryClient } from '@tanstack/react-query';
 import { PieChartOutlined } from '@ant-design/icons';
 import SidebarReplays from '../../../components/maps/SidebarReplays';
@@ -9,10 +10,7 @@ import SidebarSettings from '../../../components/maps/SidebarSettings';
 import MapHeader from '../../../components/maps/MapHeader';
 import SectorTimeTableModal from '../../../components/maps/SectorTimeTableModal';
 // import Viewer3D from "../../../components/viewer/Viewer3D";
-import dynamic from 'next/dynamic';
-const Viewer3D = dynamic(() => import('../../../components/viewer/Viewer3D'), {
-    suspense: true,
-});
+
 import HeadTitle from '../../../components/common/HeadTitle';
 import { ChartsDrawer } from '../../../components/maps/ChartsDrawer';
 import { cleanTMFormatting } from '../../../lib/utils/formatting';
@@ -33,6 +31,10 @@ import SectorTimeTableButton from '../../../components/maps/SectorTimeTableButto
 import { filterReplaysWithValidSectorTimes } from '../../../lib/replays/sectorTimes';
 import useViewerPerformancePopupConfirmations from '../../../lib/hooks/useViewerPerformancePopupConfirmations';
 import { AuthContext } from '../../../lib/contexts/AuthContext';
+
+const Viewer3D = dynamic(() => import('../../../components/viewer/Viewer3D'), {
+    suspense: true,
+});
 
 const Home = (): JSX.Element => {
     const queryClient = useQueryClient();
@@ -99,6 +101,10 @@ const Home = (): JSX.Element => {
         }
     };
 
+    const onRefreshReplays = async () => {
+        queryClient.invalidateQueries(QUERY_KEYS.mapReplays(mapUId as string));
+    };
+
     const onLoadReplay = async (replay: ReplayInfo) => {
         onLoadMultipleReplays([replay]);
     };
@@ -133,9 +139,8 @@ const Home = (): JSX.Element => {
         );
 
         // Await all promises using Promise.allSettled to catch errors
-        const replayPromiseResults = await Promise.allSettled(
-            replayFetchPromises,
-        );
+        const replayPromiseResults =
+            await Promise.allSettled(replayFetchPromises);
 
         // Load all fulfilled replays and set error states for rejected replays
         replayPromiseResults.forEach((promiseResult, index) => {
@@ -200,9 +205,12 @@ const Home = (): JSX.Element => {
         });
     };
 
-    const title = mapInfo?.name
-        ? `${cleanTMFormatting(mapInfo.name)} - TMDojo`
-        : 'TMDojo';
+    const title = useMemo(() => {
+        if (mapInfo?.name) {
+            return `${cleanTMFormatting(mapInfo.name)} - TMDojo`;
+        }
+        return 'TMDojo';
+    }, [mapInfo?.name]);
 
     return (
         <>
@@ -224,13 +232,13 @@ const Home = (): JSX.Element => {
                         </div>
                     </CleanButton>
                 </MapHeader>
-
-                <SectorTimeTableModal
+                {/* disabled for now until sector times are fixed */}
+                {/* <SectorTimeTableModal
                     selectedReplays={selectedReplaysWithValidSectors}
                     allReplays={mapReplaysResult?.replays || []}
                     visible={sectorTableVisible}
                     setVisible={setSectorTableVisible}
-                />
+                /> */}
                 <Layout.Content>
                     <SidebarReplays
                         mapUId={`${mapUId}`}
@@ -241,11 +249,7 @@ const Home = (): JSX.Element => {
                         onLoadMultipleReplays={onLoadMultipleReplays}
                         onRemoveReplay={onRemoveReplay}
                         onRemoveAllReplays={onRemoveAllReplays}
-                        onRefreshReplays={() =>
-                            queryClient.invalidateQueries(
-                                QUERY_KEYS.mapReplays(mapUId as string),
-                            )
-                        }
+                        onRefreshReplays={onRefreshReplays}
                         replayDownloadStates={replayDownloadStates}
                     />
 

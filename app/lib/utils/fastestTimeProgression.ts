@@ -1,6 +1,8 @@
 import { ReplayInfo } from '../api/requests/replays';
 
-const calculateFastestTimeProgression = (replayList: ReplayInfo[]): ReplayInfo[] => {
+const calculateFastestTimeProgression = (
+    replayList: ReplayInfo[],
+): ReplayInfo[] => {
     if (replayList.length === 0) {
         return [];
     }
@@ -11,8 +13,12 @@ const calculateFastestTimeProgression = (replayList: ReplayInfo[]): ReplayInfo[]
     fastestTimeProgressions.push(sortedReplays[0]);
     for (let i = 1; i < sortedReplays.length; i++) {
         const currentReplay = sortedReplays[i];
-        const latestFastestReplay = fastestTimeProgressions[fastestTimeProgressions.length - 1];
-        if (currentReplay.raceFinished && currentReplay.endRaceTime < latestFastestReplay.endRaceTime) {
+        const latestFastestReplay =
+            fastestTimeProgressions[fastestTimeProgressions.length - 1];
+        if (
+            currentReplay.raceFinished &&
+            currentReplay.endRaceTime < latestFastestReplay.endRaceTime
+        ) {
             fastestTimeProgressions.push(currentReplay);
         }
     }
