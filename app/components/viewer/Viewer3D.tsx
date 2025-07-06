@@ -17,6 +17,7 @@ import FrameRate from './FrameRate';
 import ReplayCars from './ReplayCars';
 import TimeLine from './timeline/TimeLine';
 import SceneDirectionalLight from './SceneDirectionalLight';
+import ReplayCarsInstanced from './ReplayCarsInstanced';
 
 const BACKGROUND_COLOR = new THREE.Color(0.05, 0.05, 0.05);
 
@@ -72,7 +73,7 @@ const Viewer3D = ({ replaysData }: Props): JSX.Element => {
                 }}
                 shadows
             >
-                <ambientLight intensity={0.01} />
+                <ambientLight intensity={1} />
                 <Sky
                     distance={100000000}
                     inclination={0}
@@ -100,14 +101,14 @@ const Viewer3D = ({ replaysData }: Props): JSX.Element => {
                     replayLineOpacity={replayLineOpacity}
                     showGearChanges={showGearChanges}
                 />
-                <Suspense fallback={null}>
-                    <ReplayCars
-                        replaysData={replaysData}
-                        orbitControlsRef={orbitControlsRef}
-                        showInputOverlay={showInputOverlay}
-                        replayCarOpacity={replayCarOpacity}
-                    />
-                </Suspense>
+                {/* <Suspense fallback={null}> */}
+                <ReplayCarsInstanced
+                    replaysData={replaysData}
+                    orbitControlsRef={orbitControlsRef}
+                    showInputOverlay={showInputOverlay}
+                    replayCarOpacity={replayCarOpacity}
+                />
+                {/* </Suspense> */}
                 {showFPS && <FrameRate />}
             </Canvas>
             <TimeLine replaysData={replaysData} />

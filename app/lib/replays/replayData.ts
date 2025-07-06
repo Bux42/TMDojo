@@ -1,6 +1,30 @@
 /* eslint-disable no-bitwise */
 import * as THREE from 'three';
 
+export function getFLDamperLenFromDataPoint(
+    dataPoint: ReplayDataPoint,
+): number {
+    return dataPoint.fLDamperLen;
+}
+
+export function getFRDamperLenFromDataPoint(
+    dataPoint: ReplayDataPoint,
+): number {
+    return dataPoint.fRDamperLen;
+}
+
+export function getRLDamperLenFromDataPoint(
+    dataPoint: ReplayDataPoint,
+): number {
+    return dataPoint.rLDamperLen;
+}
+
+export function getRRDamperLenFromDataPoint(
+    dataPoint: ReplayDataPoint,
+): number {
+    return dataPoint.rRDamperLen;
+}
+
 export class ReplayDataPoint {
     offset: number;
     currentRaceTime: number;

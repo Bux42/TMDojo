@@ -139,8 +139,9 @@ const Home = (): JSX.Element => {
         );
 
         // Await all promises using Promise.allSettled to catch errors
-        const replayPromiseResults =
-            await Promise.allSettled(replayFetchPromises);
+        const replayPromiseResults = await Promise.allSettled(
+            replayFetchPromises,
+        );
 
         // Load all fulfilled replays and set error states for rejected replays
         replayPromiseResults.forEach((promiseResult, index) => {
