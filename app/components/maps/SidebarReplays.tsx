@@ -42,6 +42,7 @@ import {
     filterReplaysWithValidSectorTimes,
 } from '../../lib/replays/sectorTimes';
 import useDeleteReplay from '../../lib/api/reactQuery/hooks/mutations/replays';
+import PrivateReplayIcon from '../common/PrivateReplayIcon';
 
 interface ExtendedReplayInfo extends ReplayInfo {
     readableTime: string;
@@ -234,12 +235,21 @@ const SidebarReplays = ({
             title: 'Player',
             dataIndex: 'playerName',
             filters: nameFilters,
-            onFilter: (value, record) => record.playerName === value,
+            onFilter: (value, replay) => replay.playerName === value,
             render: (_, replay) => (
-                <PlayerLink
-                    webId={replay.webId}
-                    name={replay.playerName}
-                />
+                <div className="w-full flex flex-row items-center gap-2">
+                    <div className="w-full">
+                        <PlayerLink
+                            webId={replay.webId}
+                            name={replay.playerName}
+                        />
+                    </div>
+                    {replay.private && (
+                        <div className="pr-4">
+                            <PrivateReplayIcon />
+                        </div>
+                    )}
+                </div>
             ),
             filterSearch: true,
             filterIcon: () => (

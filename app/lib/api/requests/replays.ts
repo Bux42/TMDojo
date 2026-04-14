@@ -39,6 +39,7 @@ export interface ReplayInfo {
     playerName: string;
     raceFinished: number;
     webId: string;
+    private?: boolean;
     _id: string;
 }
 
@@ -60,7 +61,7 @@ export const fetchReplays = async (
     };
 };
 
-export interface ReplayData extends ReplayInfo, DataViewResult {}
+export interface ReplayData extends ReplayInfo, DataViewResult { }
 export const fetchReplayData = async (
     replay: ReplayInfo,
     downloadProgress?: (
