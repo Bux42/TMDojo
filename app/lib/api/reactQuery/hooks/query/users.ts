@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import queryClient from '../../queryClient';
 import QUERY_KEYS from '../../queryKeys';
 import API from '../../../apiWrapper';
@@ -14,4 +14,13 @@ const useUserInfo = (webId?: string) => useQuery(
     },
 );
 
-export default useUserInfo;
+const useSetUserPrivateReplays = (webId: string) => useMutation(
+    (privateReplays: boolean) => API.users.setPrivateReplays(webId, privateReplays),
+    {
+        onSuccess: () => {
+            queryClient.invalidateQueries(QUERY_KEYS.userInfo(webId));
+        },
+    },
+);
+
+export { useSetUserPrivateReplays, useUserInfo };

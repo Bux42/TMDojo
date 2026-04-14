@@ -5,7 +5,9 @@ export type UserInfo = {
     webId?: string;
     playerLogin?: string;
     playerName?: string;
-    _id?: number;
+    _id?: string;
+    createdAt?: number;
+    privateReplays?: boolean;
 };
 export const getUserInfo = async (webId: string): Promise<UserInfo> => {
     const { data } = await apiInstance.get(`/users/${webId}/info`);
@@ -18,4 +20,10 @@ export const getUserReplays = async (webId: string): Promise<AllReplaysResult> =
         replays: data.files,
         totalResults: data.totalResults,
     };
+};
+
+export const setPrivateReplays = async (webId: string, privateReplays: boolean): Promise<void> => {
+    await apiInstance.put(`/users/${webId}/private-replays`, {
+        privateReplays,
+    });
 };

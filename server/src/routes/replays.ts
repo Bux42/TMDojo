@@ -39,6 +39,7 @@ router.get('/', async (req: Request, res: Response, next: Function) => {
             req.query.raceFinished as string,
             req.query.orderBy as string,
             req.query.maxResults as string,
+            req.user?._id?.toString(),
         );
         res.send(replays);
     } catch (err) {
@@ -60,6 +61,16 @@ router.get('/:replayId', async (req: Request, res: Response, next: Function) => 
             req.log.error(`replaysRouter: Replay with id "${req.params.replayId}" not found in the database`);
             throw new Error('Object not found');
         }
+
+        // Check if replay is private and if user is authorized to access it
+        if (replay.private) {
+            if (!req.user || req.user._id.toString() !== replay.userRef.toString()) {
+                req.log.error('replaysRouter: Unauthenticated replay access attempt');
+                res.status(401).send('Authentication required to access this replay.');
+                return;
+            }
+        }
+
         const replayData = await artefacts.retrieveReplay(replay);
         req.log.debug('replaysRouter: Replay data retrieved');
         res.send(replayData);
@@ -183,6 +194,7 @@ router.post('/', (req: Request, res: Response, next: Function): any => {
                 endRaceTime: parseInt(`${req.query.endRaceTime}`, 10),
                 pluginVersion: req.query.pluginVersion,
                 sectorTimes,
+                private: user?.privateReplays || false,
                 ...storedReplay,
             };
             req.log.debug('replaysRouter: Saving replay metadata');

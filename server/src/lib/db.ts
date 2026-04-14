@@ -53,6 +53,7 @@ export const createUser = (
                         webId,
                         playerLogin: login,
                         playerName: name,
+                        privateReplays: false,
                         clientCode: clientCode || null,
                         createdAt: Date.now(),
                     });
@@ -178,14 +179,36 @@ export const getUserByWebId = (
     });
 });
 
+export const setUserPrivateReplays = async (
+    webId: string,
+    privateReplays: boolean,
+) => {
+    const users = db.collection('users');
+    return users.updateOne(
+        { webId },
+        {
+            $set: {
+                privateReplays,
+            },
+        },
+    );
+};
+
 export const getReplaysByUserRef = async (
     userRef: string,
+    showPrivate: boolean = false,
 ): Promise<any> => {
     const replays = db.collection('replays');
 
+    let matchCondition: any = { userRef: new ObjectId(userRef) };
+
+    if (!showPrivate) {
+        matchCondition = { ...matchCondition, private: { $ne: !showPrivate } };
+    }
+
     const pipeline = [
         {
-            $match: { userRef: new ObjectId(userRef) },
+            $match: matchCondition,
         },
         {
             $lookup: {
@@ -212,10 +235,25 @@ export const getReplays = async (
     raceFinished ?: string,
     orderBy ?: string,
     maxResults: string = '1000',
+    currentUserRef?: string,
 ): Promise<any> => {
     const replays = db.collection('replays');
 
     const pipeline = [];
+
+
+    const matchCondition: any = (currentUserRef && ObjectId.isValid(currentUserRef))
+        ? {
+            $or: [
+                { private: { $ne: true } },
+                { userRef: new ObjectId(currentUserRef) },
+            ],
+        }
+        : { private: { $ne: true } };
+
+    pipeline.push({
+        $match: matchCondition,
+    });
 
     const map = await getMapByUId(mapUId);
     if (map && map._id) {
