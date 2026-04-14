@@ -21,13 +21,32 @@ export type MapWithStats = {
     count: number;
     lastUpdate: number;
 };
+
 export const getAllMaps = async (
     searchString: string,
+    offset: number = 0,
+    limit: number = 50,
 ): Promise<MapWithStats[]> => {
     const { data } = await apiInstance.get('/maps', {
         params: {
-            mapName: searchString,
+            mapName: searchString || undefined,
+            offset,
+            limit,
         },
     });
-    return data;
+    return data.maps;
+};
+
+export const getMapCount = async (searchString?: string): Promise<number> => {
+    const { data } = await apiInstance.get('/maps/count', {
+        params: {
+            mapName: searchString || undefined,
+        },
+    });
+    return data.total;
+};
+
+export const getReplayCount = async (): Promise<number> => {
+    const { data } = await apiInstance.get('/maps/replays/count');
+    return data.total;
 };

@@ -7,7 +7,11 @@ import Link from 'next/link';
 import { useQueryClient } from '@tanstack/react-query';
 import { timeDifference } from '../../lib/utils/time';
 import CleanButton from '../common/CleanButton';
-import { useAllMaps } from '../../lib/api/reactQuery/hooks/query/maps';
+import {
+    useAllMaps,
+    useMapCount,
+    useReplayCount,
+} from '../../lib/api/reactQuery/hooks/query/maps';
 import { MapWithStats } from '../../lib/api/requests/maps';
 import QUERY_KEYS from '../../lib/api/reactQuery/queryKeys';
 
@@ -15,14 +19,27 @@ interface ExtendedAvailableMap extends MapWithStats {
     key: string;
 }
 
+const PAGE_SIZE = 10;
+
 const MapReplayTableWithSearchbar = () => {
     const queryClient = useQueryClient();
 
     const [searchString, setSearchString] = useState<string>('');
+    const [page, setPage] = useState<number>(1);
 
-    const { data: maps, isLoading, isFetching } = useAllMaps(searchString);
+    const offset = (page - 1) * PAGE_SIZE;
 
-    const totalReplays = useMemo(() => {
+    const {
+        data: maps,
+        isLoading,
+        isFetching,
+    } = useAllMaps(searchString, offset, PAGE_SIZE);
+    const { data: totalMaps, isLoading: isLoadingMapCount } =
+        useMapCount(searchString);
+    const { data: totalReplays, isLoading: isLoadingReplayCount } =
+        useReplayCount();
+
+    const totalReplaysFromMaps = useMemo(() => {
         if (!maps) return 0;
         return maps.reduce((acc, map) => acc + map.count, 0);
     }, [maps]);
@@ -119,8 +136,12 @@ const MapReplayTableWithSearchbar = () => {
                     loading={isFetching}
                     onSearch={(value) => {
                         setSearchString(value);
+                        setPage(1);
                         queryClient.invalidateQueries(
                             QUERY_KEYS.allMaps(value),
+                        );
+                        queryClient.invalidateQueries(
+                            QUERY_KEYS.mapCount(value),
                         );
                     }}
                 />
@@ -128,15 +149,17 @@ const MapReplayTableWithSearchbar = () => {
                 <div className="flex flex-row w-full sm:w-1/2 justify-center sm:justify-start">
                     <Tag
                         className="text-base rounded"
-                        icon={isLoading ? <SyncOutlined spin /> : null}
+                        icon={isLoadingMapCount ? <SyncOutlined spin /> : null}
                     >
-                        {`${(maps ? maps.length : 0).toLocaleString()} maps`}
+                        {`${(totalMaps ?? 0).toLocaleString()} maps`}
                     </Tag>
                     <Tag
                         className="text-base rounded"
-                        icon={isLoading ? <SyncOutlined spin /> : null}
+                        icon={
+                            isLoadingReplayCount ? <SyncOutlined spin /> : null
+                        }
                     >
-                        {`${totalReplays.toLocaleString()} replays`}
+                        {`${(totalReplays ?? 0).toLocaleString()} replays`}
                     </Tag>
                 </div>
             </div>
@@ -159,8 +182,10 @@ const MapReplayTableWithSearchbar = () => {
                 })}
                 size="small"
                 pagination={{
-                    pageSize: 10,
-                    hideOnSinglePage: true,
+                    current: page,
+                    pageSize: PAGE_SIZE,
+                    total: totalMaps ?? 0,
+                    onChange: (newPage) => setPage(newPage),
                     position: ['bottomCenter'],
                     showSizeChanger: false,
                     size: 'small',

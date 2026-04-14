@@ -1,10 +1,10 @@
 const QUERY_KEYS = {
-    allMaps: (searchString: string = '') => {
-        if (searchString !== '') {
-            return ['allMaps', searchString] as const;
-        }
-        return ['allMaps'];
-    },
+    allMaps: (searchString: string = '', offset: number = 0, limit: number = 50) =>
+        ['allMaps', searchString, offset, limit] as const,
+    mapCount: (searchString: string = '') =>
+        ['mapCount', searchString] as const,
+    replayCount: () =>
+        ['replayCount'] as const,
     mapReplays: (mapUId?: string) => {
         if (mapUId && mapUId !== '') {
             return ['mapReplays', mapUId] as const;
