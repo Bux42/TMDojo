@@ -6,8 +6,6 @@ import { playerLoginFromWebId, UserInfoResponse } from './authorize';
 import { logError, logInfo } from './logger';
 import { DiscordWebhook } from './discordWebhooks/discordWebhook';
 
-import * as cache from '../cache';
-
 config();
 
 const DB_NAME = 'dojo';
@@ -131,15 +129,127 @@ export const getMapsStats = async (): Promise<any> => {
     return data;
 };
 
-export const getUniqueMapNames = async (
+export const getPaginatedMaps = async (
     mapName?: string,
-): Promise<any> => {
-    const cachedMaps = await cache.getMapsCache();
+    offset: number = 0,
+    limit: number = 50,
+): Promise<{ maps: any[] }> => {
+    const replays = db.collection('replays');
+    const trimmedMapName = mapName?.trim();
 
-    if (mapName && mapName !== '') {
-        return cachedMaps.filter((mapC: any) => mapC.mapName.toLowerCase().includes(mapName.toLowerCase()));
+    const replayStatsPipeline: any[] = [
+        {
+            $match: {
+                private: { $ne: true },
+            },
+        },
+        {
+            $group: {
+                _id: '$mapRef',
+                count: { $sum: 1 },
+                lastUpdate: { $max: '$date' },
+            },
+        },
+    ];
+
+    // optimize for case where no mapName filter is applied
+    if (!trimmedMapName) {
+        const pipeline = [
+            ...replayStatsPipeline,
+            { $sort: { lastUpdate: -1 } },
+            { $skip: offset },
+            { $limit: limit },
+            {
+                $lookup: {
+                    from: 'maps',
+                    localField: '_id',
+                    foreignField: '_id',
+                    as: 'map',
+                },
+            },
+            {
+                $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ['$map', 0] }, '$$ROOT'] } },
+            },
+            {
+                $project: {
+                    _id: false,
+                    mapUId: true,
+                    mapName: true,
+                    count: '$count',
+                    lastUpdate: true,
+                },
+            },
+        ];
+
+        const cursor = replays.aggregate(pipeline);
+        const maps = await cursor.toArray();
+        return { maps };
     }
-    return cachedMaps;
+
+    const pipeline: any[] = [
+        ...replayStatsPipeline,
+        {
+            $lookup: {
+                from: 'maps',
+                localField: '_id',
+                foreignField: '_id',
+                as: 'map',
+            },
+        },
+        {
+            $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ['$map', 0] }, '$$ROOT'] } },
+        },
+        {
+            $project: {
+                _id: false,
+                mapUId: true,
+                mapName: true,
+                count: '$count',
+                lastUpdate: true,
+            },
+        },
+        {
+            $match: { mapName: { $regex: `.*${trimmedMapName}.*`, $options: 'i' } },
+        },
+        {
+            $sort: { lastUpdate: -1 },
+        },
+        {
+            $skip: offset,
+        },
+        {
+            $limit: limit,
+        },
+    ];
+
+    const cursor = replays.aggregate(pipeline);
+    const maps = await cursor.toArray();
+    return { maps };
+};
+
+export const getTotalMapCount = async (mapName?: string): Promise<number> => {
+    const maps = db.collection('maps');
+
+    let filter: any = {};
+    if (mapName && mapName !== '') {
+        filter = { mapName: { $regex: `.*${mapName}.*`, $options: 'i' } };
+    }
+
+    const pipeline = [
+        { $match: filter },
+        { $group: { _id: '$mapUId' } },
+        { $count: 'total' },
+    ];
+
+    const cursor = maps.aggregate(pipeline);
+    const [result] = await cursor.toArray();
+    return result?.total || 0;
+};
+
+export const getTotalReplayCount = async (): Promise<number> => {
+    const replays = db.collection('replays');
+    const count = await replays.countDocuments({ private: { $ne: true } });
+    return count;
 };
 
 export const getMapByUId = (mapUId?: string): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
@@ -404,10 +514,6 @@ export const getReplayById = async (
 };
 
 export const deleteReplayById = async (replayId: any) => {
-    const replay = await getReplayById(replayId);
-
-    cache.deleteReplay(replay);
-
     const replays = db.collection('replays');
     await replays.deleteOne({
         _id: new ObjectId(replayId),
@@ -429,8 +535,6 @@ export const getReplayByFilePath = (
 export const saveReplayMetadata = (
     metadata: any,
 ): Promise<{ _id: string }> => new Promise((resolve: Function, reject: Rejector) => {
-    cache.addReplay(metadata);
-
     const replays = db.collection('replays');
     replays.insertOne(metadata)
         .then(({ insertedId }: { insertedId: ObjectId }) => resolve({ _id: insertedId }))

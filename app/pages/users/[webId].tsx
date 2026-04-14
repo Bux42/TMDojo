@@ -79,7 +79,11 @@ const Home = (): JSX.Element => {
                         <span className="text-2xl font-bold">Settings</span>
                         <div className="w-full bg-gray-750 rounded-md gap-4 flex flex-row">
                             <span className="text-small">Private replays</span>
-                            <Tooltip title="When enabled, your replays will only be visible to you.">
+                            <Tooltip
+                                title="When enabled, your replays will only be visible to you.
+                            Private replays will still be visible on your profile,
+                            but other users won't be able to see them."
+                            >
                                 <Switch
                                     title="Private replays"
                                     checked={Boolean(userInfo?.privateReplays)}
