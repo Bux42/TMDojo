@@ -1,4 +1,4 @@
-const Singleton = <T>(Type: { new(): T}) => {
+const Singleton = <T>(Type: { new (): T }) => {
     let instance: T | null = null;
 
     return {

@@ -12,10 +12,16 @@ const AggregateMapStats = ({ replays }: AggregateMapStatsProps) => {
     return (
         <Row gutter={16}>
             <Col span={12}>
-                <Statistic title="Amount" value={replays ? replays.length : 0} />
+                <Statistic
+                    title="Amount"
+                    value={replays ? replays.length : 0}
+                />
             </Col>
             <Col span={12}>
-                <Statistic title="Total Time" value={msToTime(totalRecordedTime)} />
+                <Statistic
+                    title="Total Time"
+                    value={msToTime(totalRecordedTime)}
+                />
             </Col>
         </Row>
     );

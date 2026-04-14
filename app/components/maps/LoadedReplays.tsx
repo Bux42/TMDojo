@@ -1,18 +1,15 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-import {
-    CaretRightOutlined, EyeOutlined,
-} from '@ant-design/icons';
-import {
-    Drawer, Row, Col, Radio, RadioChangeEvent, List, Divider,
-} from 'antd';
-import React, {
-    useContext, useMemo, useState,
-} from 'react';
+import { CaretRightOutlined, EyeOutlined } from '@ant-design/icons';
+import { Drawer, Row, Col, Radio, RadioChangeEvent, List, Divider } from 'antd';
+import React, { useContext, useMemo, useState } from 'react';
 import * as ReactColor from 'react-color';
 import * as THREE from 'three';
 import { ReplayData } from '../../lib/api/requests/replays';
-import { CameraMode, SettingsContext } from '../../lib/contexts/SettingsContext';
+import {
+    CameraMode,
+    SettingsContext,
+} from '../../lib/contexts/SettingsContext';
 import GlobalTimeLineInfos from '../../lib/singletons/timeLineInfos';
 import { addPlural, getRaceTimeStr } from '../../lib/utils/time';
 import SideDrawerExpandButton from '../common/SideDrawerExpandButton';
@@ -29,7 +26,10 @@ interface LoadedReplaysProps {
 }
 
 const LoadedReplay = ({
-    replay, followed, followedReplayChanged, hoveredReplayChanged,
+    replay,
+    followed,
+    followedReplayChanged,
+    hoveredReplayChanged,
 }: LoadedReplayProps): JSX.Element => {
     const [color, setColor] = useState(`#${replay.color.getHexString()}`);
     const [showColorPicker, setShowColorPicker] = useState(false);
@@ -71,14 +71,15 @@ const LoadedReplay = ({
             >
                 <div className="flex items-center justify-center">
                     <EyeOutlined
-                        style={
-                            {
-                                verticalAlign: '',
-                                opacity: followed?._id === replay._id ? 1 : 0.5,
-                                color: followed?._id === replay._id ? '#0084ff' : 'gray',
-                                fontSize: '18px',
-                            }
-                        }
+                        style={{
+                            verticalAlign: '',
+                            opacity: followed?._id === replay._id ? 1 : 0.5,
+                            color:
+                                followed?._id === replay._id
+                                    ? '#0084ff'
+                                    : 'gray',
+                            fontSize: '18px',
+                        }}
                     />
                 </div>
             </Col>
@@ -96,19 +97,21 @@ const LoadedReplay = ({
                         onPointerEnter={() => hoveredReplayChanged(replay)}
                         onPointerLeave={() => hoveredReplayChanged(undefined)}
                     >
-                        <div style={{
-                            width: '16px',
-                            height: '16px',
-                            borderRadius: '2px',
-                            background: color,
-                        }}
+                        <div
+                            style={{
+                                width: '16px',
+                                height: '16px',
+                                borderRadius: '2px',
+                                background: color,
+                            }}
                         />
                     </div>
                     {showColorPicker ? (
-                        <div style={{
-                            position: 'absolute',
-                            zIndex: 2,
-                        }}
+                        <div
+                            style={{
+                                position: 'absolute',
+                                zIndex: 2,
+                            }}
                         >
                             <div
                                 style={{
@@ -154,9 +157,7 @@ const LoadedReplay = ({
     );
 };
 
-const LoadedReplays = ({
-    replays,
-}: LoadedReplaysProps): JSX.Element => {
+const LoadedReplays = ({ replays }: LoadedReplaysProps): JSX.Element => {
     const [visible, setVisible] = useState(true);
     const [followed, setFollowed] = useState<ReplayData>();
     const [hovered, setHovered] = useState<ReplayData>();
@@ -181,7 +182,10 @@ const LoadedReplays = ({
     timeLineGlobal.followedReplay = followed;
     timeLineGlobal.hoveredReplay = hovered;
 
-    const sortedReplays = useMemo(() => replays.sort((a, b) => a.endRaceTime - b.endRaceTime), [replays]);
+    const sortedReplays = useMemo(
+        () => replays.sort((a, b) => a.endRaceTime - b.endRaceTime),
+        [replays],
+    );
 
     return (
         <div className="absolute right-0 z-10 mt-56">
@@ -189,11 +193,13 @@ const LoadedReplays = ({
                 <SideDrawerExpandButton
                     onClick={toggleSidebar}
                     side="right"
-                    content={(
+                    content={
                         <>
-                            {`${replays.length} Replay${addPlural(replays.length)}`}
+                            {`${replays.length} Replay${addPlural(
+                                replays.length,
+                            )}`}
                         </>
-                    )}
+                    }
                 />
             )}
             <Drawer
@@ -217,7 +223,9 @@ const LoadedReplays = ({
                     <Radio.Group
                         defaultValue={timeLineGlobal.cameraMode}
                         buttonStyle="solid"
-                        onChange={(e: RadioChangeEvent) => { timeLineGlobal.cameraMode = e.target.value; }}
+                        onChange={(e: RadioChangeEvent) => {
+                            timeLineGlobal.cameraMode = e.target.value;
+                        }}
                         className="flex gap-4"
                     >
                         <Radio.Button value={CameraMode.Target}>

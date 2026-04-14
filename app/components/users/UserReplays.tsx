@@ -1,18 +1,12 @@
 import React, { useMemo } from 'react';
 import Link from 'next/link';
-import {
-    Card,
-    Col,
-    Row,
-    Spin,
-    Statistic,
-    Table,
-} from 'antd';
+import { Card, Col, Row, Spin, Statistic, Table } from 'antd';
 import { ColumnsType } from 'antd/lib/table/interface';
 import { useUserReplays } from '../../lib/api/reactQuery/hooks/query/replays';
 import { ReplayInfo } from '../../lib/api/requests/replays';
 import { UserInfo } from '../../lib/api/requests/users';
 import { getRaceTimeStr, msToTime, timeDifference } from '../../lib/utils/time';
+import PrivateReplayIcon from '../common/PrivateReplayIcon';
 
 const DEFAULT_PAGE_SIZE = 10;
 
@@ -27,10 +21,8 @@ interface Props {
 }
 
 const UserReplays = ({ userInfo }: Props): JSX.Element => {
-    const {
-        data: userReplaysResult,
-        isLoading: isLoadingUserReplays,
-    } = useUserReplays(userInfo.webId);
+    const { data: userReplaysResult, isLoading: isLoadingUserReplays } =
+        useUserReplays(userInfo.webId);
 
     const userReplays = useMemo(
         () => userReplaysResult?.replays || [],
@@ -50,7 +42,10 @@ const UserReplays = ({ userInfo }: Props): JSX.Element => {
     }, [userReplays]);
 
     const calculateTotalTime = (replays: ReplayInfo[]): string => {
-        const totalRecordedTime = replays.reduce((a, b) => a + b.endRaceTime, 0);
+        const totalRecordedTime = replays.reduce(
+            (a, b) => a + b.endRaceTime,
+            0,
+        );
         const totalRecordedTimeStr = msToTime(totalRecordedTime);
         return totalRecordedTimeStr;
     };
@@ -60,8 +55,12 @@ const UserReplays = ({ userInfo }: Props): JSX.Element => {
         [userReplays],
     );
 
-    const getUniqueFilters = (replayFieldCallback: (replay: ReplayInfo) => string) => {
-        const uniques = Array.from(new Set(userReplays.map(replayFieldCallback)));
+    const getUniqueFilters = (
+        replayFieldCallback: (replay: ReplayInfo) => string,
+    ) => {
+        const uniques = Array.from(
+            new Set(userReplays.map(replayFieldCallback)),
+        );
         return uniques.sort().map((val) => ({ text: val, value: val }));
     };
 
@@ -76,13 +75,24 @@ const UserReplays = ({ userInfo }: Props): JSX.Element => {
                     padding: 0,
                 },
             }),
-            render: (_, map) => {
-                const mapRef = `/maps/${map.mapUId}`;
+            render: (_, replay) => {
+                const mapRef = `/maps/${replay.mapUId}`;
                 return (
-                    <div className="w-full">
+                    <div className="w-full flex flex-row items-center gap-2">
                         <Link href={mapRef}>
-                            <a href={mapRef} className="block p-2 w-full">{map.mapName}</a>
+                            <a
+                                href={mapRef}
+                                className="block p-2 w-full"
+                            >
+                                {replay.mapName}
+                            </a>
                         </Link>
+
+                        {replay.private && (
+                            <div className="pr-4">
+                                <PrivateReplayIcon />
+                            </div>
+                        )}
                     </div>
                 );
             },
@@ -135,16 +145,20 @@ const UserReplays = ({ userInfo }: Props): JSX.Element => {
                     >
                         <Row gutter={16}>
                             <Col span={12}>
-                                <Statistic title="Count" value={userReplays ? userReplays.length : 0} />
+                                <Statistic
+                                    title="Count"
+                                    value={userReplays ? userReplays.length : 0}
+                                />
                             </Col>
                             <Col span={12}>
-                                <Statistic title="Total Time" value={totalTime} />
+                                <Statistic
+                                    title="Total Time"
+                                    value={totalTime}
+                                />
                             </Col>
                         </Row>
                     </Card>
-                    <Card
-                        className="bg-gray-850"
-                    >
+                    <Card className="bg-gray-850">
                         <Table
                             dataSource={dataSource}
                             columns={columns}

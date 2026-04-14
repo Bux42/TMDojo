@@ -1,7 +1,13 @@
 import * as THREE from 'three';
 
-export type ColorMap = { value: number; color: { r: number; g: number; b: number } }[];
-export const getColorFromMap = (inputValue: number, colorMap: ColorMap): THREE.Color => {
+export type ColorMap = {
+    value: number;
+    color: { r: number; g: number; b: number };
+}[];
+export const getColorFromMap = (
+    inputValue: number,
+    colorMap: ColorMap,
+): THREE.Color => {
     let i = 1;
     for (i = 1; i < colorMap.length - 1; i++) {
         if (inputValue < colorMap[i].value) {

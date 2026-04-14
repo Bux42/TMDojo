@@ -14,8 +14,15 @@ const GearIndicator = ({ gearChange }: GearIndicatorProps) => {
     const color = getColorFromMap(gearChange.engineCurGear, COLOR_MAP_GEARS);
 
     return (
-        <Sphere position={gearChange.sample.position} args={[0.5]}>
-            <meshBasicMaterial attach="material" side={DoubleSide} color={color} />
+        <Sphere
+            position={gearChange.sample.position}
+            args={[0.5]}
+        >
+            <meshBasicMaterial
+                attach="material"
+                side={DoubleSide}
+                color={color}
+            />
         </Sphere>
     );
 };
@@ -32,7 +39,6 @@ const GearText = ({ gearChange }: GearTextProps) => {
                 gearChange.sample.position,
                 new THREE.Vector3(0, 5, 0),
             )}
-            args={[0, 0]}
         >
             <Text
                 color={color}
@@ -45,7 +51,11 @@ const GearText = ({ gearChange }: GearTextProps) => {
                 anchorX="center"
                 anchorY="middle"
             >
-                <meshBasicMaterial attach="material" side={DoubleSide} color="red" />
+                <meshBasicMaterial
+                    attach="material"
+                    side={DoubleSide}
+                    color="red"
+                />
                 {gearChange.engineCurGear}
             </Text>
         </Billboard>
@@ -82,7 +92,8 @@ const ReplayGears = ({ replay }: ReplayGearsProps): JSX.Element => {
                     changes.push({
                         sample: curSample,
                         engineCurGear: curSample.engineCurGear,
-                        gearUp: curSample.engineCurGear > prevSample.engineCurGear,
+                        gearUp:
+                            curSample.engineCurGear > prevSample.engineCurGear,
                     });
                 }
             }

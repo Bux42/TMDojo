@@ -15,7 +15,10 @@ interface ReplayTimesHistogramProps {
     replays: ReplayInfo[];
     binSize: number;
 }
-const ReplayTimesHistogram = ({ replays, binSize }: ReplayTimesHistogramProps) => {
+const ReplayTimesHistogram = ({
+    replays,
+    binSize,
+}: ReplayTimesHistogramProps) => {
     const histogramBuckets = {} as { [key: number]: number };
 
     replays.forEach((replay) => {
@@ -107,7 +110,10 @@ const ReplayTimesHistogram = ({ replays, binSize }: ReplayTimesHistogramProps) =
                     seconds = parseFloat(split[2]);
                 }
 
-                const raceTime = hours * 1000 * 60 * 60 + minutes * 1000 * 60 + seconds * 1000;
+                const raceTime =
+                    hours * 1000 * 60 * 60 +
+                    minutes * 1000 * 60 +
+                    seconds * 1000;
 
                 return `
                     <span style="font-size: 10px">
@@ -135,14 +141,15 @@ const ReplayTimesHistogram = ({ replays, binSize }: ReplayTimesHistogramProps) =
                 animation: false,
             },
         },
-        series: [{
-            name: 'Finish Times',
-            data: histogramData,
-        }],
+        series: [
+            {
+                name: 'Finish Times',
+                data: histogramData,
+            },
+        ],
     };
 
     return (
-
         <HighchartsReact
             highcharts={Highcharts}
             options={columnOptions}

@@ -8,7 +8,7 @@ import { ButtonType } from 'antd/lib/button';
 interface CleanButtonProps {
     children?: React.ReactNode;
     style?: CSSProperties;
-    onClick?: React.MouseEventHandler<HTMLElement>,
+    onClick?: React.MouseEventHandler<HTMLElement>;
     size?: SizeType;
     backColor?: string;
     textColor?: string;
@@ -22,14 +22,14 @@ interface CleanButtonProps {
 }
 
 const getButtonPadding = (size: SizeType) => {
-    switch (size) {
-    case 'small':
+    if (size === 'small') {
         return '0rem 1rem';
-    case 'middle':
-        return '0rem 1.5rem';
-    default:
-        return '0rem 2rem';
     }
+    if (size === 'middle') {
+        return '0rem 1.5rem';
+    }
+    // Default to large size padding
+    return '0rem 2rem';
 };
 
 const ButtonComponent = ({
@@ -51,11 +51,14 @@ const ButtonComponent = ({
 
     const parsedBackColor = backColor && parse(backColor);
 
-    const darkenedBackColor = backColor && parsedBackColor
-        && `hsl(${parsedBackColor.hsl[0]}, ${parsedBackColor.hsl[1]}%, ${parsedBackColor.hsl[2] * 0.8}%)`;
+    const darkenedBackColor = useMemo(() => {
+        if (!darkenOnHover || !parsedBackColor) return backColor;
+        return `hsl(${parsedBackColor.hsl[0]}, ${parsedBackColor.hsl[1]}%, ${
+            parsedBackColor.hsl[2] * 0.8
+        }%)`;
+    }, [darkenOnHover, parsedBackColor, backColor]);
 
-    const cssTextColor = textColor
-        || 'rgba(255, 255, 255, 0.95)';
+    const cssTextColor = textColor || 'rgba(255, 255, 255, 0.95)';
 
     const buttonStyle = {
         default: {
@@ -117,33 +120,45 @@ const CleanButton = ({
     darkenOnHover,
     className,
 }: CleanButtonProps): JSX.Element => {
-    const buttonComponent: React.ReactNode = useMemo(() => (
-        <ButtonComponent
-            onClick={onClick}
-            style={style}
-            backColor={backColor}
-            textColor={textColor}
-            type={type}
-            url={url}
-            size={size}
-            openInNewTab={openInNewTab}
-            hoverAnimation={hoverAnimation}
-            disabled={disabled}
-            darkenOnHover={darkenOnHover}
-            className={className}
-        >
-            {children}
-        </ButtonComponent>
-    ), [children, onClick, style, backColor, textColor, type, url, size,
-        openInNewTab, hoverAnimation, disabled, darkenOnHover, className]);
+    const buttonComponent: React.ReactNode = useMemo(
+        () => (
+            <ButtonComponent
+                onClick={onClick}
+                style={style}
+                backColor={backColor}
+                textColor={textColor}
+                type={type}
+                url={url}
+                size={size}
+                openInNewTab={openInNewTab}
+                hoverAnimation={hoverAnimation}
+                disabled={disabled}
+                darkenOnHover={darkenOnHover}
+                className={className}
+            >
+                {children}
+            </ButtonComponent>
+        ),
+        [
+            children,
+            onClick,
+            style,
+            backColor,
+            textColor,
+            type,
+            url,
+            size,
+            openInNewTab,
+            hoverAnimation,
+            disabled,
+            darkenOnHover,
+            className,
+        ],
+    );
 
     // If there is no URL, return button directly
     if (!url) {
-        return (
-            <>
-                {buttonComponent}
-            </>
-        );
+        return <>{buttonComponent}</>;
     }
 
     // Handle URL return types depending on whether it should opened in a new tab
@@ -151,14 +166,16 @@ const CleanButton = ({
         <>
             {openInNewTab ? (
                 <Link href={url}>
-                    <a target="_blank" rel="noreferrer" href={url}>
+                    <a
+                        target="_blank"
+                        rel="noreferrer"
+                        href={url}
+                    >
                         {buttonComponent}
                     </a>
                 </Link>
             ) : (
-                <Link href={url}>
-                    {buttonComponent}
-                </Link>
+                <Link href={url}>{buttonComponent}</Link>
             )}
         </>
     );

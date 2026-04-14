@@ -1,8 +1,16 @@
-import React, {
-    useState, useEffect, useContext, useMemo,
-} from 'react';
+import React, { useState, useEffect, useContext, useMemo } from 'react';
 import {
-    Button, Drawer, Dropdown, Menu, message, Popconfirm, Progress, Space, Spin, Table, Tooltip,
+    Button,
+    Drawer,
+    Dropdown,
+    Menu,
+    message,
+    Popconfirm,
+    Progress,
+    Space,
+    Spin,
+    Table,
+    Tooltip,
 } from 'antd';
 import {
     DeleteOutlined,
@@ -23,7 +31,10 @@ import PlayerLink from '../common/PlayerLink';
 import { ReplayInfo } from '../../lib/api/requests/replays';
 import CleanButton from '../common/CleanButton';
 import useWindowDimensions from '../../lib/hooks/useWindowDimensions';
-import { DownloadState, ReplayDownloadState } from '../../lib/replays/replayDownloadState';
+import {
+    DownloadState,
+    ReplayDownloadState,
+} from '../../lib/replays/replayDownloadState';
 import {
     calcFastestSectorIndices,
     calcIndividualSectorTimes,
@@ -31,6 +42,7 @@ import {
     filterReplaysWithValidSectorTimes,
 } from '../../lib/replays/sectorTimes';
 import useDeleteReplay from '../../lib/api/reactQuery/hooks/mutations/replays';
+import PrivateReplayIcon from '../common/PrivateReplayIcon';
 
 interface ExtendedReplayInfo extends ReplayInfo {
     readableTime: string;
@@ -68,7 +80,9 @@ const SidebarReplays = ({
 
     const defaultPageSize = 14;
 
-    const showFinishedColumn = replays.some((replay: ReplayInfo) => !replay.raceFinished);
+    const showFinishedColumn = replays.some(
+        (replay: ReplayInfo) => !replay.raceFinished,
+    );
 
     const [visible, setVisible] = useState(true);
     const [visibleReplays, setVisibleReplays] = useState<ReplayInfo[]>([]);
@@ -81,20 +95,22 @@ const SidebarReplays = ({
         [replays],
     );
 
-    const userHasReplay = useMemo(
-        () => {
-            if (!user) {
-                return false;
-            }
-            return replays.some(
-                (replay) => replay.webId === user.accountId && replay.raceFinished,
-            );
-        },
-        [replays, user],
-    );
+    const userHasReplay = useMemo(() => {
+        if (!user) {
+            return false;
+        }
+        return replays.some(
+            (replay) => replay.webId === user.accountId && replay.raceFinished,
+        );
+    }, [replays, user]);
 
     const singleReplayHasSectorTimes = useMemo(
-        () => replays.some((replay) => !!replay.sectorTimes && replay.sectorTimes.length === validSectorsLength),
+        () =>
+            replays.some(
+                (replay) =>
+                    !!replay.sectorTimes &&
+                    replay.sectorTimes.length === validSectorsLength,
+            ),
         [replays, validSectorsLength],
     );
 
@@ -115,7 +131,9 @@ const SidebarReplays = ({
         setVisible(!visible);
     };
 
-    const getUniqueFilters = (replayFieldCallback: (replay: ReplayInfo) => string) => {
+    const getUniqueFilters = (
+        replayFieldCallback: (replay: ReplayInfo) => string,
+    ) => {
         const uniques = Array.from(new Set(replays.map(replayFieldCallback)));
         return uniques.sort().map((val) => ({ text: val, value: val }));
     };
@@ -133,26 +151,35 @@ const SidebarReplays = ({
 
     const onLoadReplaysWithFastestSectorTimes = () => {
         // Filter finished replays containing sector times, sort by time
-        const filteredReplays = filterReplaysWithValidSectorTimes(replays, replays)
-            .sort((a, b) => a.endRaceTime - b.endRaceTime);
+        const filteredReplays = filterReplaysWithValidSectorTimes(
+            replays,
+            replays,
+        ).sort((a, b) => a.endRaceTime - b.endRaceTime);
 
         if (filteredReplays.length === 0) {
-            message.error('Did not find any finished replays with recorded sector times.');
+            message.error(
+                'Did not find any finished replays with recorded sector times.',
+            );
             return;
         }
 
         // Calculate individual sector time deltas
-        const allIndividualSectorTimes = filteredReplays
-            .map((replay) => calcIndividualSectorTimes(replay.sectorTimes!, replay.endRaceTime));
+        const allIndividualSectorTimes = filteredReplays.map((replay) =>
+            calcIndividualSectorTimes(replay.sectorTimes!, replay.endRaceTime),
+        );
 
         // Calculate the replay indices of all fastest sector times
-        const fastestSectorIndices = calcFastestSectorIndices(allIndividualSectorTimes);
+        const fastestSectorIndices = calcFastestSectorIndices(
+            allIndividualSectorTimes,
+        );
 
         // Get a unique set of replay indices
         const replayIndices = Array.from(new Set(fastestSectorIndices));
 
         // Load all fastest replays
-        onLoadMultipleReplays(replayIndices.map((index) => filteredReplays[index]));
+        onLoadMultipleReplays(
+            replayIndices.map((index) => filteredReplays[index]),
+        );
     };
 
     const onLoadFastestTime = () => {
@@ -208,9 +235,21 @@ const SidebarReplays = ({
             title: 'Player',
             dataIndex: 'playerName',
             filters: nameFilters,
-            onFilter: (value, record) => record.playerName === value,
+            onFilter: (value, replay) => replay.playerName === value,
             render: (_, replay) => (
-                <PlayerLink webId={replay.webId} name={replay.playerName} />
+                <div className="w-full flex flex-row items-center gap-2">
+                    <div className="w-full">
+                        <PlayerLink
+                            webId={replay.webId}
+                            name={replay.playerName}
+                        />
+                    </div>
+                    {replay.private && (
+                        <div className="pr-4">
+                            <PrivateReplayIcon />
+                        </div>
+                    )}
+                </div>
             ),
             filterSearch: true,
             filterIcon: () => (
@@ -290,7 +329,7 @@ const SidebarReplays = ({
 
                 return (
                     <div className="flex flex-row gap-4 items-center">
-                        {(!loadingState) && (
+                        {!loadingState && (
                             <CleanButton
                                 onClick={() => onLoadReplay(replay)}
                                 className="w-full"
@@ -300,7 +339,11 @@ const SidebarReplays = ({
                         )}
                         {loadingState?.state === DownloadState.DOWNLOADING && (
                             <div className="flex items-center w-full h-8">
-                                <Progress percent={Math.round(loadingState.progress * 100)} />
+                                <Progress
+                                    percent={Math.round(
+                                        loadingState.progress * 100,
+                                    )}
+                                />
                             </div>
                         )}
                         {loadingState?.state === DownloadState.LOADED && (
@@ -313,7 +356,10 @@ const SidebarReplays = ({
                             </CleanButton>
                         )}
                         {loadingState?.state === DownloadState.ERROR && (
-                            <Tooltip placement="top" title="Loading failed, click to try again">
+                            <Tooltip
+                                placement="top"
+                                title="Loading failed, click to try again"
+                            >
                                 <span style={{ width: '100%', height: '100%' }}>
                                     <CleanButton
                                         onClick={() => onLoadReplay(replay)}
@@ -329,11 +375,11 @@ const SidebarReplays = ({
                             <Popconfirm
                                 title="Delete this replay?"
                                 placement="right"
-                                icon={(
+                                icon={
                                     <QuestionCircleOutlined
                                         style={{ color: '#a61d24' }}
                                     />
-                                )}
+                                }
                                 cancelText="No"
                                 okText="Yes"
                                 okButtonProps={{ danger: true }}
@@ -342,7 +388,14 @@ const SidebarReplays = ({
                                 <Button
                                     shape="circle"
                                     danger
-                                    icon={<DeleteOutlined style={{ fontSize: '16px', color: '#a61d24' }} />}
+                                    icon={
+                                        <DeleteOutlined
+                                            style={{
+                                                fontSize: '16px',
+                                                color: '#a61d24',
+                                            }}
+                                        />
+                                    }
                                 />
                             </Popconfirm>
                         )}
@@ -353,7 +406,10 @@ const SidebarReplays = ({
     ];
 
     if (!showFinishedColumn) {
-        columns = columns.filter((column: ColumnType<ExtendedReplayInfo>) => column.dataIndex !== 'finished');
+        columns = columns.filter(
+            (column: ColumnType<ExtendedReplayInfo>) =>
+                column.dataIndex !== 'finished',
+        );
     }
 
     const addReplayInfo = (replayList: ReplayInfo[]): ExtendedReplayInfo[] => {
@@ -383,7 +439,11 @@ const SidebarReplays = ({
         const replaysOnPage = [];
         for (
             let i = curPageIndex * pageSize;
-            i < Math.min((curPageIndex + 1) * pageSize, currentPageData.currentDataSource.length);
+            i <
+            Math.min(
+                (curPageIndex + 1) * pageSize,
+                currentPageData.currentDataSource.length,
+            );
             i++
         ) {
             replaysOnPage.push(currentPageData.currentDataSource[i]);
@@ -397,12 +457,12 @@ const SidebarReplays = ({
             <SideDrawerExpandButton
                 onClick={toggleSidebar}
                 side="left"
-                content={(
+                content={
                     <>
                         <UnorderedListOutlined className="mr-2" />
                         Replay List
                     </>
-                )}
+                }
             />
             <Drawer
                 title="Select replays"
@@ -427,7 +487,7 @@ const SidebarReplays = ({
 
                         {/* Load other dropdown */}
                         <Dropdown
-                            overlay={(
+                            overlay={
                                 <Menu>
                                     <Menu.Item
                                         className="text-md"
@@ -453,16 +513,12 @@ const SidebarReplays = ({
                                     >
                                         All replays containing fastest sectors
                                     </Menu.Item> */}
-
                                 </Menu>
-                            )}
+                            }
                             mouseLeaveDelay={0.2}
                         >
                             <Space className="cursor-pointer">
-                                <CleanButton
-                                    onClick={() => { }}
-                                    backColor="gray"
-                                >
+                                <CleanButton backColor="gray">
                                     Load other...
                                     <DownOutlined />
                                 </CleanButton>
@@ -491,7 +547,12 @@ const SidebarReplays = ({
                 </div>
                 <div>
                     <Table
-                        onChange={(pagination, filters, sorter, currentPageData) => {
+                        onChange={(
+                            pagination,
+                            filters,
+                            sorter,
+                            currentPageData,
+                        ) => {
                             onReplayTableChange(pagination, currentPageData);
                         }}
                         dataSource={addReplayInfo(replays)}

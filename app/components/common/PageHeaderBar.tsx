@@ -5,13 +5,16 @@ import React from 'react';
 import UserDisplay from './UserDisplay';
 
 interface PageHeaderBarProps {
-    title: string,
-    subtitle?: string,
-    backUrl?: string,
-    children?: React.ReactNode
+    title: string;
+    subtitle?: string;
+    backUrl?: string;
+    children?: React.ReactNode;
 }
 const PageHeaderBar = ({
-    title, subtitle, children, backUrl,
+    title,
+    subtitle,
+    children,
+    backUrl,
 }: PageHeaderBarProps) => {
     const router = useRouter();
 
@@ -37,16 +40,11 @@ const PageHeaderBar = ({
                     />
 
                     <div className="flex flex-wrap gap-4 items-baseline">
-                        <span className="text-xl font-bold">
-                            {title}
-                        </span>
+                        <span className="text-xl font-bold">{title}</span>
                         {subtitle && (
-                            <span className="text-gray-400">
-                                {subtitle}
-                            </span>
+                            <span className="text-gray-400">{subtitle}</span>
                         )}
                     </div>
-
                 </div>
 
                 <div className="flex flex-wrap justify-center gap-4">

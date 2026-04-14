@@ -37,8 +37,8 @@ export const createUser = (
     login: any,
     name: any,
     clientCode: any,
-): Promise<{userID: string}> => new Promise(
-    (resolve: (updateInfo: {userID: string}) => void, reject: Rejector) => {
+): Promise<{ userID: string }> => new Promise(
+    (resolve: (updateInfo: { userID: string }) => void, reject: Rejector) => {
         const users = db.collection('users');
         users
             .find({
@@ -53,6 +53,7 @@ export const createUser = (
                         webId,
                         playerLogin: login,
                         playerName: name,
+                        privateReplays: false,
                         clientCode: clientCode || null,
                         createdAt: Date.now(),
                     });
@@ -131,7 +132,7 @@ export const getMapsStats = async (): Promise<any> => {
 };
 
 export const getUniqueMapNames = async (
-    mapName ?: string,
+    mapName?: string,
 ): Promise<any> => {
     const cachedMaps = await cache.getMapsCache();
 
@@ -141,7 +142,7 @@ export const getUniqueMapNames = async (
     return cachedMaps;
 };
 
-export const getMapByUId = (mapUId ?: string): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
+export const getMapByUId = (mapUId?: string): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
     const maps = db.collection('maps');
     maps.findOne({ mapUId }, (err: Error, map: any) => {
         if (err) {
@@ -151,7 +152,7 @@ export const getMapByUId = (mapUId ?: string): Promise<any> => new Promise((reso
     });
 });
 
-export const saveMap = (mapData ?: any): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
+export const saveMap = (mapData?: any): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
     const maps = db.collection('maps');
     maps.insertOne(mapData)
         .then((operation: any) => resolve({ _id: operation.insertedId }))
@@ -167,7 +168,7 @@ export const getUserById = async (id: string) => {
 };
 
 export const getUserByWebId = (
-    webId ?: string,
+    webId?: string,
 ): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
     const users = db.collection('users');
     users.findOne({ webId }, (err: Error, user: any) => {
@@ -180,12 +181,19 @@ export const getUserByWebId = (
 
 export const getReplaysByUserRef = async (
     userRef: string,
+    showPrivate: boolean = false,
 ): Promise<any> => {
     const replays = db.collection('replays');
 
+    let matchCondition: any = { userRef: new ObjectId(userRef) };
+
+    if (!showPrivate) {
+        matchCondition = { ...matchCondition, private: { $ne: !showPrivate } };
+    }
+
     const pipeline = [
         {
-            $match: { userRef: new ObjectId(userRef) },
+            $match: matchCondition,
         },
         {
             $lookup: {
@@ -205,17 +213,46 @@ export const getReplaysByUserRef = async (
     return { files: data, totalResults: data.length };
 };
 
+export const setUserPrivateReplays = async (
+    webId: string,
+    privateReplays: boolean,
+) => {
+    const users = db.collection('users');
+    return users.updateOne(
+        { webId },
+        {
+            $set: {
+                privateReplays,
+            },
+        },
+    );
+};
+
 export const getReplays = async (
-    mapName ?: string,
-    playerName ?: string,
-    mapUId ?: string,
-    raceFinished ?: string,
-    orderBy ?: string,
+    mapName?: string,
+    playerName?: string,
+    mapUId?: string,
+    raceFinished?: string,
+    orderBy?: string,
     maxResults: string = '1000',
+    currentUserRef?: string,
 ): Promise<any> => {
     const replays = db.collection('replays');
 
     const pipeline = [];
+
+    const matchCondition: any = (currentUserRef && ObjectId.isValid(currentUserRef))
+        ? {
+            $or: [
+                { private: { $ne: true } },
+                { userRef: new ObjectId(currentUserRef) },
+            ],
+        }
+        : { private: { $ne: true } };
+
+    pipeline.push({
+        $match: matchCondition,
+    });
 
     const map = await getMapByUId(mapUId);
     if (map && map._id) {
@@ -259,7 +296,7 @@ export const getReplays = async (
         },
     ]);
 
-    const addRegexFilter = (property ?: string, propertyName ?: string) => {
+    const addRegexFilter = (property?: string, propertyName?: string) => {
         if (property) {
             pipeline.push({
                 $match: {
@@ -283,7 +320,7 @@ export const getReplays = async (
     }
 
     if (orderBy && orderBy !== 'None') {
-        const order: {endRaceTime?: number, date?: number} = {};
+        const order: { endRaceTime?: number, date?: number } = {};
         if (orderBy === 'Time Desc') {
             order.endRaceTime = -1;
         } else if (orderBy === 'Time Asc') {
@@ -314,8 +351,8 @@ export const getReplays = async (
 };
 
 export const getReplayById = async (
-    replayId ?: string,
-    populate ?: boolean,
+    replayId?: string,
+    populate?: boolean,
 ): Promise<any> => {
     const replays = db.collection('replays');
 
@@ -378,7 +415,7 @@ export const deleteReplayById = async (replayId: any) => {
 };
 
 export const getReplayByFilePath = (
-    filePath ?: string,
+    filePath?: string,
 ): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
     const replays = db.collection('replays');
     replays.findOne({ filePath }, (err: Error, replay: any) => {
@@ -391,12 +428,12 @@ export const getReplayByFilePath = (
 
 export const saveReplayMetadata = (
     metadata: any,
-): Promise<{_id: string}> => new Promise((resolve: Function, reject: Rejector) => {
+): Promise<{ _id: string }> => new Promise((resolve: Function, reject: Rejector) => {
     cache.addReplay(metadata);
 
     const replays = db.collection('replays');
     replays.insertOne(metadata)
-        .then(({ insertedId }: {insertedId: ObjectId}) => resolve({ _id: insertedId }))
+        .then(({ insertedId }: { insertedId: ObjectId }) => resolve({ _id: insertedId }))
         .catch((error: Error) => reject(error));
 });
 

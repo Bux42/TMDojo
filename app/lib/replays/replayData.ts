@@ -46,8 +46,8 @@ export class ReplayDataPoint {
         const gasAndBrake = this.readInt32(dataView);
         // gasAndBrake are encoded in a single byte using the first 2 bits
         //  00 = no input, 01 = gas, 10 = brake, 11 = gas+brake
-        this.inputGasPedal = (gasAndBrake & 1) ? 1 : 0;
-        this.inputIsBraking = (gasAndBrake & 2) ? 1 : 0;
+        this.inputGasPedal = gasAndBrake & 1 ? 1 : 0;
+        this.inputIsBraking = gasAndBrake & 2 ? 1 : 0;
         this.engineRpm = this.readFloat(dataView);
         this.engineCurGear = this.readInt32(dataView);
         this.up = this.readVector3(dataView);
@@ -114,46 +114,65 @@ export interface DataViewResult {
     intervalMedian: number;
 }
 
-export const readDataView = (dataView: DataView): Promise<DataViewResult> => new Promise((resolve) => {
-    const samples = [];
-    const sampleIntervals = [];
-    let intervalMedian = 20; // default to 60fps
-    let lastPos: THREE.Vector3 = new THREE.Vector3(0, 0, 0);
-    let dnfPos: THREE.Vector3 = new THREE.Vector3(0, 0, 0);
+export const readDataView = (dataView: DataView): Promise<DataViewResult> =>
+    new Promise((resolve) => {
+        const samples = [];
+        const sampleIntervals = [];
+        let intervalMedian = 20; // default to 60fps
+        let lastPos: THREE.Vector3 = new THREE.Vector3(0, 0, 0);
+        let dnfPos: THREE.Vector3 = new THREE.Vector3(0, 0, 0);
 
-    let minPos = new THREE.Vector3(Infinity, Infinity, Infinity);
-    let maxPos = new THREE.Vector3(-Infinity, -Infinity, -Infinity);
+        let minPos = new THREE.Vector3(Infinity, Infinity, Infinity);
+        let maxPos = new THREE.Vector3(-Infinity, -Infinity, -Infinity);
 
-    const color = new THREE.Color(Math.random(), Math.random(), Math.random());
+        const color = new THREE.Color(
+            Math.random(),
+            Math.random(),
+            Math.random(),
+        );
 
-    for (let i = 0; i < dataView.byteLength; i += 112) {
-        const s = new ReplayDataPoint(dataView, i);
+        for (let i = 0; i < dataView.byteLength; i += 112) {
+            const s = new ReplayDataPoint(dataView, i);
 
-        if (s.position.x === 0 && s.position.y === 0 && s.position.z === 0) {
-            dnfPos = lastPos;
-            break;
+            if (
+                s.position.x === 0 &&
+                s.position.y === 0 &&
+                s.position.z === 0
+            ) {
+                dnfPos = lastPos;
+                break;
+            }
+            samples.push(s);
+            minPos = minPos.min(s.position);
+            maxPos = maxPos.max(s.position);
+            lastPos = s.position;
         }
-        samples.push(s);
-        minPos = minPos.min(s.position);
-        maxPos = maxPos.max(s.position);
-        lastPos = s.position;
-    }
 
-    for (let i = 1; i < samples.length; i++) {
-        const interval = samples[i].currentRaceTime - samples[i - 1].currentRaceTime;
-        if (interval > 0) {
-            sampleIntervals.push(interval);
-            samples[i].acceleration = ((samples[i].speed - samples[i - 1].speed) / interval) * 1000;
+        for (let i = 1; i < samples.length; i++) {
+            const interval =
+                samples[i].currentRaceTime - samples[i - 1].currentRaceTime;
+            if (interval > 0) {
+                sampleIntervals.push(interval);
+                samples[i].acceleration =
+                    ((samples[i].speed - samples[i - 1].speed) / interval) *
+                    1000;
+            }
         }
-    }
 
-    const median = (arr: number[]) => {
-        const mid = Math.floor(arr.length / 2);
-        const nums = [...arr].sort((a, b) => a - b);
-        return arr.length % 2 !== 0 ? nums[mid] : (nums[mid - 1] + nums[mid]) / 2;
-    };
-    intervalMedian = median(sampleIntervals);
-    resolve({
-        samples, minPos, maxPos, dnfPos, color, intervalMedian,
+        const median = (arr: number[]) => {
+            const mid = Math.floor(arr.length / 2);
+            const nums = [...arr].sort((a, b) => a - b);
+            return arr.length % 2 !== 0
+                ? nums[mid]
+                : (nums[mid - 1] + nums[mid]) / 2;
+        };
+        intervalMedian = median(sampleIntervals);
+        resolve({
+            samples,
+            minPos,
+            maxPos,
+            dnfPos,
+            color,
+            intervalMedian,
+        });
     });
-});

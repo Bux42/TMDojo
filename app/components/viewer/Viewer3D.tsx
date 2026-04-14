@@ -1,5 +1,9 @@
 import React, {
-    Suspense, useContext, useEffect, useRef, useState,
+    Suspense,
+    useContext,
+    useEffect,
+    useRef,
+    useState,
 } from 'react';
 import * as THREE from 'three';
 import { Canvas } from '@react-three/fiber';
@@ -37,11 +41,15 @@ const Viewer3D = ({ replaysData }: Props): JSX.Element => {
         if (!orbitControlsRef.current) return;
 
         if (prevReplaysData.current) {
-            if (prevReplaysData.current.length === 0 && replaysData.length > 0) {
+            if (
+                prevReplaysData.current.length === 0 &&
+                replaysData.length > 0
+            ) {
                 // If previous replay data was empty and current one isn't, meaning first replay selected,
                 //  set target to first sample of the first replay
                 if (replaysData[0].samples.length > 0) {
-                    orbitControlsRef.current.target = replaysData[0].samples[0].position.clone();
+                    orbitControlsRef.current.target =
+                        replaysData[0].samples[0].position.clone();
                 }
             }
         }
@@ -51,7 +59,10 @@ const Viewer3D = ({ replaysData }: Props): JSX.Element => {
     }, [replaysData, orbitControlsRef]);
 
     return (
-        <div style={{ zIndex: -10 }} className="w-full h-full">
+        <div
+            style={{ zIndex: -10 }}
+            className="w-full h-full"
+        >
             <Canvas
                 camera={{
                     fov: 45,
@@ -62,7 +73,12 @@ const Viewer3D = ({ replaysData }: Props): JSX.Element => {
                 shadows
             >
                 <ambientLight intensity={0.01} />
-                <Sky distance={100000000} inclination={0} turbidity={0} rayleigh={10} />
+                <Sky
+                    distance={100000000}
+                    inclination={0}
+                    turbidity={0}
+                    rayleigh={10}
+                />
 
                 <SceneDirectionalLight replays={replaysData} />
 
@@ -73,7 +89,10 @@ const Viewer3D = ({ replaysData }: Props): JSX.Element => {
                     target={DEFAULT_GRID_POS}
                 />
 
-                <Grid replaysData={replaysData} blockPadding={2} />
+                <Grid
+                    replaysData={replaysData}
+                    blockPadding={2}
+                />
 
                 <ReplayLines
                     replaysData={replaysData}
@@ -91,9 +110,7 @@ const Viewer3D = ({ replaysData }: Props): JSX.Element => {
                 </Suspense>
                 {showFPS && <FrameRate />}
             </Canvas>
-            <TimeLine
-                replaysData={replaysData}
-            />
+            <TimeLine replaysData={replaysData} />
         </div>
     );
 };
