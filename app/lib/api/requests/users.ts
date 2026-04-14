@@ -12,7 +12,9 @@ export const getUserInfo = async (webId: string): Promise<UserInfo> => {
     return data;
 };
 
-export const getUserReplays = async (webId: string): Promise<AllReplaysResult> => {
+export const getUserReplays = async (
+    webId: string,
+): Promise<AllReplaysResult> => {
     const { data } = await apiInstance.get(`/users/${webId}/replays`);
     return {
         replays: data.files,

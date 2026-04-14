@@ -1,4 +1,7 @@
-import Highcharts, { AxisOptions, AxisSetExtremesEventObject } from 'highcharts/highstock';
+import Highcharts, {
+    AxisOptions,
+    AxisSetExtremesEventObject,
+} from 'highcharts/highstock';
 import { RangeUpdateInfos } from '../../components/maps/ChartsDrawer';
 import { ReplayData } from '../api/requests/replays';
 import GlobalChartsDataSingleton from '../singletons/globalChartData';
@@ -16,11 +19,13 @@ export const globalChartOptions = (
 
     // Higchart tooltip needs more space when > 5 replays are loaded
     if (options.chart && replaysData.length > 5) {
-        options.chart.height = (options.chart.height as number) + (replaysData.length - 5) * 34;
+        options.chart.height =
+            (options.chart.height as number) + (replaysData.length - 5) * 34;
     }
     // give more space when > 1 tooltip per replay
     if (options.chart && chartType.chartData.length > 1) {
-        options.chart.height = (options.chart.height as number) + replaysData.length * 34;
+        options.chart.height =
+            (options.chart.height as number) + replaysData.length * 34;
     }
 
     if (options.title) {
@@ -49,7 +54,10 @@ export const globalChartOptions = (
                 events: {
                     mouseOver: (event: any) => {
                         event.preventDefault();
-                        if (!event.target.isNull && typeof event.target.x === 'number') {
+                        if (
+                            !event.target.isNull &&
+                            typeof event.target.x === 'number'
+                        ) {
                             globalChartsData.hoveredRaceTime = event.target.x;
                         }
                     },
@@ -97,11 +105,17 @@ export const chartOptionsTemplate = (): Highcharts.Options => {
         tooltip: {
             shared: true,
             formatter() {
+                if (!this.points) {
+                    return [`<b>${getRaceTimeStr(this.x)}</b><br>`];
+                }
+
+                const getTooltipContent = (
+                    point: Highcharts.TooltipFormatterContextObject,
+                ): string =>
+                    `<b style="color: ${point.color}">▉ </b>${point.series.name}: <b>${point.y.toFixed(3)}</b><br>`;
+
                 return [`<b>${getRaceTimeStr(this.x)}</b><br>`].concat(
-                    this.points
-                        ? this.points.map((point) => `
-                    <b style="color: ${point.color}">▉ </b>${point.series.name}: <b>${point.y.toFixed(3)}</b>
-                    <br>`) : [],
+                    this.points.map(getTooltipContent),
                 );
             },
         },
@@ -116,7 +130,7 @@ export const chartOptionsTemplate = (): Highcharts.Options => {
         },
         scrollbar: scrollBarOptions,
     };
-    return (options);
+    return options;
 };
 
 export const defaultChartOptions = (): any => {
@@ -136,56 +150,62 @@ export const inputSteerChartOptions = (): any => {
 
 export const rpmAndGearChartOptions = (): any => {
     const options = chartOptionsTemplate();
-    options.yAxis = [{
-        ...options.yAxis,
-        title: {
-            text: 'RPM',
+    options.yAxis = [
+        {
+            ...options.yAxis,
+            title: {
+                text: 'RPM',
+            },
+            labels: {
+                format: '{value} RPM',
+            },
+            lineWidth: 2,
+            height: '50%',
         },
-        labels: {
-            format: '{value} RPM',
+        {
+            ...options.yAxis,
+            title: {
+                text: 'Gear',
+            },
+            labels: {
+                format: 'Gear {value}',
+            },
+            lineWidth: 2,
+            offset: 0,
+            top: '50%',
+            height: '50%',
         },
-        lineWidth: 2,
-        height: '50%',
-    }, {
-        ...options.yAxis,
-        title: {
-            text: 'Gear',
-        },
-        labels: {
-            format: 'Gear {value}',
-        },
-        lineWidth: 2,
-        offset: 0,
-        top: '50%',
-        height: '50%',
-    }];
+    ];
     return options;
 };
 
 export const accelAndBrakeChartOptions = (): any => {
     const options = chartOptionsTemplate();
-    options.yAxis = [{
-        ...options.yAxis,
-        title: {
-            text: 'Gaz',
+    options.yAxis = [
+        {
+            ...options.yAxis,
+            title: {
+                text: 'Gaz',
+            },
+            labels: {
+                format: 'Gaz {value}',
+            },
+            lineWidth: 2,
+            height: '50%',
         },
-        labels: {
-            format: 'Gaz {value}',
+        {
+            ...options.yAxis,
+            title: {
+                text: 'Brake',
+            },
+            labels: {
+                format: 'Brake {value}',
+            },
+            lineWidth: 2,
+            offset: 0,
+            top: '50%',
+            height: '50%',
         },
-        lineWidth: 2,
-        height: '50%',
-    }, {
-        ...options.yAxis,
-        title: {
-            text: 'Brake',
-        },
-        labels: {
-            format: 'Brake {value}',
-        },
-        lineWidth: 2,
-        offset: 0,
-        top: '50%',
-        height: '50%',
-    }];
+    ];
     return options;
 };

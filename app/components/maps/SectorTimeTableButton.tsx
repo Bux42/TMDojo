@@ -10,12 +10,12 @@ const SectorTimeTableButton = ({ onClick }: Props) => (
         <SideDrawerExpandButton
             side="left"
             includeArrowIcon={false}
-            content={(
+            content={
                 <>
                     <ClockCircleOutlined className="mr-2" />
                     Sector Time Table
                 </>
-            )}
+            }
             onClick={onClick}
         />
     </div>

@@ -1,11 +1,19 @@
 import React from 'react';
-
+import dynamic from 'next/dynamic';
 import CleanButton from '../components/common/CleanButton';
 import Footer from '../components/common/Footer';
 import UserDisplay from '../components/common/UserDisplay';
 import PageContainer from '../components/containers/PageContainer';
-import ExplanationInfo from '../components/landing/ExplanationInfo';
-import MapReplayTableWithSearchbar from '../components/landing/MapReplayTableWithSearchbar';
+
+const ExplanationInfo = dynamic(
+    () => import('../components/landing/ExplanationInfo'),
+    { ssr: false },
+);
+
+const MapReplayTableWithSearchbar = dynamic(
+    () => import('../components/landing/MapReplayTableWithSearchbar'),
+    { ssr: false },
+);
 
 const DISCORD_URL = 'https://discord.gg/RPbZHvxNRG';
 const SPONSOR_URL = 'https://github.com/sponsors/tm-dojo';
@@ -35,9 +43,7 @@ const Home = (): JSX.Element => (
 
         <PageContainer>
             <div className="flex flex-col md:flex-row gap-8">
-                <div
-                    className="flex flex-col w-full md:w-3/4 pt-4 pb-6 px-4 sm:px-8 rounded-md gap-6 bg-gray-750"
-                >
+                <div className="flex flex-col w-full md:w-3/4 pt-4 pb-6 px-4 sm:px-8 rounded-md gap-6 bg-gray-750">
                     <ExplanationInfo />
                 </div>
 
@@ -94,12 +100,8 @@ const Home = (): JSX.Element => (
                 </div>
             </div>
 
-            <div
-                className="flex flex-col gap-8 w-full mt-10 px-2 py-6 md:px-6 rounded-md bg-gray-750"
-            >
-                <div className="self-center text-2xl font-bold">
-                    Maps
-                </div>
+            <div className="flex flex-col gap-8 w-full mt-10 px-2 py-6 md:px-6 rounded-md bg-gray-750">
+                <div className="self-center text-2xl font-bold">Maps</div>
                 <MapReplayTableWithSearchbar />
             </div>
         </PageContainer>

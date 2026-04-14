@@ -1,6 +1,9 @@
 import { ReplayInfo } from '../api/requests/replays';
 
-export const calcIndividualSectorTimes = (sectorTimes: number[], endRaceTime: number): number[] => {
+export const calcIndividualSectorTimes = (
+    sectorTimes: number[],
+    endRaceTime: number,
+): number[] => {
     const individualSectorTimes: number[] = [];
 
     // Calculate sector differences based on the previous sector times
@@ -14,7 +17,9 @@ export const calcIndividualSectorTimes = (sectorTimes: number[], endRaceTime: nu
         }
     });
     // Add last sector, from last CP to the finish
-    individualSectorTimes.push(endRaceTime - sectorTimes[sectorTimes.length - 1]);
+    individualSectorTimes.push(
+        endRaceTime - sectorTimes[sectorTimes.length - 1],
+    );
 
     return individualSectorTimes;
 };
@@ -25,7 +30,9 @@ export const calcIndividualSectorTimes = (sectorTimes: number[], endRaceTime: nu
  *      Index order should be: individualSectorTimes[replayIndex][sectorIndex]
  * @returns array of indices of the replay that had the fastest sector time
  */
-export const calcFastestSectorIndices = (individualSectorTimes: number[][]): number[] => {
+export const calcFastestSectorIndices = (
+    individualSectorTimes: number[][],
+): number[] => {
     if (individualSectorTimes.length === 0) {
         return [];
     }
@@ -40,7 +47,11 @@ export const calcFastestSectorIndices = (individualSectorTimes: number[][]): num
         let fastestSectorTime = individualSectorTimes[0][sectorIndex];
 
         // For each replay, check whether the sector time is faster than the current fastest
-        for (let replayIndex = 1; replayIndex < individualSectorTimes.length; replayIndex++) {
+        for (
+            let replayIndex = 1;
+            replayIndex < individualSectorTimes.length;
+            replayIndex++
+        ) {
             const sectorTime = individualSectorTimes[replayIndex][sectorIndex];
             if (sectorTime < fastestSectorTime) {
                 // If replay sector time is faster, update fastest sector time and index
@@ -55,11 +66,17 @@ export const calcFastestSectorIndices = (individualSectorTimes: number[][]): num
 
 export const calcValidSectorsLength = (replays: ReplayInfo[]): number => {
     // Filter out replays that don't have sector times
-    const replaysWithSectorTimes = replays
-        .filter((replay) => replay.sectorTimes && replay.sectorTimes.length > 0 && replay.raceFinished);
+    const replaysWithSectorTimes = replays.filter(
+        (replay) =>
+            replay.sectorTimes &&
+            replay.sectorTimes.length > 0 &&
+            replay.raceFinished,
+    );
 
     // Get max num sectors from all replays
-    const maxNumSectors = Math.max(...replaysWithSectorTimes.map((replay) => replay.sectorTimes!.length));
+    const maxNumSectors = Math.max(
+        ...replaysWithSectorTimes.map((replay) => replay.sectorTimes!.length),
+    );
 
     return maxNumSectors;
 };
@@ -84,8 +101,12 @@ export const filterReplaysWithValidSectorTimes = (
     const maxNumSectors = calcValidSectorsLength(allReplays);
 
     // Filter all replays that have less than max num sectors
-    const replaysWithValidSectorTimes = replaysToFilter
-        .filter((replay) => replay.sectorTimes && replay.sectorTimes.length === maxNumSectors && replay.raceFinished);
+    const replaysWithValidSectorTimes = replaysToFilter.filter(
+        (replay) =>
+            replay.sectorTimes &&
+            replay.sectorTimes.length === maxNumSectors &&
+            replay.raceFinished,
+    );
 
     return replaysWithValidSectorTimes;
 };

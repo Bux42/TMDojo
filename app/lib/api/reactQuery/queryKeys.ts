@@ -1,19 +1,34 @@
 const QUERY_KEYS = {
-    allMaps: (searchString: string = '') => (
-        searchString !== '' ? ['allMaps', searchString] as const : ['allMaps']
-    ),
-    mapReplays: (mapUId?: string) => (
-        mapUId && mapUId !== '' ? ['mapReplays', mapUId] as const : ['mapReplays']
-    ),
-    mapInfo: (mapUId?: string) => (
-        mapUId && mapUId !== '' ? ['mapInfo', mapUId] as const : ['mapInfo']
-    ),
-    userReplays: (userId?: string) => (
-        userId && userId !== '' ? ['userReplays', userId] as const : ['userReplays']
-    ),
-    userInfo: (webId?: string) => (
-        webId && webId !== '' ? ['userInfo', webId] as const : ['userInfo']
-    ),
+    allMaps: (searchString: string = '') => {
+        if (searchString !== '') {
+            return ['allMaps', searchString] as const;
+        }
+        return ['allMaps'];
+    },
+    mapReplays: (mapUId?: string) => {
+        if (mapUId && mapUId !== '') {
+            return ['mapReplays', mapUId] as const;
+        }
+        return ['mapReplays'];
+    },
+    mapInfo: (mapUId?: string) => {
+        if (mapUId && mapUId !== '') {
+            return ['mapInfo', mapUId] as const;
+        }
+        return ['mapInfo'];
+    },
+    userReplays: (userId?: string) => {
+        if (userId && userId !== '') {
+            return ['userReplays', userId] as const;
+        }
+        return ['userReplays'];
+    },
+    userInfo: (webId?: string) => {
+        if (webId && webId !== '') {
+            return ['userInfo', webId] as const;
+        }
+        return ['userInfo'];
+    },
 };
 
 export default QUERY_KEYS;

@@ -31,7 +31,9 @@ const COLOR_MAP_RPM: ColorMap = [
     { value: 0.0, color: { r: 0x00, g: 0xff, b: 0 } },
 ];
 
-export const colorsToBuffer = (colors: THREE.Color[]): THREE.Float32BufferAttribute => {
+export const colorsToBuffer = (
+    colors: THREE.Color[],
+): THREE.Float32BufferAttribute => {
     const colorBuffer = [];
     for (let i = 0; i < colors.length; i++) {
         const color = colors[i];
@@ -40,7 +42,9 @@ export const colorsToBuffer = (colors: THREE.Color[]): THREE.Float32BufferAttrib
     return new THREE.Float32BufferAttribute(colorBuffer, 3);
 };
 
-export const defaultReplayColors = (replay: ReplayData): THREE.Float32BufferAttribute => {
+export const defaultReplayColors = (
+    replay: ReplayData,
+): THREE.Float32BufferAttribute => {
     const colorBuffer = [];
     const { color } = replay;
     for (let i = 0; i < replay.samples.length; i++) {
@@ -49,7 +53,9 @@ export const defaultReplayColors = (replay: ReplayData): THREE.Float32BufferAttr
     return new THREE.Float32BufferAttribute(colorBuffer, 3);
 };
 
-export const speedReplayColors = (replay: ReplayData): THREE.Float32BufferAttribute => {
+export const speedReplayColors = (
+    replay: ReplayData,
+): THREE.Float32BufferAttribute => {
     const colorBuffer = [];
     for (let i = 0; i < replay.samples.length; i++) {
         const sample = replay.samples[i];
@@ -59,7 +65,9 @@ export const speedReplayColors = (replay: ReplayData): THREE.Float32BufferAttrib
     return new THREE.Float32BufferAttribute(colorBuffer, 3);
 };
 
-export const rpmReplayColors = (replay: ReplayData): THREE.Float32BufferAttribute => {
+export const rpmReplayColors = (
+    replay: ReplayData,
+): THREE.Float32BufferAttribute => {
     const colorBuffer = [];
     for (let i = 0; i < replay.samples.length; i++) {
         const sample = replay.samples[i];
@@ -69,7 +77,9 @@ export const rpmReplayColors = (replay: ReplayData): THREE.Float32BufferAttribut
     return new THREE.Float32BufferAttribute(colorBuffer, 3);
 };
 
-export const accelerationReplayColors = (replay: ReplayData): THREE.Float32BufferAttribute => {
+export const accelerationReplayColors = (
+    replay: ReplayData,
+): THREE.Float32BufferAttribute => {
     const colorBuffer = [];
     let latestValidSample: ReplayDataPoint | undefined;
     let latestColor = new THREE.Color(0, 0, 0);
@@ -78,7 +88,11 @@ export const accelerationReplayColors = (replay: ReplayData): THREE.Float32Buffe
         const sample = replay.samples[i];
 
         // Skip sample if the velocity is all 0
-        if (sample.velocity.x === 0 && sample.velocity.y === 0 && sample.velocity.z === 0) {
+        if (
+            sample.velocity.x === 0 &&
+            sample.velocity.y === 0 &&
+            sample.velocity.z === 0
+        ) {
             colorBuffer.push(latestColor.r, latestColor.g, latestColor.b);
         } else {
             // If there is not last valid sample point, set to current sample
@@ -89,7 +103,8 @@ export const accelerationReplayColors = (replay: ReplayData): THREE.Float32Buffe
                 colorBuffer.push(latestColor.r, latestColor.g, latestColor.b);
             } else {
                 const speedDiff = sample.speed - latestValidSample.speed;
-                const timeDiff = sample.currentRaceTime - latestValidSample.currentRaceTime;
+                const timeDiff =
+                    sample.currentRaceTime - latestValidSample.currentRaceTime;
                 const acc = (speedDiff / timeDiff) * 1000;
                 const color = getColorFromMap(acc, COLOR_MAP_ACCELERATION);
                 colorBuffer.push(color.r, color.g, color.b);
@@ -103,7 +118,9 @@ export const accelerationReplayColors = (replay: ReplayData): THREE.Float32Buffe
     return new THREE.Float32BufferAttribute(colorBuffer, 3);
 };
 
-export const gearReplayColors = (replay: ReplayData): THREE.Float32BufferAttribute => {
+export const gearReplayColors = (
+    replay: ReplayData,
+): THREE.Float32BufferAttribute => {
     const colorBuffer = [];
     for (let i = 0; i < replay.samples.length; i++) {
         const sample = replay.samples[i];
@@ -113,7 +130,9 @@ export const gearReplayColors = (replay: ReplayData): THREE.Float32BufferAttribu
     return new THREE.Float32BufferAttribute(colorBuffer, 3);
 };
 
-export const inputReplayColors = (replay: ReplayData): THREE.Float32BufferAttribute => {
+export const inputReplayColors = (
+    replay: ReplayData,
+): THREE.Float32BufferAttribute => {
     const colorBuffer = [];
     for (let i = 0; i < replay.samples.length; i++) {
         const sample = replay.samples[i];
@@ -139,10 +158,18 @@ export const inputReplayColors = (replay: ReplayData): THREE.Float32BufferAttrib
     return new THREE.Float32BufferAttribute(colorBuffer, 3);
 };
 
-export const addAlphaChannel = (rgbBuffer: THREE.Float32BufferAttribute, alpha: number = 1) => {
+export const addAlphaChannel = (
+    rgbBuffer: THREE.Float32BufferAttribute,
+    alpha: number = 1,
+) => {
     const alphaList = [];
     for (let i = 0; i < rgbBuffer.count; i++) {
-        alphaList.push(rgbBuffer.getX(i), rgbBuffer.getY(i), rgbBuffer.getZ(i), alpha);
+        alphaList.push(
+            rgbBuffer.getX(i),
+            rgbBuffer.getY(i),
+            rgbBuffer.getZ(i),
+            alpha,
+        );
     }
     const alphaBuffer = new THREE.Float32BufferAttribute(alphaList, 4);
     return alphaBuffer;

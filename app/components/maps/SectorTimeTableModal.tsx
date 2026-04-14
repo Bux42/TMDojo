@@ -1,7 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import {
-    Button, Empty, Modal, Table, Tooltip,
-} from 'antd';
+import { Button, Empty, Modal, Table, Tooltip } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 import { ClockCircleOutlined, QuestionOutlined } from '@ant-design/icons';
 import { ReplayInfo } from '../../lib/api/requests/replays';
@@ -23,7 +21,9 @@ const openInfoModal = () => {
         title: 'CP/Sector Time Table Information',
         content: (
             <div>
-                {'To view sector time deltas, you need to select at least 1 replay that includes sector times. '}
+                {
+                    'To view sector time deltas, you need to select at least 1 replay that includes sector times. '
+                }
                 {'Replays with sector times are indicated by the  '}
                 <ClockCircleOutlined />
                 {'  icon in the replay list.'}
@@ -54,22 +54,42 @@ interface Props {
 }
 
 const SectorTimeTableModal = ({
-    visible, setVisible, selectedReplays, allReplays,
+    visible,
+    setVisible,
+    selectedReplays,
+    allReplays,
 }: Props): JSX.Element => {
     const filteredReplays = useMemo(
-        () => filterReplaysWithValidSectorTimes(selectedReplays, allReplays)
-            .sort((a, b) => a.endRaceTime - b.endRaceTime),
+        () =>
+            filterReplaysWithValidSectorTimes(selectedReplays, allReplays).sort(
+                (a, b) => a.endRaceTime - b.endRaceTime,
+            ),
         [allReplays, selectedReplays],
     );
 
     const allIndividualSectorTimes = useMemo(
-        () => filteredReplays.map((replay) => calcIndividualSectorTimes(replay.sectorTimes!, replay.endRaceTime)),
+        () =>
+            filteredReplays.map((replay) =>
+                calcIndividualSectorTimes(
+                    replay.sectorTimes!,
+                    replay.endRaceTime,
+                ),
+            ),
         [filteredReplays],
     );
     const fastestSectorIndices = useMemo(
         () => calcFastestSectorIndices(allIndividualSectorTimes),
         [allIndividualSectorTimes],
     );
+
+    const getBackgroundColor = (
+        isTheoreticalBest?: boolean,
+    ): string | undefined => {
+        if (isTheoreticalBest) {
+            return THEORETICAL_BEST_BACKGROUND_COLOR;
+        }
+        return undefined;
+    };
 
     interface Entry {
         date?: number;
@@ -80,6 +100,7 @@ const SectorTimeTableModal = ({
         replayIndex?: number;
         isTheoreticalBest?: boolean;
     }
+
     const columns: ColumnsType<Entry> = useMemo(() => {
         let cols: ColumnsType<Entry> = [
             {
@@ -88,11 +109,12 @@ const SectorTimeTableModal = ({
                 key: 'date',
                 fixed: 'left',
                 width: 200,
-                render: (_, entry) => (
-                    entry.date
-                        ? timeDifference(new Date().getTime(), entry.date)
-                        : '-'
-                ),
+                render: (_, entry) => {
+                    if (!entry.date) {
+                        return '-';
+                    }
+                    return timeDifference(new Date().getTime(), entry.date);
+                },
             },
             {
                 title: 'Player',
@@ -107,11 +129,7 @@ const SectorTimeTableModal = ({
                 key: 'time',
                 fixed: 'left',
                 width: 125,
-                render: (_, entry) => (
-                    <code>
-                        {getRaceTimeStr(entry.time)}
-                    </code>
-                ),
+                render: (_, entry) => <code>{getRaceTimeStr(entry.time)}</code>,
             },
             {
                 title: 'Gap',
@@ -122,70 +140,116 @@ const SectorTimeTableModal = ({
                 render: (_, entry) => (
                     <code>
                         {/* Do not display Gap time for fastest replay */}
-                        {entry.replayIndex === 0
-                            ? '-'
-                            : `${entry.gap > 0 ? '+' : ''}${getRaceTimeStr(entry.gap)}`}
+                        {entry.replayIndex === 0 && '-'}
+                        {entry.replayIndex !== 0 &&
+                            `${entry.gap > 0 ? '+' : ''}${getRaceTimeStr(
+                                entry.gap,
+                            )}`}
                     </code>
                 ),
             },
             {
                 title: 'Sector Times',
-                children: (allIndividualSectorTimes[0] || []).map((_, sectorIndex) => ({
-                    title: () => {
-                        const sectorStart = sectorIndex === 0
-                            ? 'Start'
-                            : `CP ${sectorIndex}`;
-                        const sectorEnd = sectorIndex === allIndividualSectorTimes[0].length - 1
-                            ? 'Finish'
-                            : `CP ${sectorIndex + 1}`;
+                children: (allIndividualSectorTimes[0] || []).map(
+                    (_, sectorIndex) => ({
+                        title: () => {
+                            const getSectorStart = (
+                                _sectorIndex: number,
+                            ): string => {
+                                if (sectorIndex === 0) {
+                                    return 'Start';
+                                }
+                                return `CP ${sectorIndex}`;
+                            };
 
-                        const title = `${sectorStart} ➞ ${sectorEnd}`;
+                            const getSectorEnd = (
+                                _sectorIndex: number,
+                            ): string => {
+                                if (
+                                    sectorIndex ===
+                                    allIndividualSectorTimes[0].length - 1
+                                ) {
+                                    return 'Finish';
+                                }
+                                return `CP ${sectorIndex + 1}`;
+                            };
 
-                        return (
-                            <Tooltip title={title} className="w-full">
-                                <div className="w-full cursor-default text-center">
-                                    {`S${sectorIndex + 1}`}
-                                </div>
-                            </Tooltip>
-                        );
-                    },
-                    dataIndex: `sectorTimes[${sectorIndex}]`,
-                    key: `sectorTimes[${sectorIndex}]`,
-                    width: 75,
-                    render: (_1, entry) => {
-                        // Get different times
-                        const sectorTime = entry.sectorTimes[sectorIndex];
-                        const referenceTime = allIndividualSectorTimes[0][sectorIndex];
-                        const timeDiff = sectorTime - referenceTime;
+                            const sectorStart = getSectorStart(sectorIndex);
+                            const sectorEnd = getSectorEnd(sectorIndex);
 
-                        let color = 'white';
-                        if (fastestSectorIndices[sectorIndex] === entry.replayIndex || entry.isTheoreticalBest) {
-                            // fastest sector: purple
-                            color = PURPLE_SECTOR_COLOR;
-                        } else if (entry.replayIndex && entry.replayIndex > 0) {
-                            // delta positive/negative: red/green
-                            color = timeDiff > 0 ? RED_SECTOR_COLOR : GREEN_SECTOR_COLOR;
-                        }
+                            const title = `${sectorStart} ➞ ${sectorEnd}`;
 
-                        // Generate string to display in cell
-                        const timeStr = entry.replayIndex === 0
-                            ? getRaceTimeStr(sectorTime)
-                            : `${timeDiff <= 0 ? '-' : '+'}${getRaceTimeStr(Math.abs(timeDiff))}`;
+                            return (
+                                <Tooltip
+                                    title={title}
+                                    className="w-full"
+                                >
+                                    <div className="w-full cursor-default text-center">
+                                        {`S${sectorIndex + 1}`}
+                                    </div>
+                                </Tooltip>
+                            );
+                        },
+                        dataIndex: `sectorTimes[${sectorIndex}]`,
+                        key: `sectorTimes[${sectorIndex}]`,
+                        width: 75,
+                        render: (_1, entry) => {
+                            // Get different times
+                            const sectorTime = entry.sectorTimes[sectorIndex];
+                            const referenceTime =
+                                allIndividualSectorTimes[0][sectorIndex];
+                            const timeDiff = sectorTime - referenceTime;
 
-                        // Generate hover tooltip title
-                        const tooltipTitle = getRaceTimeStr(sectorTime);
+                            let color = 'white';
+                            if (
+                                fastestSectorIndices[sectorIndex] ===
+                                    entry.replayIndex ||
+                                entry.isTheoreticalBest
+                            ) {
+                                // fastest sector: purple
+                                color = PURPLE_SECTOR_COLOR;
+                            } else if (
+                                entry.replayIndex &&
+                                entry.replayIndex > 0
+                            ) {
+                                // delta positive/negative: red/green
+                                if (timeDiff < 0) {
+                                    color = GREEN_SECTOR_COLOR;
+                                } else if (timeDiff > 0) {
+                                    // timeDiff is positive, so sector time is slower than reference
+                                    color = RED_SECTOR_COLOR;
+                                }
+                            }
 
-                        return (
-                            <Tooltip title={tooltipTitle} placement="topLeft" className="w-full">
-                                <div className="w-full cursor-default">
-                                    <code style={{ color }}>
-                                        {timeStr}
-                                    </code>
-                                </div>
-                            </Tooltip>
-                        );
-                    },
-                })),
+                            const getTimeStr = (time: number): string => {
+                                if (entry.replayIndex === 0) {
+                                    return getRaceTimeStr(time);
+                                }
+                                return `${
+                                    timeDiff <= 0 ? '-' : '+'
+                                }${getRaceTimeStr(Math.abs(timeDiff))}`;
+                            };
+
+                            // Generate string to display in cell
+                            const timeStr = getTimeStr(sectorTime);
+
+                            // Generate hover tooltip title
+                            const tooltipTitle = getRaceTimeStr(sectorTime);
+
+                            return (
+                                <Tooltip
+                                    title={tooltipTitle}
+                                    placement="topLeft"
+                                    className="w-full"
+                                >
+                                    <div className="w-full cursor-default">
+                                        <code style={{ color }}>{timeStr}</code>
+                                    </div>
+                                </Tooltip>
+                            );
+                        },
+                    }),
+                ),
             },
         ];
 
@@ -194,7 +258,9 @@ const SectorTimeTableModal = ({
             ...col,
             onCell: (entry) => ({
                 style: {
-                    backgroundColor: entry.isTheoreticalBest ? THEORETICAL_BEST_BACKGROUND_COLOR : undefined,
+                    backgroundColor: getBackgroundColor(
+                        entry.isTheoreticalBest,
+                    ),
                 },
             }),
         }));
@@ -208,10 +274,12 @@ const SectorTimeTableModal = ({
         }
 
         // Retrieve best sector times from all replays
-        const bestSectorTimes = allIndividualSectorTimes[0].map((_, sectorIndex) => {
-            const replayIndex = fastestSectorIndices[sectorIndex];
-            return allIndividualSectorTimes[replayIndex][sectorIndex];
-        });
+        const bestSectorTimes = allIndividualSectorTimes[0].map(
+            (_, sectorIndex) => {
+                const replayIndex = fastestSectorIndices[sectorIndex];
+                return allIndividualSectorTimes[replayIndex][sectorIndex];
+            },
+        );
 
         // Calculate theoretical best time, from best sectors
         const bestTime = bestSectorTimes.reduce((a, b) => a + b, 0);
@@ -249,11 +317,15 @@ const SectorTimeTableModal = ({
         }
 
         return data;
-    }, [allIndividualSectorTimes, filteredReplays, generateTheoreticalBestEntry]);
+    }, [
+        allIndividualSectorTimes,
+        filteredReplays,
+        generateTheoreticalBestEntry,
+    ]);
 
     return (
         <Modal
-            title={(
+            title={
                 <div className="flex gap-4 items-center">
                     CP/Sector Time Table
                     <Button
@@ -262,7 +334,7 @@ const SectorTimeTableModal = ({
                         icon={<QuestionOutlined />}
                     />
                 </div>
-            )}
+            }
             centered
             visible={visible}
             footer={null}
@@ -292,7 +364,9 @@ const SectorTimeTableModal = ({
                     dataSource={dataSource}
                     onRow={(entry) => ({
                         style: {
-                            backgroundColor: entry.isTheoreticalBest ? THEORETICAL_BEST_BACKGROUND_COLOR : undefined,
+                            backgroundColor: getBackgroundColor(
+                                entry.isTheoreticalBest,
+                            ),
                         },
                     })}
                     pagination={false}

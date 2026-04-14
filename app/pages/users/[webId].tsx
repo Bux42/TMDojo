@@ -13,7 +13,9 @@ const Home = (): JSX.Element => {
     const router = useRouter();
     const { webId } = router.query;
 
-    const { data: userInfo } = useUserInfo(typeof webId === 'string' ? webId : undefined);
+    const { data: userInfo } = useUserInfo(
+        typeof webId === 'string' ? webId : undefined,
+    );
 
     const title = useMemo(
         () => (userInfo ? `${userInfo.playerName} - TMDojo` : 'TMDojo'),
@@ -23,21 +25,24 @@ const Home = (): JSX.Element => {
     return (
         <div className="flex flex-col items-center min-h-screen w-full bg-page-back">
             <HeadTitle title={title} />
-            <PageHeaderBar title={userInfo?.playerName || ''} backUrl="/" />
+            <PageHeaderBar
+                title={userInfo?.playerName || ''}
+                backUrl="/"
+            />
 
             <PageContainer>
                 <div className="w-full mb-8 bg-gray-750 rounded-md p-8 text-center">
                     <span className="text-small">User profile of:</span>
                     <br />
-                    <span className="text-2xl font-bold">{userInfo?.playerName}</span>
+                    <span className="text-2xl font-bold">
+                        {userInfo?.playerName}
+                    </span>
                 </div>
 
                 <div className="w-full p-8 bg-gray-750 rounded-md">
-                    {userInfo ? (
-                        userInfo && <UserReplays userInfo={userInfo} />
-                    ) : (
-                        'Profile not found'
-                    )}
+                    {userInfo
+                        ? userInfo && <UserReplays userInfo={userInfo} />
+                        : 'Profile not found'}
                 </div>
             </PageContainer>
 

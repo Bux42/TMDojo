@@ -6,7 +6,8 @@ interface AuthorizationResponse {
     accountId: string;
 }
 export const authorizeWithAccessCode = async (
-    accessCode: string, clientCode?: string,
+    accessCode: string,
+    clientCode?: string,
 ): Promise<AuthorizationResponse> => {
     const params: any = {
         code: accessCode,
@@ -18,7 +19,9 @@ export const authorizeWithAccessCode = async (
         params.clientCode = clientCode;
     }
 
-    const { data } = await apiInstance.post('/authorize', params, { withCredentials: true });
+    const { data } = await apiInstance.post('/authorize', params, {
+        withCredentials: true,
+    });
 
     return data;
 };
@@ -27,11 +30,14 @@ export interface AuthUserInfo {
     displayName: string;
     accountId: string;
 }
-export const fetchLoggedInUser = async (): Promise<AuthUserInfo | undefined> => {
-    const hasSessionCookie = document.cookie
-        .split(';')
-        .filter((cookie) => cookie.trim().startsWith('sessionId='))
-        .length > 0;
+export const fetchLoggedInUser = async (): Promise<
+    AuthUserInfo | undefined
+> => {
+    const hasSessionCookie =
+        document.cookie
+            .split(';')
+            .filter((cookie) => cookie.trim().startsWith('sessionId=')).length >
+        0;
 
     if (!hasSessionCookie) {
         return undefined;

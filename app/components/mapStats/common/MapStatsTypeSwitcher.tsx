@@ -6,7 +6,7 @@ import CleanButton from '../../common/CleanButton';
 
 export enum MapStatsType {
     GLOBAL = 'Global',
-    PERSONAL = 'Personal'
+    PERSONAL = 'Personal',
 }
 
 const oppositeType = (type: MapStatsType) => {
@@ -18,41 +18,46 @@ const oppositeType = (type: MapStatsType) => {
 
 interface MapStatsTypeSwitcherProps {
     mapStatsType: MapStatsType;
-    mapData: MapInfo;
+    mapName?: string;
     toggleMapStatsType: () => void;
 }
-export const MapStatsTypeSwitcher = ({ mapStatsType, mapData, toggleMapStatsType }: MapStatsTypeSwitcherProps) => {
+export const MapStatsTypeSwitcher = ({
+    mapStatsType,
+    mapName,
+    toggleMapStatsType,
+}: MapStatsTypeSwitcherProps) => {
     const { user, startAuthFlow } = useContext(AuthContext);
 
     return (
         <div className="flex flex-col gap-4 items-center">
             <div className="text-xl">
-                {`You are currently viewing ${mapStatsType === MapStatsType.GLOBAL ? 'the' : 'your'} `}
+                {`You are currently viewing ${
+                    mapStatsType === MapStatsType.GLOBAL ? 'the' : 'your'
+                } `}
                 <b>{mapStatsType}</b>
                 {' statistics'}
-                {mapData.name && (
+                {mapName && (
                     <>
                         {' for '}
-                        <b>{cleanTMFormatting(mapData.name)}</b>
+                        <b>{cleanTMFormatting(mapName)}</b>
                     </>
                 )}
             </div>
-            {user
-                ? (
-                    <CleanButton
-                        backColor="hsl(0, 0%, 12%)"
-                        onClick={toggleMapStatsType}
-                    >
-                        {`Switch to ${oppositeType(mapStatsType)} statistics`}
-                    </CleanButton>
-                ) : (
-                    <CleanButton
-                        backColor="hsl(0, 0%, 12%)"
-                        onClick={startAuthFlow}
-                    >
-                        Log in for personal statistics
-                    </CleanButton>
-                )}
+            {user ? (
+                <CleanButton
+                    backColor="hsl(0, 0%, 12%)"
+                    onClick={toggleMapStatsType}
+                >
+                    {`Switch to ${oppositeType(mapStatsType)} statistics`}
+                </CleanButton>
+            ) : (
+                <CleanButton
+                    backColor="hsl(0, 0%, 12%)"
+                    onClick={startAuthFlow}
+                >
+                    Log in for personal statistics
+                </CleanButton>
+            )}
         </div>
     );
 };

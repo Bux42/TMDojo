@@ -5,14 +5,18 @@ import { DoubleSide } from 'three';
 import { ReplayData } from '../../lib/api/requests/replays';
 
 interface ReplayDnfProps {
-  replay: ReplayData;
+    replay: ReplayData;
 }
 const ReplayDnf = ({ replay }: ReplayDnfProps): JSX.Element => {
     const mesh = useRef();
     const dnfTextColor = new THREE.Color(1, 1, 1);
     return (
         <>
-            <mesh position={replay.dnfPos} ref={mesh} scale={10}>
+            <mesh
+                position={replay.dnfPos}
+                ref={mesh}
+                scale={10}
+            >
                 <boxGeometry args={[1, 1, 1]} />
                 <meshBasicMaterial
                     attach="material"
@@ -21,7 +25,7 @@ const ReplayDnf = ({ replay }: ReplayDnfProps): JSX.Element => {
                     opacity={0.5}
                 />
             </mesh>
-            <Billboard position={replay.dnfPos} args={[0, 0]}>
+            <Billboard position={replay.dnfPos}>
                 <Text
                     color={dnfTextColor}
                     fontSize={5}
@@ -33,7 +37,11 @@ const ReplayDnf = ({ replay }: ReplayDnfProps): JSX.Element => {
                     anchorX="center"
                     anchorY="middle"
                 >
-                    <meshBasicMaterial attach="material" side={DoubleSide} color="red" />
+                    <meshBasicMaterial
+                        attach="material"
+                        side={DoubleSide}
+                        color="red"
+                    />
                     DNF
                 </Text>
             </Billboard>

@@ -20,9 +20,16 @@ const ReplayChartHoverLocation = ({
     useFrame(() => {
         if (sphereRef.current) {
             if (globalChartsData.hoveredRaceTime !== undefined) {
-                const curSample = getSampleNearTime(replay, globalChartsData.hoveredRaceTime);
+                const curSample = getSampleNearTime(
+                    replay,
+                    globalChartsData.hoveredRaceTime,
+                );
 
-                sphereRef.current.position.set(curSample.position.x, curSample.position.y, curSample.position.z);
+                sphereRef.current.position.set(
+                    curSample.position.x,
+                    curSample.position.y,
+                    curSample.position.z,
+                );
                 sphereRef.current.scale.set(0.5, 0.5, 0.5);
             } else {
                 sphereRef.current.scale.lerp(new THREE.Vector3(0, 0, 0), 0.1);
@@ -30,13 +37,18 @@ const ReplayChartHoverLocation = ({
         }
     });
 
-    return globalChartsData.hoveredRaceTime === undefined
-        ? (
-            <Sphere ref={sphereRef} args={[0.5]}>
-                <meshBasicMaterial attach="material" side={DoubleSide} color={replay.color} />
-            </Sphere>
-        )
-        : null;
+    return globalChartsData.hoveredRaceTime === undefined ? (
+        <Sphere
+            ref={sphereRef}
+            args={[0.5]}
+        >
+            <meshBasicMaterial
+                attach="material"
+                side={DoubleSide}
+                color={replay.color}
+            />
+        </Sphere>
+    ) : null;
 };
 
 export default ReplayChartHoverLocation;

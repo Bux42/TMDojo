@@ -28,10 +28,11 @@ const MapReplayTableWithSearchbar = () => {
     }, [maps]);
 
     const tableData: ExtendedAvailableMap[] | undefined = useMemo(
-        () => maps?.map((map) => ({
-            ...map,
-            key: map.mapUId,
-        })),
+        () =>
+            maps?.map((map) => ({
+                ...map,
+                key: map.mapUId,
+            })),
         [maps],
     );
 
@@ -51,7 +52,12 @@ const MapReplayTableWithSearchbar = () => {
                 return (
                     <div className="w-full">
                         <Link href={mapRef}>
-                            <a href={mapRef} className="block p-2 w-full">{map.mapName}</a>
+                            <a
+                                href={mapRef}
+                                className="block p-2 w-full"
+                            >
+                                {map.mapName}
+                            </a>
                         </Link>
                     </div>
                 );
@@ -83,7 +89,11 @@ const MapReplayTableWithSearchbar = () => {
             dataIndex: 'lastUpdate',
             render: (timestamp) => {
                 const today = new Date().getTime();
-                return <span title={new Date(timestamp).toLocaleString()}>{timeDifference(today, timestamp)}</span>;
+                return (
+                    <span title={new Date(timestamp).toLocaleString()}>
+                        {timeDifference(today, timestamp)}
+                    </span>
+                );
             },
             sorter: (a, b) => a.lastUpdate - b.lastUpdate,
             defaultSortOrder: 'descend',
@@ -109,7 +119,9 @@ const MapReplayTableWithSearchbar = () => {
                     loading={isFetching}
                     onSearch={(value) => {
                         setSearchString(value);
-                        queryClient.invalidateQueries(QUERY_KEYS.allMaps(value));
+                        queryClient.invalidateQueries(
+                            QUERY_KEYS.allMaps(value),
+                        );
                     }}
                 />
 

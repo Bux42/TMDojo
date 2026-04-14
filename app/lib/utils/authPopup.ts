@@ -2,13 +2,15 @@
 let windowReference: Window | null = null;
 let previousUrl: string | undefined;
 
-const openAuthWindow = (
-    url: string,
-    name: string,
-) => {
-    const windowFeatures = 'toolbar=no, menubar=no, width=600, height=700, top=100, left=100';
+const openAuthWindow = (url: string, name: string) => {
+    const windowFeatures =
+        'toolbar=no, menubar=no, width=600, height=700, top=100, left=100';
 
-    if (windowReference === null || windowReference.closed || previousUrl !== url) {
+    if (
+        windowReference === null ||
+        windowReference.closed ||
+        previousUrl !== url
+    ) {
         windowReference = window.open(url, name, windowFeatures);
         windowReference?.focus();
     }

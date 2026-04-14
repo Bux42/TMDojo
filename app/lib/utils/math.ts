@@ -5,10 +5,18 @@ const vec = new THREE.Vector3();
 const vec2 = new THREE.Vector3();
 const quat = new THREE.Quaternion();
 
-export default function vecToQuat(forward: THREE.Vector3, up: THREE.Vector3): THREE.Quaternion {
+export default function vecToQuat(
+    forward: THREE.Vector3,
+    up: THREE.Vector3,
+): THREE.Quaternion {
     const vector = forward.normalize();
-    const vector2 = vec.copy(new THREE.Vector3(0, 0, 0)).crossVectors(up, vector).normalize();
-    const vector3 = vec2.copy(new THREE.Vector3(0, 0, 0)).crossVectors(vector, vector2);
+    const vector2 = vec
+        .copy(new THREE.Vector3(0, 0, 0))
+        .crossVectors(up, vector)
+        .normalize();
+    const vector3 = vec2
+        .copy(new THREE.Vector3(0, 0, 0))
+        .crossVectors(vector, vector2);
     const m00 = vector2.x;
     const m01 = vector2.y;
     const m02 = vector2.z;
@@ -19,7 +27,7 @@ export default function vecToQuat(forward: THREE.Vector3, up: THREE.Vector3): TH
     const m21 = vector.y;
     const m22 = vector.z;
 
-    const num8 = (m00 + m11) + m22;
+    const num8 = m00 + m11 + m22;
     const quaternion = quat;
     if (num8 > 0.0) {
         let num = Math.sqrt(num8 + 1.0);
@@ -30,8 +38,8 @@ export default function vecToQuat(forward: THREE.Vector3, up: THREE.Vector3): TH
         quaternion.z = (m01 - m10) * num;
         return quaternion;
     }
-    if ((m00 >= m11) && (m00 >= m22)) {
-        const num7 = Math.sqrt(((1.0 + m00) - m11) - m22);
+    if (m00 >= m11 && m00 >= m22) {
+        const num7 = Math.sqrt(1.0 + m00 - m11 - m22);
         const num4 = 0.5 / num7;
         quaternion.x = 0.5 * num7;
         quaternion.y = (m01 + m10) * num4;
@@ -40,7 +48,7 @@ export default function vecToQuat(forward: THREE.Vector3, up: THREE.Vector3): TH
         return quaternion;
     }
     if (m11 > m22) {
-        const num6 = Math.sqrt(((1.0 + m11) - m00) - m22);
+        const num6 = Math.sqrt(1.0 + m11 - m00 - m22);
         const num3 = 0.5 / num6;
         quaternion.x = (m10 + m01) * num3;
         quaternion.y = 0.5 * num6;
@@ -48,7 +56,7 @@ export default function vecToQuat(forward: THREE.Vector3, up: THREE.Vector3): TH
         quaternion.w = (m20 - m02) * num3;
         return quaternion;
     }
-    const num5 = Math.sqrt(((1.0 + m22) - m00) - m11);
+    const num5 = Math.sqrt(1.0 + m22 - m00 - m11);
     const num2 = 0.5 / num5;
     quaternion.x = (m20 + m02) * num2;
     quaternion.y = (m21 + m12) * num2;

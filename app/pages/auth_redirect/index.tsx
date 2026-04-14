@@ -10,17 +10,19 @@ const AuthRedirect = (): JSX.Element => {
     const [message, setMessage] = useState<string>('Logging in...');
     const { loginUser } = useContext(AuthContext);
 
-    const isAllowedTargetOrigin = (targetOrigin: string): boolean => (
-        targetOrigin === 'https://www.tmdojo.com'
-        || targetOrigin === 'https://tmdojo.com'
-        || targetOrigin === 'http://localhost:4200'
-        || (targetOrigin.startsWith('https://tm-dojo-git-') && targetOrigin.endsWith('.vercel.app'))
-    );
+    const isAllowedTargetOrigin = (targetOrigin: string): boolean =>
+        targetOrigin === 'https://www.tmdojo.com' ||
+        targetOrigin === 'https://tmdojo.com' ||
+        targetOrigin === 'http://localhost:4200' ||
+        (targetOrigin.startsWith('https://tm-dojo-git-') &&
+            targetOrigin.endsWith('.vercel.app'));
 
     useEffect(() => {
         if (
-            code !== undefined && typeof code === 'string'
-            && state !== undefined && typeof state === 'string'
+            code !== undefined &&
+            typeof code === 'string' &&
+            state !== undefined &&
+            typeof state === 'string'
         ) {
             // find out if this is a UI or a plugin login
             // plugin state starts with "plugin-" - UI state is just an 11 character string
@@ -29,9 +31,12 @@ const AuthRedirect = (): JSX.Element => {
                     try {
                         // follow the normal login procedure with the code/state combination
                         await loginUser(code, state);
-                        setMessage('Authentication complete!\nYou can close this window and return to the game now.');
+                        setMessage(
+                            'Authentication complete!\nYou can close this window and return to the game now.',
+                        );
                         setShowLoader(false);
                     } catch (e) {
+                        // eslint-disable-next-line no-console
                         console.log(e);
                     }
                 };
@@ -64,9 +69,7 @@ const AuthRedirect = (): JSX.Element => {
                 className="w-4/5 h-4/5 m-auto flex flex-col gap-4
                     align-center justify-center p-16 bg-gray-900 rounded-2xl"
             >
-                {showLoader && (
-                    <Spin size="large" />
-                )}
+                {showLoader && <Spin size="large" />}
                 {message && (
                     <span className="text-xl text-center font-smibold">
                         {message}

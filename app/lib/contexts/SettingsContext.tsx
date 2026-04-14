@@ -35,23 +35,23 @@ export interface SettingsContextProps {
 
 export const SettingsContext = createContext<SettingsContextProps>({
     lineType: LineTypes.default,
-    changeLineType: () => { },
+    changeLineType: () => {},
     showGearChanges: false,
-    setShowGearChanges: () => { },
+    setShowGearChanges: () => {},
     showFPS: false,
-    setShowFPS: () => { },
+    setShowFPS: () => {},
     showInputOverlay: true,
-    setShowInputOverlay: () => { },
+    setShowInputOverlay: () => {},
     replayLineOpacity: 0.5,
-    setReplayLineOpacity: () => { },
+    setReplayLineOpacity: () => {},
     replayCarOpacity: 0.5,
-    setReplayCarOpacity: () => { },
+    setReplayCarOpacity: () => {},
     numColorChange: 0,
-    setNumColorChange: () => { },
+    setNumColorChange: () => {},
     showFullTrail: timeLineInfos.showFullTrail,
-    setShowFullTrail: () => { },
+    setShowFullTrail: () => {},
     showTrailToStart: timeLineInfos.showTrailToStart,
-    setShowTrailToStart: () => { },
+    setShowTrailToStart: () => {},
 });
 
 export const SettingsProvider = ({ children }: any): JSX.Element => {
@@ -62,8 +62,12 @@ export const SettingsProvider = ({ children }: any): JSX.Element => {
     const [replayLineOpacity, setReplayLineOpacity] = useState(0.5);
     const [replayCarOpacity, setReplayCarOpacity] = useState(0.5);
     const [numColorChange, setNumColorChange] = useState(0);
-    const [showFullTrail, setShowFullTrail] = useState(timeLineInfos.showFullTrail);
-    const [showTrailToStart, setShowTrailToStart] = useState(timeLineInfos.showTrailToStart);
+    const [showFullTrail, setShowFullTrail] = useState(
+        timeLineInfos.showFullTrail,
+    );
+    const [showTrailToStart, setShowTrailToStart] = useState(
+        timeLineInfos.showTrailToStart,
+    );
 
     const changeLineType = (type: LineType) => {
         setLineType(type);
