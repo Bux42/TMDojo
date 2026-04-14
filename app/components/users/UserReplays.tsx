@@ -13,6 +13,7 @@ import { useUserReplays } from '../../lib/api/reactQuery/hooks/query/replays';
 import { ReplayInfo } from '../../lib/api/requests/replays';
 import { UserInfo } from '../../lib/api/requests/users';
 import { getRaceTimeStr, msToTime, timeDifference } from '../../lib/utils/time';
+import PrivateReplayIcon from '../common/PrivateReplayIcon';
 
 const DEFAULT_PAGE_SIZE = 10;
 
@@ -76,13 +77,21 @@ const UserReplays = ({ userInfo }: Props): JSX.Element => {
                     padding: 0,
                 },
             }),
-            render: (_, map) => {
-                const mapRef = `/maps/${map.mapUId}`;
+            render: (_, replay) => {
+                const mapRef = `/maps/${replay.mapUId}`;
                 return (
-                    <div className="w-full">
+                    <div className="w-full flex flex-row items-center gap-2">
                         <Link href={mapRef}>
-                            <a href={mapRef} className="block p-2 w-full">{map.mapName}</a>
+                            <a href={mapRef} className="block p-2 w-full">
+                                {replay.mapName}
+                            </a>
                         </Link>
+
+                        {replay.private && (
+                            <div className="pr-4">
+                                <PrivateReplayIcon />
+                            </div>
+                        )}
                     </div>
                 );
             },

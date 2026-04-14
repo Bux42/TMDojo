@@ -2,6 +2,7 @@ import React, { useContext, useMemo } from "react";
 import { useRouter } from "next/router";
 import { Switch, Tooltip } from "antd";
 
+import Link from "antd/lib/typography/Link";
 import {
     useSetUserPrivateReplays,
     useUserInfo,
@@ -13,7 +14,6 @@ import PageHeaderBar from "../../components/common/PageHeaderBar";
 import Footer from "../../components/common/Footer";
 import PageContainer from "../../components/containers/PageContainer";
 import { AuthContext } from "../../lib/contexts/AuthContext";
-import Link from "antd/lib/typography/Link";
 
 const Home = (): JSX.Element => {
     const router = useRouter();

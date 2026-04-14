@@ -36,6 +36,7 @@ export interface ReplayInfo {
     playerName: string;
     raceFinished: number;
     webId: string;
+    private?: boolean;
     _id: string;
 }
 
