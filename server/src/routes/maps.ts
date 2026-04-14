@@ -17,14 +17,50 @@ import * as artefacts from '../lib/artefacts';
 const router = express.Router();
 /**
  * GET /maps
- * Retrieves all unique map names we have replays of
+ * Retrieves paginated map stats
  * Query params:
  * - mapName (optional)
+ * - offset (optional, default: 0)
+ * - limit (optional, default: 50)
  */
 router.get('/', async (req: Request, res: Response, next: Function) => {
     try {
-        const mapNames = await db.getUniqueMapNames(req.query.mapName as string);
-        res.send(mapNames);
+        const offset = parseInt(req.query.offset as string || '0', 10);
+        const limit = parseInt(req.query.limit as string || '50', 10);
+        const result = await db.getPaginatedMaps(
+            req.query.mapName as string,
+            offset,
+            limit,
+        );
+        res.send(result);
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * GET /maps/count
+ * Retrieves total count of maps
+ * Query params:
+ * - mapName (optional) - filters by map name
+ */
+router.get('/count', async (req: Request, res: Response, next: Function) => {
+    try {
+        const totalMaps = await db.getTotalMapCount(req.query.mapName as string);
+        res.send({ total: totalMaps });
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * GET /maps/replays/count
+ * Retrieves total count of replays (excluding private replays)
+ */
+router.get('/replays/count', async (req: Request, res: Response, next: Function) => {
+    try {
+        const totalReplays = await db.getTotalReplayCount();
+        res.send({ total: totalReplays });
     } catch (err) {
         next(err);
     }

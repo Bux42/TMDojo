@@ -4,9 +4,22 @@ import QUERY_KEYS from '../../queryKeys';
 import API from '../../../apiWrapper';
 import { TIME_IN_MS } from '../../../../utils/time';
 
-export const useAllMaps = (searchString: string = '') =>
-    useQuery(QUERY_KEYS.allMaps(searchString), () =>
-        API.maps.getAllMaps(searchString),
+export const useAllMaps = (searchString: string = '', offset: number = 0, limit: number = 50) =>
+    useQuery(
+        QUERY_KEYS.allMaps(searchString, offset, limit),
+        () => API.maps.getAllMaps(searchString, offset, limit),
+    );
+
+export const useMapCount = (searchString: string = '') =>
+    useQuery(
+        QUERY_KEYS.mapCount(searchString),
+        () => API.maps.getMapCount(searchString),
+    );
+
+export const useReplayCount = () =>
+    useQuery(
+        QUERY_KEYS.replayCount(),
+        () => API.maps.getReplayCount(),
     );
 
 export const useMapInfo = (mapUId?: string) =>
