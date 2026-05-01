@@ -64,6 +64,7 @@ const MapReplayTableWithSearchbar = () => {
             key: 'map_name',
             dataIndex: 'mapName',
             sorter: true,
+            sortDirections: ['descend', 'ascend'],
             sortOrder: sortBy === 'map_name' ? currentAntSortOrder : null,
             width: '60%',
             onCell: () => ({
@@ -126,6 +127,7 @@ const MapReplayTableWithSearchbar = () => {
                 );
             },
             sorter: true,
+            sortDirections: ['descend', 'ascend'],
             sortOrder: sortBy === 'last_updated' ? currentAntSortOrder : null,
             width: '15%',
         },
@@ -135,6 +137,7 @@ const MapReplayTableWithSearchbar = () => {
             dataIndex: 'count',
             render: (count) => count.toLocaleString(),
             sorter: true,
+            sortDirections: ['descend', 'ascend'],
             sortOrder: sortBy === 'replay_count' ? currentAntSortOrder : null,
             width: '15%',
         },
@@ -215,15 +218,24 @@ const MapReplayTableWithSearchbar = () => {
                         | 'descend'
                         | undefined;
 
-                    if (!columnSortBy || !columnSortOrder) {
+                    if (!columnSortBy) {
                         setSortBy('last_updated');
                         setSortOrder('desc');
                     } else {
                         const newSortBy = columnSortBy;
-                        const newSortOrder =
-                            columnSortOrder === 'ascend'
-                                ? ('asc' as MapSortOrder)
-                                : ('desc' as MapSortOrder);
+                        let newSortOrder: MapSortOrder;
+                        if (columnSortOrder === 'ascend') {
+                            newSortOrder = 'asc';
+                        } else if (columnSortOrder === 'descend') {
+                            newSortOrder = 'desc';
+                        } else if (
+                            newSortBy === sortBy &&
+                            sortOrder === 'desc'
+                        ) {
+                            newSortOrder = 'asc';
+                        } else {
+                            newSortOrder = 'desc';
+                        }
                         const sortChanged =
                             newSortBy !== sortBy || newSortOrder !== sortOrder;
                         setSortBy(newSortBy);

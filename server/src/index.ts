@@ -1,14 +1,14 @@
 import { config } from 'dotenv';
 
 import { Request, Response } from 'express';
-import * as express from 'express';
+import express = require('express');
 
 import * as https from 'https';
 import * as fs from 'fs';
-import * as cors from 'cors';
+import cors = require('cors');
 import * as bodyParser from 'body-parser';
-import * as cookieParser from 'cookie-parser';
-import * as compression from 'compression';
+import cookieParser = require('cookie-parser');
+import compression = require('compression');
 
 import * as db from './lib/db';
 import { logError, logInfo, initLogger } from './lib/logger';
@@ -28,7 +28,7 @@ import reqResLoggerMiddleware from './middleware/reqResLogger';
 config();
 
 // initialize the logger with the provided level first
-initLogger(process.env.LOG_LEVEL);
+initLogger(process.env.LOG_LEVEL || '');
 
 const app = express();
 app.use(
@@ -67,17 +67,22 @@ app.use(cookieParser());
 // Response compression (using fastest compression preset)
 app.use(compression({ level: 1 }));
 
-app.listen(defaultPort, () => {
-    logInfo(`App listening on port ${defaultPort}`);
-});
-
-// initialize DB connection
-db.initDB();
+const startApp = async () => {
+    try {
+        await db.initDB();
+        app.listen(defaultPort, () => {
+            logInfo(`App listening on port ${defaultPort}`);
+        });
+    } catch (error) {
+        logError(error instanceof Error ? error.stack || error.message : String(error));
+        process.exit(1);
+    }
+};
 
 // global error handler (requires 'next' even if it's not used)
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err: Error, req: Request, res: Response, next: Function) => {
-    logError(err.stack);
+    logError(err.stack || err.message);
     res.status(500).send('Internal server error');
 });
 
@@ -94,3 +99,5 @@ app.use('/maps', mapRouter);
 app.use('/users', userRouter);
 app.use('/me', meRouter);
 app.use('/replays', replayRouter);
+
+startApp();
