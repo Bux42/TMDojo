@@ -14,6 +14,9 @@ let db: Db = null;
 
 export type Rejector = (_1: Error) => void;
 
+export type MapSortBy = 'map_name' | 'last_updated' | 'replay_count';
+export type SortOrder = 'desc' | 'asc';
+
 export const initDB = () => {
     const mongoClient = new MongoClient(process.env.MONGO_URL, {
         useUnifiedTopology: true,
@@ -133,9 +136,12 @@ export const getPaginatedMaps = async (
     mapName?: string,
     offset: number = 0,
     limit: number = 50,
+    sortBy: MapSortBy = 'last_updated',
+    sortOrder: SortOrder = 'desc',
 ): Promise<{ maps: any[] }> => {
     const replays = db.collection('replays');
     const trimmedMapName = mapName?.trim();
+    const sortDirection = sortOrder === 'asc' ? 1 : -1;
 
     const replayStatsPipeline: any[] = [
         {
@@ -152,38 +158,11 @@ export const getPaginatedMaps = async (
         },
     ];
 
-    // optimize for case where no mapName filter is applied
-    if (!trimmedMapName) {
-        const pipeline = [
-            ...replayStatsPipeline,
-            { $sort: { lastUpdate: -1 } },
-            { $skip: offset },
-            { $limit: limit },
-            {
-                $lookup: {
-                    from: 'maps',
-                    localField: '_id',
-                    foreignField: '_id',
-                    as: 'map',
-                },
-            },
-            {
-                $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ['$map', 0] }, '$$ROOT'] } },
-            },
-            {
-                $project: {
-                    _id: false,
-                    mapUId: true,
-                    mapName: true,
-                    count: '$count',
-                    lastUpdate: true,
-                },
-            },
-        ];
-
-        const cursor = replays.aggregate(pipeline);
-        const maps = await cursor.toArray();
-        return { maps };
+    let populatedSortStage: any = { $sort: { lastUpdate: sortDirection } };
+    if (sortBy === 'map_name') {
+        populatedSortStage = { $sort: { mapName: sortDirection } };
+    } else if (sortBy === 'replay_count') {
+        populatedSortStage = { $sort: { count: sortDirection } };
     }
 
     const pipeline: any[] = [
@@ -208,12 +187,7 @@ export const getPaginatedMaps = async (
                 lastUpdate: true,
             },
         },
-        {
-            $match: { mapName: { $regex: `.*${trimmedMapName}.*`, $options: 'i' } },
-        },
-        {
-            $sort: { lastUpdate: -1 },
-        },
+        populatedSortStage,
         {
             $skip: offset,
         },
@@ -221,6 +195,12 @@ export const getPaginatedMaps = async (
             $limit: limit,
         },
     ];
+
+    if (trimmedMapName) {
+        pipeline.splice(4, 0, {
+            $match: { mapName: { $regex: `.*${trimmedMapName}.*`, $options: 'i' } },
+        });
+    }
 
     const cursor = replays.aggregate(pipeline);
     const maps = await cursor.toArray();
