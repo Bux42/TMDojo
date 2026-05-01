@@ -2,12 +2,19 @@ import { useQuery } from '@tanstack/react-query';
 import queryClient from '../../queryClient';
 import QUERY_KEYS from '../../queryKeys';
 import API from '../../../apiWrapper';
+import { MapSortBy, MapSortOrder } from '../../../requests/maps';
 import { TIME_IN_MS } from '../../../../utils/time';
 
-export const useAllMaps = (searchString: string = '', offset: number = 0, limit: number = 50) =>
+export const useAllMaps = (
+    searchString: string = '',
+    offset: number = 0,
+    limit: number = 50,
+    sortBy: MapSortBy = 'last_updated',
+    sortOrder: MapSortOrder = 'desc',
+) =>
     useQuery(
-        QUERY_KEYS.allMaps(searchString, offset, limit),
-        () => API.maps.getAllMaps(searchString, offset, limit),
+        QUERY_KEYS.allMaps(searchString, offset, limit, sortBy, sortOrder),
+        () => API.maps.getAllMaps(searchString, offset, limit, sortBy, sortOrder),
     );
 
 export const useMapCount = (searchString: string = '') =>

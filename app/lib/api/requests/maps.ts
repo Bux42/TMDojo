@@ -22,16 +22,23 @@ export type MapWithStats = {
     lastUpdate: number;
 };
 
+export type MapSortBy = 'map_name' | 'last_updated' | 'replay_count';
+export type MapSortOrder = 'desc' | 'asc';
+
 export const getAllMaps = async (
     searchString: string,
     offset: number = 0,
     limit: number = 50,
+    sortBy: MapSortBy = 'last_updated',
+    sortOrder: MapSortOrder = 'desc',
 ): Promise<MapWithStats[]> => {
     const { data } = await apiInstance.get('/maps', {
         params: {
             mapName: searchString || undefined,
             offset,
             limit,
+            sortBy,
+            sortOrder,
         },
     });
     return data.maps;

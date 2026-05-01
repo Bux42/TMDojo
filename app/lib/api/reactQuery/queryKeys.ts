@@ -1,6 +1,12 @@
 const QUERY_KEYS = {
-    allMaps: (searchString: string = '', offset: number = 0, limit: number = 50) =>
-        ['allMaps', searchString, offset, limit] as const,
+    allMaps: (
+        searchString: string = '',
+        offset: number = 0,
+        limit: number = 50,
+        sortBy: 'map_name' | 'last_updated' | 'replay_count' = 'last_updated',
+        sortOrder: 'desc' | 'asc' = 'desc',
+    ) =>
+        ['allMaps', searchString, offset, limit, sortBy, sortOrder] as const,
     mapCount: (searchString: string = '') =>
         ['mapCount', searchString] as const,
     replayCount: () =>
