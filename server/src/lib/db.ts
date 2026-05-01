@@ -24,22 +24,6 @@ export type Rejector = (_1: Error) => void;
 export type MapSortBy = 'map_name' | 'last_updated' | 'replay_count';
 export type SortOrder = 'desc' | 'asc';
 
-export const initDB = async () => {
-    const mongoUrl = process.env.MONGO_URL;
-    if (!mongoUrl) {
-        throw new Error('MONGO_URL is not configured');
-    }
-
-    const mongoClient = new MongoClient(mongoUrl, {
-        useUnifiedTopology: true,
-    } as any);
-
-    await mongoClient.connect();
-    logInfo('initDB: Connected successfully to DB');
-    db = mongoClient.db(DB_NAME);
-    await syncMapReplayStats();
-};
-
 export const syncMapReplayStats = async (): Promise<void> => {
     const database = getDb();
     const maps = database.collection('maps');
@@ -84,6 +68,22 @@ export const syncMapReplayStats = async (): Promise<void> => {
     }
 
     logInfo(`syncMapReplayStats: Updated ${replayStats.length} maps`);
+};
+
+export const initDB = async () => {
+    const mongoUrl = process.env.MONGO_URL;
+    if (!mongoUrl) {
+        throw new Error('MONGO_URL is not configured');
+    }
+
+    const mongoClient = new MongoClient(mongoUrl, {
+        useUnifiedTopology: true,
+    } as any);
+
+    await mongoClient.connect();
+    logInfo('initDB: Connected successfully to DB');
+    db = mongoClient.db(DB_NAME);
+    await syncMapReplayStats();
 };
 
 export const createUser = async (
