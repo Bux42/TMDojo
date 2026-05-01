@@ -22,15 +22,30 @@ const router = express.Router();
  * - mapName (optional)
  * - offset (optional, default: 0)
  * - limit (optional, default: 50)
+ * - sortBy (optional: map_name | last_updated | replay_count, default: last_updated)
+ * - sortOrder (optional: asc | desc, default: desc)
  */
 router.get('/', async (req: Request, res: Response, next: Function) => {
     try {
         const offset = parseInt(req.query.offset as string || '0', 10);
         const limit = parseInt(req.query.limit as string || '50', 10);
+        const sortByQuery = req.query.sortBy as string | undefined;
+        const sortOrderQuery = req.query.sortOrder as string | undefined;
+        const sortBy: db.MapSortBy = (sortByQuery === 'map_name'
+            || sortByQuery === 'last_updated'
+            || sortByQuery === 'replay_count')
+            ? sortByQuery
+            : 'last_updated';
+        const sortOrder: db.SortOrder = (sortOrderQuery === 'asc' || sortOrderQuery === 'desc')
+            ? sortOrderQuery
+            : 'desc';
+
         const result = await db.getPaginatedMaps(
             req.query.mapName as string,
             offset,
             limit,
+            sortBy,
+            sortOrder,
         );
         res.send(result);
     } catch (err) {
