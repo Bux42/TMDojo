@@ -201,6 +201,14 @@ router.post('/', (req: Request, res: Response, next: Function): any => {
             req.log.debug('replaysRouter: Saving replay metadata');
             await db.saveReplayMetadata(metadata);
 
+            if (!metadata.private) {
+                try {
+                    await db.incrementMapReplayStats(map._id, metadata.date);
+                } catch (error) {
+                    req.log.warn(`replaysRouter: Failed to update cached map stats after upload: ${error}`);
+                }
+            }
+
             return res.send();
         } catch (err) {
             return next(err);
@@ -239,6 +247,14 @@ router.delete('/:replayId', async (req, res) => {
     try {
         req.log.debug('replaysRouter: Deleted replay metadata, now deleting replay file');
         await artefacts.deleteReplay(replay);
+
+        if (!replay.private) {
+            try {
+                await db.refreshMapReplayStats(replay.mapRef);
+            } catch (error) {
+                req.log.warn(`replaysRouter: Failed to refresh cached map stats after delete: ${error}`);
+            }
+        }
     } catch (err) {
         req.log.warn('replaysRouter: Failed to delete replay file, restoring metadata in database');
         // If deletion failed, add the replay back into the DB

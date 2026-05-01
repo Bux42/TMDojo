@@ -12,7 +12,11 @@ import {
     useMapCount,
     useReplayCount,
 } from '../../lib/api/reactQuery/hooks/query/maps';
-import { MapWithStats } from '../../lib/api/requests/maps';
+import {
+    MapSortBy,
+    MapSortOrder,
+    MapWithStats,
+} from '../../lib/api/requests/maps';
 import QUERY_KEYS from '../../lib/api/reactQuery/queryKeys';
 
 interface ExtendedAvailableMap extends MapWithStats {
@@ -26,6 +30,8 @@ const MapReplayTableWithSearchbar = () => {
 
     const [searchString, setSearchString] = useState<string>('');
     const [page, setPage] = useState<number>(1);
+    const [sortBy, setSortBy] = useState<MapSortBy>('last_updated');
+    const [sortOrder, setSortOrder] = useState<MapSortOrder>('desc');
 
     const offset = (page - 1) * PAGE_SIZE;
 
@@ -33,16 +39,12 @@ const MapReplayTableWithSearchbar = () => {
         data: maps,
         isLoading,
         isFetching,
-    } = useAllMaps(searchString, offset, PAGE_SIZE);
+    } = useAllMaps(searchString, offset, PAGE_SIZE, sortBy, sortOrder);
+    const isMapsQueryPending = isLoading || isFetching;
     const { data: totalMaps, isLoading: isLoadingMapCount } =
         useMapCount(searchString);
     const { data: totalReplays, isLoading: isLoadingReplayCount } =
         useReplayCount();
-
-    const totalReplaysFromMaps = useMemo(() => {
-        if (!maps) return 0;
-        return maps.reduce((acc, map) => acc + map.count, 0);
-    }, [maps]);
 
     const tableData: ExtendedAvailableMap[] | undefined = useMemo(
         () =>
@@ -53,11 +55,17 @@ const MapReplayTableWithSearchbar = () => {
         [maps],
     );
 
+    const currentAntSortOrder: 'ascend' | 'descend' =
+        sortOrder === 'asc' ? 'ascend' : 'descend';
+
     const columns: ColumnsType<ExtendedAvailableMap> = [
         {
             title: 'Map name',
+            key: 'map_name',
             dataIndex: 'mapName',
-            sorter: (a, b) => a.mapName.localeCompare(b.mapName),
+            sorter: true,
+            sortDirections: ['descend', 'ascend'],
+            sortOrder: sortBy === 'map_name' ? currentAntSortOrder : null,
             width: '60%',
             onCell: () => ({
                 style: {
@@ -71,7 +79,11 @@ const MapReplayTableWithSearchbar = () => {
                         <Link href={mapRef}>
                             <a
                                 href={mapRef}
-                                className="block p-2 w-full"
+                                className={`block p-2 w-full ${
+                                    isMapsQueryPending
+                                        ? 'pointer-events-none opacity-70'
+                                        : ''
+                                }`}
                             >
                                 {map.mapName}
                             </a>
@@ -90,6 +102,7 @@ const MapReplayTableWithSearchbar = () => {
                             size="small"
                             url={statsRef}
                             backColor="hsl(0, 0%, 9%)"
+                            disabled={isMapsQueryPending}
                         >
                             <div className="flex gap-2 items-center">
                                 <PieChartOutlined />
@@ -103,6 +116,7 @@ const MapReplayTableWithSearchbar = () => {
         },
         {
             title: 'Last updated',
+            key: 'last_updated',
             dataIndex: 'lastUpdate',
             render: (timestamp) => {
                 const today = new Date().getTime();
@@ -112,15 +126,19 @@ const MapReplayTableWithSearchbar = () => {
                     </span>
                 );
             },
-            sorter: (a, b) => a.lastUpdate - b.lastUpdate,
-            defaultSortOrder: 'descend',
+            sorter: true,
+            sortDirections: ['descend', 'ascend'],
+            sortOrder: sortBy === 'last_updated' ? currentAntSortOrder : null,
             width: '15%',
         },
         {
             title: 'Replays',
+            key: 'replay_count',
             dataIndex: 'count',
             render: (count) => count.toLocaleString(),
-            sorter: (a, b) => a.count - b.count,
+            sorter: true,
+            sortDirections: ['descend', 'ascend'],
+            sortOrder: sortBy === 'replay_count' ? currentAntSortOrder : null,
             width: '15%',
         },
     ];
@@ -133,12 +151,19 @@ const MapReplayTableWithSearchbar = () => {
                     placeholder="Map name"
                     size="large"
                     allowClear
-                    loading={isFetching}
+                    loading={isMapsQueryPending}
+                    disabled={isMapsQueryPending}
                     onSearch={(value) => {
                         setSearchString(value);
                         setPage(1);
                         queryClient.invalidateQueries(
-                            QUERY_KEYS.allMaps(value),
+                            QUERY_KEYS.allMaps(
+                                value,
+                                0,
+                                PAGE_SIZE,
+                                sortBy,
+                                sortOrder,
+                            ),
                         );
                         queryClient.invalidateQueries(
                             QUERY_KEYS.mapCount(value),
@@ -165,10 +190,10 @@ const MapReplayTableWithSearchbar = () => {
             </div>
 
             <Table
-                className="overflow-x-auto select-none"
+                className={`overflow-x-auto select-none ${isMapsQueryPending ? 'pointer-events-none' : ''}`}
                 columns={columns}
                 dataSource={tableData}
-                loading={isLoading}
+                loading={isMapsQueryPending}
                 onHeaderRow={() => ({
                     style: {
                         backgroundColor: '#1F1F1F',
@@ -180,12 +205,54 @@ const MapReplayTableWithSearchbar = () => {
                         backgroundColor: '#1F1F1F',
                     },
                 })}
+                onChange={(pagination, _, sorter) => {
+                    const currentSorter = Array.isArray(sorter)
+                        ? sorter[0]
+                        : sorter;
+
+                    const columnSortBy = currentSorter?.columnKey as
+                        | MapSortBy
+                        | undefined;
+                    const columnSortOrder = currentSorter?.order as
+                        | 'ascend'
+                        | 'descend'
+                        | undefined;
+
+                    if (!columnSortBy) {
+                        setSortBy('last_updated');
+                        setSortOrder('desc');
+                    } else {
+                        const newSortBy = columnSortBy;
+                        let newSortOrder: MapSortOrder;
+                        if (columnSortOrder === 'ascend') {
+                            newSortOrder = 'asc';
+                        } else if (columnSortOrder === 'descend') {
+                            newSortOrder = 'desc';
+                        } else if (
+                            newSortBy === sortBy &&
+                            sortOrder === 'desc'
+                        ) {
+                            newSortOrder = 'asc';
+                        } else {
+                            newSortOrder = 'desc';
+                        }
+                        const sortChanged =
+                            newSortBy !== sortBy || newSortOrder !== sortOrder;
+                        setSortBy(newSortBy);
+                        setSortOrder(newSortOrder);
+                        if (sortChanged) {
+                            setPage(1);
+                            return;
+                        }
+                    }
+
+                    setPage(pagination.current ?? 1);
+                }}
                 size="small"
                 pagination={{
                     current: page,
                     pageSize: PAGE_SIZE,
                     total: totalMaps ?? 0,
-                    onChange: (newPage) => setPage(newPage),
                     position: ['bottomCenter'],
                     showSizeChanger: false,
                     size: 'small',

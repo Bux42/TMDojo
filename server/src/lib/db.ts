@@ -3,127 +3,200 @@ import { config } from 'dotenv';
 import { v4 as uuid } from 'uuid';
 import { Request } from 'express';
 import { playerLoginFromWebId, UserInfoResponse } from './authorize';
-import { logError, logInfo } from './logger';
+import { logInfo } from './logger';
 import { DiscordWebhook } from './discordWebhooks/discordWebhook';
 
 config();
 
 const DB_NAME = 'dojo';
 
-let db: Db = null;
+let db: Db | null = null;
+
+const getDb = (): Db => {
+    if (!db) {
+        throw new Error('Database connection has not been initialized');
+    }
+    return db;
+};
 
 export type Rejector = (_1: Error) => void;
 
-export const initDB = () => {
-    const mongoClient = new MongoClient(process.env.MONGO_URL, {
+export type MapSortBy = 'map_name' | 'last_updated' | 'replay_count';
+export type SortOrder = 'desc' | 'asc';
+
+export const syncMapReplayStats = async (): Promise<void> => {
+    const database = getDb();
+    const maps = database.collection('maps');
+    const replays = database.collection('replays');
+
+    logInfo('syncMapReplayStats: Rebuilding cached map replay stats');
+
+    const replayStats = await replays.aggregate([
+        {
+            $match: {
+                private: { $ne: true },
+            },
+        },
+        {
+            $group: {
+                _id: '$mapRef',
+                replayCount: { $sum: 1 },
+                lastReplayAt: { $max: '$date' },
+            },
+        },
+    ]).toArray();
+
+    await maps.updateMany({}, {
+        $set: {
+            replayCount: 0,
+            lastReplayAt: null,
+        },
+    });
+
+    if (replayStats.length) {
+        await maps.bulkWrite(replayStats.map((stat) => ({
+            updateOne: {
+                filter: { _id: stat._id },
+                update: {
+                    $set: {
+                        replayCount: stat.replayCount,
+                        lastReplayAt: stat.lastReplayAt,
+                    },
+                },
+            },
+        })));
+    }
+
+    logInfo(`syncMapReplayStats: Updated ${replayStats.length} maps`);
+};
+
+export const initDB = async () => {
+    const mongoUrl = process.env.MONGO_URL;
+    if (!mongoUrl) {
+        throw new Error('MONGO_URL is not configured');
+    }
+
+    const mongoClient = new MongoClient(mongoUrl, {
         useUnifiedTopology: true,
     } as any);
 
-    mongoClient.connect((err: Error) => {
-        if (err) {
-            logError('initDB: Could not connect to DB, shutting down');
-            process.exit();
-        }
-        logInfo('initDB: Connected successfully to DB');
-        db = mongoClient.db(DB_NAME);
-    });
+    await mongoClient.connect();
+    logInfo('initDB: Connected successfully to DB');
+    db = mongoClient.db(DB_NAME);
+    await syncMapReplayStats();
 };
 
-export const createUser = (
+export const createUser = async (
     req: Request,
     webId: any,
     login: any,
     name: any,
     clientCode: any,
-): Promise<{ userID: string }> => new Promise(
-    (resolve: (updateInfo: { userID: string }) => void, reject: Rejector) => {
-        const users = db.collection('users');
-        users
-            .find({
+): Promise<{ userID: string }> => {
+    try {
+        const users = getDb().collection('users');
+        const docs = await users.find({ webId }).toArray();
+        if (!docs.length) {
+            const insertedUserData = await users.insertOne({
                 webId,
-            })
-            .toArray(async (err: Error, docs: any) => {
-                if (err) {
-                    req.log.error(`createUser: Error finding user with webId ${webId}`);
-                    reject(err);
-                } else if (!docs.length) {
-                    const insertedUserData = await users.insertOne({
-                        webId,
-                        playerLogin: login,
-                        playerName: name,
-                        privateReplays: false,
-                        clientCode: clientCode || null,
-                        createdAt: Date.now(),
-                    });
-
-                    req.log.debug(
-                        `createUser: Created new user "${name}", doc ID: ${insertedUserData.insertedId.toString()}`,
-                    );
-
-                    // Send discord alert for new user
-                    DiscordWebhook.sendNewUserAlert(req, name, users);
-
-                    resolve({ userID: insertedUserData.insertedId?.toString() });
-                } else {
-                    req.log.debug(`createUser: User "${name}" already exists, doc ID: ${docs[0]._id.toString()}`);
-                    const updatedUser = {
-                        $set: {
-                            playerLogin: login,
-                            playerName: name,
-                            clientCode: clientCode || null,
-                        },
-                    };
-                    await users.updateOne(
-                        {
-                            webId,
-                        },
-                        updatedUser,
-                    );
-                    req.log.debug(`createUser: Updated user "${name}"`);
-                    // inserts are explicit, this will always be an existing doc (so passing the known ID is fine)
-                    resolve({ userID: docs[0]._id.toString() });
-                }
+                playerLogin: login,
+                playerName: name,
+                privateReplays: false,
+                clientCode: clientCode || null,
+                createdAt: Date.now(),
             });
-    },
-);
 
-export const getMapsStats = async (): Promise<any> => {
-    const replays = db.collection('replays');
+            req.log.debug(
+                `createUser: Created new user "${name}", doc ID: ${insertedUserData.insertedId.toString()}`,
+            );
 
-    const queryPipeline = [
+            DiscordWebhook.sendNewUserAlert(req, name, users);
+            return { userID: insertedUserData.insertedId.toString() };
+        }
+
+        req.log.debug(`createUser: User "${name}" already exists, doc ID: ${docs[0]._id.toString()}`);
+        await users.updateOne(
+            { webId },
+            {
+                $set: {
+                    playerLogin: login,
+                    playerName: name,
+                    clientCode: clientCode || null,
+                },
+            },
+        );
+        req.log.debug(`createUser: Updated user "${name}"`);
+        return { userID: docs[0]._id.toString() };
+    } catch (error) {
+        req.log.error(`createUser: Error finding user with webId ${webId}`);
+        throw error instanceof Error ? error : new Error(String(error));
+    }
+};
+
+export const incrementMapReplayStats = async (mapRef: ObjectId, replayDate: number): Promise<void> => {
+    const maps = getDb().collection('maps');
+    await maps.updateOne(
+        { _id: mapRef },
+        {
+            $inc: { replayCount: 1 },
+            $max: { lastReplayAt: replayDate },
+        },
+    );
+};
+
+export const refreshMapReplayStats = async (mapRef: ObjectId): Promise<void> => {
+    const database = getDb();
+    const maps = database.collection('maps');
+    const replays = database.collection('replays');
+
+    const [stats] = await replays.aggregate([
+        {
+            $match: {
+                mapRef,
+                private: { $ne: true },
+            },
+        },
         {
             $group: {
                 _id: '$mapRef',
-                count: {
-                    $sum: 1,
-                },
-                lastUpdate: { $max: '$date' }, // pass the highest date (i.e. latest replay's timestamp)
+                replayCount: { $sum: 1 },
+                lastReplayAt: { $max: '$date' },
             },
         },
-        // populate map references to count occurrences
+    ]).toArray();
+
+    await maps.updateOne(
+        { _id: mapRef },
         {
-            $lookup: {
-                from: 'maps',
-                localField: '_id',
-                foreignField: '_id',
-                as: 'map',
+            $set: {
+                replayCount: stats?.replayCount || 0,
+                lastReplayAt: stats?.lastReplayAt || null,
             },
         },
+    );
+};
+
+export const getMapsStats = async (): Promise<any> => {
+    const maps = getDb().collection('maps');
+
+    const queryPipeline = [
         {
-            $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ['$map', 0] }, '$$ROOT'] } },
+            $match: {
+                replayCount: { $gt: 0 },
+            },
         },
         {
             $project: {
                 _id: false,
                 mapUId: true,
                 mapName: true,
-                count: '$count',
-                lastUpdate: true,
+                count: '$replayCount',
+                lastUpdate: '$lastReplayAt',
             },
         },
     ];
 
-    const cursor = replays.aggregate(queryPipeline);
+    const cursor = maps.aggregate(queryPipeline);
     const data = await cursor.toArray();
 
     return data;
@@ -133,87 +206,41 @@ export const getPaginatedMaps = async (
     mapName?: string,
     offset: number = 0,
     limit: number = 50,
+    sortBy: MapSortBy = 'last_updated',
+    sortOrder: SortOrder = 'desc',
 ): Promise<{ maps: any[] }> => {
-    const replays = db.collection('replays');
+    const maps = getDb().collection('maps');
     const trimmedMapName = mapName?.trim();
+    const sortDirection = sortOrder === 'asc' ? 1 : -1;
 
-    const replayStatsPipeline: any[] = [
-        {
-            $match: {
-                private: { $ne: true },
-            },
-        },
-        {
-            $group: {
-                _id: '$mapRef',
-                count: { $sum: 1 },
-                lastUpdate: { $max: '$date' },
-            },
-        },
-    ];
+    let populatedSortStage: any = { $sort: { lastUpdate: sortDirection } };
+    if (sortBy === 'map_name') {
+        populatedSortStage = { $sort: { mapName: sortDirection } };
+    } else if (sortBy === 'replay_count') {
+        populatedSortStage = { $sort: { count: sortDirection } };
+    }
 
-    // optimize for case where no mapName filter is applied
-    if (!trimmedMapName) {
-        const pipeline = [
-            ...replayStatsPipeline,
-            { $sort: { lastUpdate: -1 } },
-            { $skip: offset },
-            { $limit: limit },
-            {
-                $lookup: {
-                    from: 'maps',
-                    localField: '_id',
-                    foreignField: '_id',
-                    as: 'map',
-                },
-            },
-            {
-                $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ['$map', 0] }, '$$ROOT'] } },
-            },
-            {
-                $project: {
-                    _id: false,
-                    mapUId: true,
-                    mapName: true,
-                    count: '$count',
-                    lastUpdate: true,
-                },
-            },
-        ];
-
-        const cursor = replays.aggregate(pipeline);
-        const maps = await cursor.toArray();
-        return { maps };
+    const matchStage: any = {
+        replayCount: { $gt: 0 },
+    };
+    if (trimmedMapName) {
+        matchStage.mapName = { $regex: `.*${trimmedMapName}.*`, $options: 'i' };
     }
 
     const pipeline: any[] = [
-        ...replayStatsPipeline,
         {
-            $lookup: {
-                from: 'maps',
-                localField: '_id',
-                foreignField: '_id',
-                as: 'map',
-            },
-        },
-        {
-            $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ['$map', 0] }, '$$ROOT'] } },
+            $match: matchStage,
         },
         {
             $project: {
                 _id: false,
                 mapUId: true,
                 mapName: true,
-                count: '$count',
-                lastUpdate: true,
+                count: '$replayCount',
+                lastUpdate: '$lastReplayAt',
             },
         },
-        {
-            $match: { mapName: { $regex: `.*${trimmedMapName}.*`, $options: 'i' } },
-        },
-        {
-            $sort: { lastUpdate: -1 },
-        },
+        populatedSortStage,
         {
             $skip: offset,
         },
@@ -222,78 +249,69 @@ export const getPaginatedMaps = async (
         },
     ];
 
-    const cursor = replays.aggregate(pipeline);
-    const maps = await cursor.toArray();
-    return { maps };
+    const cursor = maps.aggregate(pipeline);
+    const paginatedMaps = await cursor.toArray();
+    return { maps: paginatedMaps };
 };
 
 export const getTotalMapCount = async (mapName?: string): Promise<number> => {
-    const maps = db.collection('maps');
+    const maps = getDb().collection('maps');
 
-    let filter: any = {};
+    const filter: any = {
+        replayCount: { $gt: 0 },
+    };
     if (mapName && mapName !== '') {
-        filter = { mapName: { $regex: `.*${mapName}.*`, $options: 'i' } };
+        filter.mapName = { $regex: `.*${mapName}.*`, $options: 'i' };
     }
 
-    const pipeline = [
+    const [result] = await maps.aggregate([
         { $match: filter },
-        { $group: { _id: '$mapUId' } },
         { $count: 'total' },
-    ];
+    ]).toArray();
 
-    const cursor = maps.aggregate(pipeline);
-    const [result] = await cursor.toArray();
     return result?.total || 0;
 };
 
 export const getTotalReplayCount = async (): Promise<number> => {
-    const replays = db.collection('replays');
+    const replays = getDb().collection('replays');
     const count = await replays.countDocuments({ private: { $ne: true } });
     return count;
 };
 
-export const getMapByUId = (mapUId?: string): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
-    const maps = db.collection('maps');
-    maps.findOne({ mapUId }, (err: Error, map: any) => {
-        if (err) {
-            return reject(err);
-        }
-        return resolve(map);
-    });
-});
+export const getMapByUId = async (mapUId?: string): Promise<any> => {
+    const maps = getDb().collection('maps');
+    return maps.findOne({ mapUId });
+};
 
 export const saveMap = (mapData?: any): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
-    const maps = db.collection('maps');
-    maps.insertOne(mapData)
+    const maps = getDb().collection('maps');
+    maps.insertOne({
+        replayCount: 0,
+        lastReplayAt: null,
+        ...mapData,
+    })
         .then((operation: any) => resolve({ _id: operation.insertedId }))
         .catch((error: Error) => reject(error));
 });
 
 // Gets a user by the _id field in the db
 export const getUserById = async (id: string) => {
-    const users = db.collection('users');
+    const users = getDb().collection('users');
     return users.findOne({
         _id: new ObjectId(id),
     });
 };
 
-export const getUserByWebId = (
-    webId?: string,
-): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
-    const users = db.collection('users');
-    users.findOne({ webId }, (err: Error, user: any) => {
-        if (err) {
-            return reject(err);
-        }
-        return resolve(user);
-    });
-});
+export const getUserByWebId = async (webId?: string): Promise<any> => {
+    const users = getDb().collection('users');
+    return users.findOne({ webId });
+};
 
 export const getReplaysByUserRef = async (
     userRef: string,
     showPrivate: boolean = false,
 ): Promise<any> => {
-    const replays = db.collection('replays');
+    const replays = getDb().collection('replays');
 
     let matchCondition: any = { userRef: new ObjectId(userRef) };
 
@@ -327,7 +345,7 @@ export const setUserPrivateReplays = async (
     webId: string,
     privateReplays: boolean,
 ) => {
-    const users = db.collection('users');
+    const users = getDb().collection('users');
     return users.updateOne(
         { webId },
         {
@@ -347,7 +365,7 @@ export const getReplays = async (
     maxResults: string = '1000',
     currentUserRef?: string,
 ): Promise<any> => {
-    const replays = db.collection('replays');
+    const replays = getDb().collection('replays');
 
     const pipeline = [];
 
@@ -410,7 +428,7 @@ export const getReplays = async (
         if (property) {
             pipeline.push({
                 $match: {
-                    [propertyName]: {
+                    [propertyName as string]: {
                         $regex: `.*${property}.*`,
                         $options: 'i',
                     },
@@ -464,7 +482,7 @@ export const getReplayById = async (
     replayId?: string,
     populate?: boolean,
 ): Promise<any> => {
-    const replays = db.collection('replays');
+    const replays = getDb().collection('replays');
 
     let pipeline = [
         {
@@ -514,28 +532,21 @@ export const getReplayById = async (
 };
 
 export const deleteReplayById = async (replayId: any) => {
-    const replays = db.collection('replays');
+    const replays = getDb().collection('replays');
     await replays.deleteOne({
         _id: new ObjectId(replayId),
     });
 };
 
-export const getReplayByFilePath = (
-    filePath?: string,
-): Promise<any> => new Promise((resolve: Function, reject: Rejector) => {
-    const replays = db.collection('replays');
-    replays.findOne({ filePath }, (err: Error, replay: any) => {
-        if (err) {
-            return reject(err);
-        }
-        return resolve(replay);
-    });
-});
+export const getReplayByFilePath = async (filePath?: string): Promise<any> => {
+    const replays = getDb().collection('replays');
+    return replays.findOne({ filePath });
+};
 
 export const saveReplayMetadata = (
     metadata: any,
 ): Promise<{ _id: string }> => new Promise((resolve: Function, reject: Rejector) => {
-    const replays = db.collection('replays');
+    const replays = getDb().collection('replays');
     replays.insertOne(metadata)
         .then(({ insertedId }: { insertedId: ObjectId }) => resolve({ _id: insertedId }))
         .catch((error: Error) => reject(error));
@@ -567,7 +578,7 @@ export const createSession = async (req: Request, userInfo: UserInfoResponse, cl
     }
 
     // Create session
-    const sessions = db.collection('sessions');
+    const sessions = getDb().collection('sessions');
     const sessionId = uuid();
     await sessions.insertOne({
         sessionId,
@@ -582,22 +593,22 @@ export const updateSession = async (session: any) => {
     if (!session._id) {
         throw new Error('Session without _id cannot be updated');
     }
-    const sessions = db.collection('sessions');
+    const sessions = getDb().collection('sessions');
     return sessions.replaceOne({ _id: session._id }, session);
 };
 
 export const findSessionBySecret = async (sessionId: string) => {
-    const sessions = db.collection('sessions');
+    const sessions = getDb().collection('sessions');
     return sessions.findOne({ sessionId });
 };
 
 export const findSessionByClientCode = async (clientCode: string) => {
-    const sessions = db.collection('sessions');
+    const sessions = getDb().collection('sessions');
     return sessions.findOne({ clientCode });
 };
 
 export const deleteSession = async (sessionId: string) => {
-    const sessions = db.collection('sessions');
+    const sessions = getDb().collection('sessions');
     await sessions.deleteOne({
         sessionId,
     });
@@ -609,7 +620,7 @@ export const deleteSession = async (sessionId: string) => {
  */
 export const getUserBySessionId = async (sessionId: string) => {
     // Find session
-    const sessions = db.collection('sessions');
+    const sessions = getDb().collection('sessions');
     const session = await sessions.findOne({
         sessionId,
     });
@@ -620,7 +631,7 @@ export const getUserBySessionId = async (sessionId: string) => {
     }
 
     // Find user
-    const users = db.collection('users');
+    const users = getDb().collection('users');
     const user = await users.findOne({
         _id: session.userRef,
     });
