@@ -228,6 +228,11 @@ const LoadedReplays = ({ replays }: LoadedReplaysProps): JSX.Element => {
                         }}
                         className="flex gap-4"
                     >
+                        {timeLineGlobal.followedReplay && (
+                            <Radio.Button value={CameraMode.Lock}>
+                                Lock
+                            </Radio.Button>
+                        )}
                         <Radio.Button value={CameraMode.Target}>
                             Target
                         </Radio.Button>
